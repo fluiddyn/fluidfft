@@ -145,7 +145,8 @@ int BaseFFT::test() {
 
 void BaseFFT::bench(int nb_time_execute, myreal *times) {
   int i;
-  chrono::duration<double> time_in_sec;
+  chrono::duration<double> duration_in_sec;
+  myreal time_in_sec;
   myreal *fieldX;
   mycomplex *fieldK;
   char tmp_char[80];
@@ -164,11 +165,11 @@ void BaseFFT::bench(int nb_time_execute, myreal *times) {
   auto end_time = chrono::high_resolution_clock::now();
 
   if (rank == 0) {
-    time_in_sec = end_time - start_time;
-    time_in_sec = time_in_sec / nb_time_execute;
-    times[0] = time_in_sec.count();
+    duration_in_sec = end_time - start_time;
+    time_in_sec = duration_in_sec.count() / nb_time_execute;
+    times[0] = time_in_sec;
     snprintf(tmp_char, sizeof(tmp_char), "time fft (%s):  %f s\n",
-             this->get_classname(), time_in_sec.count());
+             this->get_classname(), time_in_sec);
     cout << tmp_char;
   }
 
@@ -180,12 +181,12 @@ void BaseFFT::bench(int nb_time_execute, myreal *times) {
   end_time = chrono::high_resolution_clock::now();
 
   if (rank == 0) {
-    time_in_sec = end_time - start_time;
-    time_in_sec = time_in_sec / nb_time_execute;
+    duration_in_sec = end_time - start_time;
+    time_in_sec = duration_in_sec.count() / nb_time_execute;
     snprintf(tmp_char, sizeof(tmp_char), "time ifft (%s): %f s\n",
-             this->get_classname(), time_in_sec.count());
+             this->get_classname(), time_in_sec);
     cout << tmp_char;
-    times[1] = time_in_sec.count();
+    times[1] = time_in_sec;
   }
 
   free(fieldX);
