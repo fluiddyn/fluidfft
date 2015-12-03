@@ -73,8 +73,9 @@ def create_ext(base_name):
         libraries = libraries_base + ['fftw3_mpi']
     elif 'pfft' in base_name:
         libraries = libraries_base + ['fftw3_mpi', 'pfft']
-        include_dirs += ['/home/users/augier3pi/opt/include']
-        lib_dir = ['/home/users/augier3pi/opt/lib']
+        include_dirs += ['/home/users/augier3pi/opt/include',
+                         '/opt/pfft/1.0.6/include']
+        lib_dir = ['/home/users/augier3pi/opt/lib', '/opt/pfft/1.0.6/lib']
     else:
         libraries = libraries_base
 
