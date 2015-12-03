@@ -27,6 +27,9 @@ class FFT3DMPIWithFFTWMPI3D: public BaseFFT3DMPI
 
   void init_array_X_random(double* &fieldX);
 
+  virtual void get_dimX_K(int*, int*, int*);
+  virtual void get_seq_index_first_K(int*, int*);
+  
  private:
   int nX1_pad;
   int coef_norm;

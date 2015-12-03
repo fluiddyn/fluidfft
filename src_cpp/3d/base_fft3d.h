@@ -18,6 +18,12 @@ class BaseFFT3D: virtual public BaseFFT
   virtual void get_local_shape_X(int*, int*, int*);
   virtual void get_local_shape_K(int*, int*, int*);
 
+  virtual void get_global_shape_X(int*, int*, int*);
+  virtual void get_global_shape_K(int*, int*, int*);
+
+  virtual void get_dimX_K(int*, int*, int*);
+  virtual void get_seq_index_first_K(int*, int*);
+  
  protected:
   int N2, nz, nX2, nK2, nK1loc, nKz, nXz, nX1loc;
   

@@ -239,3 +239,18 @@ void FFT3DMPIWithFFTWMPI3D::init_array_X_random(double* &fieldX)
   for (ii = 0; ii < nX0loc*nX1*nX2; ++ii)
     fieldX[ii] = (double)rand() / RAND_MAX;
 }
+
+
+void FFT3DMPIWithFFTWMPI3D::get_dimX_K(int *d0, int *d1, int *d2)
+{
+  *d0 = 1;
+  *d1 = 0;
+  *d2 = 2;
+}
+
+
+void FFT3DMPIWithFFTWMPI3D::get_seq_index_first_K(int *i0, int *i1)
+{
+  *i0 = local_K0_start;
+  *i1 = 0;
+}

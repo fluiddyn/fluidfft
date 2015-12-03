@@ -14,9 +14,6 @@ class FFT3DMPIWithPFFT: public BaseFFT3DMPI
   
   virtual const char* get_classname();
 
-  /* int get_local_size_X(); */
-  /* int get_local_size_K(); */
-
   void fft(double *fieldX, fftw_complex *fieldK);
   void ifft(fftw_complex *fieldK, double *fieldX);
   
@@ -26,6 +23,9 @@ class FFT3DMPIWithPFFT: public BaseFFT3DMPI
   double compute_mean_from_K(fftw_complex* fieldK);
 
   void init_array_X_random(double* &fieldX);
+  
+  virtual void get_dimX_K(int*, int*, int*);
+  virtual void get_seq_index_first_K(int*, int*);
 
  private:
   int nX2loc, nK2loc, nXxloc, nXyloc, nXzloc, nKzloc, nXx, nXy, nXz;

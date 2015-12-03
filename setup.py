@@ -88,8 +88,8 @@ def create_ext(base_name):
 
 
 base_names = [
-    'fft2d_with_fftw1d', 'fft2d_with_fftw2d', 'fft2dmpi_with_fftw1d',
-    'fft2dmpi_with_fftwmpi2d',
+    # 'fft2d_with_fftw1d', 'fft2d_with_fftw2d', 'fft2dmpi_with_fftw1d',
+    # 'fft2dmpi_with_fftwmpi2d',
     'fft3d_with_fftw3d', 'fft3dmpi_with_fftwmpi3d', 'fft3dmpi_with_pfft']
 
 ext_modules = []

@@ -320,3 +320,16 @@ void FFT3DMPIWithPFFT::init_array_X_random(double* &fieldX)
   for (ii = 0; ii < nX0loc*nX1loc*nX2; ++ii)
     fieldX[ii] = (double)rand() / RAND_MAX;
 }
+
+void FFT3DMPIWithPFFT::get_dimX_K(int *d0, int *d1, int *d2)
+{
+  *d0 = 2;
+  *d1 = 1;
+  *d2 = 0;
+}
+
+void FFT3DMPIWithPFFT::get_seq_index_first_K(int *i0, int *i1)
+{
+  *i0 = local_K0_start;
+  *i1 = local_K1_start;
+}

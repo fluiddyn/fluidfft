@@ -28,8 +28,8 @@ def print(*args, **kwargs):
 
 def bench_like_cpp_as_arg(o, nb_time_execute=10):
 
-    fieldX = np.ones(o.get_local_shape_X(), dtype=float, order='C')
-    fieldK = np.empty(o.get_local_shape_K(), dtype=np.complex128, order='C')
+    fieldX = np.ones(o.get_shapeX_loc(), dtype=float, order='C')
+    fieldK = np.empty(o.get_shapeK_loc(), dtype=np.complex128, order='C')
 
     t_start = time()
     for i in range(nb_time_execute):
@@ -49,19 +49,19 @@ def bench_like_cpp_as_arg(o, nb_time_execute=10):
 
 def bench_like_cpp_return(o, nb_time_execute=10):
 
-    fieldX = np.ones(o.get_local_shape_X(), dtype=float, order='C')
-    fieldK = np.empty(o.get_local_shape_K(), dtype=np.complex128, order='C')
+    fieldX = np.ones(o.get_shapeX_loc(), dtype=float, order='C')
+    fieldK = np.empty(o.get_shapeK_loc(), dtype=np.complex128, order='C')
 
     t_start = time()
     for i in range(nb_time_execute):
-        o.return_fft(fieldX)
+        o.fft(fieldX)
     t_end = time()
     t_fft = (t_end - t_start)/nb_time_execute
     print('time return_fft:  {}'.format(t_fft))
 
     t_start = time()
     for i in range(nb_time_execute):
-        o.return_ifft(fieldK)
+        o.ifft(fieldK)
     t_end = time()
     t_ifft = (t_end - t_start)/nb_time_execute
     print('time return_ifft: {}'.format(t_ifft))
@@ -69,19 +69,19 @@ def bench_like_cpp_return(o, nb_time_execute=10):
 
 
 def bench_like_cpp(o, nb_time_execute=10):
-    fieldX = np.ones(o.get_local_shape_X(), dtype=float, order='C')
-    fieldK = np.empty(o.get_local_shape_K(), dtype=np.complex128, order='C')
+    fieldX = np.ones(o.get_shapeX_loc(), dtype=float, order='C')
+    fieldK = np.empty(o.get_shapeK_loc(), dtype=np.complex128, order='C')
 
     t_start = time()
     for i in range(nb_time_execute):
-        o.fft(fieldX)
+        o.fft_generic(fieldX)
     t_end = time()
     t_fft = (t_end - t_start)/nb_time_execute
     print('time fft (generic):  {}'.format(t_fft))
 
     t_start = time()
     for i in range(nb_time_execute):
-        o.ifft(fieldK)
+        o.ifft_generic(fieldK)
     t_end = time()
     t_ifft = (t_end - t_start)/nb_time_execute
     print('time ifft (generic): {}'.format(t_ifft))
@@ -98,7 +98,7 @@ def compare_benchs(o, nb_time_execute=10):
 
     t_fft_as_arg, t_ifft_as_arg = bench_like_cpp_as_arg(o, nb_time_execute)
     t_fft_return, t_ifft_return = bench_like_cpp_return(o, nb_time_execute)
-    t_fft_generic, t_ifft_generic = bench_like_cpp(o, nb_time_execute)
+    # t_fft_generic, t_ifft_generic = bench_like_cpp(o, nb_time_execute)
 
     if results:
         t_fft_cpp, t_ifft_cpp = results
@@ -108,8 +108,8 @@ def compare_benchs(o, nb_time_execute=10):
         print('as_arg i' + txt.format(pourc(t_ifft_as_arg, t_ifft_cpp)))
         print('return ' + txt.format(pourc(t_fft_return, t_fft_cpp)))
         print('return i' + txt.format(pourc(t_ifft_return, t_ifft_cpp)))
-        print('generic ' + txt.format(pourc(t_fft_generic, t_fft_cpp)))
-        print('generic i' + txt.format(pourc(t_ifft_generic, t_ifft_cpp)))
+        # print('generic ' + txt.format(pourc(t_fft_generic, t_fft_cpp)))
+        # print('generic i' + txt.format(pourc(t_ifft_generic, t_ifft_cpp)))
 
 
 if __name__ == '__main__':
