@@ -25,16 +25,21 @@ FFT3DMPIWithPFFT::FFT3DMPIWithPFFT(int argN0, int argN1, int argN2):
 
   pfft_init();
 
-  nprocmesh[0] = 2;
-  nprocmesh[1] = nb_proc/2;
+  calcul_nprocmesh(rank, nb_proc, nprocmesh);
 
+  pfft_fprintf(MPI_COMM_WORLD, stdout,
+	       "proc mesh: %d x %d mpi processes\n",
+	       nprocmesh[0], nprocmesh[1]);
+    
   /* Create two-dimensional process grid of size np[0] x np[1], if possible */
   if(pfft_create_procmesh_2d(MPI_COMM_WORLD, nprocmesh[0], nprocmesh[1],
-			      &comm_cart_2d)){
+			     &comm_cart_2d)){
     pfft_fprintf(MPI_COMM_WORLD, stderr,
 		 "Error: This test file only works with %d processes.\n",
 		 nprocmesh[0]*nprocmesh[1]);
+    MPI_Barrier(MPI_COMM_WORLD);
     MPI_Finalize();
+    exit(1);
   }
   
   N[0] = N0;

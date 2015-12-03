@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+#OAR -n fft_test_bench
+#OAR -l /nodes=2/,walltime=00:10:00
+#
+
+N0=512
+N1=512
+N2=128
+
+source /etc/profile
+module load pfft/1.0.6
+
+echo 'hostname:' $HOSTNAME
+
+# Special ssh that propagates environment variables
+export OMPI_MCA_plm_rsh_agent=oar-envsh
+
+# Number of parallel processes
+NB_PROC=$(cat ${OAR_NODEFILE} | wc -l)
+echo 'number of threads:' $NB_PROC
+
+# node file
+echo OAR_'NODEFILE:'
+cat $OAR_NODEFILE
+
+export FLUID_PROC_MESH='2x32'
+
+mpirun -np ${NB_PROC} -machinefile ${OAR_NODEFILE} \
+       test_bench.out --N0=$N0 --N1=$N1 --N2=$N2
+
+

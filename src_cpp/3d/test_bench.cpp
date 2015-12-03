@@ -55,11 +55,11 @@ int main(int argc, char **argv)
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &(nb_procs));
 
-  FFT3DMPIWithFFTWMPI3D s(N0, N1, N2);
-  s.test();
-  s.bench();
-  s.bench();
-  s.destroy();
+  // FFT3DMPIWithFFTWMPI3D s(N0, N1, N2);
+  // s.test();
+  // s.bench();
+  // s.bench();
+  // s.destroy();
 
   FFT3DMPIWithPFFT s2(N0, N1, N2);
   s2.test();

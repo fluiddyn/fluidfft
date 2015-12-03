@@ -16,4 +16,6 @@ class BaseFFT3DMPI: public BaseFFT3D, public BaseFFTMPI
   int nX2_pad, nKyloc, nXzloc;
 };
 
+void calcul_nprocmesh(int rank, int nb_proc, int* nprocmesh);
+
 #endif
