@@ -1,8 +1,8 @@
 
 CC:=mpic++
 LIBS:=-lfftw3 -lfftw3_mpi -lpfft
-LIB_DIR:=-L$(HOME)/opt/lib
-INC_DIR:=-I. -I../base -I$(HOME)/opt/include
+LIB_DIR:=-L$(HOME)/opt/lib $(LDEV_PATH)
+INC_DIR:=-I. -I../base -I$(HOME)/opt/include $(IDEV_PATH)
 LDFLAGS:=-Wall
 
 SOURCES_CPP := $(wildcard *.cpp)
