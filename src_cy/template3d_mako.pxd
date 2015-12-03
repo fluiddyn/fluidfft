@@ -13,7 +13,12 @@ cdef extern from "${module_name}.h":
 
         void get_local_shape_X(int*, int*, int*)
         void get_local_shape_K(int*, int*, int*)
-    
+
+        void get_global_shape_X(int*, int*, int*)
+        void get_global_shape_K(int*, int*, int*)
+
+        void get_dimX_K(int*, int*, int*)
+        
         ${class_name}(int, int, int) except +
 
         void destroy()
@@ -23,6 +28,9 @@ cdef extern from "${module_name}.h":
         void fft(double* fieldX, fftw_complex* fieldK)
         void ifft(fftw_complex* fieldK, double* fieldX)
 
+        double sum_wavenumbers_double(double* fieldK)
+        fftw_complex sum_wavenumbers_complex(fftw_complex* fieldK)
+        
         double compute_energy_from_X(double* fieldX)
         double compute_energy_from_K(fftw_complex* fieldK)
         double compute_mean_from_X(double* fieldX)
