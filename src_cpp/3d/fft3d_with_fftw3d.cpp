@@ -140,6 +140,77 @@ double FFT3DWithFFTW3D::compute_energy_from_K(fftw_complex* fieldK)
 }
 
 
+double FFT3DWithFFTW3D::sum_wavenumbers_double(double* fieldK)
+{
+  int i0, i1, i2;
+  double sum = 0;
+  double sum_tmp = 0;
+
+  // modes i2 = iKx = 0
+  i2 = 0;
+  for (i0=0; i0<nK0; i0++)
+    for (i1=0; i1<nK1; i1++)
+      sum_tmp += fieldK[(i1 + i0 * nK1) * nK2];
+  
+  sum = sum_tmp/2;
+
+  // modes i2 = iKx = last = nK2 - 1
+  i2 = nK2 - 1;
+  sum_tmp = 0.;
+  for (i0=0; i0<nK0; i0++)
+    for (i1=0; i1<nK1; i1++)
+      sum_tmp += fieldK[i2 + (i1 + i0 * nK1) * nK2];
+
+  if (N2%2 == 0)
+    sum += sum_tmp/2;
+  else
+    sum += sum_tmp;
+
+  // other modes
+  for (i0=0; i0<nK0loc; i0++)
+    for (i1=0; i1<nK1; i1++)
+      for (i2=1; i2<nK2-1; i2++)
+	sum += fieldK[i2 + (i1 + i0 * nK1) * nK2];
+
+  return sum;
+}
+
+  
+void FFT3DWithFFTW3D::sum_wavenumbers_complex(fftw_complex* fieldK, fftw_complex* result)
+{
+  int i0, i1, i2;
+  fftw_complex sum = 0;
+  fftw_complex sum_tmp = 0;
+
+  // modes i2 = iKx = 0
+  i2 = 0;
+  for (i0=0; i0<nK0; i0++)
+    for (i1=0; i1<nK1; i1++)
+      sum_tmp += fieldK[(i1 + i0 * nK1) * nK2];
+  
+  sum = sum_tmp/2;
+
+  // modes i2 = iKx = last = nK2 - 1
+  i2 = nK2 - 1;
+  sum_tmp = 0.;
+  for (i0=0; i0<nK0; i0++)
+    for (i1=0; i1<nK1; i1++)
+      sum_tmp += fieldK[i2 + (i1 + i0 * nK1) * nK2];
+
+  if (N2%2 == 0)
+    sum += sum_tmp/2;
+  else
+    sum += sum_tmp;
+
+  // other modes
+  for (i0=0; i0<nK0loc; i0++)
+    for (i1=0; i1<nK1; i1++)
+      for (i2=1; i2<nK2-1; i2++)
+	sum += fieldK[i2 + (i1 + i0 * nK1) * nK2];
+
+  *result = sum;
+}
+
 double FFT3DWithFFTW3D::compute_mean_from_X(double* fieldX)
 {
   double mean = 0.;

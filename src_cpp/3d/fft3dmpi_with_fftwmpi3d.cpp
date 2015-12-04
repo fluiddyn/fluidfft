@@ -168,6 +168,84 @@ double FFT3DMPIWithFFTWMPI3D::compute_energy_from_K(fftw_complex* fieldK)
 }
 
 
+double FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_double(double* fieldK)
+{
+  int i0, i1, i2;
+  double energy_tmp = 0;
+  double energy_loc, energy;
+
+  // modes i2 = iKx = 0
+  i2 = 0;
+  for (i0=0; i0<nK0loc; i0++)
+    for (i1=0; i1<nK1; i1++)
+      energy_tmp += fieldK[(i1 + i0 * nK1) * nK2];
+
+  energy_loc = energy_tmp/2;
+
+  // modes i2 = iKx = last = nK2 - 1
+  i2 = nK2 - 1;
+  energy_tmp = 0;
+  for (i0=0; i0<nK0loc; i0++)
+    for (i1=0; i1<nK1; i1++)
+      energy_tmp += fieldK[i2 + (i1 + i0 * nK1) * nK2];
+
+  if (N2%2 == 0)
+    energy_loc += energy_tmp/2;
+  else
+    energy_loc += energy_tmp;
+  
+  // other modes
+  for (i0=0; i0<nK0loc; i0++)
+    for (i1=0; i1<nK1; i1++)
+      for (i2=1; i2<nK2-1; i2++)
+	energy_loc += fieldK[i2 + (i1 + i0 * nK1) * nK2];
+
+  MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+  return energy;
+}
+
+
+void FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_complex(
+    fftw_complex* fieldK, fftw_complex* result)
+{
+  int i0, i1, i2;
+  fftw_complex energy_tmp = 0;
+  fftw_complex energy_loc, energy;
+
+  // modes i2 = iKx = 0
+  i2 = 0;
+  for (i0=0; i0<nK0loc; i0++)
+    for (i1=0; i1<nK1; i1++)
+      energy_tmp += fieldK[(i1 + i0 * nK1) * nK2];
+
+  energy_loc = energy_tmp/2;
+
+  // modes i2 = iKx = last = nK2 - 1
+  i2 = nK2 - 1;
+  energy_tmp = 0;
+  for (i0=0; i0<nK0loc; i0++)
+    for (i1=0; i1<nK1; i1++)
+      energy_tmp += fieldK[i2 + (i1 + i0 * nK1) * nK2];
+
+  if (N2%2 == 0)
+    energy_loc += energy_tmp/2;
+  else
+    energy_loc += energy_tmp;
+  
+  // other modes
+  for (i0=0; i0<nK0loc; i0++)
+    for (i1=0; i1<nK1; i1++)
+      for (i2=1; i2<nK2-1; i2++)
+	energy_loc += fieldK[i2 + (i1 + i0 * nK1) * nK2];
+
+  MPI_Allreduce(&energy_loc, &energy, 1, MPI_COMPLEX, MPI_SUM, MPI_COMM_WORLD);
+
+  *result = energy;
+}
+
+
+
 double FFT3DMPIWithFFTWMPI3D::compute_mean_from_X(double* fieldX)
 {
   double mean, local_mean;

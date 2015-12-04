@@ -30,7 +30,7 @@ cdef extern from "${module_name}.h":
         void ifft(fftw_complex* fieldK, double* fieldX)
 
         double sum_wavenumbers_double(double* fieldK)
-        fftw_complex sum_wavenumbers_complex(fftw_complex* fieldK)
+        void sum_wavenumbers_complex(fftw_complex* fieldK, fftw_complex* result)
         
         double compute_energy_from_X(double* fieldX)
         double compute_energy_from_K(fftw_complex* fieldK)

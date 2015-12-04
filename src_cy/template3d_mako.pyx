@@ -98,22 +98,23 @@ cdef class ${class_name}:
         self.thisptr.get_global_shape_K(&nK0, &nK1, &nK2)
         return nK0, nK1, nK2
 
-    cpdef sum_wavenumbers(self, fieldK):
-        return 0
-    #     if fieldK.dtype == np.float64:
-    #         return self._sum_wavenumbers_double(fieldK)
-    #     elif fieldK.dtype == np.complex128:
-    #         return self._sum_wavenumbers_complex(fieldK)
-    #     else:
-    #         raise TypeError('dtype of fieldK has to be float64 or complex128.')
+    def sum_wavenumbers(self, fieldK):
+        if fieldK.dtype == np.float64:
+            return self._sum_wavenumbers_double(fieldK)
+        elif fieldK.dtype == np.complex128:
+            return self._sum_wavenumbers_complex(fieldK)
+        else:
+            raise TypeError('dtype of fieldK has to be float64 or complex128.')
 
-    # cdef _sum_wavenumbers_double(self, DTYPEf_t[:,:,::1] fieldK):
-    #     return self.thisptr.sum_wavenumbers_double(
-    #             <DTYPEf_t*> &fieldK[0, 0, 0])
-
-    # cdef _sum_wavenumbers_complex(self, fftw_complex[:,:,::1] fieldK):
-    #     return self.thisptr.sum_wavenumbers_complex(
-    #             <fftw_complex*> &fieldK[0, 0, 0])
+    cdef _sum_wavenumbers_double(self, DTYPEf_t[:,:,::1] fieldK):
+        return self.thisptr.sum_wavenumbers_double(
+            <DTYPEf_t*> &fieldK[0, 0, 0])
+    
+    cdef _sum_wavenumbers_complex(self, DTYPEc_t[:,:,::1] fieldK):
+        cdef DTYPEc_t result
+        self.thisptr.sum_wavenumbers_complex(
+            <fftw_complex*> &fieldK[0, 0, 0], <fftw_complex*> &result)
+        return result
         
     cpdef get_dimX_K(self):
         cdef int d0, d1, d2

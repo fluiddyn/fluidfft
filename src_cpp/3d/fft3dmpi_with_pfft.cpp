@@ -257,6 +257,89 @@ double FFT3DMPIWithPFFT::compute_energy_from_K(fftw_complex* fieldK)
 }
 
 
+double FFT3DMPIWithPFFT::sum_wavenumbers_double(double* fieldK)
+{
+  int i0, i1, i2;
+  double sum_tmp = 0;
+  double sum_loc;
+  double sum;
+
+  // modes i1_seq = iKx = 0
+  i1 = 0;
+  for (i0=0; i0<nK0loc; i0++)
+    for (i2=0; i2<nK2; i2++)
+      sum_tmp += fieldK[i2 + (i0*nK1loc)*nK2];
+
+  if (local_K1_start == 0)
+    sum_loc = sum_tmp/2;
+  else
+    sum_loc = sum_tmp;
+
+  // modes i1_seq = iKx = last = nK1 - 1
+  i1 = nK1loc - 1;
+  sum_tmp = 0;
+  for (i0=0; i0<nK0loc; i0++)
+    for (i2=0; i2<nK2; i2++)
+      sum_tmp += fieldK[i2 + (i1 + i0*nK1loc)*nK2];
+
+  if (N1%2 == 0 and local_K1_start + nK1loc == nK1)
+      sum_loc += sum_tmp/2;
+  else
+    sum_loc += sum_tmp;
+  
+  // other modes
+  for (i0=0; i0<nK0loc; i0++)
+    for (i1=1; i1<nK1loc-1; i1++)
+      for (i2=0; i2<nK2; i2++)
+	sum_loc += fieldK[i2 + (i1 + i0*nK1loc)*nK2];
+
+  MPI_Allreduce(&sum_loc, &sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+  return sum;
+}
+
+
+void FFT3DMPIWithPFFT::sum_wavenumbers_complex(
+    pfft_complex* fieldK, pfft_complex* result)
+{
+  int i0, i1, i2;
+  pfft_complex sum_tmp = 0;
+  pfft_complex sum_loc, sum;
+
+  // modes i1_seq = iKx = 0
+  i1 = 0;
+  for (i0=0; i0<nK0loc; i0++)
+    for (i2=0; i2<nK2; i2++)
+      sum_tmp += fieldK[i2 + (i0*nK1loc)*nK2];
+
+  if (local_K1_start == 0)
+    sum_loc = sum_tmp/2;
+  else
+    sum_loc = sum_tmp;
+
+  // modes i1_seq = iKx = last = nK1 - 1
+  i1 = nK1loc - 1;
+  sum_tmp = 0;
+  for (i0=0; i0<nK0loc; i0++)
+    for (i2=0; i2<nK2; i2++)
+      sum_tmp += fieldK[i2 + (i1 + i0*nK1loc)*nK2];
+
+  if (N1%2 == 0 and local_K1_start + nK1loc == nK1)
+      sum_loc += sum_tmp/2;
+  else
+    sum_loc += sum_tmp;
+  
+  // other modes
+  for (i0=0; i0<nK0loc; i0++)
+    for (i1=1; i1<nK1loc-1; i1++)
+      for (i2=0; i2<nK2; i2++)
+	sum_loc += fieldK[i2 + (i1 + i0*nK1loc)*nK2];
+
+  MPI_Allreduce(&sum_loc, &sum, 1, MPI_COMPLEX, MPI_SUM, MPI_COMM_WORLD);
+
+  *result = sum;
+}
+
 double FFT3DMPIWithPFFT::compute_mean_from_X(double* fieldX)
 {
   double mean, local_mean;

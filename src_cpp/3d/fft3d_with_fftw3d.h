@@ -21,6 +21,9 @@ class FFT3DWithFFTW3D: public BaseFFT3D
   double compute_mean_from_X(double* fieldX);
   double compute_mean_from_K(fftw_complex* fieldK);
 
+  double sum_wavenumbers_double(double* fieldK);
+  void sum_wavenumbers_complex(fftw_complex* fieldK, fftw_complex* result);
+  
   void init_array_X_random(double* &fieldX);
 
  private:
