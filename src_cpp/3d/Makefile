@@ -1,9 +1,9 @@
 
 CC:=mpic++
-LIBS:=-lfftw3 -lfftw3_mpi -lpfft
-LIB_DIR:=-L$(HOME)/opt/lib $(LDEV_PATH)
-INC_DIR:=-I. -I../base -I$(HOME)/opt/include $(IDEV_PATH)
-LDFLAGS:=-Wall
+LIBS:=-lfftw3 -lfftw3_mpi -lpfft -lm -lp3dfft -lmpi_f77 -lgfortran
+LIB_DIR:=$(LDEV_PATH)
+INC_DIR:=-I. -I../base $(IDEV_PATH)
+LDFLAGS:=-Wall #-fpermissive
 
 SOURCES_CPP := $(wildcard *.cpp)
 OBJECTS := $(SOURCES_CPP:.cpp=.o)
@@ -35,11 +35,11 @@ test_bench.out: _build_dir $(OBJECTS) $(OBJECTS_CPP_BASE)
 
 %.o: %.cpp
 	# make $@ from $<
-	$(CC) $(LDFLAGS) $(INC_DIR) -c $< -o build/$@
+	$(CC) $(INC_DIR) -c $< -o build/$@
 
 %.o: %.cpp %.h
 	# make $@ from $<
-	$(CC) $(LDFLAGS) $(INC_DIR) -c $< -o build/$@
+	$(CC) $(INC_DIR) -c $< -o build/$@
 
 %.o: ../base/%.cpp
 	# make $@ from $<
