@@ -34,38 +34,29 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   nX1 = N1;
   nX2 = N2;
 
-
-  if(ndim == 1) {
-    nprocmesh[0] = 1; nprocmesh[1] = nb_proc;
-  }
-  else if(ndim == 2) {
-    nprocmesh[0] = 2;
-    nprocmesh[1] = nb_proc/2;
-    }
+  calcul_nprocmesh(rank, nb_proc, nprocmesh);
 
   gettimeofday(&start_time, NULL);
 
   if(rank == 0)
-    printf("Using processor grid %d x %d\n",nprocmesh[0],nprocmesh[1]);
+    printf("Using processor grid %d x %d\n",nprocmesh[0], nprocmesh[1]);
 
   /* Initialize P3DFFT */
-  Cp3dfft_setup(nprocmesh,N0,N1,N2,MPI_Comm_c2f(MPI_COMM_WORLD),nX0,nX1,nX2,0,memsize);
+  Cp3dfft_setup(nprocmesh, N0, N1, N2, MPI_Comm_c2f(MPI_COMM_WORLD),
+		nX0, nX1, nX2, 0, memsize);
   /* Get dimensions for input array - real numbers, X-pencil shape.
    *    *       Note that we are following the Fortran ordering, i.e. 
-   *       *             the dimension  with stride-1 is X. */
+   *       *             the dimension with stride-1 is X. */
   conf = 1;
-  Cp3dfft_get_dims(istart,iend,isize,conf);
+  Cp3dfft_get_dims(istart, iend, isize, conf);
   /* Get dimensions for output array - complex numbers, Z-pencil shape.
    *    *       Stride-1 dimension could be X or Z, depending on how the library 
    *       *             was compiled (stride1 option) */
   conf = 2;
-  Cp3dfft_get_dims(fstart,fend,fsize,conf);
+  Cp3dfft_get_dims(fstart, fend, fsize, conf);
 
   arrayX = (double *) malloc(sizeof(double) * isize[0]*isize[1]*isize[2]);
   arrayK = (double *) malloc(sizeof(double) * fsize[0]*fsize[1]*fsize[2]*2);
-
-
-
 
   /* in physical space: */
   /* z corresponds to dim 0 */
