@@ -26,3 +26,5 @@ src_cy/fft*_pxd.pxd
 dist*
 
 *OAR.*
+
+doc/generated/*

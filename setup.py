@@ -94,6 +94,10 @@ base_names = [
     'fft3d_with_fftw3d',
     'fft3dmpi_with_fftwmpi3d', 'fft3dmpi_with_pfft']
 
+on_rtd = os.environ.get('READTHEDOCS')
+if on_rtd:
+    base_names = []
+
 ext_modules = []
 for base_name in base_names:
     ext_modules.append(create_ext(base_name))
