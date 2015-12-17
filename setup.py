@@ -1,14 +1,10 @@
 
 import os
-on_rtd = os.environ.get('READTHEDOCS')
 
 from setuptools import setup, find_packages
 
 from Cython.Distutils import build_ext
 from Cython.Distutils.extension import Extension
-
-if not on_rtd:
-    import mpi4py
 
 
 # Get the long description from the relevant file
@@ -29,7 +25,18 @@ src_cpp_dir = 'src_cpp'
 src_cy_dir = 'src_cy'
 src_base = 'src_cpp/base'
 
-if not on_rtd:
+
+base_names = [
+    # 'fft2d_with_fftw1d', 'fft2d_with_fftw2d', 'fft2dmpi_with_fftw1d',
+    # 'fft2dmpi_with_fftwmpi2d',
+    'fft3d_with_fftw3d',
+    'fft3dmpi_with_fftwmpi3d', 'fft3dmpi_with_pfft']
+
+on_rtd = os.environ.get('READTHEDOCS')
+if on_rtd:
+    base_names = []
+else:
+    import mpi4py
     include_base = [src_base, 'include', mpi4py.get_include()]
 libraries_base = ['fftw3', 'mpi_cxx']
 
@@ -90,15 +97,6 @@ def create_ext(base_name):
         libraries=libraries,
         library_dirs=lib_dir)
 
-
-base_names = [
-    # 'fft2d_with_fftw1d', 'fft2d_with_fftw2d', 'fft2dmpi_with_fftw1d',
-    # 'fft2dmpi_with_fftwmpi2d',
-    'fft3d_with_fftw3d',
-    'fft3dmpi_with_fftwmpi3d', 'fft3dmpi_with_pfft']
-
-if on_rtd:
-    base_names = []
 
 ext_modules = []
 for base_name in base_names:
