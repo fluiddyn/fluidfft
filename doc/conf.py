@@ -14,13 +14,6 @@
 import sys
 import os
 
-# # to be able to build the doc without h5py with Read the docs
-# on_rtd = os.environ.get('READTHEDOCS')
-# if on_rtd:
-#     # this package comes from fluiddyn
-#     from fluidrtd import mock_modules
-#     mock_modules(['h5py', 'subprocess32'])
-
 import fluidfft2d
 
 # If extensions (or modules to document with autodoc) are in another directory,
