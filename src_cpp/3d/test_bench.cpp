@@ -10,7 +10,9 @@ using namespace std;
 #include <fft3dmpi_with_fftwmpi3d.h>
 #include <fft3dmpi_with_pfft.h>
 #include <fft3dmpi_with_p3dfft.h>
-
+#ifdef CUDA
+#include <fft3d_with_cufft.h>
+#endif
 const int N0default=16, N1default=16, N2default=16;
 
 void parse_args(int nb_args, char **argv, int &N0, int &N1, int &N2)
@@ -62,25 +64,37 @@ int main(int argc, char **argv)
   s.bench();
   s.destroy();
 
-  FFT3DMPIWithPFFT s2(N0, N1, N2);
-  s2.test();
-  s2.bench();
-  s2.bench();
-  s2.destroy();
   
-  FFT3DMPIWithP3DFFT s3(N0, N1, N2);
-  s3.test();
-  s3.bench();
-  s3.bench();
-  s3.destroy();
-  // if (nb_procs == 1)
-  //   {
-  //     FFT3DWithFFTW3D s3(N0, N1, N2);
-  //     s3.test();
-  //     s3.bench();
-  //     s3.bench();
-  //     s3.destroy();
-  //   }
+   if (nb_procs == 1)
+    {
+       FFT3DWithFFTW3D s4(N0, N1, N2);
+       s4.test();
+       s4.bench();
+       s4.bench();
+       s4.destroy();
+
+#ifdef CUDA
+       FFT3DWithCUFFT s5(N0, N1, N2);
+       s5.test();
+       s5.bench();
+       s5.bench();
+       s5.destroy();
+#endif
+    }
+   else
+   {
+     FFT3DMPIWithP3DFFT s2(N0, N1, N2);
+     s2.test();
+     s2.bench();
+     s2.bench();
+     s2.destroy();
+
+     FFT3DMPIWithPFFT s3(N0, N1, N2);
+     s3.test();
+     s3.bench();
+     s3.bench();
+     s3.destroy();
+   }
   
   MPI_Finalize();
 
