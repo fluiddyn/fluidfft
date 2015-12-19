@@ -10,6 +10,10 @@ using namespace std;
 #include <complex.h>
 #include <fftw3-mpi.h>
 
+#ifdef OMP
+#include <omp.h>
+#endif
+
 #include <fft3dmpi_with_fftwmpi3d.h>
 
 
@@ -22,9 +26,10 @@ FFT3DMPIWithFFTWMPI3D::FFT3DMPIWithFFTWMPI3D(int argN0, int argN1, int argN2):
   ptrdiff_t local_nK0;
 
   this->_init();
-
+#ifdef OMP
+  fftw_init_threads();
+#endif
   fftw_mpi_init();
-
   /* get local data size and allocate */
   alloc_local = fftw_mpi_local_size_3d_transposed(
       N0, N1, N2/2+1, MPI_COMM_WORLD,
@@ -75,7 +80,9 @@ FFT3DMPIWithFFTWMPI3D::FFT3DMPIWithFFTWMPI3D(int argN0, int argN1, int argN2):
   arrayK = fftw_alloc_complex(alloc_local);
 
   gettimeofday(&start_time, NULL);
-
+#ifdef OMP
+fftw_plan_with_nthreads(omp_get_max_threads());
+#endif
   plan_r2c = fftw_mpi_plan_dft_r2c_3d(
       N0, N1, N2, arrayX, arrayK, MPI_COMM_WORLD,
       flags|FFTW_MPI_TRANSPOSED_OUT);
@@ -102,6 +109,10 @@ void FFT3DMPIWithFFTWMPI3D::destroy(void)
   fftw_destroy_plan(plan_c2r);
   fftw_free(arrayX);
   fftw_free(arrayK);
+  fftw_mpi_cleanup();
+#ifdef OMP
+  fftw_cleanup_threads();
+#endif
 }
 
 

@@ -10,6 +10,10 @@ using namespace std;
 #include <complex.h>
 #include <fftw3.h>
 
+#ifdef OMP
+#include <omp.h>
+#endif
+
 #include <fft3d_with_fftw3d.h>
 
 
@@ -20,7 +24,9 @@ FFT3DWithFFTW3D::FFT3DWithFFTW3D(int argN0, int argN1, int argN2):
   double total_usecs;
 
   this->_init();
-
+#ifdef OMP
+    fftw_init_threads();
+#endif
   /* y corresponds to dim 0 in physical space */
   /* y corresponds to dim 1 in physical space */
   /* x corresponds to dim 2 in physical space */
@@ -56,7 +62,9 @@ FFT3DWithFFTW3D::FFT3DWithFFTW3D(int argN0, int argN1, int argN2):
   arrayK = fftw_alloc_complex(nK0 * nK1 * nK2);
 
   gettimeofday(&start_time, NULL);
-
+#ifdef OMP
+  fftw_plan_with_nthreads(omp_get_max_threads());
+#endif
   plan_r2c = fftw_plan_dft_r2c_3d(
       N0, N1, N2, arrayX, arrayK, flags);
 
@@ -80,6 +88,9 @@ void FFT3DWithFFTW3D::destroy(void)
   fftw_destroy_plan(plan_c2r);
   fftw_free(arrayX);
   fftw_free(arrayK);
+#ifdef OMP
+    fftw_cleanup_threads();
+#endif
 }
 
 
