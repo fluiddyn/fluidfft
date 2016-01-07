@@ -12,8 +12,15 @@ using namespace std;
 
 //  KERNEL CUDA
 // Complex scale
+#ifdef SINGLE_PREC
+typedef float2 dcomplex;
+typedef float real_cu;
+#else
 typedef double2 dcomplex;
-static __device__ __host__ inline dcomplex ComplexScale(dcomplex a, double s)
+typedef double real_cu;
+#endif
+
+static __device__ __host__ inline dcomplex ComplexScale(dcomplex a, real_cu s)
 {
   dcomplex c;
   c.x = s * a.x;
@@ -21,7 +28,7 @@ static __device__ __host__ inline dcomplex ComplexScale(dcomplex a, double s)
   return c;
 }
 
-__global__ void vectorNorm(const double norm, dcomplex *A, int numElements)
+__global__ void vectorNorm(const real_cu norm, dcomplex *A, int numElements)
 {
   int i = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -37,7 +44,7 @@ FFT3DWithCUFFT::FFT3DWithCUFFT(int argN0, int argN1, int argN2):
   BaseFFT3D::BaseFFT3D(argN0, argN1, argN2)
 {
   struct timeval start_time, end_time;
-  double total_usecs;
+  real_cu total_usecs;
   
   this->_init();
 
@@ -69,9 +76,9 @@ FFT3DWithCUFFT::FFT3DWithCUFFT(int argN0, int argN1, int argN2):
   coef_norm = N0*N1*N2;
 
 
-  mem_sizer = sizeof(double) * N0 * N1 * N2 ;//equivalent à la taille de arrayK?
+  mem_sizer = sizeof(real_cu) * N0 * N1 * N2 ;//taille de arrayX
   int new_size = nK0 * nK1 * nK2 ;
-  mem_size = sizeof(fftw_complex) * new_size ;//equivalent à la taille de arrayK?
+  mem_size = 2 * sizeof(real_cu) * new_size ;//taille de arrayK
 
   gettimeofday(&start_time, NULL);
   // Allocate device memory for signal
@@ -79,8 +86,13 @@ FFT3DWithCUFFT::FFT3DWithCUFFT(int argN0, int argN1, int argN2):
   checkCudaErrors(cudaMalloc((void **)&datar, mem_sizer));
 
   // CUFFT plan
+#ifdef SINGLE_PREC
+  checkCudaErrors(cufftPlan3d(&plan, nX0, nX1, nX2, CUFFT_R2C));
+  checkCudaErrors(cufftPlan3d(&plan1, nX0, nX1, nX2, CUFFT_C2R));
+#else
   checkCudaErrors(cufftPlan3d(&plan, nX0, nX1, nX2, CUFFT_D2Z));
   checkCudaErrors(cufftPlan3d(&plan1, nX0, nX1, nX2, CUFFT_Z2D));
+#endif
 
   gettimeofday(&end_time, NULL);
 
@@ -112,110 +124,171 @@ char const* FFT3DWithCUFFT::get_classname()
 { return "FFT3DWithCUFFT";}
 
 
-double FFT3DWithCUFFT::compute_energy_from_X(double* fieldX)
+real_cu FFT3DWithCUFFT::compute_energy_from_X(real_cu* fieldX)
 {
-  int ii;
-  double energy = 0;
+  int ii,jj,kk;
+  real_cu energy = 0.;
+  real_cu energy1, energy2;
 
-  for (ii=0; ii<nX0*nX1*nX2; ii++)
-    energy += pow(fieldX[ii], 2);
+  for (ii=0; ii<nX0; ii++)
+    {
+    energy1=0.;
+    for (jj=0; jj<nX1; jj++)
+      {
+      energy2=0.;
+      for (kk=0; kk<nX2; kk++)      
+        energy2 += pow(fieldX[(ii*nX1+jj)*nX2+kk], 2);
+      energy1 += energy2/nX2;
+      }
+    energy += energy1 / nX1;
+    }
+  //cout << "energyX=" << energy / nX0 / 2 << endl;
 
-  return energy / 2 /coef_norm;
+  return energy / nX0 / 2;
 }
 
 
-double FFT3DWithCUFFT::compute_energy_from_K(fftw_complex* fieldK)
+#ifdef SINGLE_PREC
+real_cu FFT3DWithCUFFT::compute_energy_from_K(fftwf_complex* fieldK)
+#else
+real_cu FFT3DWithCUFFT::compute_energy_from_K(fftw_complex* fieldK)
+#endif
 {
   int i0, i1, i2;
   double energy = 0;
-
-  // modes i1_seq = iKx = 0
-  i2 = 0;
-  for (i0=0; i0<nK0; i0++)
-    for (i1=0; i1<nK1; i1++)
-      energy += pow(cabs(fieldK[(i1 + i0*nK1)*nK2]), 2);//we must divide by 2 ==> after
+  double energy0 = 0;
 
   // modes i1_seq = iKx = last = nK1 - 1
   i2 = nK2 - 1;
   for (i0=0; i0<nK0; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy += pow(cabs(fieldK[i2 + (i1 + i0*nK1)*nK2]), 2);//we must divide by 2 ==> after
+      energy += (double) pow(cabs(fieldK[i2 + (i1 + i0*nK1)*nK2]), 2);//we must divide by 2 ==> after
 
     energy *= 0.5;//divide by 2!!!
 
   // other modes
-    for (i0=0; i0<nK0; i0++)
-      for (i1=0; i1<nK1; i1++)
-        for (i2=1; i2<nK2-1; i2++)
-          energy += pow(cabs(fieldK[i2 + (i1 + i0*nK1)*nK2]), 2);
+  for (i0=0; i0<nK0; i0++)
+    for (i1=0; i1<nK1; i1++)
+      for (i2=1; i2<nK2-1; i2++)
+        energy += (double) pow(cabs(fieldK[i2 + (i1 + i0*nK1)*nK2]), 2);
+    
+  // modes i1_seq = iKx = 0
+  i2 = 0;
+  for (i0=0; i0<nK0; i0++)
+    for (i1=0; i1<nK1; i1++)
+      energy0 += (double) pow(cabs(fieldK[(i1 + i0*nK1)*nK2]), 2);//we must divide by 2 ==> after
 
-  return energy;
+  energy += energy0/2.;
+
+  //cout << "energyK=" << energy<<  endl;
+  return (real_cu) energy;
 }
 
 
-double FFT3DWithCUFFT::compute_mean_from_X(double* fieldX)
+real_cu FFT3DWithCUFFT::compute_mean_from_X(real_cu* fieldX)
 {
-  double mean;
-  int ii;
+  real_cu mean,mean1,mean2;
+  int ii,jj,kk;
   mean=0.;
 
-  for (ii=0; ii<nX0*nX1*nX2; ii++)
-    mean += fieldX[ii];
-
-  return mean / coef_norm;
+  for (ii=0; ii<nX0; ii++)
+    {
+    mean1=0.;
+    for (jj=0; jj<nX1; jj++)
+      {
+      mean2=0.;
+        for (kk=0; kk<nX2; kk++)      
+        mean2 += fieldX[(ii*nX1+jj)*nX2+kk];
+      mean1 += mean2/nX2;
+      }
+    mean += mean1 / nX1;
+    }
+  return mean / nX0;
 }
 
 
-double FFT3DWithCUFFT::compute_mean_from_K(fftw_complex* fieldK)
+#ifdef SINGLE_PREC
+real_cu FFT3DWithCUFFT::compute_mean_from_K(fftwf_complex* fieldK)
+#else
+real_cu FFT3DWithCUFFT::compute_mean_from_K(fftw_complex* fieldK)
+#endif
 {
-  double mean;
+  real_cu mean;
   mean = creal(fieldK[0]);
 
   return mean;
 }
 
 
-void FFT3DWithCUFFT::fft(double *fieldX, fftw_complex *fieldK)
+#ifdef SINGLE_PREC
+void FFT3DWithCUFFT::fft(real_cu *fieldX, fftwf_complex *fieldK)
+#else
+void FFT3DWithCUFFT::fft(real_cu *fieldX, fftw_complex *fieldK)
+#endif
 {
+  
+  
   // cout << "FFT3DWithCUFFT::fft" << endl;
   // Copy host memory to device
   checkCudaErrors(cudaMemcpy(datar, fieldX, mem_sizer, cudaMemcpyHostToDevice));
+
+  
   // Transform signal and kernel
   //printf("Transforming signal cufftExecD2Z\n");
+#ifdef SINGLE_PREC
+  checkCudaErrors(cufftExecR2C(plan, (cufftReal *)datar, (cufftComplex *)data));
+#else
   checkCudaErrors(cufftExecD2Z(plan, (cufftDoubleReal *)datar, (cufftDoubleComplex *)data));
+#endif
 
+  
   // Launch the Vector Norm CUDA Kernel
-  double norm = 1./coef_norm;
+  real_cu norm = 1./coef_norm;
   //  printf("CUDA kernel launch with %d blocks of %d threads\n", blocksPerGrid, threadsPerBlock);
   int threadsPerBlock = 256;
   int blocksPerGrid =(nK0 * nK1 * nK2 + threadsPerBlock - 1) / threadsPerBlock;
   vectorNorm<<<blocksPerGrid, threadsPerBlock>>>(norm, data, nK0 * nK1 * nK2 );
   
+
   // Copy host device to memory
   checkCudaErrors(cudaMemcpy(fieldK, data, mem_size, cudaMemcpyDeviceToHost));
 
+
 }
 
 
-void FFT3DWithCUFFT::ifft(fftw_complex *fieldK, double *fieldX)
+#ifdef SINGLE_PREC
+void FFT3DWithCUFFT::ifft(fftwf_complex *fieldK, real_cu *fieldX)
+#else
+void FFT3DWithCUFFT::ifft(fftw_complex *fieldK, real_cu *fieldX)
+#endif
 {
-  // cout << "FFT3DWithCUFFT::ifft" << endl;
+
+  //cout << "FFT3DWithCUFFT::ifft" << endl;
   // Copy host memory to device
   checkCudaErrors(cudaMemcpy(data, fieldK, mem_size, cudaMemcpyHostToDevice));
+
+
   // FFT on DEVICE
+#ifdef SINGLE_PREC
+  checkCudaErrors(cufftExecC2R(plan1, (cufftComplex *)data, (cufftReal *)datar));
+#else
   checkCudaErrors(cufftExecZ2D(plan1, (cufftDoubleComplex *)data, (cufftDoubleReal *)datar));
+#endif
+
+  
   // Copy host device to memory
   checkCudaErrors(cudaMemcpy(fieldX, datar, mem_sizer, cudaMemcpyDeviceToHost));
+
 }
 
 
-void FFT3DWithCUFFT::init_array_X_random(double* &fieldX)
+void FFT3DWithCUFFT::init_array_X_random(real_cu* &fieldX)
 {
   int ii;
   this->alloc_array_X(fieldX);
 
   for (ii = 0; ii < nX0*nX1*nX2; ++ii)
-    fieldX[ii] = (double)rand() / RAND_MAX;
+    fieldX[ii] = (real_cu)rand() / RAND_MAX;
 }
-
 

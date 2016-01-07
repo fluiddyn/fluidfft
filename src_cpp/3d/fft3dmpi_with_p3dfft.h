@@ -7,7 +7,6 @@
 
 #include <base_fft3dmpi.h>
 
-
 class FFT3DMPIWithP3DFFT: public BaseFFT3DMPI
 {
  public:
@@ -20,21 +19,33 @@ class FFT3DMPIWithP3DFFT: public BaseFFT3DMPI
   /* int get_local_size_X(); */
   /* int get_local_size_K(); */
 
-  void fft(double *fieldX, fftw_complex *fieldK);
-  void ifft(fftw_complex *fieldK, double *fieldX);
-  
-  double compute_energy_from_X(double* fieldX);
-  double compute_energy_from_K(fftw_complex* fieldK);
-  double compute_mean_from_X(double* fieldX);
-  double compute_mean_from_K(fftw_complex* fieldK);
 
-  void init_array_X_random(double* &fieldX);
+#ifdef SINGLE_PREC
+  typedef float real_cu;
+  void fft(real_cu *fieldX, fftwf_complex *fieldK);
+  void ifft(fftwf_complex *fieldK, real_cu *fieldX);
+  real_cu compute_energy_from_K(fftwf_complex* fieldK);
+  real_cu compute_mean_from_K(fftwf_complex* fieldK);
+  void sum_wavenumbers_complex(fftwf_complex* fieldK, fftwf_complex* result);
+#else
+  typedef double real_cu;
+  void fft(real_cu *fieldX, fftw_complex *fieldK);
+  void ifft(fftw_complex *fieldK, real_cu *fieldX);
+  real_cu compute_energy_from_K(fftw_complex* fieldK);
+  real_cu compute_mean_from_K(fftw_complex* fieldK);
+  void sum_wavenumbers_complex(fftw_complex* fieldK, fftw_complex* result);
+#endif
+
+  real_cu compute_energy_from_X(real_cu* fieldX);
+  real_cu compute_mean_from_X(real_cu* fieldX);
+
+  void init_array_X_random(real_cu* &fieldX);
 
  private:
   int nX2loc, nK2loc, nXxloc, nXyloc, nXzloc, nKzloc, nXx, nXy, nXz;
   int coef_norm;
-  double *arrayX;
-  double *arrayK;
+  real_cu *arrayX;
+  real_cu *arrayK;
   ptrdiff_t alloc_local;
 
   int nprocmesh[2];

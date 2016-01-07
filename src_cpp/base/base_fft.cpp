@@ -7,17 +7,24 @@ using namespace std;
 
 #include <base_fft.h>
 
-double EPS = 1e-10;
 
-double compute_time_in_second(struct timeval start_time,
+#ifdef SINGLE_PREC
+typedef float real_cu;
+real_cu EPS = 1e-6;
+#else
+typedef double real_cu;
+real_cu EPS = 1e-14;
+#endif
+
+real_cu compute_time_in_second(struct timeval start_time,
 			      struct timeval end_time)
 {
   return (end_time.tv_sec - start_time.tv_sec) + 
-         (end_time.tv_usec - start_time.tv_usec)/1000000.;
+    (end_time.tv_usec - start_time.tv_usec)/1000000.;
 }
 
 
-int are_nearly_equal(double a, double b)
+int are_nearly_equal(real_cu a, real_cu b)
 {
   if (abs((a-b) / a) > EPS)
     return 0;
@@ -49,22 +56,30 @@ void BaseFFT::_init()
 char const* BaseFFT::get_classname()
 { return "BaseFFT";}
 
-double BaseFFT::compute_energy_from_X(double* fieldX)
+real_cu BaseFFT::compute_energy_from_X(real_cu* fieldX)
 {
   return 0.;
 }
 
-double BaseFFT::compute_energy_from_K(fftw_complex* fieldK)
+#ifdef SINGLE_PREC
+real_cu BaseFFT::compute_energy_from_K(fftwf_complex* fieldK)
+#else
+real_cu BaseFFT::compute_energy_from_K(fftw_complex* fieldK)
+#endif
 {
   return 0.;
 }
 
-double BaseFFT::compute_mean_from_X(double* fieldX)
+real_cu BaseFFT::compute_mean_from_X(real_cu* fieldX)
 {
   return 0.;
 }
 
-double BaseFFT::compute_mean_from_K(fftw_complex* fieldK)
+#ifdef SINGLE_PREC
+  real_cu BaseFFT::compute_mean_from_K(fftwf_complex* fieldK)
+#else
+  real_cu BaseFFT::compute_mean_from_K(fftw_complex* fieldK)
+#endif
 {
   return 0.;
 }
@@ -72,11 +87,14 @@ double BaseFFT::compute_mean_from_K(fftw_complex* fieldK)
 int BaseFFT::test()
 {
   int OK = 1;
-  double* fieldX;
+  real_cu* fieldX;
+#ifdef SINGLE_PREC
+  fftwf_complex* fieldK;
+#else
   fftw_complex* fieldK;
-
-  double energy_X_before, energy_K_before, energy_K_after;
-  double mean_X_before, mean_K_before, mean_K_after;
+#endif
+  real_cu energy_X_before, energy_K_before, energy_K_after;
+  real_cu mean_X_before, mean_K_before, mean_K_after;
 
   if (rank == 0)
     cout << "tests (" << this->get_classname() << ")..." << endl;
@@ -112,15 +130,15 @@ int BaseFFT::test()
   
   if (!are_nearly_equal(energy_X_before, energy_K_before))
     {
-      printf("fail: energy_X_before - energy_K_before = %e > EPS\n",
-	     abs(energy_X_before - energy_K_before));
+      printf("fail: (energy_X_before - energy_K_before)/energy_X_before = %e > EPS\n",
+	     abs((energy_X_before - energy_K_before)/energy_X_before));
             printf("      energy_X_before = %e\n", abs(energy_X_before));
       OK = 0;
     }
   if (!are_nearly_equal(mean_X_before, mean_K_before))
     {
-      printf("fail: mean_X_before - mean_K_before = %e > EPS\n",
-	     abs(mean_X_before - mean_K_before));      
+      printf("fail: (mean_X_before - mean_K_before)/mean_X_before = %e > EPS\n",
+	     abs((mean_X_before - mean_K_before)/mean_X_before));      
       OK = 0;
     }
 
@@ -149,9 +167,13 @@ const char* BaseFFT::bench(int nb_time_execute)
 {
   int i;
   struct timeval start_time, end_time;
-  double time_in_sec;
-  double* fieldX;
+  real_cu time_in_sec;
+  real_cu* fieldX;
+#ifdef SINGLE_PREC
+  fftwf_complex* fieldK;
+#else
   fftw_complex* fieldK;
+#endif
   string result("");
   char tmp_char[80];
   
@@ -201,32 +223,48 @@ const char* BaseFFT::bench(int nb_time_execute)
   return result.c_str();
 }
 
-void BaseFFT::alloc_array_X(double* &fieldX)
+void BaseFFT::alloc_array_X(real_cu* &fieldX)
 {  
-  fieldX = (double *) malloc(this->get_local_size_X() * sizeof(double));
+  fieldX = (real_cu *) malloc(this->get_local_size_X() * sizeof(real_cu));
 }
 
 
+#ifdef SINGLE_PREC
+void BaseFFT::alloc_array_K(fftwf_complex* &fieldK)
+{
+  fieldK = (fftwf_complex*) malloc(
+      this->get_local_size_K() * sizeof(fftwf_complex));
+}
+#else
 void BaseFFT::alloc_array_K(fftw_complex* &fieldK)
 {
   fieldK = (fftw_complex*) malloc(
       this->get_local_size_K() * sizeof(fftw_complex));
 }
+#endif
 
 
-void BaseFFT::init_array_X_random(double* &fieldX)
+void BaseFFT::init_array_X_random(real_cu* &fieldX)
 {
   cout << "BaseFFT::init_array_X_random" << endl;
   this->alloc_array_X(fieldX);
   fieldX[0] = 1;
 }
 
-void BaseFFT::fft(double *fieldX, fftw_complex *fieldK)
+#ifdef SINGLE_PREC
+void BaseFFT::fft(real_cu *fieldX, fftwf_complex *fieldK)
+#else
+void BaseFFT::fft(real_cu *fieldX, fftw_complex *fieldK)
+#endif
 {
   cout << "BaseFFT::fft" << endl;
 }
 
-void BaseFFT::ifft(fftw_complex *fieldK, double *fieldX)
+#ifdef SINGLE_PREC
+void BaseFFT::ifft(fftwf_complex *fieldK, real_cu *fieldX)
+#else
+void BaseFFT::ifft(fftw_complex *fieldK, real_cu *fieldX)
+#endif
 {
   cout << "BaseFFT::ifft" << endl;
 }

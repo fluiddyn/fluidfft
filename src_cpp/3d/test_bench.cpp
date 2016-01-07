@@ -10,6 +10,7 @@ using namespace std;
 #include <fft3dmpi_with_fftwmpi3d.h>
 #include <fft3dmpi_with_pfft.h>
 #include <fft3dmpi_with_p3dfft.h>
+
 #ifdef CUDA
 #include <fft3d_with_cufft.h>
 #endif
@@ -58,6 +59,7 @@ int main(int argc, char **argv)
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &(nb_procs));
 
+  
   FFT3DMPIWithFFTWMPI3D s(N0, N1, N2);
   s.test();
   s.bench();
@@ -89,12 +91,13 @@ int main(int argc, char **argv)
      s2.bench();
      s2.destroy();
 
-     FFT3DMPIWithPFFT s3(N0, N1, N2);
+    FFT3DMPIWithPFFT s3(N0, N1, N2);
      s3.test();
      s3.bench();
      s3.bench();
      s3.destroy();
-   }
+
+     }
   
   MPI_Finalize();
 

@@ -21,22 +21,33 @@ class BaseFFT
   
   virtual int test();
   virtual const char* bench(int nb_time_execute = 10);
+ 
+#ifdef SINGLE_PREC
+  typedef float real_cu;
+  virtual void fft(real_cu *fieldX, fftwf_complex *fieldK);
+  virtual void ifft(fftwf_complex *fieldK, real_cu *fieldX);
+  virtual real_cu compute_energy_from_K(fftwf_complex* fieldK);
+  virtual real_cu compute_mean_from_K(fftwf_complex* fieldK);
+  void alloc_array_K(fftwf_complex* &fieldK);  
+#else
+  typedef double real_cu;
+  virtual void fft(real_cu *fieldX, fftw_complex *fieldK);
+  virtual void ifft(fftw_complex *fieldK, real_cu *fieldX);
+  virtual real_cu compute_energy_from_K(fftw_complex* fieldK);
+  virtual real_cu compute_mean_from_K(fftw_complex* fieldK);
+  void alloc_array_K(fftw_complex* &fieldK);  
+#endif
+
   
-  virtual void fft(double *fieldX, fftw_complex *fieldK);
-  virtual void ifft(fftw_complex *fieldK, double *fieldX);
-  
-  virtual double compute_energy_from_X(double* fieldX);
-  virtual double compute_energy_from_K(fftw_complex* fieldK);
-  virtual double compute_mean_from_X(double* fieldX);
-  virtual double compute_mean_from_K(fftw_complex* fieldK);
+  virtual real_cu compute_energy_from_X(real_cu* fieldX);
+  virtual real_cu compute_mean_from_X(real_cu* fieldX);
 
   virtual int get_local_size_X();
   virtual int get_local_size_K();
   
-  virtual void init_array_X_random(double* &fieldX);
+  virtual void init_array_X_random(real_cu* &fieldX);
 
-  virtual void alloc_array_X(double* &fieldX);
-  void alloc_array_K(fftw_complex* &fieldK);  
+  virtual void alloc_array_X(real_cu* &fieldX);
 
   int rank, nb_proc;
 

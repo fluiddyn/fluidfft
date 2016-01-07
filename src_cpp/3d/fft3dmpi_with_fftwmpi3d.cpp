@@ -16,16 +16,33 @@ using namespace std;
 
 #include <fft3dmpi_with_fftwmpi3d.h>
 
+#ifdef SINGLE_PREC
+typedef float real_cu;
+#else
+typedef double real_cu;
+#endif
+
 
 FFT3DMPIWithFFTWMPI3D::FFT3DMPIWithFFTWMPI3D(int argN0, int argN1, int argN2):
   BaseFFT3DMPI::BaseFFT3DMPI(argN0, argN1, argN2)
 {
   struct timeval start_time, end_time;
-  double total_usecs;
+  real_cu total_usecs;
   ptrdiff_t local_nX0;//, local_X0_start;
   ptrdiff_t local_nK0;
 
   this->_init();
+#ifdef SINGLE_PREC
+#ifdef OMP
+  fftwf_init_threads();
+#endif
+  fftwf_mpi_init();
+  /* get local data size and allocate */
+  alloc_local = fftwf_mpi_local_size_3d_transposed(
+      N0, N1, N2/2+1, MPI_COMM_WORLD,
+      &local_nX0, &local_X0_start,
+      &local_nK0, &local_K0_start);
+#else
 #ifdef OMP
   fftw_init_threads();
 #endif
@@ -35,7 +52,7 @@ FFT3DMPIWithFFTWMPI3D::FFT3DMPIWithFFTWMPI3D(int argN0, int argN1, int argN2):
       N0, N1, N2/2+1, MPI_COMM_WORLD,
       &local_nX0, &local_X0_start,
       &local_nK0, &local_K0_start);
-
+#endif
   /* in physical space: */
   /* z corresponds to dim 0 */
   /* y corresponds to dim 1 */
@@ -76,6 +93,22 @@ FFT3DMPIWithFFTWMPI3D::FFT3DMPIWithFFTWMPI3D(int argN0, int argN1, int argN2):
 /*    flags = FFTW_ESTIMATE;*/
 /*    flags = FFTW_PATIENT;*/
 
+#ifdef SINGLE_PREC
+  arrayX = fftwf_alloc_real(2 * alloc_local);
+  arrayK = fftwf_alloc_complex(alloc_local);
+
+  gettimeofday(&start_time, NULL);
+#ifdef OMP
+fftwf_plan_with_nthreads(omp_get_max_threads());
+#endif
+  plan_r2c = fftwf_mpi_plan_dft_r2c_3d(
+      N0, N1, N2, arrayX, arrayK, MPI_COMM_WORLD,
+      flags|FFTW_MPI_TRANSPOSED_OUT);
+
+  plan_c2r = fftwf_mpi_plan_dft_c2r_3d(
+      N0, N1, N2, arrayK, arrayX, MPI_COMM_WORLD,
+      flags|FFTW_MPI_TRANSPOSED_IN);
+#else
   arrayX = fftw_alloc_real(2 * alloc_local);
   arrayK = fftw_alloc_complex(alloc_local);
 
@@ -90,7 +123,7 @@ fftw_plan_with_nthreads(omp_get_max_threads());
   plan_c2r = fftw_mpi_plan_dft_c2r_3d(
       N0, N1, N2, arrayK, arrayX, MPI_COMM_WORLD,
       flags|FFTW_MPI_TRANSPOSED_IN);
-
+#endif
   gettimeofday(&end_time, NULL);
 
   total_usecs = (end_time.tv_sec-start_time.tv_sec) +
@@ -105,6 +138,16 @@ fftw_plan_with_nthreads(omp_get_max_threads());
 void FFT3DMPIWithFFTWMPI3D::destroy(void)
 {
   // cout << "Object is being destroyed" << endl;
+#ifdef SINGLE_PREC
+  fftwf_destroy_plan(plan_r2c);
+  fftwf_destroy_plan(plan_c2r);
+  fftwf_free(arrayX);
+  fftwf_free(arrayK);
+  fftwf_mpi_cleanup();
+#ifdef OMP
+  fftwf_cleanup_threads();
+#endif
+#else
   fftw_destroy_plan(plan_r2c);
   fftw_destroy_plan(plan_c2r);
   fftw_free(arrayX);
@@ -112,6 +155,7 @@ void FFT3DMPIWithFFTWMPI3D::destroy(void)
   fftw_mpi_cleanup();
 #ifdef OMP
   fftw_cleanup_threads();
+#endif
 #endif
 }
 
@@ -125,22 +169,25 @@ char const* FFT3DMPIWithFFTWMPI3D::get_classname()
 { return "FFT3DMPIWithFFTWMPI3D";}
 
 
-double FFT3DMPIWithFFTWMPI3D::compute_energy_from_X(double* fieldX)
+real_cu FFT3DMPIWithFFTWMPI3D::compute_energy_from_X(real_cu* fieldX)
 {
   int ii;
   double energy_loc = 0;
   double energy;
 
   for (ii=0; ii<nX0loc*nX1*nX2; ii++)
-	energy_loc += pow(fieldX[ii], 2);
+	energy_loc += (double) pow(fieldX[ii], 2);
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return energy / 2 /coef_norm;
+  return (real_cu) energy / 2 /coef_norm;
 }
 
-
-double FFT3DMPIWithFFTWMPI3D::compute_energy_from_K(fftw_complex* fieldK)
+#ifdef SINGLE_PREC
+real_cu FFT3DMPIWithFFTWMPI3D::compute_energy_from_K(fftwf_complex* fieldK)
+#else
+real_cu FFT3DMPIWithFFTWMPI3D::compute_energy_from_K(fftw_complex* fieldK)
+#endif
 {
   int i0, i1, i2;
   double energy_tmp = 0;
@@ -151,7 +198,7 @@ double FFT3DMPIWithFFTWMPI3D::compute_energy_from_K(fftw_complex* fieldK)
   i2 = 0;
   for (i0=0; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy_tmp += pow(cabs(fieldK[(i1 + i0 * nK1) * nK2]), 2);
+      energy_tmp += (double) pow(cabs(fieldK[(i1 + i0 * nK1) * nK2]), 2);
 
   energy_loc = energy_tmp/2;
 
@@ -160,7 +207,7 @@ double FFT3DMPIWithFFTWMPI3D::compute_energy_from_K(fftw_complex* fieldK)
   energy_tmp = 0;
   for (i0=0; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy_tmp += pow(cabs(fieldK[i2 + (i1 + i0 * nK1) * nK2]), 2);
+      energy_tmp += (double) pow(cabs(fieldK[i2 + (i1 + i0 * nK1) * nK2]), 2);
 
   if (N2%2 == 0)
     energy_loc += energy_tmp/2;
@@ -171,15 +218,15 @@ double FFT3DMPIWithFFTWMPI3D::compute_energy_from_K(fftw_complex* fieldK)
   for (i0=0; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
       for (i2=1; i2<nK2-1; i2++)
-	energy_loc += pow(cabs(fieldK[i2 + (i1 + i0 * nK1) * nK2]), 2);
+	energy_loc += (double) pow(cabs(fieldK[i2 + (i1 + i0 * nK1) * nK2]), 2);
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return energy;
+  return (real_cu) energy;
 }
 
 
-double FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_double(double* fieldK)
+real_cu FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_double(real_cu* fieldK)
 {
   int i0, i1, i2;
   double energy_tmp = 0;
@@ -189,7 +236,7 @@ double FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_double(double* fieldK)
   i2 = 0;
   for (i0=0; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy_tmp += fieldK[(i1 + i0 * nK1) * nK2];
+      energy_tmp += (double) fieldK[(i1 + i0 * nK1) * nK2];
 
   energy_loc = energy_tmp/2;
 
@@ -198,7 +245,7 @@ double FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_double(double* fieldK)
   energy_tmp = 0;
   for (i0=0; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy_tmp += fieldK[i2 + (i1 + i0 * nK1) * nK2];
+      energy_tmp += (double) fieldK[i2 + (i1 + i0 * nK1) * nK2];
 
   if (N2%2 == 0)
     energy_loc += energy_tmp/2;
@@ -209,21 +256,29 @@ double FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_double(double* fieldK)
   for (i0=0; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
       for (i2=1; i2<nK2-1; i2++)
-	energy_loc += fieldK[i2 + (i1 + i0 * nK1) * nK2];
+	energy_loc += (double) fieldK[i2 + (i1 + i0 * nK1) * nK2];
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return energy;
+  return (real_cu) energy;
 }
 
-
+#ifdef SINGLE_PREC
+void FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_complex(
+    fftwf_complex* fieldK, fftwf_complex* result)
+#else
 void FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_complex(
     fftw_complex* fieldK, fftw_complex* result)
+#endif
 {
   int i0, i1, i2;
+#ifdef SINGLE_PREC
+  fftwf_complex energy_tmp = 0;
+  fftwf_complex energy_loc, energy;
+#else
   fftw_complex energy_tmp = 0;
   fftw_complex energy_loc, energy;
-
+#endif
   // modes i2 = iKx = 0
   i2 = 0;
   for (i0=0; i0<nK0loc; i0++)
@@ -251,13 +306,13 @@ void FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_complex(
 	energy_loc += fieldK[i2 + (i1 + i0 * nK1) * nK2];
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_COMPLEX, MPI_SUM, MPI_COMM_WORLD);
-
+//ERREUR PTET LA... COMPLEX OU DOUBLE COMPLEX???
   *result = energy;
 }
 
 
 
-double FFT3DMPIWithFFTWMPI3D::compute_mean_from_X(double* fieldX)
+real_cu FFT3DMPIWithFFTWMPI3D::compute_mean_from_X(real_cu* fieldX)
 {
   double mean, local_mean;
   int ii;
@@ -268,25 +323,31 @@ double FFT3DMPIWithFFTWMPI3D::compute_mean_from_X(double* fieldX)
 
   MPI_Allreduce(&local_mean, &mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return mean / coef_norm;
+  return (real_cu) mean / coef_norm;
 }
 
-
-double FFT3DMPIWithFFTWMPI3D::compute_mean_from_K(fftw_complex* fieldK)
+#ifdef SINGLE_PREC
+real_cu FFT3DMPIWithFFTWMPI3D::compute_mean_from_K(fftwf_complex* fieldK)
+#else
+real_cu FFT3DMPIWithFFTWMPI3D::compute_mean_from_K(fftw_complex* fieldK)
+#endif
 {
   double mean, local_mean;
   if (local_K0_start == 0)
-    local_mean = creal(fieldK[0]);
+    local_mean = (double) creal(fieldK[0]);
   else
     local_mean = 0.;
 
   MPI_Allreduce(&local_mean, &mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return mean;
+  return (real_cu) mean;
 }
 
-
-void FFT3DMPIWithFFTWMPI3D::fft(double *fieldX, fftw_complex *fieldK)
+#ifdef SINGLE_PREC
+void FFT3DMPIWithFFTWMPI3D::fft(real_cu *fieldX, fftwf_complex *fieldK)
+#else
+void FFT3DMPIWithFFTWMPI3D::fft(real_cu *fieldX, fftw_complex *fieldK)
+#endif
 {
   int i0, i1, i2;
   // cout << "FFT3DMPIWithFFTWMPI3D::fft" << endl;
@@ -296,7 +357,11 @@ void FFT3DMPIWithFFTWMPI3D::fft(double *fieldX, fftw_complex *fieldK)
       for (i2=0; i2<nX2; i2++)
 	arrayX[i2 + (i1 + i0*nX1)*nX2_pad] = fieldX[i2 + (i1 + i0*nX1)*nX2];
 
+#ifdef SINGLE_PREC
+  fftwf_execute(plan_r2c);
+#else
   fftw_execute(plan_r2c);
+#endif
 
   for (i0=0; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
@@ -305,13 +370,21 @@ void FFT3DMPIWithFFTWMPI3D::fft(double *fieldX, fftw_complex *fieldK)
 	  arrayK[i2 + (i1 + i0*nK1)*nK2]/coef_norm;
 }
 
-
-void FFT3DMPIWithFFTWMPI3D::ifft(fftw_complex *fieldK, double *fieldX)
+#ifdef SINGLE_PREC
+void FFT3DMPIWithFFTWMPI3D::ifft(fftwf_complex *fieldK, real_cu *fieldX)
+#else
+void FFT3DMPIWithFFTWMPI3D::ifft(fftw_complex *fieldK, real_cu *fieldX)
+#endif
 {
   int i0, i1, i2;
   // cout << "FFT3DMPIWithFFTWMPI3D::ifft" << endl;
+#ifdef SINGLE_PREC
+  memcpy(arrayK, fieldK, alloc_local*sizeof(fftwf_complex));
+  fftwf_execute(plan_c2r);
+#else
   memcpy(arrayK, fieldK, alloc_local*sizeof(fftw_complex));
   fftw_execute(plan_c2r);
+#endif
 
   for (i0=0; i0<nX0loc; i0++)
     for (i1=0; i1<nX1; i1++)
@@ -320,13 +393,13 @@ void FFT3DMPIWithFFTWMPI3D::ifft(fftw_complex *fieldK, double *fieldX)
 }
 
 
-void FFT3DMPIWithFFTWMPI3D::init_array_X_random(double* &fieldX)
+void FFT3DMPIWithFFTWMPI3D::init_array_X_random(real_cu* &fieldX)
 {
   int ii;
   this->alloc_array_X(fieldX);
 
   for (ii = 0; ii < nX0loc*nX1*nX2; ++ii)
-    fieldX[ii] = (double)rand() / RAND_MAX;
+    fieldX[ii] = (real_cu)rand() / RAND_MAX;
 }
 
 
@@ -336,7 +409,6 @@ void FFT3DMPIWithFFTWMPI3D::get_dimX_K(int *d0, int *d1, int *d2)
   *d1 = 0;
   *d2 = 2;
 }
-
 
 void FFT3DMPIWithFFTWMPI3D::get_seq_index_first_K(int *i0, int *i1)
 {
