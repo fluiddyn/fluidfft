@@ -1,11 +1,45 @@
-FLAGS+=-DOMP #-Wall
+SINGLE_PREC:=yes
+OMP:=no
+CUDA:=yes
+
 CC:=mpic++
-LIBS:=-lfftw3 -lfftw3_mpi -lpfft -lm -lp3dfft -lmpi_f77 -lgfortran -lfftw3_omp -fopenmp
+FLAGS:=
+LIBS:= -lmpi_cxx -lmpi -ldl -lhwloc -lm -lmpi_f77 -lgfortran
+
+ifeq "$(CUDA)" "yes"
+FLAGS+=-DCUDA -m64 -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_32,code=sm_32 -gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_50,code=compute_50
+CC:=nvcc
+LIBS+=-lcufft -Xcompiler
+endif
+
+ifeq "$(SINGLE_PREC)" "yes"
+FLAGS+=-DSINGLE_PREC
+LIBS+= -lfftw3f -lfftw3f_mpi -lfftw3f_omp -lpfftf -lp3dfft_sp
+else
+LIBS+= -lfftw3 -lfftw3_mpi -lfftw3_omp -lpfft -lp3dfft
+endif
+
+ifeq "$(OMP)" "yes"
+FLAGS+=-DOMP
+LIBS+=-fopenmp
+endif
+
+
 LIB_DIR:=$(LDEV_PATH)
-INC_DIR:=-I. -I../base $(IDEV_PATH)
+INC_DIR:=-I. -I../base $(IDEV_PATH) -I/usr/lib/openmpi/include -I/usr/lib/openmpi/include/openmpi 
+
+ifeq "$(CUDA)" "yes"
+INC_DIR+= -I/opt/cuda/NVIDIA_CUDA-6.0_Samples/common/inc/
+endif
+
+LDFLAGS:=#-fpermissive
 
 SOURCES_CPP := $(wildcard *.cpp)
+SOURCES_CU := $(wildcard *.cu)
 OBJECTS := $(SOURCES_CPP:.cpp=.o)
+ifeq "$(CUDA)" "yes"
+OBJECTS += $(SOURCES_CU:.cu=.o)
+endif
 
 empty :=
 space := $(empty) $(empty)
@@ -30,8 +64,11 @@ _build_dir:
 
 test_bench.out: _build_dir $(OBJECTS) $(OBJECTS_CPP_BASE)
 	# link to build the executable $@
-	mpic++ $(OBJECTS_BUILD) $(LIBS) $(LIB_DIR) -o $@
+	$(CC) $(FLAGS) $(OBJECTS_BUILD) $(LIBS) $(LIB_DIR) -o $@
 
+%.o: %.cu
+	# make $@ from $<
+	$(CC) $(FLAGS) $(INC_DIR) -c $< -o build/$@
 %.o: %.cpp
 	# make $@ from $<
 	$(CC) $(FLAGS) $(INC_DIR) -c $< -o build/$@
@@ -42,4 +79,4 @@ test_bench.out: _build_dir $(OBJECTS) $(OBJECTS_CPP_BASE)
 
 %.o: ../base/%.cpp
 	# make $@ from $<
-	$(CC) $(LDFLAGS) $(INC_DIR) -c $< -o build/$@
+	$(CC) $(FLAGS) $(LDFLAGS) $(INC_DIR) -c $< -o build/$@
