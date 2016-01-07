@@ -1,13 +1,13 @@
 SINGLE_PREC:=yes
 FLAGS:=-DCUDA -m64 -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_32,code=sm_32 -gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_50,code=compute_50 #-DOMP
 CC:=nvcc
-LIBS:= -lmpi_cxx -lmpi -ldl -lhwloc -lcufft  -lfftw3f -lfftw3f_mpi -lfftw3f_omp -lfftw3 -lfftw3_mpi -lfftw3_omp -lpfft -lm -lmpi_f77 -lgfortran -Xcompiler -fopenmp
+LIBS:= -lmpi_cxx -lmpi -ldl -lhwloc -lcufft -lm -lmpi_f77 -lgfortran -Xcompiler -fopenmp
 
 ifeq "$(SINGLE_PREC)" "yes"
 FLAGS+=-DSINGLE_PREC
-LIBS+= -lp3dfft_sp
+LIBS+= -lfftw3f -lfftw3f_mpi -lfftw3f_omp -lpfftf -lp3dfft_sp
 else
-LIBS+= -lp3dfft
+LIBS+= -lfftw3 -lfftw3_mpi -lfftw3_omp -lpfft -lp3dfft
 endif
 
 
