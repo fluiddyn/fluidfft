@@ -21,14 +21,12 @@ class FFT3DMPIWithP3DFFT: public BaseFFT3DMPI
 
 
 #ifdef SINGLE_PREC
-  typedef float real_cu;
   void fft(real_cu *fieldX, fftwf_complex *fieldK);
   void ifft(fftwf_complex *fieldK, real_cu *fieldX);
   real_cu compute_energy_from_K(fftwf_complex* fieldK);
   real_cu compute_mean_from_K(fftwf_complex* fieldK);
   void sum_wavenumbers_complex(fftwf_complex* fieldK, fftwf_complex* result);
 #else
-  typedef double real_cu;
   void fft(real_cu *fieldX, fftw_complex *fieldK);
   void ifft(fftw_complex *fieldK, real_cu *fieldX);
   real_cu compute_energy_from_K(fftw_complex* fieldK);
