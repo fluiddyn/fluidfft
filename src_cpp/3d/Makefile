@@ -1,5 +1,5 @@
 SINGLE_PREC:=yes
-OMP:=no
+OMP:=yes
 CUDA:=yes
 
 CC:=mpic++
@@ -12,6 +12,11 @@ CC:=nvcc
 LIBS+=-lcufft -Xcompiler
 endif
 
+ifeq "$(OMP)" "yes"
+FLAGS+=-DOMP
+LIBS+=-fopenmp
+endif
+
 ifeq "$(SINGLE_PREC)" "yes"
 FLAGS+=-DSINGLE_PREC
 LIBS+= -lfftw3f -lfftw3f_mpi -lfftw3f_omp -lpfftf -lp3dfft_sp
@@ -19,10 +24,6 @@ else
 LIBS+= -lfftw3 -lfftw3_mpi -lfftw3_omp -lpfft -lp3dfft
 endif
 
-ifeq "$(OMP)" "yes"
-FLAGS+=-DOMP
-LIBS+=-fopenmp
-endif
 
 
 LIB_DIR:=$(LDEV_PATH)

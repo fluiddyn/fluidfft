@@ -16,13 +16,6 @@ using namespace std;
 
 #include <fft3dmpi_with_fftwmpi3d.h>
 
-#ifdef SINGLE_PREC
-typedef float real_cu;
-#else
-typedef double real_cu;
-#endif
-
-
 FFT3DMPIWithFFTWMPI3D::FFT3DMPIWithFFTWMPI3D(int argN0, int argN1, int argN2):
   BaseFFT3DMPI::BaseFFT3DMPI(argN0, argN1, argN2)
 {

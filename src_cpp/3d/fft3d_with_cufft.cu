@@ -12,14 +12,6 @@ using namespace std;
 
 //  KERNEL CUDA
 // Complex scale
-#ifdef SINGLE_PREC
-typedef float2 dcomplex;
-typedef float real_cu;
-#else
-typedef double2 dcomplex;
-typedef double real_cu;
-#endif
-
 static __device__ __host__ inline dcomplex ComplexScale(dcomplex a, real_cu s)
 {
   dcomplex c;

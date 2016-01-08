@@ -16,12 +16,6 @@ using namespace std;
 
 #include <fft3d_with_fftw3d.h>
 
-#ifdef SINGLE_PREC
-typedef float real_cu;
-#else
-typedef double real_cu;
-#endif
-
 FFT3DWithFFTW3D::FFT3DWithFFTW3D(int argN0, int argN1, int argN2):
   BaseFFT3D::BaseFFT3D(argN0, argN1, argN2)
 {
