@@ -1,42 +1,76 @@
-SINGLE_PREC:=yes
+SINGLE_PREC:=no
 OMP:=yes
-CUDA:=yes
+CUDA:=no
+PFFT:=no
+P3DFFT:=no
 
+LD:=mpic++
 CC:=mpic++
 FLAGS:=
-LIBS:= -lmpi_cxx -lmpi -ldl -lhwloc -lm -lmpi_f77 -lgfortran
+LDFLAGS:=
+LIBS:= -ldl -lhwloc -lm -lgfortran
+
+LIB_DIR:=$(LDEV_PATH)
+INC_DIR:=-I. -I../base $(IDEV_PATH)  
+
+
+SOURCES_CPP := $(wildcard base*.cpp)
+SOURCES_CPP += fft3d_with_fftw3d.cpp fft3dmpi_with_fftwmpi3d.cpp test_bench.cpp
+
 
 ifeq "$(CUDA)" "yes"
-FLAGS+=-DCUDA -m64 -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_32,code=sm_32 -gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_50,code=compute_50
-CC:=nvcc
-LIBS+=-lcufft -Xcompiler
+SOURCES_CU := $(wildcard *.cu)
+
+FLAGS+=-DCUDA
+FLAGS_CU:=-m64 -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_32,code=sm_32 -gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_50,code=compute_50
+LD:=nvcc
+LIBS+=-lcufft -lmpi_cxx -lmpi -lmpi_f77
+INC_DIR_CU:=-I/usr/lib/openmpi/include -I/usr/lib/openmpi/include/openmpi
+INC_DIR+=-I/opt/cuda/NVIDIA_CUDA-6.0_Samples/common/inc/
 endif
 
 ifeq "$(OMP)" "yes"
-FLAGS+=-DOMP
-LIBS+=-fopenmp
+  FLAGS+=-DOMP
+  ifeq "$(CUDA)" "yes"
+    FLAGS+= -fopenmp
+    LDFLAGS+=-Xcompiler -fopenmp
+  else
+    LDFLAGS+=-fopenmp
+  endif
 endif
 
 ifeq "$(SINGLE_PREC)" "yes"
-FLAGS+=-DSINGLE_PREC
-LIBS+= -lfftw3f -lfftw3f_mpi -lfftw3f_omp -lpfftf -lp3dfft_sp
+  FLAGS+=-DSINGLE_PREC
+  LIBS+= -lfftw3f -lfftw3f_mpi -lfftw3f_omp
+  FLAGS_CU+=-DSINGLE_PREC
+  ifeq "$(PFFT)" "yes"
+    LIBS+= -lpfftf
+  endif
+  ifeq "$(P3DFFT)" "yes"
+    LIBS+= -lp3dfft_sp
+  endif
 else
-LIBS+= -lfftw3 -lfftw3_mpi -lfftw3_omp -lpfft -lp3dfft
+  LIBS+= -lfftw3 -lfftw3_mpi -lfftw3_omp
+  ifeq "$(PFFT)" "yes"
+    LIBS+= -lpfft
+  endif
+  ifeq "$(P3DFFT)" "yes"
+    LIBS+= -lp3dfft
+  endif
 endif
 
-
-
-LIB_DIR:=$(LDEV_PATH)
-INC_DIR:=-I. -I../base $(IDEV_PATH) -I/usr/lib/openmpi/include -I/usr/lib/openmpi/include/openmpi 
-
-ifeq "$(CUDA)" "yes"
-INC_DIR+= -I/opt/cuda/NVIDIA_CUDA-6.0_Samples/common/inc/
+ifeq "$(PFFT)" "yes"
+  FLAGS+= -DPFFT
+  SOURCES_CPP+=fft3dmpi_with_pfft.cpp
 endif
 
-LDFLAGS:=#-fpermissive
+ifeq "$(P3DFFT)" "yes"
+  FLAGS+= -DP3DFFT
+  SOURCES_CPP+=fft3dmpi_with_p3dfft.cpp
+endif
 
-SOURCES_CPP := $(wildcard *.cpp)
-SOURCES_CU := $(wildcard *.cu)
+# LDFLAGS:=#-fpermissive
+
 OBJECTS := $(SOURCES_CPP:.cpp=.o)
 ifeq "$(CUDA)" "yes"
 OBJECTS += $(SOURCES_CU:.cu=.o)
@@ -49,27 +83,34 @@ SOURCES_CPP_BASE := $(wildcard ../base/*.cpp)
 OBJECTS_CPP_BASE := $(subst ../base/,,$(SOURCES_CPP_BASE))
 OBJECTS_CPP_BASE := $(OBJECTS_CPP_BASE:.cpp=.o)
 
-OBJECTS_BUILD = build/$(subst $(space), $(space)build/,$(OBJECTS) $(OBJECTS_CPP_BASE))
+OBJECTS_BUILD = build/$(subst $(space),$(space)build/,$(OBJECTS_CPP_BASE) $(OBJECTS))
+
+
+# truc:
+# 	echo $(OBJECTS_CPP_BASE) $(OBJECTS):
+# 	echo
+# 	echo $(OBJECTS_BUILD)
 
 
 .PHONY: help all clean _build_dir
 
-all: test_bench.out
+all: build test_bench.out
+
+build:
+	mkdir -p build
 
 clean:
 	rm -rf build
 	rm -f *.out
 
-_build_dir:
-	mkdir -p build
-
-test_bench.out: _build_dir $(OBJECTS) $(OBJECTS_CPP_BASE)
+test_bench.out: $(OBJECTS) $(OBJECTS_CPP_BASE)
 	# link to build the executable $@
-	$(CC) $(FLAGS) $(OBJECTS_BUILD) $(LIBS) $(LIB_DIR) -o $@
+	$(LD) $(LDFLAGS) $(OBJECTS_BUILD) $(LIBS) $(LIB_DIR) -o $@
 
 %.o: %.cu
 	# make $@ from $<
-	$(CC) $(FLAGS) $(INC_DIR) -c $< -o build/$@
+	nvcc $(FLAGS_CU) $(INC_DIR) $(INC_DIR_CU) -c $< -o build/$@
+
 %.o: %.cpp
 	# make $@ from $<
 	$(CC) $(FLAGS) $(INC_DIR) -c $< -o build/$@
@@ -80,4 +121,10 @@ test_bench.out: _build_dir $(OBJECTS) $(OBJECTS_CPP_BASE)
 
 %.o: ../base/%.cpp
 	# make $@ from $<
-	$(CC) $(FLAGS) $(LDFLAGS) $(INC_DIR) -c $< -o build/$@
+	$(CC) $(FLAGS) $(INC_DIR) -c $< -o build/$@
+
+test:
+	./test_bench.out --N0=64 --N1=32 --N2=16
+
+testmpi:
+	mpirun -np 4 ./test_bench.out --N0=64 --N1=32 --N2=16

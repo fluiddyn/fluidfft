@@ -8,8 +8,14 @@ using namespace std;
 
 #include <fft3d_with_fftw3d.h>
 #include <fft3dmpi_with_fftwmpi3d.h>
+
+#ifdef PFFT
 #include <fft3dmpi_with_pfft.h>
+#endif
+
+#ifdef P3DFFT
 #include <fft3dmpi_with_p3dfft.h>
+#endif
 
 #ifdef CUDA
 #include <fft3d_with_cufft.h>
@@ -85,17 +91,20 @@ int main(int argc, char **argv)
     }
    else
    {
+#ifdef P3DFFT
      FFT3DMPIWithP3DFFT s2(N0, N1, N2);
      s2.test();
      s2.bench();
      s2.bench();
      s2.destroy();
-
+#endif
+#ifdef PFFT
     FFT3DMPIWithPFFT s3(N0, N1, N2);
      s3.test();
      s3.bench();
      s3.bench();
      s3.destroy();
+#endif
 
      }
   

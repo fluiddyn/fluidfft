@@ -29,8 +29,10 @@ src_base = 'src_cpp/base'
 base_names = [
     # 'fft2d_with_fftw1d', 'fft2d_with_fftw2d', 'fft2dmpi_with_fftw1d',
     # 'fft2dmpi_with_fftwmpi2d',
-    'fft3d_with_fftw3d',
-    'fft3dmpi_with_fftwmpi3d', 'fft3dmpi_with_pfft']
+    # 'fft3d_with_fftw3d',
+    'fft3d_with_cufft',
+    # 'fft3dmpi_with_fftwmpi3d', 'fft3dmpi_with_pfft'
+]
 
 on_rtd = os.environ.get('READTHEDOCS')
 if on_rtd:
@@ -86,6 +88,11 @@ def create_ext(base_name):
         include_dirs += ['/home/users/augier3pi/opt/include',
                          '/opt/pfft/1.0.6/include']
         lib_dir = ['/home/users/augier3pi/opt/lib', '/opt/pfft/1.0.6/lib']
+    elif 'cufft' in base_name:
+        libraries = libraries_base + ['cufft']
+        include_dirs += []
+        lib_dir = []
+        os.environ["CC"] = 'nvcc'
     else:
         libraries = libraries_base
 
