@@ -3,9 +3,10 @@ import os
 
 from setuptools import setup, find_packages
 
-from Cython.Distutils import build_ext
-from Cython.Distutils.extension import Extension
+# from Cython.Distutils import build_ext
+# from Cython.Distutils.extension import Extension
 
+from purepymake import Extension, make_extensions
 
 # Get the long description from the relevant file
 with open('README.rst') as f:
@@ -19,18 +20,18 @@ d = run_path('fluidfft2d/_version.py')
 __version__ = d['__version__']
 
 
-os.environ["CC"] = 'mpic++'
-
 src_cpp_dir = 'src_cpp'
 src_cy_dir = 'src_cy'
 src_base = 'src_cpp/base'
+src_cpp_3d = 'src_cpp/3d'
+src_cpp_2d = 'src_cpp/2d'
 
 
 base_names = [
     # 'fft2d_with_fftw1d', 'fft2d_with_fftw2d', 'fft2dmpi_with_fftw1d',
-    # 'fft2dmpi_with_fftwmpi2d',
-    # 'fft3d_with_fftw3d',
-    'fft3d_with_cufft',
+    'fft2dmpi_with_fftwmpi2d',
+    'fft3d_with_fftw3d',
+    # 'fft3d_with_cufft',
     # 'fft3dmpi_with_fftwmpi3d', 'fft3dmpi_with_pfft'
 ]
 
@@ -39,8 +40,6 @@ if on_rtd:
     base_names = []
 else:
     import mpi4py
-    include_base = [src_base, 'include', mpi4py.get_include()]
-libraries_base = ['fftw3', 'mpi_cxx']
 
 
 def create_ext(base_name):
@@ -78,70 +77,76 @@ def create_ext(base_name):
             [os.path.join(src_base, 'base_fftmpi.cpp'),
              os.path.join(src_cpp_dim, 'base_fft' + dim + 'mpi.cpp')])
 
-    include_dirs = include_base + [src_cpp_dim]
-    lib_dir = []
-
-    if 'fftwmpi' in base_name:
-        libraries = libraries_base + ['fftw3_mpi']
-    elif 'pfft' in base_name:
-        libraries = libraries_base + ['fftw3_mpi', 'pfft']
-        include_dirs += ['/home/users/augier3pi/opt/include',
-                         '/opt/pfft/1.0.6/include']
-        lib_dir = ['/home/users/augier3pi/opt/lib', '/opt/pfft/1.0.6/lib']
-    elif 'cufft' in base_name:
-        libraries = libraries_base + ['cufft']
-        include_dirs += []
-        lib_dir = []
-        os.environ["CC"] = 'nvcc'
-    else:
-        libraries = libraries_base
-
     return Extension(
         name='fluidfft' + dim + '.' + base_name,
-        sources=sources,
-        language='c++',
-        include_dirs=include_dirs,
-        libraries=libraries,
-        library_dirs=lib_dir)
+        sources=sources)
 
 
 ext_modules = []
+
+libraries = set(['fftw3', 'mpi_cxx'])
+lib_dirs = set()
+include_dirs = set(
+    [src_base, src_cpp_3d, src_cpp_2d, 'include', mpi4py.get_include()])
+
+specials = {}
+
 for base_name in base_names:
     ext_modules.append(create_ext(base_name))
 
-setup(
-    name='fluidfft',
-    description=('Efficient and easy Fast Fourier Transform for Python.'),
-    long_description=long_description,
-    keywords='Fast Fourier Transform, spectral code',
-    author='Pierre Augier',
-    author_email='pierre.augier@legi.cnrs.fr',
-    url='https://bitbucket.org/fluiddyn/fluidfft',
-    license='CeCILL',
-    classifiers=[
-        # How mature is this project? Common values are
-        # 3 - Alpha
-        # 4 - Beta
-        # 5 - Production/Stable
-        'Development Status :: 3 - Alpha',
-        'Intended Audience :: Science/Research',
-        'Intended Audience :: Education',
-        'Topic :: Scientific/Engineering',
-        'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
-        # actually CeCILL License (GPL compatible license for French laws)
-        #
-        # Specify the Python versions you support here. In particular,
-        # ensure that you indicate whether you support Python 2,
-        # Python 3 or both.
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        # 'Programming Language :: Python :: 3',
-        # 'Programming Language :: Python :: 3.3',
-        # 'Programming Language :: Python :: 3.4',
-        'Programming Language :: Cython',
-        'Programming Language :: C'],
-    packages=find_packages(exclude=[
-        'doc', 'include', 'scripts', 'src_cpp', 'src_cy']),
-    cmdclass={'build_ext': build_ext},
-    ext_modules=ext_modules)
+    if 'fftwmpi' in base_name:
+        libraries.add('fftw3_mpi')
+    elif 'pfft' in base_name:
+        libraries.update(['fftw3_mpi', 'pfft'])
+        include_dirs.update(['/opt/pfft/1.0.6/include'])
+        lib_dirs.update(
+            ['/home/users/augier3pi/opt/lib', '/opt/pfft/1.0.6/lib'])
+    elif 'cufft' in base_name:
+        libraries.add('cufft')
+        specials[''] = {'CC': 'nvcc'}
+
+
+make_extensions(
+    ext_modules, include_dirs=include_dirs,
+    lib_dirs=lib_dirs, libraries=libraries,
+    specials=specials, CC='mpic++')
+
+
+# setup(
+#     name='fluidfft',
+#     version=__version__,
+#     description=('Efficient and easy Fast Fourier Transform for Python.'),
+#     long_description=long_description,
+#     keywords='Fast Fourier Transform, spectral code',
+#     author='Pierre Augier',
+#     author_email='pierre.augier@legi.cnrs.fr',
+#     url='https://bitbucket.org/fluiddyn/fluidfft',
+#     license='CeCILL',
+#     classifiers=[
+#         # How mature is this project? Common values are
+#         # 3 - Alpha
+#         # 4 - Beta
+#         # 5 - Production/Stable
+#         'Development Status :: 3 - Alpha',
+#         'Intended Audience :: Science/Research',
+#         'Intended Audience :: Education',
+#         'Topic :: Scientific/Engineering',
+#         'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
+#         # actually CeCILL License (GPL compatible license for French laws)
+#         #
+#         # Specify the Python versions you support here. In particular,
+#         # ensure that you indicate whether you support Python 2,
+#         # Python 3 or both.
+#         'Programming Language :: Python',
+#         'Programming Language :: Python :: 2',
+#         'Programming Language :: Python :: 2.7',
+#         # 'Programming Language :: Python :: 3',
+#         # 'Programming Language :: Python :: 3.3',
+#         # 'Programming Language :: Python :: 3.4',
+#         'Programming Language :: Cython',
+#         'Programming Language :: C'],
+#     packages=find_packages(exclude=[
+#         'doc', 'include', 'scripts', 'src_cpp', 'src_cy']),
+#     # cmdclass={'build_ext': build_ext},
+#     # ext_modules=ext_modules
+# )
