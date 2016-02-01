@@ -61,11 +61,7 @@ real_cu BaseFFT::compute_energy_from_X(real_cu* fieldX)
   return 0.;
 }
 
-#ifdef SINGLE_PREC
-real_cu BaseFFT::compute_energy_from_K(fftwf_complex* fieldK)
-#else
-real_cu BaseFFT::compute_energy_from_K(fftw_complex* fieldK)
-#endif
+real_cu BaseFFT::compute_energy_from_K(myfftw_complex* fieldK)
 {
   return 0.;
 }
@@ -75,11 +71,7 @@ real_cu BaseFFT::compute_mean_from_X(real_cu* fieldX)
   return 0.;
 }
 
-#ifdef SINGLE_PREC
-  real_cu BaseFFT::compute_mean_from_K(fftwf_complex* fieldK)
-#else
-  real_cu BaseFFT::compute_mean_from_K(fftw_complex* fieldK)
-#endif
+real_cu BaseFFT::compute_mean_from_K(myfftw_complex* fieldK)
 {
   return 0.;
 }
@@ -88,11 +80,7 @@ int BaseFFT::test()
 {
   int OK = 1;
   real_cu* fieldX;
-#ifdef SINGLE_PREC
-  fftwf_complex* fieldK;
-#else
-  fftw_complex* fieldK;
-#endif
+  myfftw_complex* fieldK;
   real_cu energy_X_before, energy_K_before, energy_K_after;
   real_cu mean_X_before, mean_K_before, mean_K_after;
 
@@ -169,11 +157,7 @@ const char* BaseFFT::bench(int nb_time_execute)
   struct timeval start_time, end_time;
   real_cu time_in_sec;
   real_cu* fieldX;
-#ifdef SINGLE_PREC
-  fftwf_complex* fieldK;
-#else
-  fftw_complex* fieldK;
-#endif
+  myfftw_complex* fieldK;
   string result("");
   char tmp_char[80];
   
@@ -229,19 +213,11 @@ void BaseFFT::alloc_array_X(real_cu* &fieldX)
 }
 
 
-#ifdef SINGLE_PREC
-void BaseFFT::alloc_array_K(fftwf_complex* &fieldK)
+void BaseFFT::alloc_array_K(myfftw_complex* &fieldK)
 {
-  fieldK = (fftwf_complex*) malloc(
-      this->get_local_size_K() * sizeof(fftwf_complex));
+  fieldK = (myfftw_complex*) malloc(
+      this->get_local_size_K() * sizeof(myfftw_complex));
 }
-#else
-void BaseFFT::alloc_array_K(fftw_complex* &fieldK)
-{
-  fieldK = (fftw_complex*) malloc(
-      this->get_local_size_K() * sizeof(fftw_complex));
-}
-#endif
 
 
 void BaseFFT::init_array_X_random(real_cu* &fieldX)
@@ -251,20 +227,12 @@ void BaseFFT::init_array_X_random(real_cu* &fieldX)
   fieldX[0] = 1;
 }
 
-#ifdef SINGLE_PREC
-void BaseFFT::fft(real_cu *fieldX, fftwf_complex *fieldK)
-#else
-void BaseFFT::fft(real_cu *fieldX, fftw_complex *fieldK)
-#endif
+void BaseFFT::fft(real_cu *fieldX, myfftw_complex *fieldK)
 {
   cout << "BaseFFT::fft" << endl;
 }
 
-#ifdef SINGLE_PREC
-void BaseFFT::ifft(fftwf_complex *fieldK, real_cu *fieldX)
-#else
-void BaseFFT::ifft(fftw_complex *fieldK, real_cu *fieldX)
-#endif
+void BaseFFT::ifft(myfftw_complex *fieldK, real_cu *fieldX)
 {
   cout << "BaseFFT::ifft" << endl;
 }

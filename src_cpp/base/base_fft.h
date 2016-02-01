@@ -12,8 +12,12 @@ using std::complex;
 
 #ifdef SINGLE_PREC
   typedef float real_cu;
+  typedef fftwf_complex myfftw_complex;
+  typedef fftwf_plan myfftw_plan;
 #else
   typedef double real_cu;
+  typedef fftw_complex myfftw_complex;
+  typedef fftw_plan myfftw_plan;
 #endif
 
 class BaseFFT
@@ -28,21 +32,11 @@ class BaseFFT
   virtual int test();
   virtual const char* bench(int nb_time_execute = 10);
  
-#ifdef SINGLE_PREC
-//  typedef float real_cu;
-  virtual void fft(real_cu *fieldX, fftwf_complex *fieldK);
-  virtual void ifft(fftwf_complex *fieldK, real_cu *fieldX);
-  virtual real_cu compute_energy_from_K(fftwf_complex* fieldK);
-  virtual real_cu compute_mean_from_K(fftwf_complex* fieldK);
-  void alloc_array_K(fftwf_complex* &fieldK);  
-#else
-//  typedef double real_cu;
-  virtual void fft(real_cu *fieldX, fftw_complex *fieldK);
-  virtual void ifft(fftw_complex *fieldK, real_cu *fieldX);
-  virtual real_cu compute_energy_from_K(fftw_complex* fieldK);
-  virtual real_cu compute_mean_from_K(fftw_complex* fieldK);
-  void alloc_array_K(fftw_complex* &fieldK);  
-#endif
+  virtual void fft(real_cu *fieldX, myfftw_complex *fieldK);
+  virtual void ifft(myfftw_complex *fieldK, real_cu *fieldX);
+  virtual real_cu compute_energy_from_K(myfftw_complex* fieldK);
+  virtual real_cu compute_mean_from_K(myfftw_complex* fieldK);
+  void alloc_array_K(myfftw_complex* &fieldK);  
 
   
   virtual real_cu compute_energy_from_X(real_cu* fieldX);

@@ -1,4 +1,4 @@
-SINGLE_PREC:=no
+SINGLE_PREC:=yes
 OMP:=yes
 CUDA:=yes
 PFFT:=no

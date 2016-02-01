@@ -20,17 +20,11 @@ class FFT2DWithCUFFT: public BaseFFT2D
   ~FFT2DWithCUFFT();
   void destroy();
   
-#ifdef SINGLE_PREC
-  void fft(real_cu *fieldX, fftwf_complex *fieldK);
-  void ifft(fftwf_complex *fieldK, real_cu *fieldX);
-  real_cu compute_energy_from_K(fftwf_complex* fieldK);
-  real_cu compute_mean_from_K(fftwf_complex* fieldK);
-#else
-  void fft(real_cu *fieldX, fftw_complex *fieldK);
-  void ifft(fftw_complex *fieldK, real_cu *fieldX);
-  real_cu compute_energy_from_K(fftw_complex* fieldK);
-  real_cu compute_mean_from_K(fftw_complex* fieldK);
-#endif
+  void fft(real_cu *fieldX, myfftw_complex *fieldK);
+  void ifft(myfftw_complex *fieldK, real_cu *fieldX);
+  real_cu compute_energy_from_K(myfftw_complex* fieldK);
+  real_cu compute_mean_from_K(myfftw_complex* fieldK);
+
 
   virtual const char* get_classname();
   

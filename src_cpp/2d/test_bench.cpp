@@ -7,7 +7,9 @@ using namespace std;
 
 #include <fft2dmpi_with_fftwmpi2d.h>
 #include <fft2d_with_fftw2d.h>
+#ifndef SINGLE_PREC
 #include <fft2dmpi_with_fftw1d.h>
+#endif
 #include <fft2d_with_fftw1d.h>
 
 #ifdef CUDA
@@ -46,12 +48,13 @@ int main(int argc, char **argv)
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &(nb_procs));
   
+#ifndef SINGLE_PREC
   FFT2DMPIWithFFTW1D s(N0, N1);
   s.test();
   s.bench();
   s.bench();
   s.destroy();
-
+#endif
   FFT2DMPIWithFFTWMPI2D s2(N0, N1);
   s2.test();
   s2.bench();

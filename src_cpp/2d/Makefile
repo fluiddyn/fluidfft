@@ -1,4 +1,4 @@
-SINGLE_PREC:=no
+SINGLE_PREC:=yes
 OMP:=yes
 CUDA:=yes
 PFFT:=no
@@ -15,7 +15,7 @@ INC_DIR:=-I. -I../base $(IDEV_PATH)
 
 
 SOURCES_CPP := $(wildcard base*.cpp)
-SOURCES_CPP += fft2d_with_fftw1d.cpp fft2d_with_fftw2d.cpp fft2dmpi_with_fftwmpi2d.cpp fft2dmpi_with_fftw1d.cpp test_bench.cpp
+SOURCES_CPP += fft2d_with_fftw1d.cpp fft2d_with_fftw2d.cpp fft2dmpi_with_fftwmpi2d.cpp test_bench.cpp
 
 
 ifeq "$(CUDA)" "yes"
@@ -50,6 +50,7 @@ ifeq "$(SINGLE_PREC)" "yes"
     LIBS+= -lp3dfft_sp
   endif
 else
+SOURCES_CPP += fft2dmpi_with_fftw1d.cpp
   LIBS+= -lfftw3 -lfftw3_mpi -lfftw3_omp
   ifeq "$(PFFT)" "yes"
     LIBS+= -lpfft

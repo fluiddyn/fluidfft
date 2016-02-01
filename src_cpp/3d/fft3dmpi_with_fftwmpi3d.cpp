@@ -176,11 +176,7 @@ real_cu FFT3DMPIWithFFTWMPI3D::compute_energy_from_X(real_cu* fieldX)
   return (real_cu) energy / 2 /coef_norm;
 }
 
-#ifdef SINGLE_PREC
-real_cu FFT3DMPIWithFFTWMPI3D::compute_energy_from_K(fftwf_complex* fieldK)
-#else
-real_cu FFT3DMPIWithFFTWMPI3D::compute_energy_from_K(fftw_complex* fieldK)
-#endif
+real_cu FFT3DMPIWithFFTWMPI3D::compute_energy_from_K(myfftw_complex* fieldK)
 {
   int i0, i1, i2;
   double energy_tmp = 0;
@@ -256,22 +252,12 @@ real_cu FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_double(real_cu* fieldK)
   return (real_cu) energy;
 }
 
-#ifdef SINGLE_PREC
 void FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_complex(
-    fftwf_complex* fieldK, fftwf_complex* result)
-#else
-void FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_complex(
-    fftw_complex* fieldK, fftw_complex* result)
-#endif
+    myfftw_complex* fieldK, myfftw_complex* result)
 {
   int i0, i1, i2;
-#ifdef SINGLE_PREC
-  fftwf_complex energy_tmp = 0;
-  fftwf_complex energy_loc, energy;
-#else
-  fftw_complex energy_tmp = 0;
-  fftw_complex energy_loc, energy;
-#endif
+  myfftw_complex energy_tmp = 0;
+  myfftw_complex energy_loc, energy;
   // modes i2 = iKx = 0
   i2 = 0;
   for (i0=0; i0<nK0loc; i0++)
@@ -319,11 +305,7 @@ real_cu FFT3DMPIWithFFTWMPI3D::compute_mean_from_X(real_cu* fieldX)
   return (real_cu) mean / coef_norm;
 }
 
-#ifdef SINGLE_PREC
-real_cu FFT3DMPIWithFFTWMPI3D::compute_mean_from_K(fftwf_complex* fieldK)
-#else
-real_cu FFT3DMPIWithFFTWMPI3D::compute_mean_from_K(fftw_complex* fieldK)
-#endif
+real_cu FFT3DMPIWithFFTWMPI3D::compute_mean_from_K(myfftw_complex* fieldK)
 {
   double mean, local_mean;
   if (local_K0_start == 0)
@@ -336,11 +318,7 @@ real_cu FFT3DMPIWithFFTWMPI3D::compute_mean_from_K(fftw_complex* fieldK)
   return (real_cu) mean;
 }
 
-#ifdef SINGLE_PREC
-void FFT3DMPIWithFFTWMPI3D::fft(real_cu *fieldX, fftwf_complex *fieldK)
-#else
-void FFT3DMPIWithFFTWMPI3D::fft(real_cu *fieldX, fftw_complex *fieldK)
-#endif
+void FFT3DMPIWithFFTWMPI3D::fft(real_cu *fieldX, myfftw_complex *fieldK)
 {
   int i0, i1, i2;
   // cout << "FFT3DMPIWithFFTWMPI3D::fft" << endl;
@@ -363,19 +341,14 @@ void FFT3DMPIWithFFTWMPI3D::fft(real_cu *fieldX, fftw_complex *fieldK)
 	  arrayK[i2 + (i1 + i0*nK1)*nK2]/coef_norm;
 }
 
-#ifdef SINGLE_PREC
-void FFT3DMPIWithFFTWMPI3D::ifft(fftwf_complex *fieldK, real_cu *fieldX)
-#else
-void FFT3DMPIWithFFTWMPI3D::ifft(fftw_complex *fieldK, real_cu *fieldX)
-#endif
+void FFT3DMPIWithFFTWMPI3D::ifft(myfftw_complex *fieldK, real_cu *fieldX)
 {
   int i0, i1, i2;
   // cout << "FFT3DMPIWithFFTWMPI3D::ifft" << endl;
+  memcpy(arrayK, fieldK, alloc_local*sizeof(myfftw_complex));
 #ifdef SINGLE_PREC
-  memcpy(arrayK, fieldK, alloc_local*sizeof(fftwf_complex));
   fftwf_execute(plan_c2r);
 #else
-  memcpy(arrayK, fieldK, alloc_local*sizeof(fftw_complex));
   fftw_execute(plan_c2r);
 #endif
 

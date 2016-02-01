@@ -17,19 +17,11 @@ class FFT3DMPIWithFFTWMPI3D: public BaseFFT3DMPI
   /* int get_local_size_X(); */
   /* int get_local_size_K(); */
 
-#ifdef SINGLE_PREC
-  void fft(real_cu *fieldX, fftwf_complex *fieldK);
-  void ifft(fftwf_complex *fieldK, real_cu *fieldX);
-  real_cu compute_energy_from_K(fftwf_complex* fieldK);
-  real_cu compute_mean_from_K(fftwf_complex* fieldK);
-  void sum_wavenumbers_complex(fftwf_complex* fieldK, fftwf_complex* result);
-#else
-  void fft(real_cu *fieldX, fftw_complex *fieldK);
-  void ifft(fftw_complex *fieldK, real_cu *fieldX);
-  real_cu compute_energy_from_K(fftw_complex* fieldK);
-  real_cu compute_mean_from_K(fftw_complex* fieldK);
-  void sum_wavenumbers_complex(fftw_complex* fieldK, fftw_complex* result);
-#endif
+  void fft(real_cu *fieldX, myfftw_complex *fieldK);
+  void ifft(myfftw_complex *fieldK, real_cu *fieldX);
+  real_cu compute_energy_from_K(myfftw_complex* fieldK);
+  real_cu compute_mean_from_K(myfftw_complex* fieldK);
+  void sum_wavenumbers_complex(myfftw_complex* fieldK, myfftw_complex* result);
 
   real_cu compute_energy_from_X(real_cu* fieldX);
   real_cu compute_mean_from_X(real_cu* fieldX);
@@ -45,13 +37,8 @@ class FFT3DMPIWithFFTWMPI3D: public BaseFFT3DMPI
   int nX1_pad;
   int coef_norm;
   real_cu *arrayX;
-#ifdef SINGLE_PREC
-  fftwf_complex *arrayK;
-  fftwf_plan plan_r2c, plan_c2r;
-#else
-  fftw_complex *arrayK;
-  fftw_plan plan_r2c, plan_c2r;
-#endif
+  myfftw_complex *arrayK;
+  myfftw_plan plan_r2c, plan_c2r;
   ptrdiff_t alloc_local, local_K0_start;
   ptrdiff_t local_X0_start;
 

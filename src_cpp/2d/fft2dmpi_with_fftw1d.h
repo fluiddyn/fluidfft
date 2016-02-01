@@ -15,21 +15,21 @@ class FFT2DMPIWithFFTW1D: public BaseFFT2DMPI
   
   virtual const char* get_classname();
   
-  void fft(double *fieldX, fftw_complex *fieldK);
-  void ifft(fftw_complex *fieldK, double *fieldX);
+  void fft(real_cu *fieldX, myfftw_complex *fieldK);
+  void ifft(myfftw_complex *fieldK, real_cu *fieldX);
   
-  double compute_energy_from_X(double* fieldX);
-  double compute_energy_from_K(fftw_complex* fieldK);
-  double compute_mean_from_X(double* fieldX);
-  double compute_mean_from_K(fftw_complex* fieldK);
+  real_cu compute_energy_from_X(real_cu* fieldX);
+  real_cu compute_energy_from_K(myfftw_complex* fieldK);
+  real_cu compute_mean_from_X(real_cu* fieldX);
+  real_cu compute_mean_from_K(myfftw_complex* fieldK);
 
-  void init_array_X_random(double* &fieldX);
+  void init_array_X_random(real_cu* &fieldX);
 
  private:
   int coef_norm;
   fftw_plan plan_r2c, plan_c2c_fwd, plan_c2r, plan_c2c_bwd;
-  double *arrayX;
-  fftw_complex *arrayK_pR, *arrayK_pC;
+  real_cu *arrayX;
+  myfftw_complex *arrayK_pR, *arrayK_pC;
 
   unsigned flags;
   MPI_Datatype MPI_type_column, MPI_type_block; 

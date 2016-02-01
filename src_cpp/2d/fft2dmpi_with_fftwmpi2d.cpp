@@ -12,24 +12,30 @@ using namespace std;
 
 #include <fft2dmpi_with_fftwmpi2d.h>
 
-
 FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1):
   BaseFFT2DMPI::BaseFFT2DMPI(argN0, argN1)
 {
   struct timeval start_time, end_time;
-  double total_usecs;
+  real_cu total_usecs;
   ptrdiff_t local_nX0;//, local_X0_start;
   ptrdiff_t local_nK0;
 
   this->_init();
+#ifdef SINGLE_PREC
+  fftwf_mpi_init();
 
+  /* get local data size and allocate */
+  alloc_local = fftwf_mpi_local_size_2d_transposed(N0, N1/2+1, MPI_COMM_WORLD,
+                                                  &local_nX0, &local_X0_start,
+                                                  &local_nK0, &local_K0_start);
+#else
   fftw_mpi_init();
 
   /* get local data size and allocate */
   alloc_local = fftw_mpi_local_size_2d_transposed(N0, N1/2+1, MPI_COMM_WORLD,
                                                   &local_nX0, &local_X0_start,
                                                   &local_nK0, &local_K0_start);
-
+#endif
   /* y corresponds to dim 0 in physical space */
   /* x corresponds to dim 1 in physical space */
   ny = N0;
@@ -55,7 +61,23 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1):
   flags = FFTW_MEASURE;
 /*    flags = FFTW_ESTIMATE;*/
 /*    flags = FFTW_PATIENT;*/
+#ifdef SINGLE_PREC
+  arrayX = fftwf_alloc_real(2 * alloc_local);
+  arrayK = fftwf_alloc_complex(alloc_local);
 
+  gettimeofday(&start_time, NULL);
+
+  plan_r2c = fftwf_mpi_plan_dft_r2c_2d(
+      N0, N1, arrayX,
+      arrayK, MPI_COMM_WORLD,
+      flags|FFTW_MPI_TRANSPOSED_OUT);
+
+  plan_c2r = fftwf_mpi_plan_dft_c2r_2d(
+      N0, N1,
+      arrayK, arrayX,
+      MPI_COMM_WORLD,
+      flags|FFTW_MPI_TRANSPOSED_IN);
+#else
   arrayX = fftw_alloc_real(2 * alloc_local);
   arrayK = fftw_alloc_complex(alloc_local);
 
@@ -71,7 +93,7 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1):
       arrayK, arrayX,
       MPI_COMM_WORLD,
       flags|FFTW_MPI_TRANSPOSED_IN);
-
+#endif
   gettimeofday(&end_time, NULL);
 
   total_usecs = (end_time.tv_sec-start_time.tv_sec) +
@@ -86,10 +108,17 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1):
 void FFT2DMPIWithFFTWMPI2D::destroy(void)
 {
   // cout << "Object is being destroyed" << endl;
+#ifdef SINGLE_PREC
+  fftwf_destroy_plan(plan_r2c);
+  fftwf_destroy_plan(plan_c2r);
+  fftwf_free(arrayX);
+  fftwf_free(arrayK);
+#else
   fftw_destroy_plan(plan_r2c);
   fftw_destroy_plan(plan_c2r);
   fftw_free(arrayX);
   fftw_free(arrayK);
+#endif
 }
 
 
@@ -102,28 +131,30 @@ char const* FFT2DMPIWithFFTWMPI2D::get_classname()
 { return "FFT2DMPIWithFFTWMPI2D";}
 
 
-double FFT2DMPIWithFFTWMPI2D::compute_energy_from_X(double* fieldX)
+real_cu FFT2DMPIWithFFTWMPI2D::compute_energy_from_X(real_cu* fieldX)
 {
   int i0, i1;
-  double energy_loc = 0;
-  double energy;
+  real_cu energy_loc = 0;
+  real_cu energy;
 
   for (i0=0; i0<nX0loc; i0++)
     for (i1=0; i1<nX1; i1++)
       energy_loc += pow(fieldX[i1 + i0*nX1], 2);
-
+#ifdef SINGLE_PREC
+  MPI_Allreduce(&energy_loc, &energy, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+#else
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-
+#endif
   return energy / 2 /coef_norm;
 }
 
 
-double FFT2DMPIWithFFTWMPI2D::compute_energy_from_K(fftw_complex* fieldK)
+real_cu FFT2DMPIWithFFTWMPI2D::compute_energy_from_K(myfftw_complex* fieldK)
 {
   int i0, i1, i_tmp;
-  double energy_loc = 0;
-  double energy_tmp = 0;
-  double energy;
+  real_cu energy_loc = 0;
+  real_cu energy_tmp = 0;
+  real_cu energy;
 
   // modes i0 = iKx = 0
   i0 = 0;
@@ -151,43 +182,49 @@ double FFT2DMPIWithFFTWMPI2D::compute_energy_from_K(fftw_complex* fieldK)
   for (i0=1; i0<nK0loc-1; i0++)
     for (i1=0; i1<nK1; i1++)
       energy_loc += pow(cabs(fieldK[i1 + i0*nK1]), 2);
-
+#ifdef SINGLE_PREC
+  MPI_Allreduce(&energy_loc, &energy, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+#else
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-
+#endif
   return energy;
 }
 
 
-double FFT2DMPIWithFFTWMPI2D::compute_mean_from_X(double* fieldX)
+real_cu FFT2DMPIWithFFTWMPI2D::compute_mean_from_X(real_cu* fieldX)
 {
-  double mean, local_mean;
+  real_cu mean, local_mean;
   int ii;
   local_mean=0.;
 
   for (ii=0; ii<nX0loc*nX1; ii++)
     local_mean += fieldX[ii];
-
+#ifdef SINGLE_PREC
+  MPI_Allreduce(&local_mean, &mean, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+#else
   MPI_Allreduce(&local_mean, &mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-
+#endif
   return mean / coef_norm;
 }
 
 
-double FFT2DMPIWithFFTWMPI2D::compute_mean_from_K(fftw_complex* fieldK)
+real_cu FFT2DMPIWithFFTWMPI2D::compute_mean_from_K(myfftw_complex* fieldK)
 {
-  double mean, local_mean;
+  real_cu mean, local_mean;
   if (local_K0_start == 0)
     local_mean = creal(fieldK[0]);
   else
     local_mean = 0.;
-
+#ifdef SINGLE_PREC
+  MPI_Allreduce(&local_mean, &mean, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+#else
   MPI_Allreduce(&local_mean, &mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-
+#endif
   return mean;
 }
 
 
-void FFT2DMPIWithFFTWMPI2D::fft(double *fieldX, fftw_complex *fieldK)
+void FFT2DMPIWithFFTWMPI2D::fft(real_cu *fieldX, myfftw_complex *fieldK)
 {
   int i0, i1;
   // cout << "FFT2DMPIWithFFTWMPI2D::fft" << endl;
@@ -195,29 +232,35 @@ void FFT2DMPIWithFFTWMPI2D::fft(double *fieldX, fftw_complex *fieldK)
   for (i0=0; i0<nX0loc; i0++)
     for (i1=0; i1<nX1; i1++)
       arrayX[i1 + i0*nX1_pad] = fieldX[i1 + i0*nX1];
-  
-  fftw_execute(plan_r2c);
 
+#ifdef SINGLE_PREC
+  fftwf_execute(plan_r2c);
+#else
+  fftw_execute(plan_r2c);
+#endif
   for (i0=0; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
       fieldK[i1 + i0*nK1]  = arrayK[i1 + i0*nK1]/coef_norm;
 }
 
 
-void FFT2DMPIWithFFTWMPI2D::ifft(fftw_complex *fieldK, double *fieldX)
+void FFT2DMPIWithFFTWMPI2D::ifft(myfftw_complex *fieldK, real_cu *fieldX)
 {
   int i0, i1;
   // cout << "FFT2DMPIWithFFTWMPI2D::ifft" << endl;
-  memcpy(arrayK, fieldK, alloc_local*sizeof(fftw_complex));
+  memcpy(arrayK, fieldK, alloc_local*sizeof(myfftw_complex));
+#ifdef SINGLE_PREC
+  fftwf_execute(plan_c2r);
+#else
   fftw_execute(plan_c2r);
-
+#endif
   for (i0=0; i0<nX0loc; i0++)
     for (i1=0; i1<nX1; i1++)
       fieldX[i1 + i0*nX1] = arrayX[i1 + i0*nX1_pad];
 }
 
 
-void FFT2DMPIWithFFTWMPI2D::init_array_X_random(double* &fieldX)
+void FFT2DMPIWithFFTWMPI2D::init_array_X_random(real_cu* &fieldX)
 {
   int ii;
   this->alloc_array_X(fieldX);
@@ -232,7 +275,7 @@ void FFT2DMPIWithFFTWMPI2D::init_array_X_random(double* &fieldX)
   // }
 
   for (ii = 0; ii < nX0loc*nX1; ++ii)
-    fieldX[ii] = (double)rand() / RAND_MAX;
+    fieldX[ii] = (real_cu)rand() / RAND_MAX;
 }
 
 

@@ -17,7 +17,7 @@ FFT2DWithFFTW2D::FFT2DWithFFTW2D(int argN0, int argN1):
   BaseFFT2D::BaseFFT2D(argN0, argN1)
 {
   struct timeval start_time, end_time;
-  double total_usecs;
+  real_cu total_usecs;
 
   this->_init();
   
@@ -45,10 +45,19 @@ FFT2DWithFFTW2D::FFT2DWithFFTW2D(int argN0, int argN1):
   flags = FFTW_MEASURE;
 /*    flags = FFTW_ESTIMATE;*/
 /*    flags = FFTW_PATIENT;*/
+#ifdef SINGLE_PREC
+  arrayX = fftwf_alloc_real(nX0 * nX1);
+  arrayK = fftwf_alloc_complex(nK0 * nK1);
+  gettimeofday(&start_time, NULL);
 
+  plan_r2c = fftwf_plan_dft_r2c_2d(
+      N0, N1, arrayX, arrayK, flags);
+
+  plan_c2r = fftwf_plan_dft_c2r_2d(
+      N0, N1, arrayK, arrayX, flags);
+#else
   arrayX = fftw_alloc_real(nX0 * nX1);
   arrayK = fftw_alloc_complex(nK0 * nK1);
-
   gettimeofday(&start_time, NULL);
 
   plan_r2c = fftw_plan_dft_r2c_2d(
@@ -56,6 +65,8 @@ FFT2DWithFFTW2D::FFT2DWithFFTW2D(int argN0, int argN1):
 
   plan_c2r = fftw_plan_dft_c2r_2d(
       N0, N1, arrayK, arrayX, flags);
+#endif
+
 
   gettimeofday(&end_time, NULL);
 
@@ -70,10 +81,17 @@ FFT2DWithFFTW2D::FFT2DWithFFTW2D(int argN0, int argN1):
 void FFT2DWithFFTW2D::destroy(void)
 {
   // cout << "Object is being destroyed" << endl;
+#ifdef SINGLE_PREC
+  fftwf_destroy_plan(plan_r2c);
+  fftwf_destroy_plan(plan_c2r);
+  fftwf_free(arrayX);
+  fftwf_free(arrayK);
+#else
   fftw_destroy_plan(plan_r2c);
   fftw_destroy_plan(plan_c2r);
   fftw_free(arrayX);
   fftw_free(arrayK);
+#endif
 }
 
 
@@ -86,10 +104,10 @@ char const* FFT2DWithFFTW2D::get_classname()
 { return "FFT2DWithFFTW2D";}
 
 
-double FFT2DWithFFTW2D::compute_energy_from_X(double* fieldX)
+real_cu FFT2DWithFFTW2D::compute_energy_from_X(real_cu* fieldX)
 {
   int ii;
-  double energy = 0;
+  real_cu energy = 0;
 
   for (ii=0; ii<nX0loc * nX1; ii++)
     energy += pow(fieldX[ii], 2);
@@ -98,11 +116,11 @@ double FFT2DWithFFTW2D::compute_energy_from_X(double* fieldX)
 }
 
 
-double FFT2DWithFFTW2D::compute_energy_from_K(fftw_complex* fieldK)
+real_cu FFT2DWithFFTW2D::compute_energy_from_K(myfftw_complex* fieldK)
 {
   int i0, i1;
-  double energy = 0;
-  double energy_tmp = 0;
+  real_cu energy = 0;
+  real_cu energy_tmp = 0;
 
   // modes i1 = iKx = 0
   i1 = 0;
@@ -128,9 +146,9 @@ double FFT2DWithFFTW2D::compute_energy_from_K(fftw_complex* fieldK)
 }
 
 
-double FFT2DWithFFTW2D::compute_mean_from_X(double* fieldX)
+real_cu FFT2DWithFFTW2D::compute_mean_from_X(real_cu* fieldX)
 {
-  double mean = 0.;
+  real_cu mean = 0.;
   int ii;
 
   for (ii=0; ii<nX0loc*nX1; ii++)
@@ -140,42 +158,48 @@ double FFT2DWithFFTW2D::compute_mean_from_X(double* fieldX)
 }
 
 
-double FFT2DWithFFTW2D::compute_mean_from_K(fftw_complex* fieldK)
+real_cu FFT2DWithFFTW2D::compute_mean_from_K(myfftw_complex* fieldK)
 {
-  double mean = creal(fieldK[0]);
+  real_cu mean = creal(fieldK[0]);
   return mean;
 }
 
 
-void FFT2DWithFFTW2D::fft(double *fieldX, fftw_complex *fieldK)
+void FFT2DWithFFTW2D::fft(real_cu *fieldX, myfftw_complex *fieldK)
 {
   int ii;
   // cout << "FFT2DWithFFTW2D::fft" << endl;
 
   /*use memcpy(void * destination, void * source, size_t bytes); */
-  memcpy(arrayX, fieldX, nX0*nX1*sizeof(double));
-  
+  memcpy(arrayX, fieldX, nX0*nX1*sizeof(real_cu));
+#ifdef SINGLE_PREC
+  fftwf_execute(plan_r2c);
+#else  
   fftw_execute(plan_r2c);
-  
+#endif  
   for (ii=0; ii<nK0loc*nK1; ii++)
     fieldK[ii]  = arrayK[ii]/coef_norm;
 }
 
 
-void FFT2DWithFFTW2D::ifft(fftw_complex *fieldK, double *fieldX)
+void FFT2DWithFFTW2D::ifft(myfftw_complex *fieldK, real_cu *fieldX)
 {
   // cout << "FFT2DWithFFTW2D::ifft" << endl;
-  memcpy(arrayK, fieldK, nK0*nK1*sizeof(fftw_complex));
+  memcpy(arrayK, fieldK, nK0*nK1*sizeof(myfftw_complex));
+#ifdef SINGLE_PREC
+  fftwf_execute(plan_c2r);
+#else
   fftw_execute(plan_c2r);
-  memcpy(fieldX, arrayX, nX0*nX1*sizeof(double));
+#endif
+  memcpy(fieldX, arrayX, nX0*nX1*sizeof(real_cu));
 }
 
 
-void FFT2DWithFFTW2D::init_array_X_random(double* &fieldX)
+void FFT2DWithFFTW2D::init_array_X_random(real_cu* &fieldX)
 {
   int ii;
   this->alloc_array_X(fieldX);
 
   for (ii = 0; ii < nX0*nX1; ++ii)
-    fieldX[ii] = (double)rand() / RAND_MAX;
+    fieldX[ii] = (real_cu)rand() / RAND_MAX;
 }

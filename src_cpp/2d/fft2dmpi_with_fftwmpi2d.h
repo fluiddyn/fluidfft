@@ -17,22 +17,22 @@ class FFT2DMPIWithFFTWMPI2D: public BaseFFT2DMPI
   /* int get_local_size_X(); */
   /* int get_local_size_K(); */
 
-  void fft(double *fieldX, fftw_complex *fieldK);
-  void ifft(fftw_complex *fieldK, double *fieldX);
+  void fft(real_cu *fieldX, myfftw_complex *fieldK);
+  void ifft(myfftw_complex *fieldK, real_cu *fieldX);
   
-  double compute_energy_from_X(double* fieldX);
-  double compute_energy_from_K(fftw_complex* fieldK);
-  double compute_mean_from_X(double* fieldX);
-  double compute_mean_from_K(fftw_complex* fieldK);
+  real_cu compute_energy_from_X(real_cu* fieldX);
+  real_cu compute_energy_from_K(myfftw_complex* fieldK);
+  real_cu compute_mean_from_X(real_cu* fieldX);
+  real_cu compute_mean_from_K(myfftw_complex* fieldK);
 
-  void init_array_X_random(double* &fieldX);
+  void init_array_X_random(real_cu* &fieldX);
 
  private:
   int nX1_pad;
   int coef_norm;
-  fftw_plan plan_r2c, plan_c2r;
-  double *arrayX;
-  fftw_complex *arrayK;
+  myfftw_plan plan_r2c, plan_c2r;
+  real_cu *arrayX;
+  myfftw_complex *arrayK;
   ptrdiff_t alloc_local, local_K0_start;
   ptrdiff_t local_X0_start;
 
