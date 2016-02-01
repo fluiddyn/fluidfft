@@ -3,7 +3,7 @@
 #include <complex.h>
 #include <cuda_runtime.h>
 #include <cufft.h>
-#include <base_fft3d.h>
+#include <base_fft2d.h>
 #include <helper_functions.h>
 #include <helper_cuda.h>
 
@@ -13,11 +13,11 @@
   typedef double2 dcomplex;
 #endif
 
-class FFT3DWithCUFFT: public BaseFFT3D
+class FFT2DWithCUFFT: public BaseFFT2D
 {
  public:
-  FFT3DWithCUFFT(int N0, int N1, int N2);
-  ~FFT3DWithCUFFT();
+  FFT2DWithCUFFT(int N0, int N1);
+  ~FFT2DWithCUFFT();
   void destroy();
   
 #ifdef SINGLE_PREC
@@ -40,7 +40,7 @@ class FFT3DWithCUFFT: public BaseFFT3D
   void init_array_X_random(real_cu* &fieldX);
 
  private:
-  int nX2loc, nK2loc, nXxloc, nXyloc, nXzloc, nKzloc, nXx, nXy, nXz, nKyloc;
+  int nX1loc, nK1loc, nXxloc, nXyloc, nXx, nXy, nKyloc;
   int coef_norm;
 
   int mem_size;//equivalent à la taille de arrayK?

@@ -10,6 +10,9 @@ using namespace std;
 #include <fft2dmpi_with_fftw1d.h>
 #include <fft2d_with_fftw1d.h>
 
+#ifdef CUDA
+#include <fft2d_with_cufft.h>
+#endif
 const int N0default=16, N1default=16;
 
 void parse_args(int nb_args, char **argv, int &N0, int &N1)
@@ -68,6 +71,14 @@ int main(int argc, char **argv)
       s3.bench();
       s3.bench();
       s3.destroy();
+
+#ifdef CUDA
+       FFT2DWithCUFFT s5(N0, N1);
+       s5.test();
+       s5.bench();
+       s5.bench();
+       s5.destroy();
+#endif
     }
   
   MPI_Finalize();
