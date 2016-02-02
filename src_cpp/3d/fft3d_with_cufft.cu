@@ -12,7 +12,7 @@ using namespace std;
 
 //  KERNEL CUDA
 // Complex scale
-static __device__ __host__ inline dcomplex ComplexScale(dcomplex a, real_cu s)
+static __device__ __host__ inline dcomplex ComplexScale(dcomplex a, myreal s)
 {
   dcomplex c;
   c.x = s * a.x;
@@ -20,7 +20,7 @@ static __device__ __host__ inline dcomplex ComplexScale(dcomplex a, real_cu s)
   return c;
 }
 
-__global__ void vectorNorm(const real_cu norm, dcomplex *A, int numElements)
+__global__ void vectorNorm(const myreal norm, dcomplex *A, int numElements)
 {
   int i = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -36,7 +36,7 @@ FFT3DWithCUFFT::FFT3DWithCUFFT(int argN0, int argN1, int argN2):
   BaseFFT3D::BaseFFT3D(argN0, argN1, argN2)
 {
   struct timeval start_time, end_time;
-  real_cu total_usecs;
+  myreal total_usecs;
   
   this->_init();
 
@@ -68,9 +68,9 @@ FFT3DWithCUFFT::FFT3DWithCUFFT(int argN0, int argN1, int argN2):
   coef_norm = N0*N1*N2;
 
 
-  mem_sizer = sizeof(real_cu) * N0 * N1 * N2 ;//taille de arrayX
+  mem_sizer = sizeof(myreal) * N0 * N1 * N2 ;//taille de arrayX
   int new_size = nK0 * nK1 * nK2 ;
-  mem_size = 2 * sizeof(real_cu) * new_size ;//taille de arrayK
+  mem_size = 2 * sizeof(myreal) * new_size ;//taille de arrayK
 
   gettimeofday(&start_time, NULL);
   // Allocate device memory for signal
@@ -116,11 +116,11 @@ char const* FFT3DWithCUFFT::get_classname()
 { return "FFT3DWithCUFFT";}
 
 
-real_cu FFT3DWithCUFFT::compute_energy_from_X(real_cu* fieldX)
+myreal FFT3DWithCUFFT::compute_energy_from_X(myreal* fieldX)
 {
   int ii,jj,kk;
-  real_cu energy = 0.;
-  real_cu energy1, energy2;
+  myreal energy = 0.;
+  myreal energy1, energy2;
 
   for (ii=0; ii<nX0; ii++)
     {
@@ -141,9 +141,9 @@ real_cu FFT3DWithCUFFT::compute_energy_from_X(real_cu* fieldX)
 
 
 #ifdef SINGLE_PREC
-real_cu FFT3DWithCUFFT::compute_energy_from_K(fftwf_complex* fieldK)
+myreal FFT3DWithCUFFT::compute_energy_from_K(fftwf_complex* fieldK)
 #else
-real_cu FFT3DWithCUFFT::compute_energy_from_K(fftw_complex* fieldK)
+myreal FFT3DWithCUFFT::compute_energy_from_K(fftw_complex* fieldK)
 #endif
 {
   int i0, i1, i2;
@@ -173,13 +173,13 @@ real_cu FFT3DWithCUFFT::compute_energy_from_K(fftw_complex* fieldK)
   energy += energy0/2.;
 
   //cout << "energyK=" << energy<<  endl;
-  return (real_cu) energy;
+  return (myreal) energy;
 }
 
 
-real_cu FFT3DWithCUFFT::compute_mean_from_X(real_cu* fieldX)
+myreal FFT3DWithCUFFT::compute_mean_from_X(myreal* fieldX)
 {
-  real_cu mean,mean1,mean2;
+  myreal mean,mean1,mean2;
   int ii,jj,kk;
   mean=0.;
 
@@ -200,12 +200,12 @@ real_cu FFT3DWithCUFFT::compute_mean_from_X(real_cu* fieldX)
 
 
 #ifdef SINGLE_PREC
-real_cu FFT3DWithCUFFT::compute_mean_from_K(fftwf_complex* fieldK)
+myreal FFT3DWithCUFFT::compute_mean_from_K(fftwf_complex* fieldK)
 #else
-real_cu FFT3DWithCUFFT::compute_mean_from_K(fftw_complex* fieldK)
+myreal FFT3DWithCUFFT::compute_mean_from_K(fftw_complex* fieldK)
 #endif
 {
-  real_cu mean;
+  myreal mean;
   mean = creal(fieldK[0]);
 
   return mean;
@@ -213,9 +213,9 @@ real_cu FFT3DWithCUFFT::compute_mean_from_K(fftw_complex* fieldK)
 
 
 #ifdef SINGLE_PREC
-void FFT3DWithCUFFT::fft(real_cu *fieldX, fftwf_complex *fieldK)
+void FFT3DWithCUFFT::fft(myreal *fieldX, fftwf_complex *fieldK)
 #else
-void FFT3DWithCUFFT::fft(real_cu *fieldX, fftw_complex *fieldK)
+void FFT3DWithCUFFT::fft(myreal *fieldX, fftw_complex *fieldK)
 #endif
 {
   
@@ -235,7 +235,7 @@ void FFT3DWithCUFFT::fft(real_cu *fieldX, fftw_complex *fieldK)
 
   
   // Launch the Vector Norm CUDA Kernel
-  real_cu norm = 1./coef_norm;
+  myreal norm = 1./coef_norm;
   //  printf("CUDA kernel launch with %d blocks of %d threads\n", blocksPerGrid, threadsPerBlock);
   int threadsPerBlock = 256;
   int blocksPerGrid =(nK0 * nK1 * nK2 + threadsPerBlock - 1) / threadsPerBlock;
@@ -250,9 +250,9 @@ void FFT3DWithCUFFT::fft(real_cu *fieldX, fftw_complex *fieldK)
 
 
 #ifdef SINGLE_PREC
-void FFT3DWithCUFFT::ifft(fftwf_complex *fieldK, real_cu *fieldX)
+void FFT3DWithCUFFT::ifft(fftwf_complex *fieldK, myreal *fieldX)
 #else
-void FFT3DWithCUFFT::ifft(fftw_complex *fieldK, real_cu *fieldX)
+void FFT3DWithCUFFT::ifft(fftw_complex *fieldK, myreal *fieldX)
 #endif
 {
 
@@ -275,12 +275,12 @@ void FFT3DWithCUFFT::ifft(fftw_complex *fieldK, real_cu *fieldX)
 }
 
 
-void FFT3DWithCUFFT::init_array_X_random(real_cu* &fieldX)
+void FFT3DWithCUFFT::init_array_X_random(myreal* &fieldX)
 {
   int ii;
   this->alloc_array_X(fieldX);
 
   for (ii = 0; ii < nX0*nX1*nX2; ++ii)
-    fieldX[ii] = (real_cu)rand() / RAND_MAX;
+    fieldX[ii] = (myreal)rand() / RAND_MAX;
 }
 

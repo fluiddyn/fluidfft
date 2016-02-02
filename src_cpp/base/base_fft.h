@@ -11,12 +11,12 @@
 using std::complex;
 
 #ifdef SINGLE_PREC
-  typedef float real_cu;
-  typedef fftwf_complex myfftw_complex;
+  typedef float myreal;
+  typedef fftwf_complex mycomplex;
   typedef fftwf_plan myfftw_plan;
 #else
-  typedef double real_cu;
-  typedef fftw_complex myfftw_complex;
+  typedef double myreal;
+  typedef fftw_complex mycomplex;
   typedef fftw_plan myfftw_plan;
 #endif
 
@@ -32,22 +32,22 @@ class BaseFFT
   virtual int test();
   virtual const char* bench(int nb_time_execute = 10);
  
-  virtual void fft(real_cu *fieldX, myfftw_complex *fieldK);
-  virtual void ifft(myfftw_complex *fieldK, real_cu *fieldX);
-  virtual real_cu compute_energy_from_K(myfftw_complex* fieldK);
-  virtual real_cu compute_mean_from_K(myfftw_complex* fieldK);
-  void alloc_array_K(myfftw_complex* &fieldK);  
+  virtual void fft(myreal *fieldX, mycomplex *fieldK);
+  virtual void ifft(mycomplex *fieldK, myreal *fieldX);
+  virtual myreal compute_energy_from_K(mycomplex* fieldK);
+  virtual myreal compute_mean_from_K(mycomplex* fieldK);
+  void alloc_array_K(mycomplex* &fieldK);  
 
   
-  virtual real_cu compute_energy_from_X(real_cu* fieldX);
-  virtual real_cu compute_mean_from_X(real_cu* fieldX);
+  virtual myreal compute_energy_from_X(myreal* fieldX);
+  virtual myreal compute_mean_from_X(myreal* fieldX);
 
   virtual int get_local_size_X();
   virtual int get_local_size_K();
   
-  virtual void init_array_X_random(real_cu* &fieldX);
+  virtual void init_array_X_random(myreal* &fieldX);
 
-  virtual void alloc_array_X(real_cu* &fieldX);
+  virtual void alloc_array_X(myreal* &fieldX);
 
   int rank, nb_proc;
 

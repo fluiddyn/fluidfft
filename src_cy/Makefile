@@ -5,13 +5,13 @@
 all:
 	python make_files_with_mako.py
 
-clean_all: clean clean_cython clean_mako
+cleanall: cleancython cleanmako
 
-clean_cython:
+cleancython:
 	# remove files produced by cython
 	rm -f *_cy.cpp *_cy.c
 
-clean_mako:
+cleanmako:
 	# remove files produced by mako
 	rm -f *_cy.pyx *_pxd.pxd
 

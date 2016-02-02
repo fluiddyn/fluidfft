@@ -20,7 +20,7 @@ FFT3DMPIWithFFTWMPI3D::FFT3DMPIWithFFTWMPI3D(int argN0, int argN1, int argN2):
   BaseFFT3DMPI::BaseFFT3DMPI(argN0, argN1, argN2)
 {
   struct timeval start_time, end_time;
-  real_cu total_usecs;
+  myreal total_usecs;
   ptrdiff_t local_nX0;//, local_X0_start;
   ptrdiff_t local_nK0;
 
@@ -162,7 +162,7 @@ char const* FFT3DMPIWithFFTWMPI3D::get_classname()
 { return "FFT3DMPIWithFFTWMPI3D";}
 
 
-real_cu FFT3DMPIWithFFTWMPI3D::compute_energy_from_X(real_cu* fieldX)
+myreal FFT3DMPIWithFFTWMPI3D::compute_energy_from_X(myreal* fieldX)
 {
   int ii;
   double energy_loc = 0;
@@ -173,10 +173,10 @@ real_cu FFT3DMPIWithFFTWMPI3D::compute_energy_from_X(real_cu* fieldX)
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return (real_cu) energy / 2 /coef_norm;
+  return (myreal) energy / 2 /coef_norm;
 }
 
-real_cu FFT3DMPIWithFFTWMPI3D::compute_energy_from_K(myfftw_complex* fieldK)
+myreal FFT3DMPIWithFFTWMPI3D::compute_energy_from_K(mycomplex* fieldK)
 {
   int i0, i1, i2;
   double energy_tmp = 0;
@@ -211,11 +211,11 @@ real_cu FFT3DMPIWithFFTWMPI3D::compute_energy_from_K(myfftw_complex* fieldK)
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return (real_cu) energy;
+  return (myreal) energy;
 }
 
 
-real_cu FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_double(real_cu* fieldK)
+myreal FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_double(myreal* fieldK)
 {
   int i0, i1, i2;
   double energy_tmp = 0;
@@ -249,15 +249,15 @@ real_cu FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_double(real_cu* fieldK)
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return (real_cu) energy;
+  return (myreal) energy;
 }
 
 void FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_complex(
-    myfftw_complex* fieldK, myfftw_complex* result)
+    mycomplex* fieldK, mycomplex* result)
 {
   int i0, i1, i2;
-  myfftw_complex energy_tmp = 0;
-  myfftw_complex energy_loc, energy;
+  mycomplex energy_tmp = 0;
+  mycomplex energy_loc, energy;
   // modes i2 = iKx = 0
   i2 = 0;
   for (i0=0; i0<nK0loc; i0++)
@@ -291,7 +291,7 @@ void FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_complex(
 
 
 
-real_cu FFT3DMPIWithFFTWMPI3D::compute_mean_from_X(real_cu* fieldX)
+myreal FFT3DMPIWithFFTWMPI3D::compute_mean_from_X(myreal* fieldX)
 {
   double mean, local_mean;
   int ii;
@@ -302,10 +302,10 @@ real_cu FFT3DMPIWithFFTWMPI3D::compute_mean_from_X(real_cu* fieldX)
 
   MPI_Allreduce(&local_mean, &mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return (real_cu) mean / coef_norm;
+  return (myreal) mean / coef_norm;
 }
 
-real_cu FFT3DMPIWithFFTWMPI3D::compute_mean_from_K(myfftw_complex* fieldK)
+myreal FFT3DMPIWithFFTWMPI3D::compute_mean_from_K(mycomplex* fieldK)
 {
   double mean, local_mean;
   if (local_K0_start == 0)
@@ -315,10 +315,10 @@ real_cu FFT3DMPIWithFFTWMPI3D::compute_mean_from_K(myfftw_complex* fieldK)
 
   MPI_Allreduce(&local_mean, &mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return (real_cu) mean;
+  return (myreal) mean;
 }
 
-void FFT3DMPIWithFFTWMPI3D::fft(real_cu *fieldX, myfftw_complex *fieldK)
+void FFT3DMPIWithFFTWMPI3D::fft(myreal *fieldX, mycomplex *fieldK)
 {
   int i0, i1, i2;
   // cout << "FFT3DMPIWithFFTWMPI3D::fft" << endl;
@@ -341,11 +341,11 @@ void FFT3DMPIWithFFTWMPI3D::fft(real_cu *fieldX, myfftw_complex *fieldK)
 	  arrayK[i2 + (i1 + i0*nK1)*nK2]/coef_norm;
 }
 
-void FFT3DMPIWithFFTWMPI3D::ifft(myfftw_complex *fieldK, real_cu *fieldX)
+void FFT3DMPIWithFFTWMPI3D::ifft(mycomplex *fieldK, myreal *fieldX)
 {
   int i0, i1, i2;
   // cout << "FFT3DMPIWithFFTWMPI3D::ifft" << endl;
-  memcpy(arrayK, fieldK, alloc_local*sizeof(myfftw_complex));
+  memcpy(arrayK, fieldK, alloc_local*sizeof(mycomplex));
 #ifdef SINGLE_PREC
   fftwf_execute(plan_c2r);
 #else
@@ -359,13 +359,13 @@ void FFT3DMPIWithFFTWMPI3D::ifft(myfftw_complex *fieldK, real_cu *fieldX)
 }
 
 
-void FFT3DMPIWithFFTWMPI3D::init_array_X_random(real_cu* &fieldX)
+void FFT3DMPIWithFFTWMPI3D::init_array_X_random(myreal* &fieldX)
 {
   int ii;
   this->alloc_array_X(fieldX);
 
   for (ii = 0; ii < nX0loc*nX1*nX2; ++ii)
-    fieldX[ii] = (real_cu)rand() / RAND_MAX;
+    fieldX[ii] = (myreal)rand() / RAND_MAX;
 }
 
 

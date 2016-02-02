@@ -19,7 +19,7 @@ FFT2DMPIWithFFTW1D::FFT2DMPIWithFFTW1D(int argN0, int argN1):
   BaseFFT2DMPI::BaseFFT2DMPI(argN0, argN1)
 {
   struct timeval start_time, end_time;
-  real_cu total_usecs;
+  myreal total_usecs;
   int iX0;
   int istride = 1, ostride = 1;
   int howmany, sign;
@@ -52,10 +52,10 @@ FFT2DMPIWithFFTW1D::FFT2DMPIWithFFTW1D(int argN0, int argN1):
 /*    flags = FFTW_ESTIMATE;*/
 /*    flags = FFTW_PATIENT;*/
 
-  arrayX    = (real_cu*) fftw_malloc(sizeof(real_cu)*nX0loc*N1);
-  arrayK_pR = (myfftw_complex*) fftw_malloc(sizeof(myfftw_complex)
+  arrayX    = (myreal*) fftw_malloc(sizeof(myreal)*nX0loc*N1);
+  arrayK_pR = (mycomplex*) fftw_malloc(sizeof(mycomplex)
                                             *nX0loc*(nKx+1));
-  arrayK_pC = (myfftw_complex*) fftw_malloc(sizeof(myfftw_complex)*nKxloc*N0);
+  arrayK_pC = (mycomplex*) fftw_malloc(sizeof(mycomplex)*nKxloc*N0);
 
   gettimeofday(&start_time, NULL);
 
@@ -114,14 +114,14 @@ FFT2DMPIWithFFTW1D::FFT2DMPIWithFFTW1D(int argN0, int argN1):
   MPI_Type_vector(nX0loc, 1, nKx+1, 
                   MPI_type_complex, &(MPI_type_column));
   MPI_Type_create_resized(MPI_type_column, 0, 
-                          sizeof(myfftw_complex), 
+                          sizeof(mycomplex), 
                           &(MPI_type_column));
   MPI_Type_commit( &(MPI_type_column) );
 
   MPI_Type_vector(nKxloc, nX0loc, N0, 
                   MPI_type_complex, &(MPI_type_block));
   MPI_Type_create_resized(MPI_type_block, 0, 
-                          nX0loc*sizeof(myfftw_complex), 
+                          nX0loc*sizeof(mycomplex), 
                           &(MPI_type_block));
   MPI_Type_commit( &(MPI_type_block) );
 }
@@ -151,11 +151,11 @@ char const* FFT2DMPIWithFFTW1D::get_classname()
 { return "FFT2DMPIWithFFTW1D";}
 
 
-real_cu FFT2DMPIWithFFTW1D::compute_energy_from_X(real_cu* fieldX)
+myreal FFT2DMPIWithFFTW1D::compute_energy_from_X(myreal* fieldX)
 {
   int i0, i1;
-  real_cu energy_loc = 0;
-  real_cu energy;
+  myreal energy_loc = 0;
+  myreal energy;
 
   for (i0=0; i0<nX0loc; i0++)
     for (i1=0; i1<nX1; i1++)
@@ -167,12 +167,12 @@ real_cu FFT2DMPIWithFFTW1D::compute_energy_from_X(real_cu* fieldX)
 }
 
 
-real_cu FFT2DMPIWithFFTW1D::compute_energy_from_K(myfftw_complex* fieldK)
+myreal FFT2DMPIWithFFTW1D::compute_energy_from_K(mycomplex* fieldK)
 {
   int i0, i1;
-  real_cu energy_loc = 0;
-  real_cu energy_tmp = 0;
-  real_cu energy;
+  myreal energy_loc = 0;
+  myreal energy_tmp = 0;
+  myreal energy;
 
   // modes i0 = iKx = 0
   i0 = 0;
@@ -195,9 +195,9 @@ real_cu FFT2DMPIWithFFTW1D::compute_energy_from_K(myfftw_complex* fieldK)
 }
 
 
-real_cu FFT2DMPIWithFFTW1D::compute_mean_from_X(real_cu* fieldX)
+myreal FFT2DMPIWithFFTW1D::compute_mean_from_X(myreal* fieldX)
 {
-  real_cu mean, local_mean;
+  myreal mean, local_mean;
   int ii;
   local_mean=0.;
 
@@ -210,9 +210,9 @@ real_cu FFT2DMPIWithFFTW1D::compute_mean_from_X(real_cu* fieldX)
 }
 
 
-real_cu FFT2DMPIWithFFTW1D::compute_mean_from_K(myfftw_complex* fieldK)
+myreal FFT2DMPIWithFFTW1D::compute_mean_from_K(mycomplex* fieldK)
 {
-  real_cu mean;
+  myreal mean;
   if (rank == 0)
     mean = creal(fieldK[0]);
 
@@ -222,12 +222,12 @@ real_cu FFT2DMPIWithFFTW1D::compute_mean_from_K(myfftw_complex* fieldK)
 }
 
 
-void FFT2DMPIWithFFTW1D::fft(real_cu *fieldX, myfftw_complex *fieldK)
+void FFT2DMPIWithFFTW1D::fft(myreal *fieldX, mycomplex *fieldK)
 {
   int ii;
   // cout << "FFT2DMPIWithFFTW1D::fft" << endl;
   /*use memcpy(void * destination, void * source, size_t bytes); */
-  memcpy(arrayX, fieldX, nX0loc*nX1*sizeof(real_cu));
+  memcpy(arrayX, fieldX, nX0loc*nX1*sizeof(myreal));
 
   fftw_execute(plan_r2c);
 
@@ -242,11 +242,11 @@ void FFT2DMPIWithFFTW1D::fft(real_cu *fieldX, myfftw_complex *fieldK)
 }
 
 
-void FFT2DMPIWithFFTW1D::ifft(myfftw_complex *fieldK, real_cu *fieldX)
+void FFT2DMPIWithFFTW1D::ifft(mycomplex *fieldK, myreal *fieldX)
 {
   int ii;
   // cout << "FFT2DMPIWithFFTW1D::ifft" << endl;
-  memcpy(arrayK_pC, fieldK, nKxloc*nKy*sizeof(myfftw_complex));
+  memcpy(arrayK_pC, fieldK, nKxloc*nKy*sizeof(mycomplex));
   fftw_execute(plan_c2c_bwd);
   MPI_Alltoall(arrayK_pC, 1, MPI_type_block,
 	       arrayK_pR, nKxloc, MPI_type_column, 
@@ -257,16 +257,16 @@ void FFT2DMPIWithFFTW1D::ifft(myfftw_complex *fieldK, real_cu *fieldX)
     arrayK_pR[ii*(nKx+1) + nKx] = 0.;
 
   fftw_execute(plan_c2r);
-  memcpy(fieldX,arrayX, nX0loc*nX1*sizeof(real_cu));
+  memcpy(fieldX,arrayX, nX0loc*nX1*sizeof(myreal));
 }
 
 
-void FFT2DMPIWithFFTW1D::init_array_X_random(real_cu* &fieldX)
+void FFT2DMPIWithFFTW1D::init_array_X_random(myreal* &fieldX)
 {
   int ii;
   this->alloc_array_X(fieldX);
 
   for (ii = 0; ii < nX0loc*nX1; ++ii)
-    fieldX[ii] = (real_cu)rand() / RAND_MAX;
+    fieldX[ii] = (myreal)rand() / RAND_MAX;
 }
 

@@ -54,8 +54,8 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   conf = 2;
   Cp3dfft_get_dims(fstart, fend, fsize, conf);
 
-  arrayX = (real_cu *) malloc(sizeof(real_cu) * isize[0]*isize[1]*isize[2]);
-  arrayK = (real_cu *) malloc(sizeof(real_cu) * fsize[0]*fsize[1]*fsize[2]*2);
+  arrayX = (myreal *) malloc(sizeof(myreal) * isize[0]*isize[1]*isize[2]);
+  arrayK = (myreal *) malloc(sizeof(myreal) * fsize[0]*fsize[1]*fsize[2]*2);
 
   /* in physical space: */
   /* z corresponds to dim 0 */
@@ -138,7 +138,7 @@ char const* FFT3DMPIWithP3DFFT::get_classname()
 { return "FFT3DMPIWithP3DFFT";}
 
 
-real_cu FFT3DMPIWithP3DFFT::compute_energy_from_X(real_cu* fieldX)
+myreal FFT3DMPIWithP3DFFT::compute_energy_from_X(myreal* fieldX)
 {
   int ii;
   double energy_loc = 0;
@@ -149,14 +149,14 @@ real_cu FFT3DMPIWithP3DFFT::compute_energy_from_X(real_cu* fieldX)
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return (real_cu) energy / 2 /coef_norm;
+  return (myreal) energy / 2 /coef_norm;
 
 }
 
 #ifdef SINGLE_PREC
-real_cu FFT3DMPIWithP3DFFT::compute_energy_from_K(fftwf_complex* fieldK)
+myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(fftwf_complex* fieldK)
 #else
-real_cu FFT3DMPIWithP3DFFT::compute_energy_from_K(fftw_complex* fieldK)
+myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(fftw_complex* fieldK)
 #endif
 {
   int i0, i1, i2;
@@ -194,11 +194,11 @@ real_cu FFT3DMPIWithP3DFFT::compute_energy_from_K(fftw_complex* fieldK)
   
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return (real_cu) energy;
+  return (myreal) energy;
 }
 
 
-real_cu FFT3DMPIWithP3DFFT::compute_mean_from_X(real_cu* fieldX)
+myreal FFT3DMPIWithP3DFFT::compute_mean_from_X(myreal* fieldX)
 {
   double mean, local_mean;
   int ii;
@@ -209,13 +209,13 @@ real_cu FFT3DMPIWithP3DFFT::compute_mean_from_X(real_cu* fieldX)
 
   MPI_Allreduce(&local_mean, &mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return (real_cu) mean / coef_norm;
+  return (myreal) mean / coef_norm;
 }
 
 #ifdef SINGLE_PREC
-real_cu FFT3DMPIWithP3DFFT::compute_mean_from_K(fftwf_complex* fieldK)
+myreal FFT3DMPIWithP3DFFT::compute_mean_from_K(fftwf_complex* fieldK)
 #else
-real_cu FFT3DMPIWithP3DFFT::compute_mean_from_K(fftw_complex* fieldK)
+myreal FFT3DMPIWithP3DFFT::compute_mean_from_K(fftw_complex* fieldK)
 #endif
 {
   double mean, local_mean;
@@ -227,24 +227,24 @@ real_cu FFT3DMPIWithP3DFFT::compute_mean_from_K(fftw_complex* fieldK)
 
   MPI_Allreduce(&local_mean, &mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return (real_cu) mean;
+  return (myreal) mean;
 }
 
 #ifdef SINGLE_PREC
-void FFT3DMPIWithP3DFFT::fft(real_cu *fieldX, fftwf_complex *fieldK)
+void FFT3DMPIWithP3DFFT::fft(myreal *fieldX, fftwf_complex *fieldK)
 #else
-void FFT3DMPIWithP3DFFT::fft(real_cu *fieldX, fftw_complex *fieldK)
+void FFT3DMPIWithP3DFFT::fft(myreal *fieldX, fftw_complex *fieldK)
 #endif
 {
   int i0, i1, i2;
   unsigned char op_f[]="fft";
   //cout << "FFT3DMPIWithP3DFFT::fft" << endl;
-  real_cu coef_normdiv = 1./coef_norm;
+  myreal coef_normdiv = 1./coef_norm;
 
-  memcpy(arrayX, fieldX, nX0loc*nX1loc*nX2loc*sizeof(real_cu));
+  memcpy(arrayX, fieldX, nX0loc*nX1loc*nX2loc*sizeof(myreal));
   Cp3dfft_ftran_r2c(arrayX,arrayK,op_f);
 #ifdef SINGLE_PREC
-  memcpy(fieldK, arrayK, nK0loc*nK1loc*nK2loc*sizeof(real_cu)*2);
+  memcpy(fieldK, arrayK, nK0loc*nK1loc*nK2loc*sizeof(myreal)*2);
 #else
   memcpy(fieldK, arrayK, nK0loc*nK1loc*nK2loc*sizeof(fftw_complex));
 #endif
@@ -254,9 +254,9 @@ void FFT3DMPIWithP3DFFT::fft(real_cu *fieldX, fftw_complex *fieldK)
 }
 
 #ifdef SINGLE_PREC
-void FFT3DMPIWithP3DFFT::ifft(fftwf_complex *fieldK, real_cu *fieldX)
+void FFT3DMPIWithP3DFFT::ifft(fftwf_complex *fieldK, myreal *fieldX)
 #else
-void FFT3DMPIWithP3DFFT::ifft(fftw_complex *fieldK, real_cu *fieldX)
+void FFT3DMPIWithP3DFFT::ifft(fftw_complex *fieldK, myreal *fieldX)
 #endif
 {
   unsigned char op_b[]="tff";
@@ -267,15 +267,15 @@ void FFT3DMPIWithP3DFFT::ifft(fftw_complex *fieldK, real_cu *fieldX)
   memcpy(arrayK, fieldK, nK0loc*nK1loc*nK2loc*sizeof(fftw_complex));
 #endif
   Cp3dfft_btran_c2r(arrayK,arrayX,op_b);
-  memcpy(fieldX, arrayX, nX0loc*nX1loc*nX2loc*sizeof(real_cu)); 
+  memcpy(fieldX, arrayX, nX0loc*nX1loc*nX2loc*sizeof(myreal)); 
 }
 
 
-void FFT3DMPIWithP3DFFT::init_array_X_random(real_cu* &fieldX)
+void FFT3DMPIWithP3DFFT::init_array_X_random(myreal* &fieldX)
 {
   int ii;
   this->alloc_array_X(fieldX);
 
   for (ii = 0; ii < nX0loc*nX1loc*nX2loc; ++ii)
-    fieldX[ii] = (real_cu)rand() / RAND_MAX;
+    fieldX[ii] = (myreal)rand() / RAND_MAX;
 }

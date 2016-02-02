@@ -16,7 +16,7 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1):
   BaseFFT2DMPI::BaseFFT2DMPI(argN0, argN1)
 {
   struct timeval start_time, end_time;
-  real_cu total_usecs;
+  myreal total_usecs;
   ptrdiff_t local_nX0;//, local_X0_start;
   ptrdiff_t local_nK0;
 
@@ -131,11 +131,11 @@ char const* FFT2DMPIWithFFTWMPI2D::get_classname()
 { return "FFT2DMPIWithFFTWMPI2D";}
 
 
-real_cu FFT2DMPIWithFFTWMPI2D::compute_energy_from_X(real_cu* fieldX)
+myreal FFT2DMPIWithFFTWMPI2D::compute_energy_from_X(myreal* fieldX)
 {
   int i0, i1;
-  real_cu energy_loc = 0;
-  real_cu energy;
+  myreal energy_loc = 0;
+  myreal energy;
 
   for (i0=0; i0<nX0loc; i0++)
     for (i1=0; i1<nX1; i1++)
@@ -149,12 +149,12 @@ real_cu FFT2DMPIWithFFTWMPI2D::compute_energy_from_X(real_cu* fieldX)
 }
 
 
-real_cu FFT2DMPIWithFFTWMPI2D::compute_energy_from_K(myfftw_complex* fieldK)
+myreal FFT2DMPIWithFFTWMPI2D::compute_energy_from_K(mycomplex* fieldK)
 {
   int i0, i1, i_tmp;
-  real_cu energy_loc = 0;
-  real_cu energy_tmp = 0;
-  real_cu energy;
+  myreal energy_loc = 0;
+  myreal energy_tmp = 0;
+  myreal energy;
 
   // modes i0 = iKx = 0
   i0 = 0;
@@ -191,9 +191,9 @@ real_cu FFT2DMPIWithFFTWMPI2D::compute_energy_from_K(myfftw_complex* fieldK)
 }
 
 
-real_cu FFT2DMPIWithFFTWMPI2D::compute_mean_from_X(real_cu* fieldX)
+myreal FFT2DMPIWithFFTWMPI2D::compute_mean_from_X(myreal* fieldX)
 {
-  real_cu mean, local_mean;
+  myreal mean, local_mean;
   int ii;
   local_mean=0.;
 
@@ -208,9 +208,9 @@ real_cu FFT2DMPIWithFFTWMPI2D::compute_mean_from_X(real_cu* fieldX)
 }
 
 
-real_cu FFT2DMPIWithFFTWMPI2D::compute_mean_from_K(myfftw_complex* fieldK)
+myreal FFT2DMPIWithFFTWMPI2D::compute_mean_from_K(mycomplex* fieldK)
 {
-  real_cu mean, local_mean;
+  myreal mean, local_mean;
   if (local_K0_start == 0)
     local_mean = creal(fieldK[0]);
   else
@@ -224,7 +224,7 @@ real_cu FFT2DMPIWithFFTWMPI2D::compute_mean_from_K(myfftw_complex* fieldK)
 }
 
 
-void FFT2DMPIWithFFTWMPI2D::fft(real_cu *fieldX, myfftw_complex *fieldK)
+void FFT2DMPIWithFFTWMPI2D::fft(myreal *fieldX, mycomplex *fieldK)
 {
   int i0, i1;
   // cout << "FFT2DMPIWithFFTWMPI2D::fft" << endl;
@@ -244,11 +244,11 @@ void FFT2DMPIWithFFTWMPI2D::fft(real_cu *fieldX, myfftw_complex *fieldK)
 }
 
 
-void FFT2DMPIWithFFTWMPI2D::ifft(myfftw_complex *fieldK, real_cu *fieldX)
+void FFT2DMPIWithFFTWMPI2D::ifft(mycomplex *fieldK, myreal *fieldX)
 {
   int i0, i1;
   // cout << "FFT2DMPIWithFFTWMPI2D::ifft" << endl;
-  memcpy(arrayK, fieldK, alloc_local*sizeof(myfftw_complex));
+  memcpy(arrayK, fieldK, alloc_local*sizeof(mycomplex));
 #ifdef SINGLE_PREC
   fftwf_execute(plan_c2r);
 #else
@@ -260,7 +260,7 @@ void FFT2DMPIWithFFTWMPI2D::ifft(myfftw_complex *fieldK, real_cu *fieldX)
 }
 
 
-void FFT2DMPIWithFFTWMPI2D::init_array_X_random(real_cu* &fieldX)
+void FFT2DMPIWithFFTWMPI2D::init_array_X_random(myreal* &fieldX)
 {
   int ii;
   this->alloc_array_X(fieldX);
@@ -275,7 +275,7 @@ void FFT2DMPIWithFFTWMPI2D::init_array_X_random(real_cu* &fieldX)
   // }
 
   for (ii = 0; ii < nX0loc*nX1; ++ii)
-    fieldX[ii] = (real_cu)rand() / RAND_MAX;
+    fieldX[ii] = (myreal)rand() / RAND_MAX;
 }
 
 

@@ -21,23 +21,23 @@ class FFT3DWithCUFFT: public BaseFFT3D
   void destroy();
   
 #ifdef SINGLE_PREC
-  void fft(real_cu *fieldX, fftwf_complex *fieldK);
-  void ifft(fftwf_complex *fieldK, real_cu *fieldX);
-  real_cu compute_energy_from_K(fftwf_complex* fieldK);
-  real_cu compute_mean_from_K(fftwf_complex* fieldK);
+  void fft(myreal *fieldX, fftwf_complex *fieldK);
+  void ifft(fftwf_complex *fieldK, myreal *fieldX);
+  myreal compute_energy_from_K(fftwf_complex* fieldK);
+  myreal compute_mean_from_K(fftwf_complex* fieldK);
 #else
-  void fft(real_cu *fieldX, fftw_complex *fieldK);
-  void ifft(fftw_complex *fieldK, real_cu *fieldX);
-  real_cu compute_energy_from_K(fftw_complex* fieldK);
-  real_cu compute_mean_from_K(fftw_complex* fieldK);
+  void fft(myreal *fieldX, fftw_complex *fieldK);
+  void ifft(fftw_complex *fieldK, myreal *fieldX);
+  myreal compute_energy_from_K(fftw_complex* fieldK);
+  myreal compute_mean_from_K(fftw_complex* fieldK);
 #endif
 
   virtual const char* get_classname();
   
-  real_cu compute_energy_from_X(real_cu* fieldX);
-  real_cu compute_mean_from_X(real_cu* fieldX);
+  myreal compute_energy_from_X(myreal* fieldX);
+  myreal compute_mean_from_X(myreal* fieldX);
 
-  void init_array_X_random(real_cu* &fieldX);
+  void init_array_X_random(myreal* &fieldX);
 
  private:
   int nX2loc, nK2loc, nXxloc, nXyloc, nXzloc, nKzloc, nXx, nXy, nXz, nKyloc;
@@ -47,10 +47,10 @@ class FFT3DWithCUFFT: public BaseFFT3D
   int mem_sizer;//equivalent à la taille de arrayK?
 
 // Allocate device memory for signal
-  real_cu *arrayX;
-  real_cu *arrayK;
+  myreal *arrayX;
+  myreal *arrayK;
   dcomplex *data;
-  real_cu *datar;
+  myreal *datar;
   cufftHandle plan;
   cufftHandle plan1;
 };

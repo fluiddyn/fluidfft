@@ -12,7 +12,7 @@ using namespace std;
 
 //  KERNEL CUDA
 // Complex scale
-static __device__ __host__ inline dcomplex ComplexScale(dcomplex a, real_cu s)
+static __device__ __host__ inline dcomplex ComplexScale(dcomplex a, myreal s)
 {
   dcomplex c;
   c.x = s * a.x;
@@ -20,7 +20,7 @@ static __device__ __host__ inline dcomplex ComplexScale(dcomplex a, real_cu s)
   return c;
 }
 
-__global__ void vectorNorm(const real_cu norm, dcomplex *A, int numElements)
+__global__ void vectorNorm(const myreal norm, dcomplex *A, int numElements)
 {
   int i = blockDim.x * blockIdx.x + threadIdx.x;
 
@@ -36,7 +36,7 @@ FFT2DWithCUFFT::FFT2DWithCUFFT(int argN0, int argN1):
   BaseFFT2D::BaseFFT2D(argN0, argN1)
 {
   struct timeval start_time, end_time;
-  real_cu total_usecs;
+  myreal total_usecs;
   
   this->_init();
 
@@ -64,9 +64,9 @@ FFT2DWithCUFFT::FFT2DWithCUFFT(int argN0, int argN1):
   coef_norm = N0*N1;
 
 
-  mem_sizer = sizeof(real_cu) * N0 * N1 ;//taille de arrayX
+  mem_sizer = sizeof(myreal) * N0 * N1 ;//taille de arrayX
   int new_size = nK0 * nK1 ;
-  mem_size = 2 * sizeof(real_cu) * new_size ;//taille de arrayK
+  mem_size = 2 * sizeof(myreal) * new_size ;//taille de arrayK
 
   gettimeofday(&start_time, NULL);
   // Allocate device memory for signal
@@ -112,11 +112,11 @@ char const* FFT2DWithCUFFT::get_classname()
 { return "FFT2DWithCUFFT";}
 
 
-real_cu FFT2DWithCUFFT::compute_energy_from_X(real_cu* fieldX)
+myreal FFT2DWithCUFFT::compute_energy_from_X(myreal* fieldX)
 {
   int ii,jj;
-  real_cu energy = 0.;
-  real_cu energy1;
+  myreal energy = 0.;
+  myreal energy1;
 
   for (ii=0; ii<nX0; ii++)
     {
@@ -132,7 +132,7 @@ real_cu FFT2DWithCUFFT::compute_energy_from_X(real_cu* fieldX)
   return energy / nX0 / 2;
 }
 
-real_cu FFT2DWithCUFFT::compute_energy_from_K(myfftw_complex* fieldK)
+myreal FFT2DWithCUFFT::compute_energy_from_K(mycomplex* fieldK)
 {
   int i0, i1;
   double energy = 0;
@@ -158,13 +158,13 @@ real_cu FFT2DWithCUFFT::compute_energy_from_K(myfftw_complex* fieldK)
   energy += energy0*0.5;
 
   //cout << "energyK=" << energy<<  endl;
-  return (real_cu) energy;
+  return (myreal) energy;
 }
 
 
-real_cu FFT2DWithCUFFT::compute_mean_from_X(real_cu* fieldX)
+myreal FFT2DWithCUFFT::compute_mean_from_X(myreal* fieldX)
 {
-  real_cu mean,mean1;
+  myreal mean,mean1;
   int ii,jj;
   mean=0.;
 
@@ -181,16 +181,16 @@ real_cu FFT2DWithCUFFT::compute_mean_from_X(real_cu* fieldX)
 }
 
 
-real_cu FFT2DWithCUFFT::compute_mean_from_K(myfftw_complex* fieldK)
+myreal FFT2DWithCUFFT::compute_mean_from_K(mycomplex* fieldK)
 {
-  real_cu mean;
+  myreal mean;
   mean = creal(fieldK[0]);
 
   return mean;
 }
 
 
-void FFT2DWithCUFFT::fft(real_cu *fieldX, myfftw_complex *fieldK)
+void FFT2DWithCUFFT::fft(myreal *fieldX, mycomplex *fieldK)
 {
   
   
@@ -209,7 +209,7 @@ void FFT2DWithCUFFT::fft(real_cu *fieldX, myfftw_complex *fieldK)
 
   
   // Launch the Vector Norm CUDA Kernel
-  real_cu norm = 1./coef_norm;
+  myreal norm = 1./coef_norm;
   //  printf("CUDA kernel launch with %d blocks of %d threads\n", blocksPerGrid, threadsPerBlock);
   int threadsPerBlock = 256;
   int blocksPerGrid =(nK0 * nK1 + threadsPerBlock - 1) / threadsPerBlock;
@@ -223,7 +223,7 @@ void FFT2DWithCUFFT::fft(real_cu *fieldX, myfftw_complex *fieldK)
 }
 
 
-void FFT2DWithCUFFT::ifft(myfftw_complex *fieldK, real_cu *fieldX)
+void FFT2DWithCUFFT::ifft(mycomplex *fieldK, myreal *fieldX)
 {
 
   //cout << "FFT2DWithCUFFT::ifft" << endl;
@@ -245,12 +245,12 @@ void FFT2DWithCUFFT::ifft(myfftw_complex *fieldK, real_cu *fieldX)
 }
 
 
-void FFT2DWithCUFFT::init_array_X_random(real_cu* &fieldX)
+void FFT2DWithCUFFT::init_array_X_random(myreal* &fieldX)
 {
   int ii;
   this->alloc_array_X(fieldX);
 
   for (ii = 0; ii < nX0*nX1; ++ii)
-    fieldX[ii] = (real_cu)rand() / RAND_MAX;
+    fieldX[ii] = (myreal)rand() / RAND_MAX;
 }
 

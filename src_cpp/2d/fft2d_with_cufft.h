@@ -20,18 +20,18 @@ class FFT2DWithCUFFT: public BaseFFT2D
   ~FFT2DWithCUFFT();
   void destroy();
   
-  void fft(real_cu *fieldX, myfftw_complex *fieldK);
-  void ifft(myfftw_complex *fieldK, real_cu *fieldX);
-  real_cu compute_energy_from_K(myfftw_complex* fieldK);
-  real_cu compute_mean_from_K(myfftw_complex* fieldK);
+  void fft(myreal *fieldX, mycomplex *fieldK);
+  void ifft(mycomplex *fieldK, myreal *fieldX);
+  myreal compute_energy_from_K(mycomplex* fieldK);
+  myreal compute_mean_from_K(mycomplex* fieldK);
 
 
   virtual const char* get_classname();
   
-  real_cu compute_energy_from_X(real_cu* fieldX);
-  real_cu compute_mean_from_X(real_cu* fieldX);
+  myreal compute_energy_from_X(myreal* fieldX);
+  myreal compute_mean_from_X(myreal* fieldX);
 
-  void init_array_X_random(real_cu* &fieldX);
+  void init_array_X_random(myreal* &fieldX);
 
  private:
   int nX1loc, nK1loc, nXxloc, nXyloc, nXx, nXy, nKyloc;
@@ -41,10 +41,10 @@ class FFT2DWithCUFFT: public BaseFFT2D
   int mem_sizer;//equivalent à la taille de arrayK?
 
 // Allocate device memory for signal
-  real_cu *arrayX;
-  real_cu *arrayK;
+  myreal *arrayX;
+  myreal *arrayK;
   dcomplex *data;
-  real_cu *datar;
+  myreal *datar;
   cufftHandle plan;
   cufftHandle plan1;
 };

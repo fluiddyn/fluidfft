@@ -17,7 +17,7 @@ FFT2DWithFFTW2D::FFT2DWithFFTW2D(int argN0, int argN1):
   BaseFFT2D::BaseFFT2D(argN0, argN1)
 {
   struct timeval start_time, end_time;
-  real_cu total_usecs;
+  myreal total_usecs;
 
   this->_init();
   
@@ -104,10 +104,10 @@ char const* FFT2DWithFFTW2D::get_classname()
 { return "FFT2DWithFFTW2D";}
 
 
-real_cu FFT2DWithFFTW2D::compute_energy_from_X(real_cu* fieldX)
+myreal FFT2DWithFFTW2D::compute_energy_from_X(myreal* fieldX)
 {
   int ii;
-  real_cu energy = 0;
+  myreal energy = 0;
 
   for (ii=0; ii<nX0loc * nX1; ii++)
     energy += pow(fieldX[ii], 2);
@@ -116,11 +116,11 @@ real_cu FFT2DWithFFTW2D::compute_energy_from_X(real_cu* fieldX)
 }
 
 
-real_cu FFT2DWithFFTW2D::compute_energy_from_K(myfftw_complex* fieldK)
+myreal FFT2DWithFFTW2D::compute_energy_from_K(mycomplex* fieldK)
 {
   int i0, i1;
-  real_cu energy = 0;
-  real_cu energy_tmp = 0;
+  myreal energy = 0;
+  myreal energy_tmp = 0;
 
   // modes i1 = iKx = 0
   i1 = 0;
@@ -146,9 +146,9 @@ real_cu FFT2DWithFFTW2D::compute_energy_from_K(myfftw_complex* fieldK)
 }
 
 
-real_cu FFT2DWithFFTW2D::compute_mean_from_X(real_cu* fieldX)
+myreal FFT2DWithFFTW2D::compute_mean_from_X(myreal* fieldX)
 {
-  real_cu mean = 0.;
+  myreal mean = 0.;
   int ii;
 
   for (ii=0; ii<nX0loc*nX1; ii++)
@@ -158,20 +158,20 @@ real_cu FFT2DWithFFTW2D::compute_mean_from_X(real_cu* fieldX)
 }
 
 
-real_cu FFT2DWithFFTW2D::compute_mean_from_K(myfftw_complex* fieldK)
+myreal FFT2DWithFFTW2D::compute_mean_from_K(mycomplex* fieldK)
 {
-  real_cu mean = creal(fieldK[0]);
+  myreal mean = creal(fieldK[0]);
   return mean;
 }
 
 
-void FFT2DWithFFTW2D::fft(real_cu *fieldX, myfftw_complex *fieldK)
+void FFT2DWithFFTW2D::fft(myreal *fieldX, mycomplex *fieldK)
 {
   int ii;
   // cout << "FFT2DWithFFTW2D::fft" << endl;
 
   /*use memcpy(void * destination, void * source, size_t bytes); */
-  memcpy(arrayX, fieldX, nX0*nX1*sizeof(real_cu));
+  memcpy(arrayX, fieldX, nX0*nX1*sizeof(myreal));
 #ifdef SINGLE_PREC
   fftwf_execute(plan_r2c);
 #else  
@@ -182,24 +182,24 @@ void FFT2DWithFFTW2D::fft(real_cu *fieldX, myfftw_complex *fieldK)
 }
 
 
-void FFT2DWithFFTW2D::ifft(myfftw_complex *fieldK, real_cu *fieldX)
+void FFT2DWithFFTW2D::ifft(mycomplex *fieldK, myreal *fieldX)
 {
   // cout << "FFT2DWithFFTW2D::ifft" << endl;
-  memcpy(arrayK, fieldK, nK0*nK1*sizeof(myfftw_complex));
+  memcpy(arrayK, fieldK, nK0*nK1*sizeof(mycomplex));
 #ifdef SINGLE_PREC
   fftwf_execute(plan_c2r);
 #else
   fftw_execute(plan_c2r);
 #endif
-  memcpy(fieldX, arrayX, nX0*nX1*sizeof(real_cu));
+  memcpy(fieldX, arrayX, nX0*nX1*sizeof(myreal));
 }
 
 
-void FFT2DWithFFTW2D::init_array_X_random(real_cu* &fieldX)
+void FFT2DWithFFTW2D::init_array_X_random(myreal* &fieldX)
 {
   int ii;
   this->alloc_array_X(fieldX);
 
   for (ii = 0; ii < nX0*nX1; ++ii)
-    fieldX[ii] = (real_cu)rand() / RAND_MAX;
+    fieldX[ii] = (myreal)rand() / RAND_MAX;
 }
