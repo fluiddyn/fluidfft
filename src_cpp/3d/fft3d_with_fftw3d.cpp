@@ -157,11 +157,7 @@ real_cu FFT3DWithFFTW3D::compute_energy_from_X(real_cu* fieldX)
   return energy / nX0 / 2;
 }
 
-#ifdef SINGLE_PREC
-real_cu FFT3DWithFFTW3D::compute_energy_from_K(fftwf_complex* fieldK)
-#else
-real_cu FFT3DWithFFTW3D::compute_energy_from_K(fftw_complex* fieldK)
-#endif
+real_cu FFT3DWithFFTW3D::compute_energy_from_K(myfftw_complex* fieldK)
 {
   int i0, i1, i2;
   double energy = 0;
@@ -232,21 +228,12 @@ real_cu FFT3DWithFFTW3D::sum_wavenumbers_double(real_cu* fieldK)
   return sum;
 }
 
-  
-#ifdef SINGLE_PREC
-void FFT3DWithFFTW3D::sum_wavenumbers_complex(fftwf_complex* fieldK, fftwf_complex* result)
-#else
-void FFT3DWithFFTW3D::sum_wavenumbers_complex(fftw_complex* fieldK, fftw_complex* result)
-#endif
+
+void FFT3DWithFFTW3D::sum_wavenumbers_complex(myfftw_complex* fieldK, myfftw_complex* result)
 {
   int i0, i1, i2;
-#ifdef SINGLE_PREC
-  fftwf_complex sum = 0;
-  fftwf_complex sum_tmp = 0;
-#else
-  fftw_complex sum = 0;
-  fftw_complex sum_tmp = 0;
-#endif
+  myfftw_complex sum = 0;
+  myfftw_complex sum_tmp = 0;
   // modes i2 = iKx = 0
   i2 = 0;
   for (i0=0; i0<nK0; i0++)
@@ -298,22 +285,14 @@ real_cu FFT3DWithFFTW3D::compute_mean_from_X(real_cu* fieldX)
 }
 
 
-#ifdef SINGLE_PREC
-real_cu FFT3DWithFFTW3D::compute_mean_from_K(fftwf_complex* fieldK)
-#else
-real_cu FFT3DWithFFTW3D::compute_mean_from_K(fftw_complex* fieldK)
-#endif
+real_cu FFT3DWithFFTW3D::compute_mean_from_K(myfftw_complex* fieldK)
 {
   real_cu mean = creal(fieldK[0]);
   return mean;
 }
 
 
-#ifdef SINGLE_PREC
-void FFT3DWithFFTW3D::fft(real_cu *fieldX, fftwf_complex *fieldK)
-#else
-void FFT3DWithFFTW3D::fft(real_cu *fieldX, fftw_complex *fieldK)
-#endif
+void FFT3DWithFFTW3D::fft(real_cu *fieldX, myfftw_complex *fieldK)
 {
   int ii;
   // cout << "FFT3DWithFFTW3D::fft" << endl;
@@ -332,18 +311,13 @@ void FFT3DWithFFTW3D::fft(real_cu *fieldX, fftw_complex *fieldK)
 }
 
 
-#ifdef SINGLE_PREC
-void FFT3DWithFFTW3D::ifft(fftwf_complex *fieldK, real_cu *fieldX)
-#else
-void FFT3DWithFFTW3D::ifft(fftw_complex *fieldK, real_cu *fieldX)
-#endif
+void FFT3DWithFFTW3D::ifft(myfftw_complex *fieldK, real_cu *fieldX)
 {
   // cout << "FFT3DWithFFTW3D::ifft" << endl;
+  memcpy(arrayK, fieldK, nK0*nK1*nK2*sizeof(myfftw_complex));
 #ifdef SINGLE_PREC
-  memcpy(arrayK, fieldK, nK0*nK1*nK2*sizeof(fftwf_complex));
   fftwf_execute(plan_c2r);
 #else
-  memcpy(arrayK, fieldK, nK0*nK1*nK2*sizeof(fftw_complex));
   fftw_execute(plan_c2r);
 #endif
   memcpy(fieldX, arrayX, nX0*nX1*nX2*sizeof(real_cu));
