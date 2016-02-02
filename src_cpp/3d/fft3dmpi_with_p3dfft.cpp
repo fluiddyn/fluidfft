@@ -153,11 +153,7 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_X(myreal* fieldX)
 
 }
 
-#ifdef SINGLE_PREC
-myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(fftwf_complex* fieldK)
-#else
-myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(fftw_complex* fieldK)
-#endif
+myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex* fieldK)
 {
   int i0, i1, i2;
   double energy_tmp = 0;
@@ -230,11 +226,7 @@ myreal FFT3DMPIWithP3DFFT::compute_mean_from_K(fftw_complex* fieldK)
   return (myreal) mean;
 }
 
-#ifdef SINGLE_PREC
-void FFT3DMPIWithP3DFFT::fft(myreal *fieldX, fftwf_complex *fieldK)
-#else
-void FFT3DMPIWithP3DFFT::fft(myreal *fieldX, fftw_complex *fieldK)
-#endif
+void FFT3DMPIWithP3DFFT::fft(myreal *fieldX, mycomplex *fieldK)
 {
   int i0, i1, i2;
   unsigned char op_f[]="fft";
@@ -243,29 +235,18 @@ void FFT3DMPIWithP3DFFT::fft(myreal *fieldX, fftw_complex *fieldK)
 
   memcpy(arrayX, fieldX, nX0loc*nX1loc*nX2loc*sizeof(myreal));
   Cp3dfft_ftran_r2c(arrayX,arrayK,op_f);
-#ifdef SINGLE_PREC
-  memcpy(fieldK, arrayK, nK0loc*nK1loc*nK2loc*sizeof(myreal)*2);
-#else
-  memcpy(fieldK, arrayK, nK0loc*nK1loc*nK2loc*sizeof(fftw_complex));
-#endif
+  memcpy(fieldK, arrayK, nK0loc*nK1loc*nK2loc*sizeof(mycomplex));
 
   for (i0=0; i0<nK0loc*nK1loc*nK2loc; i0++)
     fieldK[i0]  *= coef_normdiv;
 }
 
-#ifdef SINGLE_PREC
-void FFT3DMPIWithP3DFFT::ifft(fftwf_complex *fieldK, myreal *fieldX)
-#else
-void FFT3DMPIWithP3DFFT::ifft(fftw_complex *fieldK, myreal *fieldX)
-#endif
+void FFT3DMPIWithP3DFFT::ifft(mycomplex *fieldK, myreal *fieldX)
 {
   unsigned char op_b[]="tff";
   //cout << "FFT3DMPIWithP3DFFT::ifft" << endl;
-#ifdef SINGLE_PREC
-  memcpy(arrayK, fieldK, nK0loc*nK1loc*nK2loc*sizeof(fftwf_complex));
-#else
-  memcpy(arrayK, fieldK, nK0loc*nK1loc*nK2loc*sizeof(fftw_complex));
-#endif
+
+  memcpy(arrayK, fieldK, nK0loc*nK1loc*nK2loc*sizeof(mycomplex));
   Cp3dfft_btran_c2r(arrayK,arrayX,op_b);
   memcpy(fieldX, arrayX, nX0loc*nX1loc*nX2loc*sizeof(myreal)); 
 }

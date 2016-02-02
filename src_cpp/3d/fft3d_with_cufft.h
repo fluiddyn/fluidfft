@@ -19,18 +19,11 @@ class FFT3DWithCUFFT: public BaseFFT3D
   FFT3DWithCUFFT(int N0, int N1, int N2);
   ~FFT3DWithCUFFT();
   void destroy();
-  
-#ifdef SINGLE_PREC
-  void fft(myreal *fieldX, fftwf_complex *fieldK);
-  void ifft(fftwf_complex *fieldK, myreal *fieldX);
-  myreal compute_energy_from_K(fftwf_complex* fieldK);
-  myreal compute_mean_from_K(fftwf_complex* fieldK);
-#else
-  void fft(myreal *fieldX, fftw_complex *fieldK);
-  void ifft(fftw_complex *fieldK, myreal *fieldX);
-  myreal compute_energy_from_K(fftw_complex* fieldK);
-  myreal compute_mean_from_K(fftw_complex* fieldK);
-#endif
+
+  void fft(myreal *fieldX, mycomplex *fieldK);
+  void ifft(mycomplex *fieldK, myreal *fieldX);
+  myreal compute_energy_from_K(mycomplex* fieldK);
+  myreal compute_mean_from_K(mycomplex* fieldK);
 
   virtual const char* get_classname();
   

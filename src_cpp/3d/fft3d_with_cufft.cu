@@ -140,11 +140,7 @@ myreal FFT3DWithCUFFT::compute_energy_from_X(myreal* fieldX)
 }
 
 
-#ifdef SINGLE_PREC
-myreal FFT3DWithCUFFT::compute_energy_from_K(fftwf_complex* fieldK)
-#else
-myreal FFT3DWithCUFFT::compute_energy_from_K(fftw_complex* fieldK)
-#endif
+myreal FFT3DWithCUFFT::compute_energy_from_K(mycomplex* fieldK)
 {
   int i0, i1, i2;
   double energy = 0;
@@ -199,11 +195,7 @@ myreal FFT3DWithCUFFT::compute_mean_from_X(myreal* fieldX)
 }
 
 
-#ifdef SINGLE_PREC
-myreal FFT3DWithCUFFT::compute_mean_from_K(fftwf_complex* fieldK)
-#else
-myreal FFT3DWithCUFFT::compute_mean_from_K(fftw_complex* fieldK)
-#endif
+myreal FFT3DWithCUFFT::compute_mean_from_K(mycomplex* fieldK)
 {
   myreal mean;
   mean = creal(fieldK[0]);
@@ -212,11 +204,7 @@ myreal FFT3DWithCUFFT::compute_mean_from_K(fftw_complex* fieldK)
 }
 
 
-#ifdef SINGLE_PREC
-void FFT3DWithCUFFT::fft(myreal *fieldX, fftwf_complex *fieldK)
-#else
-void FFT3DWithCUFFT::fft(myreal *fieldX, fftw_complex *fieldK)
-#endif
+void FFT3DWithCUFFT::fft(myreal *fieldX, mycomplex *fieldK)
 {
   
   
@@ -249,11 +237,7 @@ void FFT3DWithCUFFT::fft(myreal *fieldX, fftw_complex *fieldK)
 }
 
 
-#ifdef SINGLE_PREC
-void FFT3DWithCUFFT::ifft(fftwf_complex *fieldK, myreal *fieldX)
-#else
-void FFT3DWithCUFFT::ifft(fftw_complex *fieldK, myreal *fieldX)
-#endif
+void FFT3DWithCUFFT::ifft(mycomplex *fieldK, myreal *fieldX)
 {
 
   //cout << "FFT3DWithCUFFT::ifft" << endl;
