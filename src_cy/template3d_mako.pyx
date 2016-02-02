@@ -4,7 +4,7 @@ include 'base.pyx'
 
 from ${module_name}_pxd cimport (
     ${class_name} as mycppclass,
-    fftw_complex)
+    mycomplex)
 
 
 cdef class ${class_name}:
@@ -38,7 +38,7 @@ cdef class ${class_name}:
               DTYPEc_t[:, :, ::1] fieldK=None):
         if fieldK is None:
             fieldK = np.empty(self._shapeK_loc, dtype=DTYPEc, order='C')
-        self.thisptr.fft(&fieldX[0, 0, 0], <fftw_complex*> &fieldK[0, 0, 0])
+        self.thisptr.fft(&fieldX[0, 0, 0], <mycomplex*> &fieldK[0, 0, 0])
         return np.array(fieldK)
 
     @cython.boundscheck(False)
@@ -47,27 +47,27 @@ cdef class ${class_name}:
                DTYPEf_t[:, :, ::1] fieldX=None):
         if fieldX is None:
             fieldX = np.empty(self._shapeX_loc, dtype=DTYPEf, order='C')
-        self.thisptr.ifft(<fftw_complex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
+        self.thisptr.ifft(<mycomplex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
         return np.array(fieldX)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     cpdef fft_as_arg(self, DTYPEf_t[:, :, ::1] fieldX,
                      DTYPEc_t[:, :, ::1] fieldK):
-        self.thisptr.fft(&fieldX[0, 0, 0], <fftw_complex*> &fieldK[0, 0, 0])
+        self.thisptr.fft(&fieldX[0, 0, 0], <mycomplex*> &fieldK[0, 0, 0])
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     cpdef ifft_as_arg(self, DTYPEc_t[:, :, ::1] fieldK,
                       DTYPEf_t[:, :, ::1] fieldX):
-        self.thisptr.ifft(<fftw_complex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
+        self.thisptr.ifft(<mycomplex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     cpdef fft(self, DTYPEf_t[:, :, ::1] fieldX):
         cdef np.ndarray[DTYPEc_t, ndim=3] fieldK
         fieldK = np.empty(self.get_shapeK_loc(), dtype=DTYPEc, order='C')
-        self.thisptr.fft(&fieldX[0, 0, 0], <fftw_complex*> &fieldK[0, 0, 0])
+        self.thisptr.fft(&fieldX[0, 0, 0], <mycomplex*> &fieldK[0, 0, 0])
         return fieldK
 
     @cython.boundscheck(False)
@@ -75,7 +75,7 @@ cdef class ${class_name}:
     cpdef ifft(self, DTYPEc_t[:, :, ::1] fieldK):
         cdef np.ndarray[DTYPEf_t, ndim=3] fieldX
         fieldX = np.empty(self.get_shapeX_loc(), dtype=DTYPEf, order='C')
-        self.thisptr.ifft(<fftw_complex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
+        self.thisptr.ifft(<mycomplex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
         return fieldX
 
     cpdef get_shapeX_loc(self):
@@ -113,7 +113,7 @@ cdef class ${class_name}:
     cdef _sum_wavenumbers_complex(self, DTYPEc_t[:,:,::1] fieldK):
         cdef DTYPEc_t result
         self.thisptr.sum_wavenumbers_complex(
-            <fftw_complex*> &fieldK[0, 0, 0], <fftw_complex*> &result)
+            <mycomplex*> &fieldK[0, 0, 0], <mycomplex*> &result)
         return result
         
     cpdef get_dimX_K(self):
