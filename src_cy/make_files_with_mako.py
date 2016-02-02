@@ -10,8 +10,8 @@ def modification_date(filename):
     return datetime.fromtimestamp(t)
 
 
-template2d_pyx = Template(filename='template_mako.pyx')
-template2d_pxd = Template(filename='template_mako.pxd')
+template2d_pyx = Template(filename='template2d_mako.pyx')
+template2d_pxd = Template(filename='template2d_mako.pxd')
 
 template3d_pyx = Template(filename='template3d_mako.pyx')
 template3d_pxd = Template(filename='template3d_mako.pxd')
