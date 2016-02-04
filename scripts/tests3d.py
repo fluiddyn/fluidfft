@@ -7,11 +7,12 @@ rank = mpi.rank
 nb_proc = mpi.nb_proc
 
 from fluidfft3d.with_fftw3d import FFT3DWithFFTW3D
+from fluidfft3d.with_cufft import FFT3DWithCUFFT
 
 from fluidfft3d.mpi_with_fftwmpi3d import FFT3DMPIWithFFTWMPI3D
 from fluidfft3d.mpi_with_pfft import FFT3DMPIWithPFFT
 
-classes_seq = [FFT3DWithFFTW3D]
+classes_seq = [FFT3DWithFFTW3D, FFT3DWithCUFFT]
 classes_mpi = [FFT3DMPIWithFFTWMPI3D, FFT3DMPIWithPFFT]
 
 

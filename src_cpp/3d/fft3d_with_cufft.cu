@@ -9,7 +9,6 @@ using namespace std;
 #include <fft3d_with_cufft.h>
 
 
-
 //  KERNEL CUDA
 // Complex scale
 static __device__ __host__ inline dcomplex ComplexScale(dcomplex a, myreal s)
@@ -150,9 +149,10 @@ myreal FFT3DWithCUFFT::compute_energy_from_K(mycomplex* fieldK)
   i2 = nK2 - 1;
   for (i0=0; i0<nK0; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy += (double) pow(cabs(fieldK[i2 + (i1 + i0*nK1)*nK2]), 2);//we must divide by 2 ==> after
-
-    energy *= 0.5;//divide by 2!!!
+      energy += (double) pow(cabs(fieldK[i2 + (i1 + i0*nK1)*nK2]), 2);
+      // we must divide by 2 ==> after
+  
+    energy *= 0.5; //divide by 2!!!
 
   // other modes
   for (i0=0; i0<nK0; i0++)
@@ -164,12 +164,81 @@ myreal FFT3DWithCUFFT::compute_energy_from_K(mycomplex* fieldK)
   i2 = 0;
   for (i0=0; i0<nK0; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy0 += (double) pow(cabs(fieldK[(i1 + i0*nK1)*nK2]), 2);//we must divide by 2 ==> after
+      energy0 += (double) pow(cabs(fieldK[(i1 + i0*nK1)*nK2]), 2);
+      // we must divide by 2 ==> after
 
   energy += energy0/2.;
 
   //cout << "energyK=" << energy<<  endl;
   return (myreal) energy;
+}
+
+
+myreal FFT3DWithCUFFT::sum_wavenumbers_double(myreal* fieldK)
+{
+  int i0, i1, i2;
+  double sum = 0;
+  double sum0 = 0;
+
+  // modes i1_seq = iKx = last = nK1 - 1
+  i2 = nK2 - 1;
+  for (i0=0; i0<nK0; i0++)
+    for (i1=0; i1<nK1; i1++)
+      sum += (double) fieldK[i2 + (i1 + i0*nK1)*nK2];
+      // we must divide by 2 ==> after
+  
+    sum *= 0.5; //divide by 2!!!
+
+  // other modes
+  for (i0=0; i0<nK0; i0++)
+    for (i1=0; i1<nK1; i1++)
+      for (i2=1; i2<nK2-1; i2++)
+        sum += (double) fieldK[i2 + (i1 + i0*nK1)*nK2];
+    
+  // modes i1_seq = iKx = 0
+  i2 = 0;
+  for (i0=0; i0<nK0; i0++)
+    for (i1=0; i1<nK1; i1++)
+      sum0 += (double) fieldK[(i1 + i0*nK1)*nK2];
+      // we must divide by 2 ==> after
+
+  sum += sum0/2.;
+
+  return (myreal) sum;
+}
+
+
+void FFT3DWithCUFFT::sum_wavenumbers_complex(mycomplex* fieldK, mycomplex* result)
+{
+  int i0, i1, i2;
+  mycomplex sum = 0;
+  mycomplex sum0 = 0;
+
+  // modes i1_seq = iKx = last = nK1 - 1
+  i2 = nK2 - 1;
+  for (i0=0; i0<nK0; i0++)
+    for (i1=0; i1<nK1; i1++)
+      sum += fieldK[i2 + (i1 + i0*nK1)*nK2];
+      // we must divide by 2 ==> after
+  
+    sum *= 0.5; //divide by 2!!!
+
+  // other modes
+  for (i0=0; i0<nK0; i0++)
+    for (i1=0; i1<nK1; i1++)
+      for (i2=1; i2<nK2-1; i2++)
+        sum += fieldK[i2 + (i1 + i0*nK1)*nK2];
+    
+  // modes i1_seq = iKx = 0
+  i2 = 0;
+  for (i0=0; i0<nK0; i0++)
+    for (i1=0; i1<nK1; i1++)
+      sum0 += fieldK[(i1 + i0*nK1)*nK2];
+      // we must divide by 2 ==> after
+
+  sum += sum0/2.;
+
+  *result = sum;
 }
 
 

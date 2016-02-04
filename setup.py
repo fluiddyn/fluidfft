@@ -1,4 +1,6 @@
 
+from __future__ import print_function
+
 import os
 
 from setuptools import setup, find_packages
@@ -31,7 +33,7 @@ base_names = [
     'fft2d_with_fftw1d', 'fft2d_with_fftw2d', 'fft2dmpi_with_fftw1d',
     'fft2dmpi_with_fftwmpi2d',
     'fft3d_with_fftw3d',
-    # 'fft3d_with_cufft',
+    'fft3d_with_cufft',
     'fft3dmpi_with_fftwmpi3d', 'fft3dmpi_with_pfft'
 ]
 
@@ -53,20 +55,24 @@ def create_ext(base_name):
 
     src_cpp_dim = os.path.join(src_cpp_dir, dim)
 
-    source_files = [base_name + '_cy.pyx',
-                    base_name + '.cpp']
+    source_ends = ['_cy.pyx']
+    if base_name.endswith('cufft'):
+        source_ends.append('.cu')
+    else:
+        source_ends.append('.cpp')
+
+    source_files = [base_name + end for end in source_ends]
 
     base_name = base_name[len('fft2d'):]
-
     if base_name.startswith('_'):
         base_name = base_name[1:]
 
     sources = []
-    for nfile in source_files:
-        if nfile.endswith('_cy.pyx'):
-            path = os.path.join(src_cy_dir, nfile)
+    for name_file in source_files:
+        if name_file.endswith('_cy.pyx'):
+            path = os.path.join(src_cy_dir, name_file)
         else:
-            path = os.path.join(src_cpp_dim, nfile)
+            path = os.path.join(src_cpp_dim, name_file)
         sources.append(path)
 
     sources.extend(

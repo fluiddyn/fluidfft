@@ -65,6 +65,15 @@ def modification_date(filename):
     return datetime.fromtimestamp(t)
 
 
+class CompilationError(Exception):
+    def __init__(self, out, err):
+        self.message = '\nstdout:\n {}\nstderr:\n{}'.format(out, err)
+        super(CompilationError, self). __init__()
+
+    def __str__(self):
+        return super(CompilationError, self).__str__() + self.message
+
+
 class Extension(object):
     def __init__(self, name, sources=None, language=None):
         self.name = name
@@ -116,17 +125,39 @@ def make_obj_from_cpp(obj_file, cpp_file, options=None):
                 conf_vars[k] = v
 
         command = ' '.join([conf_vars[k] for k in keys])
+
+        if cpp_file.endswith('.cu'):
+            command = (
+                'nvcc -m64 '
+                '-gencode arch=compute_20,code=sm_20 '
+                '-gencode arch=compute_30,code=sm_30 '
+                '-gencode arch=compute_32,code=sm_32 '
+                '-gencode arch=compute_35,code=sm_35 '
+                '-gencode arch=compute_50,code=sm_50 '
+                '-gencode arch=compute_50,code=compute_50 -Xcompiler -fPIC')
+
         command = [w for w in command.split()
                    if w not in ['-g', '-DNDEBUG', '-Wstrict-prototypes']]
 
         include_dirs = [conf_vars['INCLUDEPY']]
+
+        if 'cufft' in cpp_file:
+            include_dirs.append(
+                '/opt/cuda/NVIDIA_CUDA-6.0_Samples/common/inc/')
+
+        if cpp_file.endswith('.cu'):
+            include_dirs.extend([
+                '/usr/lib/openmpi/include',
+                '/usr/lib/openmpi/include/openmpi'])
+
         if options is not None and 'include_dirs' in options.keys():
             include_dirs.extend(options['include_dirs'])
 
         command += ['-I' + incdir for incdir in include_dirs]
         command += ['-c', cpp_file, '-o', obj_file]
         print(' '.join(command))
-        return subprocess.Popen(command)
+        return subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
 def make_ext_from_objs(ext_file, obj_files, lib_dirs=None, libraries=None,
@@ -153,6 +184,9 @@ def make_ext_from_objs(ext_file, obj_files, lib_dirs=None, libraries=None,
 
         command = [w for w in ldshared.split()
                    if w not in ['-g']]
+
+        if 'cufft' in ext_file:
+            command = 'nvcc -Xcompiler -pthread -shared'.split()
 
         command += obj_files + ['-o', ext_file]
         if lib_dirs is not None:
@@ -192,7 +226,8 @@ def make_extensions(extensions, lib_dirs=None, libraries=None,
         for ext in extension_files:
             if source.endswith('.' + ext):
                 files[ext].append(source)
-
+        if source.endswith('.cu'):
+            files['cpp'].append(source)
     files['o'] = []
 
     # cythonize .pyx files if needed
@@ -225,7 +260,8 @@ def make_extensions(extensions, lib_dirs=None, libraries=None,
 
     for p in processes:
         if p.returncode != 0:
-            raise ValueError()
+            out, err = p.communicate()
+            raise CompilationError(out, err)
 
     files['so'] = []
 
