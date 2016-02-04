@@ -1,3 +1,4 @@
+#cython: embedsignature=True
 
 include 'base.pyx'
 
@@ -8,6 +9,9 @@ from ${module_name}_pxd cimport (
 
 
 cdef class ${class_name}:
+    """Perform fast Fourier transform in 3D.
+
+    """
     cdef mycppclass* thisptr
     cdef tuple _shapeK_loc, _shapeX_loc
 
@@ -79,26 +83,31 @@ cdef class ${class_name}:
         return fieldX
 
     cpdef get_shapeX_loc(self):
+        """Get the shape of the array in real space for this mpi process."""
         cdef int nX0loc, nX1loc, nX2
         self.thisptr.get_local_shape_X(&nX0loc, &nX1loc, &nX2)
         return nX0loc, nX1loc, nX2
 
     cpdef get_shapeK_loc(self):
+        """Get the shape of the array in Fourier space for this mpi process."""
         cdef int nK0loc, nK1loc, nK2
         self.thisptr.get_local_shape_K(&nK0loc, &nK1loc, &nK2)
         return nK0loc, nK1loc, nK2
 
     cpdef get_shapeX_seq(self):
+        """Get the shape of an array in real space for a sequential run."""
         cdef int nX0, nX1, nX2
         self.thisptr.get_global_shape_X(&nX0, &nX1, &nX2)
         return nX0, nX1, nX2
 
     cpdef get_shapeK_seq(self):
+        """Get the shape of an array in Fourier space for a sequential run."""
         cdef int nK0, nK1, nK2
         self.thisptr.get_global_shape_K(&nK0, &nK1, &nK2)
         return nK0, nK1, nK2
 
     def sum_wavenumbers(self, fieldK):
+        """Compute the sum over all wavenumbers."""
         if fieldK.dtype == np.float64:
             return self._sum_wavenumbers_double(fieldK)
         elif fieldK.dtype == np.complex128:
@@ -117,16 +126,23 @@ cdef class ${class_name}:
         return result
         
     cpdef get_dimX_K(self):
+        """Get the indices of the real space dimension in Fourier space."""
         cdef int d0, d1, d2
         self.thisptr.get_dimX_K(&d0, &d1, &d2)
         return d0, d1, d2
 
-    cdef get_seq_index_first_K(self):
+    cpdef get_seq_index_first_K(self):
+        """Get the "sequential" index of the first number in Fourier space."""
         cdef int i0, i1
         self.thisptr.get_seq_index_first_K(&i0, &i1)
         return i0, i1
     
-    cdef get_k_adim_loc(self):
+    cpdef get_k_adim_loc(self):
+        """Get the non-dimensional wavenumbers stored locally.
+
+        returns k0_adim_loc, k1_adim_loc, k2_adim_loc.
+
+        """
         cdef int nK0, nK1, nK2, nK0_loc, nK1_loc, nK2_loc
         cdef int d0, d1, d2, i0_start, i1_start
         cdef np.ndarray tmp, k0_adim_loc, k1_adim_loc, k2_adim_loc
