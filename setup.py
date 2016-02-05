@@ -29,21 +29,6 @@ src_cpp_3d = 'src_cpp/3d'
 src_cpp_2d = 'src_cpp/2d'
 
 
-base_names = [
-    'fft2d_with_fftw1d', 'fft2d_with_fftw2d', 'fft2dmpi_with_fftw1d',
-    'fft2dmpi_with_fftwmpi2d',
-    'fft3d_with_fftw3d',
-    'fft3d_with_cufft',
-    'fft3dmpi_with_fftwmpi3d', 'fft3dmpi_with_pfft'
-]
-
-on_rtd = os.environ.get('READTHEDOCS')
-if on_rtd:
-    base_names = []
-else:
-    import mpi4py
-
-
 def create_ext(base_name):
 
     if base_name.startswith('fft2d'):
@@ -88,14 +73,27 @@ def create_ext(base_name):
         sources=sources)
 
 
-ext_modules = []
+base_names = [
+    'fft2d_with_fftw1d', 'fft2d_with_fftw2d', 'fft2dmpi_with_fftw1d',
+    'fft2dmpi_with_fftwmpi2d',
+    'fft3d_with_fftw3d',
+    'fft3d_with_cufft',
+    'fft3dmpi_with_fftwmpi3d', 'fft3dmpi_with_pfft'
+]
 
-libraries = set(['fftw3', 'mpi_cxx'])
-lib_dirs = set()
-include_dirs = set(
-    [src_base, src_cpp_3d, src_cpp_2d, 'include', mpi4py.get_include()])
+on_rtd = os.environ.get('READTHEDOCS')
+if on_rtd:
+    base_names = []
+else:
+    import mpi4py
+    ext_modules = []
+    libraries = set(['fftw3', 'mpi_cxx'])
+    lib_dirs = set()
+    include_dirs = set(
+        [src_base, src_cpp_3d, src_cpp_2d, 'include', mpi4py.get_include()])
 
-specials = {}
+    specials = {}
+
 
 for base_name in base_names:
     ext_modules.append(create_ext(base_name))
@@ -111,10 +109,11 @@ for base_name in base_names:
         specials[''] = {'CC': 'nvcc'}
 
 
-make_extensions(
-    ext_modules, include_dirs=include_dirs,
-    lib_dirs=lib_dirs, libraries=libraries,
-    specials=specials, CC='mpic++')
+if not on_rtd:
+    make_extensions(
+        ext_modules, include_dirs=include_dirs,
+        lib_dirs=lib_dirs, libraries=libraries,
+        specials=specials, CC='mpic++')
 
 
 setup(
