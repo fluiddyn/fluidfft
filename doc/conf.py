@@ -13,6 +13,7 @@
 
 import sys
 import os
+import subprocess
 
 import fluidfft2d
 
@@ -21,6 +22,10 @@ import fluidfft2d
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.abspath('../scripts'))
 sys.path.insert(0, os.path.abspath('./'))
+
+# Generate doxygen doc
+subprocess.call(['doxygen', 'doxygen/Doxyfile'])
+
 
 # -- General configuration ----------------------------------------------------
 
@@ -38,7 +43,11 @@ extensions = [
     'sphinx.ext.viewcode', 'sphinx.ext.autosummary',
     'numpydoc',
     # 'mathmacro',
+    # 'breathe'
 ]
+
+# breathe_projects = {'fluidfft_cpp': 'doxygen/xml'}
+# breathe_default_project = "fluidfft_cpp"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

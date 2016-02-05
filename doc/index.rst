@@ -36,6 +36,8 @@ Modules Reference
    fluidfft2d
    fluidfft3d
 
+See also the `documentation of the cpp code produced by Doxygen
+<doxygen/index.html>`_...
 
 More
 ----
@@ -48,11 +50,10 @@ More
    to_do
    changes
 
-
+   
 Indices and tables
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

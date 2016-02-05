@@ -28,3 +28,4 @@ dist*
 *OAR.*
 
 doc/generated/*
+doc/doxygen/doxygen_sqlite3.db
