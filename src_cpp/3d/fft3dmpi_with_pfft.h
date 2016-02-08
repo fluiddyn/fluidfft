@@ -16,6 +16,7 @@ class FFT3DMPIWithPFFT: public BaseFFT3DMPI
 
   void fft(myreal *fieldX, mycomplex *fieldK);
   void ifft(mycomplex *fieldK, myreal *fieldX);
+
   myreal compute_energy_from_K(mycomplex* fieldK);
   myreal compute_mean_from_K(mycomplex* fieldK);
   void sum_wavenumbers_complex(mycomplex* fieldK, mycomplex* result);

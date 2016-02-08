@@ -1,16 +1,9 @@
 
 from __future__ import print_function
 
-with open('template3d_mako.pyx', 'r') as f:
-    text = f.read()
+import os
 
-lines_text = text.splitlines()
-
-# find start class
-for i, line in enumerate(lines_text):
-    if 'cdef class ' in line:
-        lines_class = lines_text[i+1:]
-        break
+here = os.path.abspath(os.path.split(__file__)[0])
 
 
 def get_doc(lines, indent='    '):
@@ -38,10 +31,9 @@ def get_doc(lines, indent='    '):
 
     return doc
 
-doc_class = get_doc(lines_class)
-
 strings_to_be_deleted = [
-    ' DTYPEf_t[:, :, ::1] ',  ' DTYPEc_t[:, :, ::1] ', ' int ']
+    ' DTYPEf_t[:, :, ::1] ', ' DTYPEc_t[:, :, ::1] ',
+    ' DTYPEf_t[:, ::1] ', ' DTYPEc_t[:, ::1] ', ' int ']
 
 
 def get_function_code(lines):
@@ -74,19 +66,41 @@ def get_function_code(lines):
 
     return '\n'.join(func_lines)
 
-lines_function_class = lines_class[1:]
 
-# find functions
-functions_codes = []
-for i, line in enumerate(lines_function_class):
-    if line.startswith('    def ') or line.startswith('    cpdef '):
-        if ' __dealloc__(' in line or '__cinit__' in line:
-            continue
-        functions_codes.append(get_function_code(lines_function_class[i:]))
+def create_fake_mod(dimension):
 
-code = (
-    '\nclass FakeFFTClassForDoc(object):\n' + doc_class + '\n' +
-    '\n\n'.join(functions_codes) + '\n')
+    with open(os.path.join(
+            here, 'template{dim}d_mako.pyx'.format(dim=dimension)), 'r') as f:
+        lines_text = f.read().splitlines()
 
-with open('fake_mod.py', 'w') as f:
-    f.write(code)
+    # find start class
+    for i, line in enumerate(lines_text):
+        if 'cdef class ' in line:
+            lines_class = lines_text[i+1:]
+            break
+
+    # get docstring of the class
+    doc_class = get_doc(lines_class)
+
+    lines_function_class = lines_class[1:]
+
+    # find functions
+    functions_codes = []
+    for i, line in enumerate(lines_function_class):
+        if line.startswith('    def ') or line.startswith('    cpdef '):
+            if ' __dealloc__(' in line or '__cinit__' in line:
+                continue
+            functions_codes.append(get_function_code(lines_function_class[i:]))
+
+    code = (
+        '\nclass FFT{dim}dFakeForDoc(object):\n'.format(dim=dimension) +
+        doc_class + '\n' + '\n\n'.join(functions_codes) + '\n')
+
+    name = '../fluidfft{dim}d/fake_mod_fft{dim}d_for_doc.py'.format(
+        dim=dimension)
+
+    with open(os.path.join(here, name), 'w') as f:
+        f.write(code)
+
+for dim in range(2, 4):
+    create_fake_mod(dim)

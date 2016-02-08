@@ -8,6 +8,7 @@ from ${module_name}_pxd cimport (
 
 
 cdef class ${class_name}:
+    """(Fake) class to perform Fast Fourier Transform in 2d."""
     cdef mycppclass* thisptr
     cdef tuple _shape_K_loc, _shape_X_loc
 

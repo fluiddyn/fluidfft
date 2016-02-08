@@ -65,6 +65,7 @@ if __name__ == '__main__':
         ('fft3d_with_fftw3d', 'FFT3DWithFFTW3D'),
         ('fft3dmpi_with_fftwmpi3d', 'FFT3DMPIWithFFTWMPI3D'),
         ('fft3dmpi_with_pfft', 'FFT3DMPIWithPFFT'),
+        ('fft3dmpi_with_p3dfft', 'FFT3DMPIWithP3DFFT'),
         ('fft3d_with_cufft', 'FFT3DWithCUFFT'),
     )
 

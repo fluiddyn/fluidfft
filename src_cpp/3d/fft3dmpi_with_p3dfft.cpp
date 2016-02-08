@@ -194,6 +194,46 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex* fieldK)
 }
 
 
+myreal FFT3DMPIWithP3DFFT::sum_wavenumbers_double(myreal* fieldK)
+{
+  int i0, i1, i2;
+  double sum_tmp = 0;
+  double sum_loc;
+  double sum;
+  i0 = 0;
+  sum_tmp=0.;
+  for (i2=0; i2<nK2loc; i2++)
+    for (i1=0; i1<nK1loc; i1++)
+      sum_tmp+= (double) fieldK[i0 + (i1+i2*nK1loc)*nK0loc];
+
+  if (local_K0_start == 1)
+    sum_loc = sum_tmp /2.;
+  else
+    sum_loc = sum_tmp;
+
+//  modes i1_seq iKx = last = nK1 - 1
+    i0 = nK0loc - 1;
+  sum_tmp = 0;
+  for (i2=0; i2<nK2loc; i2++)
+    for (i1=0; i1<nK1loc; i1++)
+      sum_tmp += (double) fieldK[i0 + (i1 + i2*nK1loc)*nK0loc];
+
+  if (local_K0_start + nK0loc -1== nK0/2+1)
+    sum_loc += sum_tmp/2;
+  else
+    sum_loc += sum_tmp;
+
+  for (i2=0; i2<nK2loc; i2++)
+    for (i1=0; i1<nK1loc; i1++)
+      for (i0=1; i0<nK0loc-1; i0++)
+        sum_loc += (double) fieldK[i0 + (i1 + i2*nK1loc)*nK0loc];
+  
+  MPI_Allreduce(&sum_loc, &sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+  return (myreal) sum;
+}
+
+
 myreal FFT3DMPIWithP3DFFT::compute_mean_from_X(myreal* fieldX)
 {
   double mean, local_mean;

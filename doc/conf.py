@@ -24,7 +24,14 @@ sys.path.insert(0, os.path.abspath('../scripts'))
 sys.path.insert(0, os.path.abspath('./'))
 
 # Generate doxygen doc
-subprocess.call(['doxygen', 'doxygen/Doxyfile'])
+try:
+    subprocess.call(['doxygen', 'doxygen/Doxyfile'])
+except OSError:
+    print(
+        'Can not find doxygen to generate the documentation of the cpp code.')
+
+from runpy import run_path
+run_path('../src_cy/create_fake_mod_for_doc.py')
 
 
 # -- General configuration ----------------------------------------------------

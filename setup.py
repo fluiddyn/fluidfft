@@ -14,7 +14,7 @@ from purepymake import Extension, make_extensions
 with open('README.rst') as f:
     long_description = f.read()
 lines = long_description.splitlines(True)
-long_description = ''.join(lines[8:])
+long_description = ''.join(lines[12:])
 
 # Get the version from the relevant file
 from runpy import run_path
@@ -78,7 +78,7 @@ base_names = [
     'fft2dmpi_with_fftwmpi2d',
     'fft3d_with_fftw3d',
     'fft3d_with_cufft',
-    'fft3dmpi_with_fftwmpi3d', 'fft3dmpi_with_pfft'
+    'fft3dmpi_with_fftwmpi3d', 'fft3dmpi_with_pfft', 'fft3dmpi_with_p3dfft'
 ]
 
 on_rtd = os.environ.get('READTHEDOCS')
@@ -104,6 +104,10 @@ for base_name in base_names:
         libraries.update(['fftw3_mpi', 'pfft'])
         include_dirs.update(['/opt/pfft/1.0.6/include'])
         lib_dirs.update(['/opt/pfft/1.0.6/lib'])
+    elif 'p3dfft' in base_name:
+        libraries.update(['p3dfft'])
+        include_dirs.update(['/opt/p3dfft/2.7.1/include'])
+        lib_dirs.update(['/opt/p3dfft/2.7.1/lib'])
     elif 'cufft' in base_name:
         libraries.add('cufft')
         specials[''] = {'CC': 'nvcc'}
