@@ -13,11 +13,11 @@ cdef class ${class_name}:
 
     def __cinit__(self, int n0=2, int n1=2):
         self.thisptr = new mycppclass(n0, n1)
-        
-    def __init__(self, int n0=2, int n1=2): 
+
+    def __init__(self, int n0=2, int n1=2):
         self._shape_K_loc = self.get_local_shape_K()
         self._shape_X_loc = self.get_local_shape_X()
-        
+
     def __dealloc__(self):
         self.thisptr.destroy()
         del self.thisptr

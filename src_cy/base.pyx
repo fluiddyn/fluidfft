@@ -1,4 +1,4 @@
-
+#cython: embedsignature=True
 
 cimport cython
 

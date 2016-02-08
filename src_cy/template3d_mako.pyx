@@ -1,4 +1,3 @@
-#cython: embedsignature=True
 
 include 'base.pyx'
 
@@ -17,11 +16,11 @@ cdef class ${class_name}:
 
     def __cinit__(self, int n0=2, int n1=2, int n2=4):
         self.thisptr = new mycppclass(n0, n1, n2)
-        
-    def __init__(self, int n0=2, int n1=2, int n2=4): 
+
+    def __init__(self, int n0=2, int n1=2, int n2=4):
         self._shapeK_loc = self.get_shapeK_loc()
         self._shapeX_loc = self.get_shapeX_loc()
-        
+
     def __dealloc__(self):
         self.thisptr.destroy()
         del self.thisptr
@@ -39,7 +38,7 @@ cdef class ${class_name}:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     cpdef fft_generic(self, DTYPEf_t[:, :, ::1] fieldX,
-              DTYPEc_t[:, :, ::1] fieldK=None):
+                      DTYPEc_t[:, :, ::1] fieldK=None):
         if fieldK is None:
             fieldK = np.empty(self._shapeK_loc, dtype=DTYPEc, order='C')
         self.thisptr.fft(&fieldX[0, 0, 0], <mycomplex*> &fieldK[0, 0, 0])
@@ -48,7 +47,7 @@ cdef class ${class_name}:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     cpdef ifft_generic(self, DTYPEc_t[:, :, ::1] fieldK,
-               DTYPEf_t[:, :, ::1] fieldX=None):
+                       DTYPEf_t[:, :, ::1] fieldX=None):
         if fieldX is None:
             fieldX = np.empty(self._shapeX_loc, dtype=DTYPEf, order='C')
         self.thisptr.ifft(<mycomplex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
@@ -118,13 +117,13 @@ cdef class ${class_name}:
     cdef _sum_wavenumbers_double(self, DTYPEf_t[:,:,::1] fieldK):
         return self.thisptr.sum_wavenumbers_double(
             <DTYPEf_t*> &fieldK[0, 0, 0])
-    
+
     cdef _sum_wavenumbers_complex(self, DTYPEc_t[:,:,::1] fieldK):
         cdef DTYPEc_t result
         self.thisptr.sum_wavenumbers_complex(
             <mycomplex*> &fieldK[0, 0, 0], <mycomplex*> &result)
         return result
-        
+
     cpdef get_dimX_K(self):
         """Get the indices of the real space dimension in Fourier space."""
         cdef int d0, d1, d2
@@ -136,7 +135,7 @@ cdef class ${class_name}:
         cdef int i0, i1
         self.thisptr.get_seq_index_first_K(&i0, &i1)
         return i0, i1
-    
+
     cpdef get_k_adim_loc(self):
         """Get the non-dimensional wavenumbers stored locally.
 
@@ -149,7 +148,7 @@ cdef class ${class_name}:
 
         nK0, nK1, nK2 = self.get_shapeK_seq()
         nK0_loc, nK1_loc, nK2_loc = self.get_shapeK_loc()
-        
+
         d0, d1, d2 = self.get_dimX_K()
         i0_start, i1_start = self.get_seq_index_first_K()
 
@@ -158,7 +157,7 @@ cdef class ${class_name}:
         else:
             k0_adim_max = nK0//2
             tmp = np.r_[0:k0_adim_max+1, -k0_adim_max+1:0]
-            
+
         k0_adim_loc = tmp[i0_start:i0_start+nK0_loc]
 
         if d1 == 2:
@@ -166,13 +165,13 @@ cdef class ${class_name}:
         else:
             k1_adim_max = nK1//2
             tmp = np.r_[0:k1_adim_max+1, -k1_adim_max+1:0]
-            
+
         k1_adim_loc = tmp[i1_start:i1_start+nK1_loc]
-        
+
         if d2 == 2:
             k2_adim_loc = np.arange(nK2)
         else:
             k2_adim_max = nK2//2
             k2_adim_loc = np.r_[0:k2_adim_max+1, -k2_adim_max+1:0]
-            
+
         return k0_adim_loc, k1_adim_loc, k2_adim_loc

@@ -13,7 +13,7 @@ cdef extern from "${module_name}.h":
 
         void get_local_shape_X(int*, int*)
         void get_local_shape_K(int*, int*)
-    
+
         ${class_name}(int, int) except +
 
         void destroy()
