@@ -21,6 +21,8 @@ from runpy import run_path
 d = run_path('fluidfft2d/_version.py')
 __version__ = d['__version__']
 
+# make a python module from cython files
+run_path('src_cy/create_fake_mod_for_doc.py')
 
 src_cpp_dir = 'src_cpp'
 src_cy_dir = 'src_cy'
