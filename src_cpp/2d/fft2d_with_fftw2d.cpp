@@ -67,7 +67,6 @@ FFT2DWithFFTW2D::FFT2DWithFFTW2D(int argN0, int argN1):
       N0, N1, arrayK, arrayX, flags);
 #endif
 
-
   gettimeofday(&end_time, NULL);
 
   total_usecs = (end_time.tv_sec-start_time.tv_sec) +

@@ -33,8 +33,7 @@ class FFT2DMPIWithFFTWMPI2D: public BaseFFT2DMPI
   myfftw_plan plan_r2c, plan_c2r;
   myreal *arrayX;
   mycomplex *arrayK;
-  ptrdiff_t alloc_local, local_K0_start;
-  ptrdiff_t local_X0_start;
+  ptrdiff_t alloc_local;
 
   unsigned flags;
 };

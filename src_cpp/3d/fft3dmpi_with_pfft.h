@@ -28,7 +28,7 @@ class FFT3DMPIWithPFFT: public BaseFFT3DMPI
   void init_array_X_random(myreal* &fieldX);
 
   virtual void get_dimX_K(int*, int*, int*);
-  virtual void get_seq_index_first_K(int*, int*);
+  virtual void get_seq_indices_first_K(int*, int*);
 
  private:
   int nX2loc, nK2loc, nXxloc, nXyloc, nXzloc, nKzloc, nXx, nXy, nXz;

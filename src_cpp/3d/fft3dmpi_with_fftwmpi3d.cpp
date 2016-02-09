@@ -376,7 +376,7 @@ void FFT3DMPIWithFFTWMPI3D::get_dimX_K(int *d0, int *d1, int *d2)
   *d2 = 2;
 }
 
-void FFT3DMPIWithFFTWMPI3D::get_seq_index_first_K(int *i0, int *i1)
+void FFT3DMPIWithFFTWMPI3D::get_seq_indices_first_K(int *i0, int *i1)
 {
   *i0 = local_K0_start;
   *i1 = 0;

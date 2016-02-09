@@ -130,10 +130,10 @@ cdef class ${class_name}:
         self.thisptr.get_dimX_K(&d0, &d1, &d2)
         return d0, d1, d2
 
-    cpdef get_seq_index_first_K(self):
+    cpdef get_seq_indices_first_K(self):
         """Get the "sequential" index of the first number in Fourier space."""
         cdef int i0, i1
-        self.thisptr.get_seq_index_first_K(&i0, &i1)
+        self.thisptr.get_seq_indices_first_K(&i0, &i1)
         return i0, i1
 
     cpdef get_k_adim_loc(self):
@@ -150,7 +150,7 @@ cdef class ${class_name}:
         nK0_loc, nK1_loc, nK2_loc = self.get_shapeK_loc()
 
         d0, d1, d2 = self.get_dimX_K()
-        i0_start, i1_start = self.get_seq_index_first_K()
+        i0_start, i1_start = self.get_seq_indices_first_K()
 
         if d0 == 2:
             tmp = np.arange(nK0)
@@ -175,3 +175,28 @@ cdef class ${class_name}:
             k2_adim_loc = np.r_[0:k2_adim_max+1, -k2_adim_max+1:0]
 
         return k0_adim_loc, k1_adim_loc, k2_adim_loc
+
+    def build_arrayX_from_2d_indices12(self, o2d, arr2d):
+
+        nX0, nX1, nX2 = self.get_shapeX_seq()
+        nX0loc, nX1loc, nX2loc = self.get_shapeX_loc()
+
+        if (nX1, nX2) != o2d.get_shapeX_seq():
+            raise ValueError('Not the same physical shape...')
+
+        # check that the 2d fft is not with distributed memory...
+        if o2d.get_shapeX_loc() != o2d.get_shapeX_loc():
+            raise ValueError('2d fft is with distributed memory...')
+
+        ind0seq_first, ind1seq_first = self.get_seq_indices_first_K()
+
+        if (nX1loc, nX2loc) == o2d.get_shapeX_loc():
+            arr3d_loc_2dslice = arr2d
+        else:
+            raise NotImplementedError
+
+        arr3d = np.empty([nX0loc, nX1loc, nX2loc])
+        for i0 in range(nX0loc):
+            arr3d[i0] = arr3d_loc_2dslice
+
+        return arr3d

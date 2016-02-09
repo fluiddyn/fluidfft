@@ -48,6 +48,9 @@ FFT2DMPIWithFFTW1D::FFT2DMPIWithFFTW1D(int argN0, int argN1):
 
   coef_norm = N0*N1;
 
+  local_X0_start = rank * nX0loc;
+  local_K0_start = rank * nK0loc;
+
   flags = FFTW_MEASURE;
 /*    flags = FFTW_ESTIMATE;*/
 /*    flags = FFTW_PATIENT;*/

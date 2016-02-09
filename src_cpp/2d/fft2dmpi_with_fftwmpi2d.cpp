@@ -17,7 +17,7 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1):
 {
   struct timeval start_time, end_time;
   myreal total_usecs;
-  ptrdiff_t local_nX0;//, local_X0_start;
+  ptrdiff_t local_nX0;
   ptrdiff_t local_nK0;
 
   this->_init();
@@ -26,8 +26,8 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1):
 
   /* get local data size and allocate */
   alloc_local = fftwf_mpi_local_size_2d_transposed(N0, N1/2+1, MPI_COMM_WORLD,
-                                                  &local_nX0, &local_X0_start,
-                                                  &local_nK0, &local_K0_start);
+                                                   &local_nX0, &local_X0_start,
+                                                   &local_nK0, &local_K0_start);
 #else
   fftw_mpi_init();
 

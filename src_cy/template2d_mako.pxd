@@ -14,6 +14,9 @@ cdef extern from "${module_name}.h":
         void get_local_shape_X(int*, int*)
         void get_local_shape_K(int*, int*)
 
+        void get_shapeX_seq(int*, int*)
+        void get_shapeK_seq(int*, int*)
+
         ${class_name}(int, int) except +
 
         void destroy()
@@ -27,3 +30,7 @@ cdef extern from "${module_name}.h":
         double compute_energy_from_K(mycomplex* fieldK)
         double compute_mean_from_X(double* fieldX)
         double compute_mean_from_K(mycomplex* fieldK)
+
+        char get_is_transposed()
+        ptrdiff_t get_local_X0_start()
+        ptrdiff_t get_local_K0_start()

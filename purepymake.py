@@ -104,7 +104,7 @@ def make_cpp_from_pyx(cpp_file, pyx_file, full_module_name=None, options=None):
         result = cython_compile(pyx_file, options=options,
                                 full_module_name=full_module_name)
 
-        print(result.c_file, pyx_file, full_module_name)
+        print('cythonize ' + pyx_file)
 
         return result
 
