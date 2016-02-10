@@ -200,3 +200,6 @@ cdef class ${class_name}:
             arr3d[i0] = arr3d_loc_2dslice
 
         return arr3d
+
+
+FFTclass = ${class_name}

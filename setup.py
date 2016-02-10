@@ -18,7 +18,7 @@ long_description = ''.join(lines[12:])
 
 # Get the version from the relevant file
 from runpy import run_path
-d = run_path('fluidfft2d/_version.py')
+d = run_path('fluidfft/_version.py')
 __version__ = d['__version__']
 
 # make a python module from cython files

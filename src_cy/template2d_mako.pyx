@@ -114,3 +114,6 @@ cdef class ${class_name}:
 
     def get_x_adim_loc(self):
         raise NotImplementedError
+
+
+FFTclass = ${class_name}
