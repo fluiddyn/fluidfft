@@ -9,6 +9,8 @@ from setuptools import setup, find_packages
 # from Cython.Distutils.extension import Extension
 
 from purepymake import Extension, make_extensions
+from config import get_config
+config = get_config()
 
 # Get the long description from the relevant file
 with open('README.rst') as f:
@@ -71,17 +73,26 @@ def create_ext(base_name):
              os.path.join(src_cpp_dim, 'base_fft' + dim + 'mpi.cpp')])
 
     return Extension(
-        name='fluidfft' + dim + '.' + base_name,
+        name='fluidfft.fft' + dim + '.' + base_name,
         sources=sources)
 
 
-base_names = [
-    'fft2d_with_fftw1d', 'fft2d_with_fftw2d', 'fft2dmpi_with_fftw1d',
-    'fft2dmpi_with_fftwmpi2d',
-    'fft3d_with_fftw3d',
-    'fft3d_with_cufft',
-    'fft3dmpi_with_fftwmpi3d', 'fft3dmpi_with_pfft', 'fft3dmpi_with_p3dfft'
-]
+base_names = []
+if config['fftw']['use']:
+        base_names.extend([
+            'fft2d_with_fftw1d', 'fft2d_with_fftw2d', 'fft2dmpi_with_fftw1d',
+            'fft2dmpi_with_fftwmpi2d', 'fft3d_with_fftw3d',
+            'fft3dmpi_with_fftwmpi3d'])
+
+if config['cufft']['use']:
+    base_names.extend(['fft3d_with_cufft'])
+
+if config['pfft']['use']:
+    base_names.extend(['fft3d_with_pfft'])
+
+if config['p3dfft']['use']:
+    base_names.extend(['fft3d_with_p3dfft'])
+
 
 on_rtd = os.environ.get('READTHEDOCS')
 if on_rtd:

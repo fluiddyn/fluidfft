@@ -39,7 +39,7 @@ FFT3DWithCUFFT::FFT3DWithCUFFT(int argN0, int argN1, int argN2):
   
   this->_init();
 
- /* y corresponds to dim 0 in physical space */
+  /* y corresponds to dim 0 in physical space */
   /* y corresponds to dim 1 in physical space */
   /* x corresponds to dim 2 in physical space */
   nz = N0;

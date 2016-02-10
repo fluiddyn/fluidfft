@@ -31,3 +31,5 @@ doc/generated/*
 doc/doxygen/doxygen_sqlite3.db
 
 */fake_mod_fft*d_for_doc.py
+
+site.cfg

@@ -15,7 +15,7 @@ import sys
 import os
 import subprocess
 
-import fluidfft2d
+import fluidfft
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -69,8 +69,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'FluidDyn'
-copyright = u'2014, Pierre Augier'
+project = u'FluidFFT'
+copyright = u'2016, Pierre Augier'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -78,7 +78,7 @@ copyright = u'2014, Pierre Augier'
 #
 
 # The full version, including alpha/beta/rc tags.
-release = fluidfft2d.__version__
+release = fluidfft.__version__
 # The short X.Y version.
 version = release.split('.')
 version = '{}.{}'.format(version[0], version[1])

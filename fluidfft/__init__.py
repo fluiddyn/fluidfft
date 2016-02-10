@@ -1,15 +1,57 @@
-"""2d Fast Fourier Transform classes
-====================================
+"""Simple Fast Fourier Transform for Python
+===========================================
 
-This module provides a helper function to create the fft objects:
+This module provides two helper functions to import fft classes and
+create fft objects:
+
+.. autofunction:: import_fft_class
 
 .. autofunction:: create_fft_object
+
+The fft classes are in the two subpackages
+
+.. autosummary::
+   :toctree:
+
+   fft2d
+   fft3d
 
 """
 
 from fluidfft._version import __version__
 
 from importlib import import_module as _import_module
+
+
+def import_fft_class(method):
+    """Import a fft class.
+
+    Parameters
+    ----------
+
+    method : str
+      Name of module or string characterizing a method.
+
+    Returns
+    -------
+
+    The corresponding FFT class.
+
+    """
+    if method.startswith('fft2d.') or method.startswith('fft3d.'):
+        method = 'fluidfft.' + method
+    elif method.startswith('fluidfft.fft2d.'):
+        pass
+    else:
+        raise ValueError
+
+    try:
+        mod = _import_module(method)
+    except ImportError:
+        raise ImportError(method)
+
+    return mod.FFTclass
+
 
 def create_fft_object(method, n0, n1, n2=None):
     """Helper for creating fft objects.
@@ -32,23 +74,25 @@ def create_fft_object(method, n0, n1, n2=None):
     """
 
     if n2 is None:
-        if method.startswith('2d.'):
-            method = 'fluidfft' + method
-        elif method.startswith('fluid2d.'):
+        if method.startswith('fft2d.'):
+            method = 'fluidfft.' + method
+        elif method.startswith('fluidfft.fft2d.'):
             pass
-        elif method.startswith('3d.') and method.startswith('fluidfft3d.'):
+        elif method.startswith('fft3d.') and \
+             method.startswith('fluidfft.fft3d.'):
             raise ValueError('Arguments incompatible')
         else:
-            method = 'fluidfft2d.' + method
+            method = 'fluidfft.fft2d.' + method
     else:
-        if method.startswith('3d.'):
-            method = 'fluidfft' + method
-        elif method.startswith('fluidfft3d.'):
+        if method.startswith('fft3d.'):
+            method = 'fluidfft.' + method
+        elif method.startswith('fluidfft.fft3d.'):
             pass
-        elif method.startswith('2d.') and method.startswith('fluidfft2d.'):
+        elif method.startswith('fft2d.') and \
+             method.startswith('fluidfft.fft2d.'):
             raise ValueError('Arguments incompatible')
         else:
-            method = 'fluidfft3d.' + method
+            method = 'fluidfft.fft3d.' + method
 
     try:
         mod = _import_module(method)

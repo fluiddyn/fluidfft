@@ -10,7 +10,11 @@ perform Fast Fourier Transform (FFT) with different libraries, in particular
   
 - `pfft <https://github.com/mpip/pfft>`_
 
-- `p3dfft <https://github.com/sdsc/p3dfft>`_ (in dev...)
+- `p3dfft <https://github.com/sdsc/p3dfft>`_
+    
+- `cufft <https://developer.nvidia.com/cufft>`_ (fft library by CUDA
+  running on GPU)
+
   
 The package can be used for example as a base to write spectral simulation
 code. In particular, the code `FluidSim <http://fluidsim.readthedocs.org>`_
@@ -33,8 +37,7 @@ Modules Reference
 .. autosummary::
    :toctree: generated/
 
-   fluidfft2d
-   fluidfft3d
+   fluidfft
 
 See also the `documentation of the cpp code produced by Doxygen
 <doxygen/index.html>`_...

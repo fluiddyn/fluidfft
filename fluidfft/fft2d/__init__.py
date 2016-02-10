@@ -26,8 +26,6 @@ class:
 
 """
 
-from fluidfft._version import __version__
-
 try:
     from .fake_mod_fft2d_for_doc import FFT2dFakeForDoc
 except ImportError:

@@ -1,22 +1,11 @@
 
 from __future__ import print_function, division
 
-from time import time
-
-import numpy as np
-
 from fluiddyn.util import mpi
 rank = mpi.rank
 nb_proc = mpi.nb_proc
 
-from fluidfft3d.with_fftw3d import FFT3DWithFFTW3D
-
-from fluidfft3d.mpi_with_fftwmpi3d import FFT3DMPIWithFFTWMPI3D
-from fluidfft3d.mpi_with_pfft import FFT3DMPIWithPFFT
-
-classes_seq = [FFT3DWithFFTW3D]
-classes_mpi = [FFT3DMPIWithFFTWMPI3D, FFT3DMPIWithPFFT]
-
+from classes3d import classes_seq, classes_mpi
 
 print_old = print
 

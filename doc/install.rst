@@ -31,9 +31,14 @@ Dependencies
 
   * p3dfft
 
-  .. todo::
+.. toctree::
+   :maxdepth: 1
 
-     Add a page on building of FFT libraries.
+   dependencies
+    
+.. todo::
+
+   Add a page on building of FFT libraries.
 
 Note that there are wrappers to use the MKL library (FFT by intel) using the FFTW
   API.

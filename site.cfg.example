@@ -1,0 +1,24 @@
+[fftw]
+use = True
+dir = 
+include_dir = 
+library_dir = 
+
+[cufft]
+use = False
+dir = 
+include_dir = 
+library_dir = 
+
+[pfft]
+use = False
+dir = 
+include_dir = 
+library_dir = 
+
+[p3dfft]
+use = False
+dir = 
+include_dir = 
+library_dir = 
+
