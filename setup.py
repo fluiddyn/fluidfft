@@ -88,10 +88,10 @@ if config['cufft']['use']:
     base_names.extend(['fft3d_with_cufft'])
 
 if config['pfft']['use']:
-    base_names.extend(['fft3d_with_pfft'])
+    base_names.extend(['fft3dmpi_with_pfft'])
 
 if config['p3dfft']['use']:
-    base_names.extend(['fft3d_with_p3dfft'])
+    base_names.extend(['fft3dmpi_with_p3dfft'])
 
 
 on_rtd = os.environ.get('READTHEDOCS')
