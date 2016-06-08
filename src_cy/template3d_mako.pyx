@@ -13,6 +13,8 @@ cdef class ${class_name}:
     """
     cdef mycppclass* thisptr
     cdef tuple _shapeK_loc, _shapeX_loc
+    cdef public MPI.Comm comm
+    cdef public int nb_proc, rank
 
     def __cinit__(self, int n0=2, int n1=2, int n2=4):
         self.thisptr = new mycppclass(n0, n1, n2)
@@ -20,6 +22,11 @@ cdef class ${class_name}:
     def __init__(self, int n0=2, int n1=2, int n2=4):
         self._shapeK_loc = self.get_shapeK_loc()
         self._shapeX_loc = self.get_shapeX_loc()
+        # info on MPI
+        self.nb_proc = nb_proc
+        self.rank = rank
+        if self.nb_proc > 1:
+            self.comm = comm
 
     def __dealloc__(self):
         self.thisptr.destroy()
@@ -98,6 +105,26 @@ cdef class ${class_name}:
         cdef int nX0, nX1, nX2
         self.thisptr.get_global_shape_X(&nX0, &nX1, &nX2)
         return nX0, nX1, nX2
+
+    def gather_Xspace(self, DTYPEf_t[:, :, ::1] ff_loc,
+                      root=None):
+#                      root=None, type DTYPE=DTYPEf):
+        """Gather an array in real space for a parallel run."""
+        cdef np.ndarray[DTYPEf_t, ndim=3] ff_seq
+
+        # self.shapeX_loc is the same for all processes,
+        # it is safe to use Allgather or Gather
+        if root is None:
+            ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
+            self.comm.Allgather(ff_loc, ff_seq)
+        elif isinstance(root, int):
+            ff_seq = None
+            if self.rank == root:
+                ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
+            self.comm.Gather(ff_loc, ff_seq, root=root)
+        else:
+            raise ValueError('root should be an int')
+        return ff_seq
 
     cpdef get_shapeK_seq(self):
         """Get the shape of an array in Fourier space for a sequential run."""
