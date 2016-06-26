@@ -108,7 +108,6 @@ cdef class ${class_name}:
 
     def gather_Xspace(self, DTYPEf_t[:, :, ::1] ff_loc,
                       root=None):
-#                      root=None, type DTYPE=DTYPEf):
         """Gather an array in real space for a parallel run."""
         cdef np.ndarray[DTYPEf_t, ndim=3] ff_seq
 
