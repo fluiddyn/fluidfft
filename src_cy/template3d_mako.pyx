@@ -125,6 +125,25 @@ cdef class ${class_name}:
             raise ValueError('root should be an int')
         return ff_seq
 
+    def scatter_Xspace(self, DTYPEf_t[:, :, ::1] ff_seq,
+                      root=None):
+        """Gather an array in real space for a parallel run."""
+        cdef np.ndarray[DTYPEf_t, ndim=3] ff_loc
+
+        # self.shapeX_loc is the same for all processes,
+        # it is safe to use Allgather or Gather
+        if root is None:
+            ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
+            self.comm.Scatter(ff_seq, ff_loc, root=0)
+        elif isinstance(root, int):
+            ff_loc = None
+            if self.rank == root:
+                ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
+            self.comm.Scatter(ff_seq, ff_loc, root=root)
+        else:
+            raise ValueError('root should be an int')
+        return ff_loc
+
     cpdef get_shapeK_seq(self):
         """Get the shape of an array in Fourier space for a sequential run."""
         cdef int nK0, nK1, nK2
