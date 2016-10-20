@@ -110,16 +110,16 @@ if __name__ == '__main__':
 
     n = 96
 
-    def run(FFT2D):
-        o = FFT2D(n, n, n)
+    def run(FFT):
+        o = FFT(n, n, n)
         o.run_tests()
         o.run_benchs()
         compare_benchs(o, nb_time_execute=10)
 
-    if rank == 0:
-        for FFT2D in classes_seq:
-            run(FFT2D)
+    if nb_proc == 1 and rank == 0:
+        for FFT in classes_seq:
+            run(FFT)
 
     if nb_proc > 1:
-        for FFT2D in classes_mpi:
-            run(FFT2D)
+        for FFT in classes_mpi:
+            run(FFT)
