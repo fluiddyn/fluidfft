@@ -111,6 +111,8 @@ else:
 for base_name in base_names:
     ext_modules.append(create_ext(base_name))
 
+    include_dirs.update([os.getenv('FFTW3_INC_DIR')])
+    lib_dirs.update([os.getenv('FFTW3_LIB_DIR')])
     if 'fftwmpi' in base_name:
         libraries.add('fftw3_mpi')
     elif 'pfft' in base_name:
@@ -130,7 +132,7 @@ if not on_rtd:
     make_extensions(
         ext_modules, include_dirs=include_dirs,
         lib_dirs=lib_dirs, libraries=libraries,
-        specials=specials, CC='mpic++')
+        specials=specials, CC='mpicxx')
 
 
 setup(

@@ -1,17 +1,19 @@
-SINGLE_PREC:=yes
+SINGLE_PREC:=no
 OMP:=yes
-CUDA:=yes
+CUDA:=no
 PFFT:=no
 P3DFFT:=no
 
 LD:=mpic++
 CC:=mpic++
-FLAGS:=
+FLAGS:= 
 LDFLAGS:=
 LIBS:= -ldl -lhwloc -lm -lgfortran
 
 LIB_DIR:=$(LDEV_PATH)
-INC_DIR:=-I. -I../base $(IDEV_PATH)  
+INC_DIR:=-I. -I../base $(IDEV_PATH) -I$(FFTW3_INC_DIR) 
+#CINES/occigen version
+#INC_DIR:=-I. -I../base $(IDEV_PATH) -I$(FFTW3_INC_DIR) -I/panfs/panasas/softs/intel/composer_xe_2015.3.187/compiler/include 
 
 
 SOURCES_CPP := $(wildcard base*.cpp)

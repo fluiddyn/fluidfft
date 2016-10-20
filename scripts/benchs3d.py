@@ -108,7 +108,7 @@ def compare_benchs(o, nb_time_execute=10):
 
 if __name__ == '__main__':
 
-    n = 128
+    n = 96
 
     def run(FFT2D):
         o = FFT2D(n, n, n)
