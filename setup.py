@@ -115,10 +115,10 @@ for base_name in base_names:
     ext_modules.append(create_ext(base_name))
     TMP = os.getenv('FFTW3_INC_DIR')
     if TMP is not None:
-        include_dirs.append(TMP)
+        include_dirs.add(TMP)
     TMP = os.getenv('FFTW3_LIB_DIR')
     if TMP is not None:
-        lib_dirs.append(TMP)
+        lib_dirs.add(TMP)
     if 'fftwmpi' in base_name:
         libraries.add('fftw3_mpi')
     elif 'pfft' in base_name:
