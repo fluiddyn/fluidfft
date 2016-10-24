@@ -1,8 +1,8 @@
 SINGLE_PREC:=no
 OMP:=yes
 CUDA:=no
-PFFT:=no
-P3DFFT:=no
+PFFT:=yes
+P3DFFT:=yes
 
 LD:=mpic++
 CC:=mpic++
@@ -10,10 +10,10 @@ FLAGS:=
 LDFLAGS:=
 LIBS:= -ldl -lhwloc -lm -lgfortran
 
-LIB_DIR:=$(LDEV_PATH)
-INC_DIR:=-I. -I../base $(IDEV_PATH) -I$(FFTW3_INC_DIR) 
+LIB_DIR:=$(LDEV_PATH) -L$(FFTW3_LIB_DIR) -L/scratch/cnt0022/egi2153/SHARED/opt/p3dfft/2.7.5/lib -L/scratch/cnt0022/egi2153/SHARED/opt/pfft/1.0.6/lib
+#INC_DIR:=-I. -I../base $(IDEV_PATH) -I$(FFTW3_INC_DIR) 
 #CINES/occigen version
-#INC_DIR:=-I. -I../base $(IDEV_PATH) -I$(FFTW3_INC_DIR) -I/panfs/panasas/softs/intel/composer_xe_2015.3.187/compiler/include 
+INC_DIR:=-I. -I../base $(IDEV_PATH) -I$(FFTW3_INC_DIR) -I/panfs/panasas/softs/intel/composer_xe_2015.3.187/compiler/include -I/scratch/cnt0022/egi2153/SHARED/opt/p3dfft/2.7.5/include -I/scratch/cnt0022/egi2153/SHARED/opt/pfft/1.0.6/include
 
 
 SOURCES_CPP := $(wildcard base*.cpp)

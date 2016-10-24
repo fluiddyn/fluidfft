@@ -15,9 +15,9 @@ module load bullxmpi/1.2.8.4
 module load gcc/4.9.2
 unset PYTHONPATH
 source /home/bonamy/mypy/bin/activate
-export FFTW3_LIB_DIR=/home/bonamy/fftw/lib/
-export FFTW3_INC_DIR=/home/bonamy/fftw/include/
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/bonamy/fftw/lib/
+export FFTW3_LIB_DIR=/home/bonamy/fftw/lib
+export FFTW3_INC_DIR=/home/bonamy/fftw/include
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/scratch/cnt0022/egi2153/SHARED/opt/fftw-3.3.5/lib:/scratch/cnt0022/egi2153/SHARED/opt/p3dfft/2.7.5/lib:/scratch/cnt0022/egi2153/SHARED/opt/pfft/1.0.6/lib
 export LANG=C
 export LC_LANG=C
 export OMP_NUM_THREADS=1
