@@ -99,6 +99,9 @@ if on_rtd:
     base_names = []
 else:
     import mpi4py
+    if mpi4py.__version__[0] < '2':
+        raise ValueError('Please upgrade to mpi4py >= 2.0')
+
     ext_modules = []
     libraries = set(['fftw3', 'mpi_cxx'])
     lib_dirs = set()
@@ -110,9 +113,12 @@ else:
 
 for base_name in base_names:
     ext_modules.append(create_ext(base_name))
-
-    include_dirs.update([os.getenv('FFTW3_INC_DIR')])
-    lib_dirs.update([os.getenv('FFTW3_LIB_DIR')])
+    TMP = os.getenv('FFTW3_INC_DIR')
+    if TMP is not None:
+        include_dirs.add(TMP)
+    TMP = os.getenv('FFTW3_LIB_DIR')
+    if TMP is not None:
+        lib_dirs.add(TMP)
     if 'fftwmpi' in base_name:
         libraries.add('fftw3_mpi')
     elif 'pfft' in base_name:
