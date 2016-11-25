@@ -40,6 +40,7 @@ FFT2DWithFFTW1D::FFT2DWithFFTW1D(int argN0, int argN1):
   nKy = ny;
 
   /* This 2D fft is transposed */
+  is_transposed = 1;
   nK0 = nKx;
   nK0loc = nK0;
   nK1 = nKy;

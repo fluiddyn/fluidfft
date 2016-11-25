@@ -17,8 +17,8 @@ perform Fast Fourier Transform (FFT) with different libraries, in particular
 
   
 The package can be used for example as a base to write spectral simulation
-code. In particular, the code `FluidSim <http://fluidsim.readthedocs.org>`_
-**will** use it.
+code. In particular, fluidfft is used in the code `FluidSim
+<http://fluidsim.readthedocs.org>`_.
 
 
 User Guide

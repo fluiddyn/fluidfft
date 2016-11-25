@@ -13,7 +13,7 @@ typedef float myreal;
 myreal EPS = 1e-6;
 #else
 typedef double myreal;
-myreal EPS = 1e-14;
+myreal EPS = 5e-14;
 #endif
 
 myreal compute_time_in_second(struct timeval start_time,

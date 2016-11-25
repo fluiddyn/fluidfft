@@ -30,7 +30,9 @@ def import_fft_class(method):
     ----------
 
     method : str
-      Name of module or string characterizing a method.
+      Name of module or string characterizing a method. It has to correspond to
+      a module of fluidfft. The first part "fluidfft." of the module "path" can
+      be omitted.
 
     Returns
     -------
@@ -60,7 +62,9 @@ def create_fft_object(method, n0, n1, n2=None):
     ----------
 
     method : str
-      Name of module or string characterizing a method.
+      Name of module or string characterizing a method. It has to correspond to
+      a module of fluidfft. The first part "fluidfft." of the module "path" can
+      be omitted.
 
     n0, n1, n2 : int
       Dimensions of the real space array (in sequential).
@@ -78,8 +82,8 @@ def create_fft_object(method, n0, n1, n2=None):
             method = 'fluidfft.' + method
         elif method.startswith('fluidfft.fft2d.'):
             pass
-        elif method.startswith('fft3d.') and \
-             method.startswith('fluidfft.fft3d.'):
+        elif (method.startswith('fft3d.') and
+              method.startswith('fluidfft.fft3d.')):
             raise ValueError('Arguments incompatible')
         else:
             method = 'fluidfft.fft2d.' + method
@@ -88,8 +92,8 @@ def create_fft_object(method, n0, n1, n2=None):
             method = 'fluidfft.' + method
         elif method.startswith('fluidfft.fft3d.'):
             pass
-        elif method.startswith('fft2d.') and \
-             method.startswith('fluidfft.fft2d.'):
+        elif (method.startswith('fft2d.') and
+              method.startswith('fluidfft.fft2d.')):
             raise ValueError('Arguments incompatible')
         else:
             method = 'fluidfft.fft3d.' + method

@@ -5,15 +5,15 @@ This package contains different extension modules with classes for performing
 Fast Fourier Transform with different methods and libraries. The number of
 classes depend on how fluidfft has been compiled.
 
-- `fluidfft2d.with_fftw1d.FFT2DWithFFTW1D`
+- :class:`fluidfft.fft2d.with_fftw1d.FFT2DWithFFTW1D`
 
-- `fluidfft2d.with_fftw1d.FFT2DWithFFTW2D`
+- :class:`fluidfft.fft2d.with_fftw2d.FFT2DWithFFTW2D`
 
-- `fluidfft2d.with_cufft.FFT2DWithCUFFT`
+- :class:`fluidfft.fft2d.with_cufft.FFT2DWithCUFFT`
 
-- `fluidfft2d.mpi_with_fftwmpi2d.FFT2DMPIWithFFTW1D`
+- :class:`fluidfft.fft2d.mpi_with_fftwmpi2d.FFT2DMPIWithFFTW1D`
 
-- `fluidfft2d.mpi_with_fftwmpi2d.FFT2DMPIWithFFTWMPI2D`
+- :class:`fluidfft.fft2d.mpi_with_fftwmpi2d.FFT2DMPIWithFFTWMPI2D`
 
 All classes are very similar and provide the same public functions. Since these
 classes are defined in Cython extensions that can not easily be compiled on the

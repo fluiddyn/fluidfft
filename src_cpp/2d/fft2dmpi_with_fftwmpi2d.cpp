@@ -52,6 +52,7 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1):
   nKy = ny;
 
   /* This 2D fft is transposed */
+  is_transposed = 1;
   nK0 = nKx;
   nK0loc = nKxloc;
   nK1 = nKy;
