@@ -134,7 +134,10 @@ myreal FFT2DWithFFTW2D::compute_energy_from_K(mycomplex* fieldK)
   for (i0=0; i0<nK0; i0++)
     energy_tmp += pow(cabs(fieldK[i1 + i0 * nK1]), 2);
 
-  energy += energy_tmp/2;
+  if (nX1 % 2 == 0)
+    energy_tmp = energy_tmp/2;
+
+  energy += energy_tmp;
 
   // other modes
   for (i0=0; i0<nK0loc; i0++)
