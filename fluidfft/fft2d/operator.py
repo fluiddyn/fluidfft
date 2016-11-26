@@ -131,7 +131,7 @@ class OperatorPseudoSpectral2D(object):
             if self.ny % 2 == 0:
                 n_tmp -= 1
             E_ky[1:n_tmp] += E_ky_temp[self.nky_seq:nkyE-1:-1]
-            E_ky = E_ky/self.deltaky
+            E_ky /= self.deltaky
 
             return E_kx, E_ky
         else:
@@ -168,13 +168,13 @@ class OperatorPseudoSpectral2D(object):
                         ikh = ikhmax
                     E_kh[ikh] += energy_fft[i0, i1]
 
-            return E_kh
+            return E_kh/self.deltakh
         else:
             raise NotImplementedError
 
 
 if __name__ == '__main__':
-    self = OperatorPseudoSpectral2D(15, 15, 2*pi, 2*pi)
+    self = OperatorPseudoSpectral2D(15, 30, 2*pi, 1*pi)
 
     a = np.random.random(self._opfft.get_local_size_X()).reshape(
         self._opfft.get_shapeX_loc())
