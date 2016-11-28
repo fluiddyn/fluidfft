@@ -1,4 +1,6 @@
 
+from __future__ import print_function
+
 import numpy as np
 
 from math import pi, sqrt
@@ -90,10 +92,12 @@ class OperatorPseudoSpectral2D(object):
         self.nky_seq = ny
         self.nky_spectra = ny//2 + 1
 
+        khmax = min(self.kx.max(), self.ky.max())
         self.deltakh = max(self.deltakx, self.deltaky)
-        khmax_spectra = max(self.kx.max(), self.ky.max())
-        self.kh_2dspectrum = self.deltakh * np.arange(
-            int(round(khmax_spectra / self.deltakh)))
+        self.nkh = int(khmax / self.deltakh)
+        if self.nkh == 0:
+            self.nkh = 1
+        self.kh_2dspectrum = self.deltakh*np.arange(self.nkh)
 
         # Initialisation dealiasing
         self.coef_dealiasing = coef_dealiasing
@@ -114,7 +118,7 @@ class OperatorPseudoSpectral2D(object):
             energy_fft = energy_fft.copy()
 
             n_tmp = self.nkx_seq
-            if self.ny % 2 == 0:
+            if self.nx % 2 == 0:
                 n_tmp -= 1
 
             energy_fft[:, 1:n_tmp] *= 2
@@ -147,22 +151,19 @@ class OperatorPseudoSpectral2D(object):
             energy_fft = energy_fft.copy()
 
             n_tmp = self.nkx_seq
-            if self.ny % 2 == 0:
+            if self.nx % 2 == 0:
                 n_tmp -= 1
 
             energy_fft[:, 1:n_tmp] *= 2
 
             E_kh = np.zeros_like(self.kh_2dspectrum)
-
             n0, n1 = self.shapeK_loc
-
             ikhmax = len(self.kh_2dspectrum) - 1
 
             for i0 in range(n0):
                 k0 = self.k0[i0]
                 for i1 in range(n1):
                     k1 = self.k1[i1]
-
                     ikh = int(sqrt(k0**2 + k1**2)/self.deltakh)
                     if ikh > ikhmax:
                         ikh = ikhmax
@@ -174,23 +175,26 @@ class OperatorPseudoSpectral2D(object):
 
 
 if __name__ == '__main__':
-    self = OperatorPseudoSpectral2D(15, 30, 2*pi, 1*pi)
+    self = OperatorPseudoSpectral2D(5, 3, 2*pi, 1*pi)
 
     a = np.random.random(self._opfft.get_local_size_X()).reshape(
         self._opfft.get_shapeX_loc())
     afft = self.fft(a)
     a = self.ifft(afft)
+    afft = self.fft(a)
 
-    print(self.compute_energy_from_K(afft))
-    print(self.compute_energy_from_X(a))
+    print('energy spatial C:', self.compute_energy_from_X(a))
+    print('energy fft      :', self.compute_energy_from_K(afft))
+
+    print('energy spatial P:', (a**2).mean()/2)
 
     energy_fft = 0.5 * abs(afft)**2
 
     E_kx, E_ky = self.compute_1dspectra(energy_fft)
 
-    print(E_kx.sum()*self.deltakx)
-    print(E_ky.sum()*self.deltaky)
+    print('energy E_kx     ;', E_kx.sum()*self.deltakx)
+    print('energy E_ky     :', E_ky.sum()*self.deltaky)
 
     E_kh = self.compute_2dspectrum(energy_fft)
 
-    print(E_kh.sum()*self.deltakh)
+    print('energy E_kh     :', E_kh.sum()*self.deltakh)
