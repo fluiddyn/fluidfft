@@ -18,12 +18,14 @@ The fft classes are in the two subpackages
 
 """
 
+from __future__ import print_function
+
 from fluidfft._version import __version__
 
 from importlib import import_module as _import_module
 
 
-def import_fft_class(method):
+def import_fft_class(method, raise_import_error=True):
     """Import a fft class.
 
     Parameters
@@ -33,6 +35,11 @@ def import_fft_class(method):
       Name of module or string characterizing a method. It has to correspond to
       a module of fluidfft. The first part "fluidfft." of the module "path" can
       be omitted.
+
+    raise_import_error : {True}, False
+
+      If raise_import_error == False and if there is an import error, the
+      function handles the error and returns None.
 
     Returns
     -------
@@ -50,7 +57,11 @@ def import_fft_class(method):
     try:
         mod = _import_module(method)
     except ImportError:
-        raise ImportError(method)
+        if raise_import_error:
+            raise ImportError(method)
+        else:
+            print('ImportError:', method)
+            return None
 
     return mod.FFTclass
 
