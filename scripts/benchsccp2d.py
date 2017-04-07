@@ -2,12 +2,12 @@
 from __future__ import print_function, division
 
 from fluiddyn.util import mpi
+
+from fluidfft.fft2d import get_classes_seq, get_classes_mpi
+
+
 rank = mpi.rank
 nb_proc = mpi.nb_proc
-
-from classes2d import classes_seq, classes_mpi
-
-classes = classes_seq + classes_mpi
 
 print_old = print
 
@@ -16,20 +16,23 @@ def print(*args, **kwargs):
     if mpi.rank == 0:
         print_old(*args, **kwargs)
 
+
 if __name__ == '__main__':
 
     n = 1024 * 2  # / 4
 
     def run(FFT2D):
+        if FFT2D is None:
+            return
         o = FFT2D(n, n)
         o.run_tests()
         o.run_benchs()
         o.run_benchs()
 
     if rank == 0:
-        for FFT2D in classes_seq:
+        for FFT2D in get_classes_seq().values():
             run(FFT2D)
 
     if nb_proc > 1:
-        for FFT2D in classes_mpi:
+        for FFT2D in get_classes_mpi().values():
             run(FFT2D)

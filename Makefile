@@ -10,17 +10,35 @@ build_ext_inplace: mako
 clean:
 	rm -rf build
 
-clean_so:
+cleanso:
 	find fluidfft* -name "*.so" -delete
 
-clean_cython:
+cleancython:
 	rm -f src_cy/*_cy.cpp
 
-clean_mako:
+cleanmako:
 	rm -f src_cy/*_cy.pyx
 	rm -f src_cy/*_pxd.pxd
 
-clean_all: clean clean_so clean_mako clean_cython
+cleanall: clean cleanso cleanmako cleancython
 
 mako:
 	cd src_cy && python make_files_with_mako.py
+
+tests:
+	python -m unittest discover
+
+tests_mpi:
+	mpirun -np 2 python -m unittest discover
+
+tests_coverage:
+	mkdir -p .coverage
+	coverage erase
+	coverage run -p -m unittest discover
+	mpirun -np 2 coverage run -p -m unittest discover
+	coverage combine
+	coverage report
+	coverage html
+	coverage xml
+	@echo "Code coverage analysis complete. View detailed report:"
+	@echo "file://${PWD}/.coverage/index.html"

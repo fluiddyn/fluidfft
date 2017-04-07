@@ -55,6 +55,7 @@ def make_file(module_name, class_name):
             f.write(t_pxd.render(
                 module_name=module_name, class_name=class_name))
 
+
 if __name__ == '__main__':
 
     variables = (

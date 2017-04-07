@@ -36,9 +36,10 @@ from time import sleep
 import os
 from datetime import datetime
 from distutils import sysconfig
-config_vars = sysconfig.get_config_vars()
 import subprocess
 from copy import copy
+
+config_vars = sysconfig.get_config_vars()
 
 try:
     from Cython.Compiler.Main import \

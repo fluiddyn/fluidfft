@@ -24,6 +24,8 @@ from fluidfft._version import __version__
 
 from importlib import import_module as _import_module
 
+__all__ = ['__version__', 'import_fft_class', 'create_fft_object']
+
 
 def import_fft_class(method, raise_import_error=True):
     """Import a fft class.
