@@ -102,7 +102,7 @@ cdef class ${class_name}:
     def get_k_adim_loc(self):
         nyseq, nxseq = self.get_shapeX_seq()
 
-        kyseq = np.array(range(nyseq//2 + 1) + range(-nyseq//2 + 1, 0))
+        kyseq = np.array(list(range(nyseq//2 + 1)) + list(range(-nyseq//2 + 1, 0)))
         kxseq = np.array(range(nxseq//2 + 1))
 
         if self.get_is_transposed():
