@@ -85,6 +85,7 @@ if config['fftw']['use']:
             'fft3dmpi_with_fftwmpi3d'])
 
 if config['cufft']['use']:
+    base_names.extend(['fft2d_with_cufft'])
     base_names.extend(['fft3d_with_cufft'])
 
 if config['pfft']['use']:
@@ -123,14 +124,16 @@ for base_name in base_names:
         libraries.add('fftw3_mpi')
     elif 'pfft' in base_name:
         libraries.update(['fftw3_mpi', 'pfft'])
-        include_dirs.update(['/scratch/cnt0022/egi2153/SHARED/opt/pfft/1.0.6/include'])
-        lib_dirs.update(['/scratch/cnt0022/egi2153/SHARED/opt/pfft/1.0.6/lib'])
+        include_dirs.update(['/opt/pfft/1.0.6/include'])
+        lib_dirs.update(['/opt/pfft/1.0.6/lib'])
     elif 'p3dfft' in base_name:
         libraries.update(['p3dfft'])
-        include_dirs.update(['/scratch/cnt0022/egi2153/SHARED/opt/p3dfft/2.7.5/include'])
-        lib_dirs.update(['/scratch/cnt0022/egi2153/SHARED/opt/p3dfft/2.7.5/lib'])
+        include_dirs.update(['/opt/p3dfft/2.7.4-mt/include'])
+        lib_dirs.update(['/opt/p3dfft/2.7.4-mt/lib'])
     elif 'cufft' in base_name:
         libraries.add('cufft')
+        include_dirs.update(['/opt/cuda/7.5/include'])
+        lib_dirs.update(['/opt/cuda/7.5/lib64'])
         specials[''] = {'CC': 'nvcc'}
 
 

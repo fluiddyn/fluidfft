@@ -61,6 +61,7 @@ if __name__ == '__main__':
     variables = (
         ('fft2d_with_fftw1d', 'FFT2DWithFFTW1D'),
         ('fft2d_with_fftw2d', 'FFT2DWithFFTW2D'),
+        ('fft2d_with_cufft', 'FFT2DWithCUFFT'),
         ('fft2dmpi_with_fftw1d', 'FFT2DMPIWithFFTW1D'),
         ('fft2dmpi_with_fftwmpi2d', 'FFT2DMPIWithFFTWMPI2D'),
         ('fft3d_with_fftw3d', 'FFT3DWithFFTW3D'),
