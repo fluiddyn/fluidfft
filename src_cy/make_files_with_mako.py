@@ -1,8 +1,11 @@
 
 import os
+from os.path import join
 from datetime import datetime
 
 from mako.template import Template
+
+here = os.path.abspath(os.path.dirname(__file__))
 
 
 def modification_date(filename):
@@ -10,17 +13,17 @@ def modification_date(filename):
     return datetime.fromtimestamp(t)
 
 
-template2d_pyx = Template(filename='template2d_mako.pyx')
-template2d_pxd = Template(filename='template2d_mako.pxd')
+template2d_pyx = Template(filename=join(here, 'template2d_mako.pyx'))
+template2d_pxd = Template(filename=join(here, 'template2d_mako.pxd'))
 
-template3d_pyx = Template(filename='template3d_mako.pyx')
-template3d_pxd = Template(filename='template3d_mako.pxd')
+template3d_pyx = Template(filename=join(here, 'template3d_mako.pyx'))
+template3d_pxd = Template(filename=join(here, 'template3d_mako.pxd'))
 
 
 def make_file(module_name, class_name):
 
-    name_pyx = module_name + '_cy.pyx'
-    name_pxd = module_name + '_pxd.pxd'
+    name_pyx = join(here, module_name + '_cy.pyx')
+    name_pxd = join(here, module_name + '_pxd.pxd')
 
     if module_name.startswith('fft2d'):
         t_pyx = template2d_pyx
@@ -56,8 +59,7 @@ def make_file(module_name, class_name):
                 module_name=module_name, class_name=class_name))
 
 
-if __name__ == '__main__':
-
+def make_pyx_files():
     variables = (
         ('fft2d_with_fftw1d', 'FFT2DWithFFTW1D'),
         ('fft2d_with_fftw2d', 'FFT2DWithFFTW2D'),
@@ -73,3 +75,7 @@ if __name__ == '__main__':
 
     for module_name, class_name in variables:
         make_file(module_name, class_name)
+
+
+if __name__ == '__main__':
+    make_pyx_files()

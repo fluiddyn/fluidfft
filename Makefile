@@ -1,7 +1,7 @@
 
 .PHONY: clean clean_all clean_mako clean_cython develop build_ext_inplace mako
 
-develop: mako
+develop:
 	python setup.py develop
 
 build_ext_inplace: mako
@@ -22,8 +22,8 @@ cleanmako:
 
 cleanall: clean cleanso cleanmako cleancython
 
-mako:
-	cd src_cy && python make_files_with_mako.py
+# mako:
+# 	cd src_cy && python make_files_with_mako.py
 
 tests:
 	python -m unittest discover

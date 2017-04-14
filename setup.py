@@ -2,6 +2,7 @@
 from __future__ import print_function
 
 import os
+from runpy import run_path
 
 from setuptools import setup, find_packages
 
@@ -10,6 +11,10 @@ from setuptools import setup, find_packages
 
 from purepymake import Extension, make_extensions
 from config import get_config
+from src_cy.make_files_with_mako import make_pyx_files
+
+make_pyx_files()
+
 config = get_config()
 
 # Get the long description from the relevant file
@@ -19,7 +24,6 @@ lines = long_description.splitlines(True)
 long_description = ''.join(lines[12:])
 
 # Get the version from the relevant file
-from runpy import run_path
 d = run_path('fluidfft/_version.py')
 __version__ = d['__version__']
 
@@ -107,7 +111,8 @@ else:
     libraries = set(['fftw3', 'mpi_cxx'])
     lib_dirs = set()
     include_dirs = set(
-        [src_base, src_cpp_3d, src_cpp_2d, 'include', mpi4py.get_include()])
+        [src_cy_dir, src_base, src_cpp_3d, src_cpp_2d,
+         'include', mpi4py.get_include()])
 
     specials = {}
 
