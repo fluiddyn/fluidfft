@@ -10,7 +10,6 @@ pipelines:
     - step:
         script: # Modify the commands below to build your repository.
           - pip install -U tox
-          - pip install purepymake
           - pip --version
           - tox --version
           - tox
