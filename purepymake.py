@@ -143,8 +143,9 @@ def make_obj_from_cpp(obj_file, cpp_file, options=None):
         include_dirs = [conf_vars['INCLUDEPY']]
 
         if 'cufft' in cpp_file:
-            include_dirs.append(
-                '/opt/cuda/NVIDIA_CUDA-6.0_Samples/common/inc/')
+            include_dirs.extend([
+                '/opt/cuda/NVIDIA_CUDA-6.0_Samples/common/inc/'
+                 ])
 
         if cpp_file.endswith('.cu'):
             include_dirs.extend([

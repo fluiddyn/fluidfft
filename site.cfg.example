@@ -17,7 +17,7 @@ include_dir =
 library_dir = 
 
 [p3dfft]
-use = False
+use = True
 dir = 
 include_dir = 
 library_dir = 
