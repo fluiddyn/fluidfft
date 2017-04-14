@@ -184,7 +184,7 @@ setup(
         'Programming Language :: C'],
     packages=find_packages(exclude=[
         'doc', 'include', 'scripts', 'src_cpp', 'src_cy']),
-    install_requires=['fluiddyn']
+    install_requires=['fluiddyn', 'mako']
     # cmdclass={'build_ext': build_ext},
     # ext_modules=ext_modules
 )
