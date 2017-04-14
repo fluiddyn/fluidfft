@@ -15,7 +15,7 @@ def get_default_config():
 
     config = ConfigParser()
 
-    sections = ['fftw', 'cufft', 'pfft', 'p3dfft']
+    sections = ['fftw', 'fftw-mpi', 'cufft', 'pfft', 'p3dfft']
 
     use = {k: 'False' for k in sections}
     use['fftw'] = 'True'
