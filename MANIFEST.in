@@ -1,0 +1,10 @@
+include *.py
+include *.txt
+include *.rst
+recursive-include doc *.rst
+recursive-include src_cy *.pyx
+recursive-include src_cy *.pxd
+recursive-include src_cy *.h
+recursive-include src_cpp *.h
+recursive-include src_cpp *.cpp
+recursive-include include *.h
