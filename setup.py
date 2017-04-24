@@ -6,9 +6,6 @@ from runpy import run_path
 
 from setuptools import setup, find_packages
 
-# from Cython.Distutils import build_ext
-# from Cython.Distutils.extension import Extension
-
 from purepymake import Extension, make_extensions
 from config import get_config
 from src_cy.make_files_with_mako import make_pyx_files
@@ -110,12 +107,14 @@ else:
     if mpi4py.__version__[0] < '2':
         raise ValueError('Please upgrade to mpi4py >= 2.0')
 
+    import numpy as np
+
     ext_modules = []
     libraries = set(['fftw3', 'mpi_cxx'])
     lib_dirs = set()
     include_dirs = set(
         [src_cy_dir, src_base, src_cpp_3d, src_cpp_2d,
-         'include', mpi4py.get_include()])
+         'include', mpi4py.get_include(), np.get_include()])
 
     specials = {}
 
