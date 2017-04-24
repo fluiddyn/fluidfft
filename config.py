@@ -39,12 +39,10 @@ def make_site_cfg_example_file():
 
 
 def get_config():
+    config = get_default_config()
 
     if os.path.exists('site.cfg'):
-        config = ConfigParser()
         config.read('site.cfg')
-    else:
-        config = get_default_config()
 
     config_dict = {}
     for section in config.sections():
