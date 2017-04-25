@@ -14,6 +14,7 @@
 import sys
 import os
 import subprocess
+from runpy import run_path
 
 import fluidfft
 
@@ -30,7 +31,6 @@ except OSError:
     print(
         'Can not find doxygen to generate the documentation of the cpp code.')
 
-from runpy import run_path
 run_path('../src_cy/create_fake_mod_for_doc.py')
 
 
