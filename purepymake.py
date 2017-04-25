@@ -270,8 +270,9 @@ def make_extensions(extensions, lib_dirs=None, libraries=None,
     # link .o files to produce the .so files if needed
     processes = []
     for ext in extensions:
+        suffix = sysconfig.get_config_var('EXT_SUFFIX') or '.so'
         result = os.path.join(path_base_output,
-                              ext.name.replace('.', os.path.sep) + '.so')
+                              ext.name.replace('.', os.path.sep) + suffix)
         objects = [
             os.path.join(path_tmp, os.path.splitext(source)[0] + '.o')
             for source in ext.sources]

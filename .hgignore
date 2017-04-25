@@ -34,3 +34,5 @@ doc/doxygen/doxygen_sqlite3.db
 
 site.cfg
 .coverage/*
+
+.tox/*
