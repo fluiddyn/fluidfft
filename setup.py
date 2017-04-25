@@ -18,7 +18,12 @@ config = get_config()
 with open('README.rst') as f:
     long_description = f.read()
 lines = long_description.splitlines(True)
-long_description = ''.join(lines[12:])
+for i, line in enumerate(lines):
+    if line.endswith(':alt: Code coverage\n'):
+        iline_coverage = i
+        break
+
+long_description = ''.join(lines[iline_coverage+2:])
 
 # Get the version from the relevant file
 d = run_path('fluidfft/_version.py')

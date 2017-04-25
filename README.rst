@@ -1,7 +1,7 @@
 FluidFFT: Efficient and easy Fast Fourier Transform for Python
 ==============================================================
 
-|release| |docs|
+|release| |docs| |coverage|
 
 .. |release| image:: https://img.shields.io/pypi/v/fluidfft.svg
    :target: https://pypi.python.org/pypi/fluidfft/
