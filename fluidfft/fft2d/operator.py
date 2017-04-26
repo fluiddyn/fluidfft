@@ -15,13 +15,20 @@ if mpi.nb_proc > 1:
     raise NotImplementedError
 
 
-class OperatorPseudoSpectral2D(object):
+def _make_str_length(length):
+    if (length/pi).is_integer():
+        return repr(int(length)) + 'pi'
+    else:
+        return '{:.3f}'.format(length).rstrip('0')
+
+
+class OperatorsPseudoSpectral2D(object):
 
     def __init__(self, nx, ny, lx, ly, fft='fft2d.with_fftw2d',
                  coef_dealiasing=1.):
 
-        self.nx = nx = int(nx)
-        self.ny = ny = int(ny)
+        self.nx_seq = self.nx = nx = int(nx)
+        self.ny_seq = self.ny = ny = int(ny)
         self.lx = lx = float(lx)
         self.ly = ly = float(ly)
 
@@ -38,26 +45,34 @@ class OperatorPseudoSpectral2D(object):
         if self.is_transposed:
             raise NotImplementedError
 
-        self.fft = self._opfft.fft
-        self.ifft = self._opfft.ifft
+        self.fft2 = self.fft = self._opfft.fft
+        self.ifft2 = self.ifft = self._opfft.ifft
+
         self.fft_as_arg = self._opfft.fft_as_arg
         self.ifft_as_arg = self._opfft.ifft_as_arg
-        self.shapeX_loc = self._opfft.get_shapeX_loc()
+        self.shapeX = self.shapeX_loc = self._opfft.get_shapeX_loc()
         self.shapeX_seq = self._opfft.get_shapeX_seq()
-        self.shapeK_loc = self._opfft.get_shapeK_loc()
+        self.shapeK = self.shapeK_loc = self._opfft.get_shapeK_loc()
         self.shapeK_seq = self._opfft.get_shapeK_seq()
         self.compute_energy_from_X = self._opfft.compute_energy_from_X
         self.compute_energy_from_K = self._opfft.compute_energy_from_K
+        self.sum_wavenumbers = self._opfft.sum_wavenumbers
 
-        self.dx = lx/nx
-        self.dy = ly/ny
-        self.x = self.dx * np.arange(nx)
-        self.y = self.dy * np.arange(ny)
+        self.spectrum2D_from_fft = self.compute_2dspectrum
+        self.spectra1D_from_fft = self.compute_1dspectra
+
+        self.deltax = lx/nx
+        self.deltay = ly/ny
+        self.x_seq = self.x = self.deltax * np.arange(nx)
+        self.y_seq = self.y = self.deltay * np.arange(ny)
 
         self.deltakx = 2*pi/lx
         self.deltaky = 2*pi/ly
 
         k0_adim, k1_adim = opfft.get_k_adim_loc()
+
+        self.nK0_loc = len(k0_adim)
+        self.nK1_loc = len(k1_adim)
 
         # true only is not transposed...
         self.kx = self.deltakx * k1_adim
@@ -88,6 +103,20 @@ class OperatorPseudoSpectral2D(object):
         self.K8 = self.K4**2
         self.KK = np.sqrt(self.K2)
 
+        self.KK_not0 = self.KK.copy()
+        self.K2_not0 = self.K2.copy()
+        self.K4_not0 = self.K4.copy()
+
+        self.is_sequential = opfft.get_shapeK_loc() == opfft.get_shapeK_seq()
+
+        if mpi.rank == 0 or self.is_sequential:
+            self.KK_not0[0, 0] = 10.e-10
+            self.K2_not0[0, 0] = 10.e-10
+            self.K4_not0[0, 0] = 10.e-10
+
+        self.KX_over_K2 = self.KX/self.K2_not0
+        self.KY_over_K2 = self.KY/self.K2_not0
+
         self.nkx_seq = nx//2 + 1
         self.nky_seq = ny
         self.nky_spectra = ny//2 + 1
@@ -107,6 +136,32 @@ class OperatorPseudoSpectral2D(object):
         CONDKY = abs(self.KY) > coef_dealiasing*ky_max
         where_dealiased = np.logical_or(CONDKX, CONDKY)
         self.where_dealiased = np.array(where_dealiased, dtype=np.uint8)
+
+        # for spectra, we forget the larger wavenumber,
+        # since there is no energy inside because of dealiasing
+        self.nkxE = self.nkx_seq - 1
+        self.nkyE = self.nky_seq/2
+
+        self.kxE = self.deltakx * np.arange(self.nkxE)
+        self.kyE = self.deltaky * np.arange(self.nkyE)
+        self.khE = self.kxE
+        self.nkhE = self.nkxE
+
+    def produce_str_describing_oper(self):
+        """Produce a string describing the operator."""
+        str_Lx = _make_str_length(self.Lx)
+        str_Ly = _make_str_length(self.Ly)
+        return ('L='+str_Lx+'x'+str_Ly+'_{}x{}').format(
+            self.nx_seq, self.ny_seq)
+
+    def produce_long_str_describing_oper(self):
+        """Produce a string describing the operator."""
+        str_Lx = _make_str_length(self.Lx)
+        str_Ly = _make_str_length(self.Ly)
+        return (
+            'type fft: ' + str(self._opfft.__class__.__module__) + '\n' +
+            'nx = {0:6d} ; ny = {1:6d}\n'.format(self.nx_seq, self.ny_seq) +
+            'Lx = ' + str_Lx + ' ; Ly = ' + str_Ly + '\n')
 
     def compute_1dspectra(self, energy_fft):
         if mpi.nb_proc == 1 and not self.is_transposed:
@@ -173,9 +228,63 @@ class OperatorPseudoSpectral2D(object):
         else:
             raise NotImplementedError
 
+    def projection_perp(self, fx_fft, fy_fft):
+        KX = self.KX
+        KY = self.KY
+        a = fx_fft - self.KX_over_K2*(KX*fx_fft+KY*fy_fft)
+        b = fy_fft - self.KY_over_K2*(KX*fx_fft+KY*fy_fft)
+        fx_fft[:] = a
+        fy_fft[:] = b
+        return a, b
+
+    def rotfft_from_vecfft(self, vecx_fft, vecy_fft):
+        """Return the rotational of a vector in spectral space."""
+
+        n0 = self.nK0_loc
+        n1 = self.nK1_loc
+
+        KX = self.KX
+        KY = self.KY
+        rot_fft = np.empty([n0, n1], dtype=np.complex128)
+
+        for i0 in range(n0):
+            for i1 in range(n1):
+                rot_fft[i0, i1] = 1j*(KX[i0, i1]*vecy_fft[i0, i1] -
+                                      KY[i0, i1]*vecx_fft[i0, i1])
+        return rot_fft
+
+    def divfft_from_vecfft(self, vecx_fft, vecy_fft):
+        """Return the divergence of a vector in spectral space."""
+
+        n0 = self.nK0_loc
+        n1 = self.nK1_loc
+
+        KX = self.KX
+        KY = self.KY
+        div_fft = np.empty([n0, n1], dtype=np.complex128)
+
+        for i0 in xrange(n0):
+            for i1 in xrange(n1):
+                div_fft[i0, i1] = 1j*(KX[i0, i1]*vecx_fft[i0, i1] +
+                                      KY[i0, i1]*vecy_fft[i0, i1])
+        return div_fft
+
+    def vecfft_from_rotfft(self, rot_fft):
+        """Return the velocity in spectral space computed from the
+        rotational."""
+        ux_fft = 1j * self.KY_over_K2*rot_fft
+        uy_fft = -1j * self.KX_over_K2*rot_fft
+        return ux_fft, uy_fft
+
+    def gradfft_from_fft(self, f_fft):
+        """Return the gradient of f_fft in spectral space."""
+        px_f_fft = 1j * self.KX*f_fft
+        py_f_fft = 1j * self.KY*f_fft
+        return px_f_fft, py_f_fft
+
 
 if __name__ == '__main__':
-    self = OperatorPseudoSpectral2D(5, 3, 2*pi, 1*pi)
+    self = OperatorsPseudoSpectral2D(5, 3, 2*pi, 1*pi)
 
     a = np.random.random(self._opfft.get_local_size_X()).reshape(
         self._opfft.get_shapeX_loc())

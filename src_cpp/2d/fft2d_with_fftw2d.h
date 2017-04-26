@@ -18,6 +18,7 @@ class FFT2DWithFFTW2D: public BaseFFT2D
   
   myreal compute_energy_from_X(myreal* fieldX);
   myreal compute_energy_from_K(mycomplex* fieldK);
+  myreal sum_wavenumbers(myreal* fieldK);
   myreal compute_mean_from_X(myreal* fieldX);
   myreal compute_mean_from_K(mycomplex* fieldK);
 

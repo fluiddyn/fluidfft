@@ -19,7 +19,7 @@ nb_proc = mpi.nb_proc
 classes = get_classes_seq()
 
 if nb_proc == 1:
-    from fluidfft.fft2d.operator import OperatorPseudoSpectral2D
+    from fluidfft.fft2d.operator import OperatorsPseudoSpectral2D
 if nb_proc > 1:
     classes.update(get_classes_mpi())
 
@@ -52,7 +52,7 @@ def make_test_function(cls):
 def make_testop_function(name):
 
     def test(self):
-        op = OperatorPseudoSpectral2D(25, 15, 3*pi, 1*pi)
+        op = OperatorsPseudoSpectral2D(25, 15, 3*pi, 1*pi)
         a = np.random.random(op._opfft.get_local_size_X()).reshape(
             op._opfft.get_shapeX_loc())
         afft = op.fft(a)

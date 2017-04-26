@@ -194,6 +194,7 @@ myreal FFT2DWithFFTW1D::compute_energy_from_X(myreal* fieldX)
 
   return energy / 2 /coef_norm;
 }
+
 myreal FFT2DWithFFTW1D::compute_energy_from_K(mycomplex* fieldK)
 {
   int i0, i1;
@@ -214,6 +215,28 @@ myreal FFT2DWithFFTW1D::compute_energy_from_K(mycomplex* fieldK)
 
   return energy;
 }
+
+myreal FFT2DWithFFTW1D::sum_wavenumbers(myreal* fieldK)
+{
+  int i0, i1;
+  myreal sum = 0;
+  myreal sum_tmp = 0;
+
+  // modes i0 = iKx = 0
+  i0 = 0;
+  for (i1=0; i1<nK1; i1++)
+    sum_tmp += fieldK[i1];
+  
+  sum = sum_tmp/2;
+
+  // other modes
+  for (i0=1; i0<nK0loc; i0++)
+    for (i1=0; i1<nK1; i1++)
+      sum += fieldK[i1 + i0*nK1];
+
+  return sum;
+}
+
 
 myreal FFT2DWithFFTW1D::compute_mean_from_X(myreal* fieldX)
 {

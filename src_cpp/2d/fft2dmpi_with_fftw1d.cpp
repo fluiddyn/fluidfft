@@ -199,6 +199,36 @@ myreal FFT2DMPIWithFFTW1D::compute_energy_from_K(mycomplex* fieldK)
 }
 
 
+myreal FFT2DMPIWithFFTW1D::sum_wavenumbers(myreal* fieldK)
+{
+  int i0, i1;
+  myreal sum_loc = 0;
+  myreal sum_tmp = 0;
+  myreal sum_tot;
+
+  // modes i0 = iKx = 0
+  i0 = 0;
+  for (i1=0; i1<nK1; i1++)
+    sum_tmp += fieldK[i1];
+  
+  if (rank == 0)  // i.e. if iKx == 0
+    sum_loc = sum_tmp/2;
+  else
+    sum_loc = sum_tmp;
+
+  // other modes
+  for (i0=1; i0<nK0loc; i0++)
+    for (i1=0; i1<nK1; i1++)
+      sum_loc += fieldK[i1 + i0*nK1];
+
+  MPI_Allreduce(&sum_loc, &sum_tot, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+  return sum_tot;
+}
+
+
+
+
 myreal FFT2DMPIWithFFTW1D::compute_mean_from_X(myreal* fieldX)
 {
   myreal mean, local_mean;

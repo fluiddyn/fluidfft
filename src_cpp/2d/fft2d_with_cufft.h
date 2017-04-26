@@ -23,8 +23,8 @@ class FFT2DWithCUFFT: public BaseFFT2D
   void fft(myreal *fieldX, mycomplex *fieldK);
   void ifft(mycomplex *fieldK, myreal *fieldX);
   myreal compute_energy_from_K(mycomplex* fieldK);
+  myreal sum_wavenumbers(myreal* fieldK);
   myreal compute_mean_from_K(mycomplex* fieldK);
-
 
   virtual const char* get_classname();
   

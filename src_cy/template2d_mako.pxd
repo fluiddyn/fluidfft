@@ -28,6 +28,7 @@ cdef extern from "${module_name}.h":
 
         double compute_energy_from_X(double* fieldX)
         double compute_energy_from_K(mycomplex* fieldK)
+        double sum_wavenumbers(double* fieldK)
         double compute_mean_from_X(double* fieldX)
         double compute_mean_from_K(mycomplex* fieldK)
 

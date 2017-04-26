@@ -136,6 +136,8 @@ cdef class ${class_name}:
         return <float> self.thisptr.compute_energy_from_K(
             <mycomplex*> &fieldK[0, 0])
 
-    
+    def sum_wavenumbers(self, DTYPEf_t[:, ::1] fieldK):
+        return <float> self.thisptr.sum_wavenumbers(&fieldK[0, 0])
+
 
 FFTclass = ${class_name}

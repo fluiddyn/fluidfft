@@ -162,6 +162,39 @@ myreal FFT2DWithCUFFT::compute_energy_from_K(mycomplex* fieldK)
 }
 
 
+myreal FFT2DWithCUFFT::sum_wavenumbers(myreal* fieldK)
+{
+  int i0, i1;
+  double sum_tot = 0;
+  double sum0 = 0;
+
+  // modes i1_seq = iKx = last = nK1 - 1
+  i1 = nK1 - 1;
+  for (i0=0; i0<nK0; i0++)
+    //we must divide by 2 ==> after
+    sum_tot += (double) fieldK[i1 + i0*nK1];
+  
+  sum_tot *= 0.5; //divide by 2!!!
+
+  // other modes
+  for (i0=0; i0<nK0; i0++)
+    for (i1=1; i1<nK1-1; i1++)
+        sum_tot += (double) fieldK[i1 + i0*nK1];
+    
+  // modes i1_seq = iKx = 0
+  i1 = 0;
+  for (i0=0; i0<nK0; i0++)
+    //we must divide by 2 ==> after
+    sum0 += (double) fieldK[i0*nK1];
+
+  sum_tot += 0.5 * sum0;
+
+  //cout << "sumK=" << sum<<  endl;
+  return (myreal) sum_tot;
+}
+
+
+
 myreal FFT2DWithCUFFT::compute_mean_from_X(myreal* fieldX)
 {
   myreal mean,mean1;

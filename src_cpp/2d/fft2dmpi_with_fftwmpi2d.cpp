@@ -192,6 +192,48 @@ myreal FFT2DMPIWithFFTWMPI2D::compute_energy_from_K(mycomplex* fieldK)
 }
 
 
+myreal FFT2DMPIWithFFTWMPI2D::sum_wavenumbers(myreal* fieldK)
+{
+  int i0, i1, i_tmp;
+  myreal sum_loc = 0;
+  myreal sum_tmp = 0;
+  myreal sum_tot;
+
+  // modes i0 = iKx = 0
+  i0 = 0;
+  for (i1=0; i1<nK1; i1++)
+    sum_tmp += fieldK[i1];
+  
+  if (local_K0_start == 0)  // i.e. if iKx == 0
+    sum_loc = sum_tmp/2;
+  else
+    sum_loc = sum_tmp;
+
+  // modes i0 = iKx = last = nK0loc - 1
+  i0 = nK0loc - 1;
+  sum_tmp = 0.;
+  i_tmp = i0 * nK1;
+  for (i1=0; i1<nK1; i1++)
+    sum_tmp += fieldK[i1 + i_tmp];
+
+  if (rank == nb_proc - 1)
+    sum_loc += sum_tmp/2;
+  else
+    sum_loc += sum_tmp;
+
+  // other modes
+  for (i0=1; i0<nK0loc-1; i0++)
+    for (i1=0; i1<nK1; i1++)
+      sum_loc += fieldK[i1 + i0*nK1];
+#ifdef SINGLE_PREC
+  MPI_Allreduce(&sum_loc, &sum_tot, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+#else
+  MPI_Allreduce(&sum_loc, &sum_tot, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+#endif
+  return sum_tot;
+}
+
+
 myreal FFT2DMPIWithFFTWMPI2D::compute_mean_from_X(myreal* fieldX)
 {
   myreal mean, local_mean;
