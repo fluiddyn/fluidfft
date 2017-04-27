@@ -11,6 +11,9 @@ from fluiddyn.util import mpi
 
 from fluidfft import create_fft_object
 
+from .util_pythran import (
+    dealiasing_variable, vecfft_from_rotfft, gradfft_from_fft)
+
 if mpi.nb_proc > 1:
     raise NotImplementedError
 
@@ -109,6 +112,9 @@ class OperatorsPseudoSpectral2D(object):
 
         self.is_sequential = opfft.get_shapeK_loc() == opfft.get_shapeK_seq()
 
+        self.rank = mpi.rank
+        self.nb_proc = mpi.nb_proc
+
         if mpi.rank == 0 or self.is_sequential:
             self.KK_not0[0, 0] = 10.e-10
             self.K2_not0[0, 0] = 10.e-10
@@ -136,6 +142,7 @@ class OperatorsPseudoSpectral2D(object):
         CONDKY = abs(self.KY) > coef_dealiasing*ky_max
         where_dealiased = np.logical_or(CONDKX, CONDKY)
         self.where_dealiased = np.array(where_dealiased, dtype=np.uint8)
+        self.indexes_dealiased = np.argwhere(where_dealiased)
 
         # for spectra, we forget the larger wavenumber,
         # since there is no energy inside because of dealiasing
@@ -272,15 +279,21 @@ class OperatorsPseudoSpectral2D(object):
     def vecfft_from_rotfft(self, rot_fft):
         """Return the velocity in spectral space computed from the
         rotational."""
-        ux_fft = 1j * self.KY_over_K2*rot_fft
-        uy_fft = -1j * self.KX_over_K2*rot_fft
+        # return vecfft_from_rotfft(rot_fft, self.KX_over_K2, self.KY_over_K2)
+        ux_fft = 1j * self.KY_over_K2 * rot_fft
+        uy_fft = -1j * self.KX_over_K2 * rot_fft
         return ux_fft, uy_fft
 
     def gradfft_from_fft(self, f_fft):
         """Return the gradient of f_fft in spectral space."""
-        px_f_fft = 1j * self.KX*f_fft
-        py_f_fft = 1j * self.KY*f_fft
+        # return gradfft_from_fft(f_fft, self.KX, self.KY)
+        px_f_fft = 1j * self.KX * f_fft
+        py_f_fft = 1j * self.KY * f_fft
         return px_f_fft, py_f_fft
+
+    def dealiasing_variable(self, ff_fft):
+        dealiasing_variable(ff_fft, self.where_dealiased,
+                            self.nK0_loc, self.nK1_loc)
 
 
 if __name__ == '__main__':
