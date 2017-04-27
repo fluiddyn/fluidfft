@@ -19,7 +19,7 @@ nb_proc = mpi.nb_proc
 classes = get_classes_seq()
 
 if nb_proc == 1:
-    from fluidfft.fft2d.operator import OperatorsPseudoSpectral2D
+    from fluidfft.fft2d.operators import OperatorsPseudoSpectral2D
 if nb_proc > 1:
     classes.update(get_classes_mpi())
 
