@@ -286,10 +286,10 @@ class OperatorsPseudoSpectral2D(object):
 
     def gradfft_from_fft(self, f_fft):
         """Return the gradient of f_fft in spectral space."""
-        # return gradfft_from_fft(f_fft, self.KX, self.KY)
-        px_f_fft = 1j * self.KX * f_fft
-        py_f_fft = 1j * self.KY * f_fft
-        return px_f_fft, py_f_fft
+        return gradfft_from_fft(f_fft, self.KX, self.KY)
+        # px_f_fft = 1j * self.KX * f_fft
+        # py_f_fft = 1j * self.KY * f_fft
+        # return px_f_fft, py_f_fft
 
     def dealiasing_variable(self, ff_fft):
         dealiasing_variable(ff_fft, self.where_dealiased,
