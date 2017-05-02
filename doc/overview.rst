@@ -30,4 +30,5 @@ efficient as possible.  It provides:
 
 - benchmarks,
 
-- operators for simple tasks (for example, compute the mean of the energy).
+- operators for simple tasks (for example, compute the energy or the gradient
+  of a field).

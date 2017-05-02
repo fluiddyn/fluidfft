@@ -36,3 +36,5 @@ site.cfg
 .coverage/*
 
 .tox/*
+
+*/*_pythran.cpp

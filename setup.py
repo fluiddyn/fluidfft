@@ -1,14 +1,24 @@
 
 from __future__ import print_function
 
+import sys
 import os
 from runpy import run_path
+from datetime import datetime
 
+from distutils.sysconfig import get_config_var
 from setuptools import setup, find_packages
 
 from purepymake import Extension, make_extensions
 from config import get_config
 from src_cy.make_files_with_mako import make_pyx_files
+
+try:
+    from pythran.dist import PythranExtension
+    use_pythran = True
+except ImportError:
+    use_pythran = False
+
 
 make_pyx_files()
 
@@ -149,11 +159,39 @@ for base_name in base_names:
         specials[''] = {'CC': 'nvcc'}
 
 
+def modification_date(filename):
+    t = os.path.getmtime(filename)
+    return datetime.fromtimestamp(t)
+
+
+def make_pythran_extensions(modules):
+    develop = sys.argv[-1] == 'develop'
+    extensions = []
+    for mod in modules:
+        base_file = mod.replace('.', os.path.sep)
+        py_file = base_file + '.py'
+        # warning: does not work on Windows
+        suffix = get_config_var('EXT_SUFFIX') or '.so'
+        bin_file = base_file + suffix
+        if not develop or not os.path.exists(bin_file) or \
+           modification_date(bin_file) < modification_date(py_file):
+            pext = PythranExtension(mod, [py_file])
+            pext.include_dirs.append(np.get_include())
+            extensions.append(pext)
+    return extensions
+
+
 if not on_rtd:
     make_extensions(
         ext_modules, include_dirs=include_dirs,
         lib_dirs=lib_dirs, libraries=libraries,
         specials=specials, CC='mpicxx')
+
+if not on_rtd and use_pythran:
+    ext_modules = make_pythran_extensions(
+        ['fluidfft.fft2d.util_pythran'])
+else:
+    ext_modules = []
 
 
 setup(
@@ -191,7 +229,7 @@ setup(
         'Programming Language :: C'],
     packages=find_packages(exclude=[
         'doc', 'include', 'scripts', 'src_cpp', 'src_cy']),
-    install_requires=['fluiddyn', 'mako']
+    install_requires=['fluiddyn'],
     # cmdclass={'build_ext': build_ext},
-    # ext_modules=ext_modules
+    ext_modules=ext_modules
 )
