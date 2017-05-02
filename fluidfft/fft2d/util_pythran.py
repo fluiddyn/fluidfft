@@ -39,3 +39,18 @@ def gradfft_from_fft(f_fft, KX, KY):
     px_f_fft = 1j * KX * f_fft
     py_f_fft = 1j * KY * f_fft
     return px_f_fft, py_f_fft
+
+
+# pythran export divfft_from_vecfft(
+#     complex128[][], complex128[][], float64[][], float64[][])
+
+def divfft_from_vecfft(vecx_fft, vecy_fft, KX, KY):
+    return 1j*(KX*vecx_fft + KY*vecy_fft)
+
+
+# pythran export rotfft_from_vecfft(
+#     complex128[][], complex128[][], float64[][], float64[][])
+
+
+def rotfft_from_vecfft(vecx_fft, vecy_fft, KX, KY):
+    return 1j*(KX*vecy_fft - KY*vecx_fft)

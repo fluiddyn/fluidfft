@@ -1,18 +1,21 @@
 
 from __future__ import print_function
 
+from builtins import range, str
+from math import pi
+
 import numpy as np
-
-from math import pi, sqrt
-
-from builtins import range
 
 from fluiddyn.util import mpi
 
 from fluidfft import create_fft_object
 
 from .util_pythran import (
-    dealiasing_variable, vecfft_from_rotfft, gradfft_from_fft)
+    dealiasing_variable, vecfft_from_rotfft, gradfft_from_fft,
+    divfft_from_vecfft, rotfft_from_vecfft)
+
+if mpi.nb_proc > 1:
+    MPI = mpi.MPI
 
 
 def _make_str_length(length):
@@ -32,8 +35,9 @@ class OperatorsPseudoSpectral2D(object):
         self.lx = lx = float(lx)
         self.ly = ly = float(ly)
 
+        print(fft, type(fft))
         if isinstance(fft, str):
-            print(fft)
+            print('create_fft_object')
             opfft = create_fft_object(fft, ny, nx)
         else:
             opfft = fft
@@ -91,12 +95,16 @@ class OperatorsPseudoSpectral2D(object):
             self.dim_ky = 0
             self.k0 = self.ky
             self.k1 = self.kx
+            self.nkx_loc = self.nK1_loc
+            self.nky_loc = self.nK0_loc
         else:
             [self.KY, self.KX] = np.meshgrid(self.ky_loc, self.kx_loc)
             self.dim_kx = 0
             self.dim_ky = 1
             self.k0 = self.kx
             self.k1 = self.ky
+            self.nkx_loc = self.nK0_loc
+            self.nky_loc = self.nK1_loc
 
         assert self.KX.shape == self.shapeK_loc
 
@@ -115,6 +123,11 @@ class OperatorsPseudoSpectral2D(object):
 
         self.rank = mpi.rank
         self.nb_proc = mpi.nb_proc
+
+        if mpi.nb_proc > 1:
+            self.comm = mpi.comm
+            self.gather_Xspace = self._opfft.gather_Xspace
+            self.scatter_Xspace = self._opfft.scatter_Xspace
 
         if mpi.rank == 0 or self.is_sequential:
             self.KK_not0[0, 0] = 10.e-10
@@ -172,99 +185,130 @@ class OperatorsPseudoSpectral2D(object):
             'Lx = ' + str_Lx + ' ; Ly = ' + str_Ly + '\n')
 
     def compute_1dspectra(self, energy_fft):
-        if mpi.nb_proc == 1 and not self.is_transposed:
-            # In this case, self.dim_ky == 0 and self.dim_kx == 1
+        """Compute the 1D spectra. Return a dictionary."""
+        if self.nb_proc == 1:
+            # In this case, self.dim_ky==0 and self.dim_ky==1
             # Memory is not shared
-            # note that only the kx >= 0 are in the spectral variables
-
-            # the 2 is here because there are only the kx >= 0
-            energy_fft = energy_fft.copy()
-
-            n_tmp = self.nkx_seq
-            if self.nx % 2 == 0:
-                n_tmp -= 1
-
-            energy_fft[:, 1:n_tmp] *= 2
-
+            # note that only the kx>=0 are in the spectral variables
             # to obtain the spectrum as a function of kx
             # we sum over all ky
-            E_kx = energy_fft.sum(0)/self.deltakx
-
+            # the 2 is here because there are only the kx>=0
+            E_kx = 2.*energy_fft.sum(self.dim_ky)/self.deltakx
+            E_kx[0] = E_kx[0]/2
+            E_kx = E_kx[:self.nkxE]
             # computation of E_ky
-            E_ky_temp = energy_fft.sum(1)
-            nkyE = self.nky_spectra
+            E_ky_temp = energy_fft[:, 0].copy()
+            E_ky_temp += 2*energy_fft[:, 1:].sum(1)
+            nkyE = self.nkyE
             E_ky = E_ky_temp[0:nkyE]
-            n_tmp = nkyE
-            if self.ny % 2 == 0:
-                n_tmp -= 1
-            E_ky[1:n_tmp] += E_ky_temp[self.nky_seq:nkyE-1:-1]
-            E_ky /= self.deltaky
+            E_ky[1:nkyE] = E_ky[1:nkyE] + E_ky_temp[self.nky_seq:nkyE:-1]
+            E_ky = E_ky/self.deltaky
 
-            return E_kx, E_ky
-        elif mpi.nb_proc == 1 and self.is_transposed:
-            # In this case, self.dim_kx == 0 and self.dim_ky == 1
-            # Memory is not shared
-            # note that only the kx >= 0 are in the spectral variables
+        elif self.is_transposed:
+            # In this case, self.dim_ky==1 and self.dim_ky==0
+            # Memory is shared along kx
+            # note that only the kx>=0 are in the spectral variables
+            # to obtain the spectrum as a function of kx
+            # we sum er.mamover all ky
+            # the 2 is here because there are only the kx>=0
+            E_kx_loc = 2.*energy_fft.sum(self.dim_ky)/self.deltakx
+            if self.rank == 0:
+                E_kx_loc[0] = E_kx_loc[0]/2
+            E_kx = np.empty(self.nkxE)
+            counts = self.comm.allgather(self.nkx_loc)
+            self.comm.Allgatherv(sendbuf=[E_kx_loc, MPI.DOUBLE],
+                                 recvbuf=[E_kx, (counts, None), MPI.DOUBLE])
+            E_kx = E_kx[:self.nkxE]
+            # computation of E_ky
+            if self.rank == 0:
+                E_ky_temp = energy_fft[0, :]+2*energy_fft[1:, :].sum(0)
+            else:
+                E_ky_temp = 2*energy_fft.sum(0)
+            nkyE = self.nkyE
+            E_ky = E_ky_temp[0:nkyE]
+            E_ky[1:nkyE] = E_ky[1:nkyE] + E_ky_temp[self.nky_seq:nkyE:-1]
+            E_ky = E_ky/self.deltaky
+            E_ky = self.comm.allreduce(E_ky, op=MPI.SUM)
 
-            # the 2 is here because there are only the kx >= 0
-            energy_fft = energy_fft.copy()
-
-            n_tmp = self.nkx_seq
-            if self.nx % 2 == 0:
-                n_tmp -= 1
-
-            energy_fft[1:n_tmp, :] *= 2
-
+        elif not self.is_transposed:
+            # In this case, self.dim_ky==0 and self.dim_ky==1
+            # Memory is shared along ky
+            # note that only the kx>=0 are in the spectral variables
             # to obtain the spectrum as a function of kx
             # we sum over all ky
-            E_kx = energy_fft.sum(1)/self.deltakx
-
+            # the 2 is here because there are only the kx>=0
+            E_kx = 2.*energy_fft.sum(self.dim_ky)/self.deltakx
+            E_kx[0] = E_kx[0]/2
+            E_kx = self.comm.allreduce(E_kx, op=MPI.SUM)
+            E_kx = E_kx[:self.nkxE]
             # computation of E_ky
-            E_ky_temp = energy_fft.sum(0)
-            nkyE = self.nky_spectra
-            E_ky = E_ky_temp[0:nkyE]
-            n_tmp = nkyE
-            if self.ny % 2 == 0:
-                n_tmp -= 1
-            E_ky[1:n_tmp] += E_ky_temp[self.nky_seq:nkyE-1:-1]
-            E_ky /= self.deltaky
+            E_ky_temp = energy_fft[:, 0].copy()
+            E_ky_temp += 2*energy_fft[:, 1:].sum(1)
+            E_ky_temp = np.ascontiguousarray(E_ky_temp)
+            # print(self.rank, 'E_ky_temp', E_ky_temp, E_ky_temp.shape)
+            E_ky_long = np.empty(self.nky_seq)
+            counts = self.comm.allgather(self.nky_loc)
+            self.comm.Allgatherv(sendbuf=[E_ky_temp, MPI.DOUBLE],
+                                 recvbuf=[E_ky_long, (counts, None),
+                                          MPI.DOUBLE])
+            nkyE = self.nkyE
+            E_ky = E_ky_long[0:nkyE]
+            E_ky[1:nkyE] = E_ky[1:nkyE] + E_ky_long[self.nky_seq:nkyE:-1]
+            E_ky = E_ky/self.deltaky
 
-            return E_kx, E_ky
+        # self.comm.barrier()
+        # sleep(0.1)
+        # print(self.rank,  'E_kx.sum() =', E_kx.sum()*self.deltakx,
+        #                   'E_ky.sum() =', E_ky.sum()*self.deltaky,
+        #         'diff = ', E_kx.sum()*self.deltakx-E_ky.sum()*self.deltaky)
+        return E_kx, E_ky
 
+    def compute_2dspectrum(self, E_fft):
+        """Compute the 2D spectra. Return a dictionary."""
+
+        KK = self.KK
+
+        nk0loc = self.shapeK_loc[0]
+        nk1loc = self.shapeK_loc[1]
+
+        rank = self.rank
+
+        if self.is_transposed:
+            TRANSPOSED = 1
         else:
-            raise NotImplementedError
+            TRANSPOSED = 0
 
-    def compute_2dspectrum(self, energy_fft):
-        if mpi.nb_proc == 1 and not self.is_transposed:
-            # In this case, self.dim_ky == 0 and self.dim_ky == 1
-            # Memory is not shared
-            # note that only the kx >= 0 are in the spectral variables
+        deltakh = self.deltakh
 
-            # the 2 is here because there are only the kx >= 0
-            energy_fft = energy_fft.copy()
+        khE = self.khE
+        nkh = self.nkhE
 
-            n_tmp = self.nkx_seq
-            if self.nx % 2 == 0:
-                n_tmp -= 1
+        spectrum2D = np.zeros([nkh])
+        for ik0 in range(nk0loc):
+            for ik1 in range(nk1loc):
+                E0D = E_fft[ik0, ik1]/deltakh
+                kappa0D = KK[ik0, ik1]
 
-            energy_fft[:, 1:n_tmp] *= 2
+                if TRANSPOSED == 0:
+                    if ik1 > 0:
+                        E0D = E0D*2
+                else:
+                    if ik0 > 0 or rank > 0:
+                        E0D = E0D*2
 
-            E_kh = np.zeros_like(self.kh_2dspectrum)
-            n0, n1 = self.shapeK_loc
-            ikhmax = len(self.kh_2dspectrum) - 1
+                ikh = int(kappa0D/deltakh)
 
-            for i0 in range(n0):
-                k0 = self.k0[i0]
-                for i1 in range(n1):
-                    k1 = self.k1[i1]
-                    ikh = int(sqrt(k0**2 + k1**2)/self.deltakh)
-                    if ikh > ikhmax:
-                        ikh = ikhmax
-                    E_kh[ikh] += energy_fft[i0, i1]
+                if ikh >= nkh-1:
+                    ikh = nkh - 1
+                    spectrum2D[ikh] += E0D
+                else:
+                    coef_share = (kappa0D - khE[ikh])/deltakh
+                    spectrum2D[ikh] += (1-coef_share)*E0D
+                    spectrum2D[ikh+1] += coef_share*E0D
 
-            return E_kh/self.deltakh
-        else:
-            raise NotImplementedError
+        if self.nb_proc > 1:
+            spectrum2D = self.comm.allreduce(spectrum2D, op=mpi.MPI.SUM)
+        return spectrum2D
 
     def projection_perp(self, fx_fft, fy_fft):
         KX = self.KX
@@ -277,35 +321,11 @@ class OperatorsPseudoSpectral2D(object):
 
     def rotfft_from_vecfft(self, vecx_fft, vecy_fft):
         """Return the rotational of a vector in spectral space."""
-
-        n0 = self.nK0_loc
-        n1 = self.nK1_loc
-
-        KX = self.KX
-        KY = self.KY
-        rot_fft = np.empty([n0, n1], dtype=np.complex128)
-
-        for i0 in range(n0):
-            for i1 in range(n1):
-                rot_fft[i0, i1] = 1j*(KX[i0, i1]*vecy_fft[i0, i1] -
-                                      KY[i0, i1]*vecx_fft[i0, i1])
-        return rot_fft
+        return rotfft_from_vecfft(vecx_fft, vecy_fft, self.KX, self.KY)
 
     def divfft_from_vecfft(self, vecx_fft, vecy_fft):
         """Return the divergence of a vector in spectral space."""
-
-        n0 = self.nK0_loc
-        n1 = self.nK1_loc
-
-        KX = self.KX
-        KY = self.KY
-        div_fft = np.empty([n0, n1], dtype=np.complex128)
-
-        for i0 in xrange(n0):
-            for i1 in xrange(n1):
-                div_fft[i0, i1] = 1j*(KX[i0, i1]*vecx_fft[i0, i1] +
-                                      KY[i0, i1]*vecy_fft[i0, i1])
-        return div_fft
+        return divfft_from_vecfft(vecx_fft, vecy_fft, self.KX, self.KY)
 
     def vecfft_from_rotfft(self, rot_fft):
         """Return the velocity in spectral space computed from the

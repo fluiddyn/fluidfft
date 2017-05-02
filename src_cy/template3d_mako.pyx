@@ -106,13 +106,10 @@ cdef class ${class_name}:
         self.thisptr.get_global_shape_X(&nX0, &nX1, &nX2)
         return nX0, nX1, nX2
 
-    def gather_Xspace(self, DTYPEf_t[:, :, ::1] ff_loc,
-                      root=None):
+    def gather_Xspace(self, DTYPEf_t[:, :, ::1] ff_loc, root=None):
         """Gather an array in real space for a parallel run."""
         cdef np.ndarray[DTYPEf_t, ndim=3] ff_seq
 
-        # self.shapeX_loc is the same for all processes,
-        # it is safe to use Allgather or Gather
         if root is None:
             ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
             self.comm.Allgather(ff_loc, ff_seq)
@@ -127,11 +124,9 @@ cdef class ${class_name}:
 
     def scatter_Xspace(self, DTYPEf_t[:, :, ::1] ff_seq,
                       root=None):
-        """Gather an array in real space for a parallel run."""
+        """Scatter an array in real space for a parallel run."""
         cdef np.ndarray[DTYPEf_t, ndim=3] ff_loc
 
-        # self.shapeX_loc is the same for all processes,
-        # it is safe to use Allgather or Gather
         if root is None:
             ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
             self.comm.Scatter(ff_seq, ff_loc, root=0)

@@ -6,6 +6,8 @@ from ${module_name}_pxd cimport (
     ${class_name} as mycppclass,
     mycomplex)
 
+from fluiddyn.util import mpi
+
 
 cdef class ${class_name}:
     """Class to perform Fast Fourier Transform in 2d."""
@@ -102,7 +104,8 @@ cdef class ${class_name}:
     def get_k_adim_loc(self):
         nyseq, nxseq = self.get_shapeX_seq()
 
-        kyseq = np.array(list(range(nyseq//2 + 1)) + list(range(-nyseq//2 + 1, 0)))
+        kyseq = np.array(list(range(nyseq//2 + 1)) +
+                         list(range(-nyseq//2 + 1, 0)))
         kxseq = np.array(range(nxseq//2 + 1))
 
         if self.get_is_transposed():
@@ -139,5 +142,37 @@ cdef class ${class_name}:
     def sum_wavenumbers(self, DTYPEf_t[:, ::1] fieldK):
         return <float> self.thisptr.sum_wavenumbers(&fieldK[0, 0])
 
+    def gather_Xspace(self, DTYPEf_t[:, ::1] ff_loc, root=None):
+        """Gather an array in real space for a parallel run."""
+        cdef np.ndarray[DTYPEf_t, ndim=2] ff_seq
+
+        if root is None:
+            ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
+            mpi.comm.Allgather(ff_loc, ff_seq)
+        elif isinstance(root, int):
+            ff_seq = None
+            if self.rank == root:
+                ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
+            mpi.comm.Gather(ff_loc, ff_seq, root=root)
+        else:
+            raise ValueError('root should be an int')
+        return ff_seq
+
+    def scatter_Xspace(self, DTYPEf_t[:, ::1] ff_seq, root=None):
+        """Scatter an array in real space for a parallel run."""
+        cdef np.ndarray[DTYPEf_t, ndim=2] ff_loc
+
+        if root is None:
+            ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
+            mpi.comm.Scatter(ff_seq, ff_loc, root=0)
+        elif isinstance(root, int):
+            ff_loc = None
+            if self.rank == root:
+                ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
+            mpi.comm.Scatter(ff_seq, ff_loc, root=root)
+        else:
+            raise ValueError('root should be an int')
+        return ff_loc
+    
 
 FFTclass = ${class_name}
