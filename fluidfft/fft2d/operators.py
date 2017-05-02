@@ -14,9 +14,6 @@ from fluidfft import create_fft_object
 from .util_pythran import (
     dealiasing_variable, vecfft_from_rotfft, gradfft_from_fft)
 
-if mpi.nb_proc > 1:
-    raise NotImplementedError
-
 
 def _make_str_length(length):
     if (length/pi).is_integer():
@@ -44,9 +41,6 @@ class OperatorsPseudoSpectral2D(object):
         self._opfft = opfft
 
         self.is_transposed = opfft.get_is_transposed()
-
-        if self.is_transposed:
-            raise NotImplementedError
 
         self.fft2 = self.fft = self._opfft.fft
         self.ifft2 = self.ifft = self._opfft.ifft
@@ -77,9 +71,16 @@ class OperatorsPseudoSpectral2D(object):
         self.nK0_loc = len(k0_adim)
         self.nK1_loc = len(k1_adim)
 
+        if self.is_transposed:
+            kx_adim = k0_adim
+            ky_adim = k1_adim
+        else:
+            kx_adim = k1_adim
+            ky_adim = k0_adim
+
         # true only is not transposed...
-        self.kx = self.deltakx * k1_adim
-        self.ky = self.deltaky * k0_adim
+        self.kx = self.deltakx * kx_adim
+        self.ky = self.deltaky * ky_adim
 
         self.kx_loc = self.kx
         self.ky_loc = self.ky
@@ -172,7 +173,7 @@ class OperatorsPseudoSpectral2D(object):
 
     def compute_1dspectra(self, energy_fft):
         if mpi.nb_proc == 1 and not self.is_transposed:
-            # In this case, self.dim_ky == 0 and self.dim_ky == 1
+            # In this case, self.dim_ky == 0 and self.dim_kx == 1
             # Memory is not shared
             # note that only the kx >= 0 are in the spectral variables
 
@@ -200,6 +201,36 @@ class OperatorsPseudoSpectral2D(object):
             E_ky /= self.deltaky
 
             return E_kx, E_ky
+        elif mpi.nb_proc == 1 and self.is_transposed:
+            # In this case, self.dim_kx == 0 and self.dim_ky == 1
+            # Memory is not shared
+            # note that only the kx >= 0 are in the spectral variables
+
+            # the 2 is here because there are only the kx >= 0
+            energy_fft = energy_fft.copy()
+
+            n_tmp = self.nkx_seq
+            if self.nx % 2 == 0:
+                n_tmp -= 1
+
+            energy_fft[1:n_tmp, :] *= 2
+
+            # to obtain the spectrum as a function of kx
+            # we sum over all ky
+            E_kx = energy_fft.sum(1)/self.deltakx
+
+            # computation of E_ky
+            E_ky_temp = energy_fft.sum(0)
+            nkyE = self.nky_spectra
+            E_ky = E_ky_temp[0:nkyE]
+            n_tmp = nkyE
+            if self.ny % 2 == 0:
+                n_tmp -= 1
+            E_ky[1:n_tmp] += E_ky_temp[self.nky_seq:nkyE-1:-1]
+            E_ky /= self.deltaky
+
+            return E_kx, E_ky
+
         else:
             raise NotImplementedError
 
@@ -280,16 +311,10 @@ class OperatorsPseudoSpectral2D(object):
         """Return the velocity in spectral space computed from the
         rotational."""
         return vecfft_from_rotfft(rot_fft, self.KX_over_K2, self.KY_over_K2)
-        # ux_fft = 1j * self.KY_over_K2 * rot_fft
-        # uy_fft = -1j * self.KX_over_K2 * rot_fft
-        # return ux_fft, uy_fft
 
     def gradfft_from_fft(self, f_fft):
         """Return the gradient of f_fft in spectral space."""
         return gradfft_from_fft(f_fft, self.KX, self.KY)
-        # px_f_fft = 1j * self.KX * f_fft
-        # py_f_fft = 1j * self.KY * f_fft
-        # return px_f_fft, py_f_fft
 
     def dealiasing_variable(self, ff_fft):
         dealiasing_variable(ff_fft, self.where_dealiased,
