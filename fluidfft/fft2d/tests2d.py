@@ -49,32 +49,45 @@ def make_test_function(cls):
     return test
 
 
-def make_testop_function(name):
+def make_testop_functions(name, cls):
 
-    def test(self):
-        op = OperatorsPseudoSpectral2D(25, 15, 3*pi, 1*pi)
-        a = np.random.random(op._opfft.get_local_size_X()).reshape(
-            op._opfft.get_shapeX_loc())
-        afft = op.fft(a)
-        a = op.ifft(afft)
-        afft = op.fft(a)
+    tests = []
+    shapes = ((5, 5), (4, 4))
 
-        nrja = op.compute_energy_from_X(a)
-        nrjafft = op.compute_energy_from_K(afft)
-        self.assertEqual(nrja, nrjafft)
+    for n0, n1 in shapes:
 
-        nrjspa = (a**2).mean()/2
+        def test(self, n0=n0, n1=n1):
+            op = OperatorsPseudoSpectral2D(n0, n1, 3*pi, 1*pi, fft=cls)
+            a = np.random.random(op._opfft.get_local_size_X()).reshape(
+                op._opfft.get_shapeX_loc())
+            afft = op.fft(a)
+            a = op.ifft(afft)
+            afft = op.fft(a)
 
-        energy_fft = 0.5 * abs(afft)**2
+            nrja = op.compute_energy_from_X(a)
+            nrjafft = op.compute_energy_from_K(afft)
+            self.assertEqual(nrja, nrjafft)
 
-        E_kx, E_ky = op.compute_1dspectra(energy_fft)
+            nrjspa = (a**2).mean()/2
 
-        self.assertAlmostEqual(E_kx.sum()*op.deltakx, E_ky.sum()*op.deltaky)
+            energy_fft = 0.5 * abs(afft)**2
 
-        E_kh = op.compute_2dspectrum(energy_fft)
+            try:
+                E_kx, E_ky = op.compute_1dspectra(energy_fft)
+            except NotImplementedError:
+                print('NotImplementedError', cls)
+                return
 
-        self.assertAlmostEqual(nrjspa, E_kh.sum()*op.deltakh)
-    return test
+            self.assertAlmostEqual(E_kx.sum()*op.deltakx,
+                                   E_ky.sum()*op.deltaky)
+
+            E_kh = op.compute_2dspectrum(energy_fft)
+
+            self.assertAlmostEqual(nrjspa, E_kh.sum()*op.deltakh)
+
+        tests.append(test)
+
+    return tests
 
 
 class Tests2D(unittest.TestCase):
@@ -85,10 +98,15 @@ for name, cls in classes.items():
     if cls is None:
         continue
 
-    setattr(Tests2D, 'test_{0}'.format(name), make_test_function(cls))
+    setattr(Tests2D, 'test_{}'.format(name), make_test_function(cls))
 
-if nb_proc == 1:
-    setattr(Tests2D, 'test_operator2d', make_testop_function(name))
+    if nb_proc == 1:
+
+        tests = make_testop_functions(name, cls)
+
+        for i, test in enumerate(tests):
+            print('test', i)
+            setattr(Tests2D, 'test_operator2d_{}_{}'.format(name, i), test)
 
 
 if __name__ == '__main__':

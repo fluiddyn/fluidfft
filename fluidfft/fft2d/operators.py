@@ -1,7 +1,9 @@
 
 from __future__ import print_function
 
-from builtins import range, str
+from builtins import range
+from past.builtins import basestring
+
 from math import pi
 
 import numpy as np
@@ -35,12 +37,14 @@ class OperatorsPseudoSpectral2D(object):
         self.lx = lx = float(lx)
         self.ly = ly = float(ly)
 
-        print(fft, type(fft))
-        if isinstance(fft, str):
-            print('create_fft_object')
+        if isinstance(fft, basestring):
             opfft = create_fft_object(fft, ny, nx)
+        elif isinstance(fft, type):
+            opfft = fft(ny, nx)
         else:
             opfft = fft
+
+        print(type(opfft))
 
         self._opfft = opfft
 
@@ -158,10 +162,14 @@ class OperatorsPseudoSpectral2D(object):
         self.where_dealiased = np.array(where_dealiased, dtype=np.uint8)
         self.indexes_dealiased = np.argwhere(where_dealiased)
 
-        # for spectra, we forget the larger wavenumber,
-        # since there is no energy inside because of dealiasing
-        self.nkxE = self.nkx_seq - 1
-        self.nkyE = self.nky_seq/2
+        # for spectra
+        self.nkxE = self.nx_seq//2 + 1
+        self.nkxE2 = (self.nx_seq+1)//2
+        self.nkyE = self.ny_seq//2 + 1
+        self.nkyE2 = (self.ny_seq+1)//2
+
+        print('nkxE, nkxE2', self.nkxE, self.nkxE2)
+        print('nkyE, nkyE2', self.nkyE, self.nkyE2)
 
         self.kxE = self.deltakx * np.arange(self.nkxE)
         self.kyE = self.deltaky * np.arange(self.nkyE)
@@ -186,27 +194,35 @@ class OperatorsPseudoSpectral2D(object):
 
     def compute_1dspectra(self, energy_fft):
         """Compute the 1D spectra. Return a dictionary."""
-        if self.nb_proc == 1:
-            # In this case, self.dim_ky==0 and self.dim_ky==1
+        if self.nb_proc == 1 and not self.is_transposed:
             # Memory is not shared
-            # note that only the kx>=0 are in the spectral variables
-            # to obtain the spectrum as a function of kx
+            # In this case, self.dim_ky == 0 and self.dim_kx == 1
+            # note that only the kx >= 0 are in the spectral variables
+            #
+            # computation of E_kx
             # we sum over all ky
-            # the 2 is here because there are only the kx>=0
+            # the 2 is here because there are only the kx >= 0
             E_kx = 2.*energy_fft.sum(self.dim_ky)/self.deltakx
             E_kx[0] = E_kx[0]/2
+            if self.nx_seq % 2 == 0:
+                E_kx[-1] = E_kx[-1]/2
             E_kx = E_kx[:self.nkxE]
             # computation of E_ky
-            E_ky_temp = energy_fft[:, 0].copy()
-            E_ky_temp += 2*energy_fft[:, 1:].sum(1)
+            E_ky_tmp = energy_fft[:, 0].copy()
+            E_ky_tmp += 2*energy_fft[:, 1:self.nkxE2].sum(1)
+            if self.nx_seq % 2 == 0:
+                E_ky_tmp += energy_fft[:, self.nkxE-1]
             nkyE = self.nkyE
-            E_ky = E_ky_temp[0:nkyE]
-            E_ky[1:nkyE] = E_ky[1:nkyE] + E_ky_temp[self.nky_seq:nkyE:-1]
+            E_ky = E_ky_tmp[:nkyE]
+            E_ky[1:self.nkyE2] += E_ky_tmp[self.nkyE:self.nky_seq][::-1]
             E_ky = E_ky/self.deltaky
+        elif self.nb_proc == 1 and self.is_transposed:
+            raise NotImplementedError
 
         elif self.is_transposed:
+            # Memory is shared along kx ()
             # In this case, self.dim_ky==1 and self.dim_ky==0
-            # Memory is shared along kx
+
             # note that only the kx>=0 are in the spectral variables
             # to obtain the spectrum as a function of kx
             # we sum er.mamover all ky
@@ -221,12 +237,12 @@ class OperatorsPseudoSpectral2D(object):
             E_kx = E_kx[:self.nkxE]
             # computation of E_ky
             if self.rank == 0:
-                E_ky_temp = energy_fft[0, :]+2*energy_fft[1:, :].sum(0)
+                E_ky_tmp = energy_fft[0, :]+2*energy_fft[1:, :].sum(0)
             else:
-                E_ky_temp = 2*energy_fft.sum(0)
+                E_ky_tmp = 2*energy_fft.sum(0)
             nkyE = self.nkyE
-            E_ky = E_ky_temp[0:nkyE]
-            E_ky[1:nkyE] = E_ky[1:nkyE] + E_ky_temp[self.nky_seq:nkyE:-1]
+            E_ky = E_ky_tmp[0:nkyE]
+            E_ky[1:nkyE] = E_ky[1:nkyE] + E_ky_tmp[self.nky_seq:nkyE:-1]
             E_ky = E_ky/self.deltaky
             E_ky = self.comm.allreduce(E_ky, op=MPI.SUM)
 
@@ -242,13 +258,13 @@ class OperatorsPseudoSpectral2D(object):
             E_kx = self.comm.allreduce(E_kx, op=MPI.SUM)
             E_kx = E_kx[:self.nkxE]
             # computation of E_ky
-            E_ky_temp = energy_fft[:, 0].copy()
-            E_ky_temp += 2*energy_fft[:, 1:].sum(1)
-            E_ky_temp = np.ascontiguousarray(E_ky_temp)
-            # print(self.rank, 'E_ky_temp', E_ky_temp, E_ky_temp.shape)
+            E_ky_tmp = energy_fft[:, 0].copy()
+            E_ky_tmp += 2*energy_fft[:, 1:].sum(1)
+            E_ky_tmp = np.ascontiguousarray(E_ky_tmp)
+            # print(self.rank, 'E_ky_tmp', E_ky_tmp, E_ky_tmp.shape)
             E_ky_long = np.empty(self.nky_seq)
             counts = self.comm.allgather(self.nky_loc)
-            self.comm.Allgatherv(sendbuf=[E_ky_temp, MPI.DOUBLE],
+            self.comm.Allgatherv(sendbuf=[E_ky_tmp, MPI.DOUBLE],
                                  recvbuf=[E_ky_long, (counts, None),
                                           MPI.DOUBLE])
             nkyE = self.nkyE
@@ -271,12 +287,17 @@ class OperatorsPseudoSpectral2D(object):
         nk0loc = self.shapeK_loc[0]
         nk1loc = self.shapeK_loc[1]
 
-        rank = self.rank
+        E_fft *= 2
 
         if self.is_transposed:
-            TRANSPOSED = 1
+            if self.rank == 0:
+                E_fft[0, :] /= 2
+            if self.rank == self.nb_proc - 1 and self.nx_seq % 2 == 0:
+                E_fft[-1, :] /= 2
         else:
-            TRANSPOSED = 0
+            E_fft[:, 0] /= 2
+            if self.nx_seq % 2 == 0:
+                E_fft[:, -1] /= 2
 
         deltakh = self.deltakh
 
@@ -286,15 +307,8 @@ class OperatorsPseudoSpectral2D(object):
         spectrum2D = np.zeros([nkh])
         for ik0 in range(nk0loc):
             for ik1 in range(nk1loc):
-                E0D = E_fft[ik0, ik1]/deltakh
+                E0D = E_fft[ik0, ik1]
                 kappa0D = KK[ik0, ik1]
-
-                if TRANSPOSED == 0:
-                    if ik1 > 0:
-                        E0D = E0D*2
-                else:
-                    if ik0 > 0 or rank > 0:
-                        E0D = E0D*2
 
                 ikh = int(kappa0D/deltakh)
 
@@ -308,7 +322,7 @@ class OperatorsPseudoSpectral2D(object):
 
         if self.nb_proc > 1:
             spectrum2D = self.comm.allreduce(spectrum2D, op=mpi.MPI.SUM)
-        return spectrum2D
+        return spectrum2D/deltakh
 
     def projection_perp(self, fx_fft, fy_fft):
         KX = self.KX
