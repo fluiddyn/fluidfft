@@ -11,7 +11,7 @@ from fluiddyn.util import mpi
 
 from fluidfft.fft2d import get_classes_seq, get_classes_mpi
 
-n = 128
+n = 32
 
 rank = mpi.rank
 nb_proc = mpi.nb_proc
@@ -52,7 +52,7 @@ def make_test_function(cls):
 def make_testop_functions(name, cls):
 
     tests = []
-    shapes = ((5, 5), (4, 4))
+    shapes = ((11, 13), (8, 12))
 
     for n0, n1 in shapes:
 
@@ -105,7 +105,6 @@ for name, cls in classes.items():
         tests = make_testop_functions(name, cls)
 
         for i, test in enumerate(tests):
-            print('test', i)
             setattr(Tests2D, 'test_operator2d_{}_{}'.format(name, i), test)
 
 

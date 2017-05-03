@@ -44,8 +44,6 @@ class OperatorsPseudoSpectral2D(object):
         else:
             opfft = fft
 
-        print(type(opfft))
-
         self._opfft = opfft
 
         self.is_transposed = opfft.get_is_transposed()
@@ -168,8 +166,8 @@ class OperatorsPseudoSpectral2D(object):
         self.nkyE = self.ny_seq//2 + 1
         self.nkyE2 = (self.ny_seq+1)//2
 
-        print('nkxE, nkxE2', self.nkxE, self.nkxE2)
-        print('nkyE, nkyE2', self.nkyE, self.nkyE2)
+        # print('nkxE, nkxE2', self.nkxE, self.nkxE2)
+        # print('nkyE, nkyE2', self.nkyE, self.nkyE2)
 
         self.kxE = self.deltakx * np.arange(self.nkxE)
         self.kyE = self.deltaky * np.arange(self.nkyE)
@@ -217,8 +215,28 @@ class OperatorsPseudoSpectral2D(object):
             E_ky[1:self.nkyE2] += E_ky_tmp[self.nkyE:self.nky_seq][::-1]
             E_ky = E_ky/self.deltaky
         elif self.nb_proc == 1 and self.is_transposed:
-            raise NotImplementedError
-
+            print('shape', energy_fft.shape)
+            # Memory is not shared
+            # In this case, self.dim_ky == 1 and self.dim_kx == 0
+            # note that only the kx >= 0 are in the spectral variables
+            #
+            # computation of E_kx
+            # we sum over all ky
+            # the 2 is here because there are only the kx >= 0
+            E_kx = 2.*energy_fft.sum(self.dim_ky)/self.deltakx
+            E_kx[0] = E_kx[0]/2
+            if self.nx_seq % 2 == 0 and self.shapeK_seq[0] == self.nkxE:
+                E_kx[-1] = E_kx[-1]/2
+            E_kx = E_kx[:self.nkxE]
+            # computation of E_ky
+            E_ky_tmp = energy_fft[0, :].copy()
+            E_ky_tmp += 2*energy_fft[1:self.nkxE2, :].sum(0)
+            if self.nx_seq % 2 == 0 and self.shapeK_seq[0] == self.nkxE:
+                E_ky_tmp += energy_fft[self.nkxE-1, 0]
+            nkyE = self.nkyE
+            E_ky = E_ky_tmp[:nkyE]
+            E_ky[1:self.nkyE2] += E_ky_tmp[self.nkyE:self.nky_seq][::-1]
+            E_ky = E_ky/self.deltaky
         elif self.is_transposed:
             # Memory is shared along kx ()
             # In this case, self.dim_ky==1 and self.dim_ky==0
@@ -292,7 +310,9 @@ class OperatorsPseudoSpectral2D(object):
         if self.is_transposed:
             if self.rank == 0:
                 E_fft[0, :] /= 2
-            if self.rank == self.nb_proc - 1 and self.nx_seq % 2 == 0:
+            if self.rank == self.nb_proc - 1 and \
+               self.nx_seq % 2 == 0 and \
+               self.shapeK_seq[0] == self.nkxE:
                 E_fft[-1, :] /= 2
         else:
             E_fft[:, 0] /= 2
