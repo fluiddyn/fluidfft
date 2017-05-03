@@ -10,18 +10,22 @@ from math import pi
 from fluiddyn.util import mpi
 
 from fluidfft.fft2d import get_classes_seq, get_classes_mpi
+from fluidfft.fft2d.operators import OperatorsPseudoSpectral2D
 
 n = 32
 
 rank = mpi.rank
 nb_proc = mpi.nb_proc
 
-classes = get_classes_seq()
+classes_seq = get_classes_seq()
+classes_seq = {name: cls for name, cls in classes_seq.items()
+               if cls is not None}
 
-if nb_proc == 1:
-    from fluidfft.fft2d.operators import OperatorsPseudoSpectral2D
+
 if nb_proc > 1:
-    classes.update(get_classes_mpi())
+    classes_mpi = get_classes_mpi()
+    classes_mpi = {name: cls for name, cls in classes_mpi.items()
+                   if cls is not None}
 
 
 def make_test_function(cls):
@@ -51,10 +55,12 @@ def make_test_function(cls):
 
 def make_testop_functions(name, cls):
 
-    tests = []
-    shapes = ((11, 13), (8, 12))
+    tests = {}
+    shapes = {'even': (8, 4)}
+    if nb_proc == 1:
+        shapes['odd'] = (11, 13)
 
-    for n0, n1 in shapes:
+    for key, (n0, n1) in shapes.items():
 
         def test(self, n0=n0, n1=n1):
             op = OperatorsPseudoSpectral2D(n0, n1, 3*pi, 1*pi, fft=cls)
@@ -68,24 +74,19 @@ def make_testop_functions(name, cls):
             nrjafft = op.compute_energy_from_K(afft)
             self.assertEqual(nrja, nrjafft)
 
-            nrjspa = (a**2).mean()/2
-
+            # print('energy', nrja)
             energy_fft = 0.5 * abs(afft)**2
 
-            try:
-                E_kx, E_ky = op.compute_1dspectra(energy_fft)
-            except NotImplementedError:
-                print('NotImplementedError', cls)
-                return
+            E_kx, E_ky = op.compute_1dspectra(energy_fft)
 
             self.assertAlmostEqual(E_kx.sum()*op.deltakx,
                                    E_ky.sum()*op.deltaky)
 
             E_kh = op.compute_2dspectrum(energy_fft)
 
-            self.assertAlmostEqual(nrjspa, E_kh.sum()*op.deltakh)
+            self.assertAlmostEqual(nrja, E_kh.sum()*op.deltakh)
 
-        tests.append(test)
+        tests[key] = test
 
     return tests
 
@@ -94,18 +95,23 @@ class Tests2D(unittest.TestCase):
     pass
 
 
-for name, cls in classes.items():
-    if cls is None:
-        continue
+def complete_class(name, cls):
 
     setattr(Tests2D, 'test_{}'.format(name), make_test_function(cls))
 
-    if nb_proc == 1:
+    tests = make_testop_functions(name, cls)
 
-        tests = make_testop_functions(name, cls)
+    for key, test in tests.items():
+        setattr(Tests2D, 'test_operator2d_{}_{}'.format(name, key), test)
 
-        for i, test in enumerate(tests):
-            setattr(Tests2D, 'test_operator2d_{}_{}'.format(name, i), test)
+
+if rank == 0:
+    for name, cls in classes_seq.items():
+        complete_class(name, cls)
+
+if nb_proc > 1:
+    for name, cls in classes_mpi.items():
+        complete_class(name, cls)
 
 
 if __name__ == '__main__':
