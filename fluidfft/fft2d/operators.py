@@ -45,21 +45,22 @@ class OperatorsPseudoSpectral2D(object):
             opfft = fft
 
         self._opfft = opfft
+        self.type_fft = opfft.__class__.__module__
 
         self.is_transposed = opfft.get_is_transposed()
 
         self.fft2 = self.fft = self._opfft.fft
         self.ifft2 = self.ifft = self._opfft.ifft
 
-        self.fft_as_arg = self._opfft.fft_as_arg
-        self.ifft_as_arg = self._opfft.ifft_as_arg
-        self.shapeX = self.shapeX_loc = self._opfft.get_shapeX_loc()
-        self.shapeX_seq = self._opfft.get_shapeX_seq()
-        self.shapeK = self.shapeK_loc = self._opfft.get_shapeK_loc()
-        self.shapeK_seq = self._opfft.get_shapeK_seq()
-        self.compute_energy_from_X = self._opfft.compute_energy_from_X
-        self.compute_energy_from_K = self._opfft.compute_energy_from_K
-        self.sum_wavenumbers = self._opfft.sum_wavenumbers
+        self.fft_as_arg = opfft.fft_as_arg
+        self.ifft_as_arg = opfft.ifft_as_arg
+        self.shapeX = self.shapeX_loc = opfft.get_shapeX_loc()
+        self.shapeX_seq = opfft.get_shapeX_seq()
+        self.shapeK = self.shapeK_loc = opfft.get_shapeK_loc()
+        self.shapeK_seq = opfft.get_shapeK_seq()
+        self.compute_energy_from_X = opfft.compute_energy_from_X
+        self.compute_energy_from_K = opfft.compute_energy_from_K
+        self.sum_wavenumbers = opfft.sum_wavenumbers
 
         self.spectrum2D_from_fft = self.compute_2dspectrum
         self.spectra1D_from_fft = self.compute_1dspectra
@@ -174,6 +175,12 @@ class OperatorsPseudoSpectral2D(object):
         self.khE = self.kxE
         self.nkhE = self.nkxE
 
+        y_loc, x_loc = self._opfft.get_x_adim_loc()
+        y_loc = y_loc*self.deltay
+        x_loc = x_loc*self.deltax
+
+        self.XX, self.YY = np.meshgrid(x_loc, y_loc)
+
     def produce_str_describing_oper(self):
         """Produce a string describing the operator."""
         str_Lx = _make_str_length(self.Lx)
@@ -186,7 +193,7 @@ class OperatorsPseudoSpectral2D(object):
         str_Lx = _make_str_length(self.Lx)
         str_Ly = _make_str_length(self.Ly)
         return (
-            'type fft: ' + str(self._opfft.__class__.__module__) + '\n' +
+            'type fft: ' + str(self.type_fft) + '\n' +
             'nx = {0:6d} ; ny = {1:6d}\n'.format(self.nx_seq, self.ny_seq) +
             'Lx = ' + str_Lx + ' ; Ly = ' + str_Ly + '\n')
 

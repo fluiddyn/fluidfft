@@ -221,16 +221,16 @@ cdef class ${class_name}:
         nX0, nX1, nX2 = self.get_shapeX_seq()
         nX0loc, nX1loc, nX2loc = self.get_shapeX_loc()
 
-        if (nX1, nX2) != tuple(o2d.get_shapeX_seq()):
+        if (nX1, nX2) != tuple(o2d.shapeX_seq):
             raise ValueError('Not the same physical shape...')
 
         # check that the 2d fft is not with distributed memory...
-        if tuple(o2d.get_shapeX_loc()) != tuple(o2d.get_shapeX_loc()):
+        if tuple(o2d.shapeX_seq) != tuple(o2d.shapeX_loc):
             raise ValueError('2d fft is with distributed memory...')
 
         ind0seq_first, ind1seq_first = self.get_seq_indices_first_K()
 
-        if (nX1loc, nX2loc) == o2d.get_shapeX_loc():
+        if (nX1loc, nX2loc) == o2d.shapeX_loc:
             arr3d_loc_2dslice = arr2d
         else:
             raise NotImplementedError
@@ -248,11 +248,11 @@ cdef class ${class_name}:
 
         nX0, nX1, nX2 = self.get_shapeX_seq()
 
-        if (nX1, nX2) != o2d.get_shapeX_seq():
+        if (nX1, nX2) != o2d.shapeX_seq:
             raise ValueError('Not the same physical shape...')
 
         # check that the 2d fft is not with distributed memory...
-        if o2d.get_shapeX_loc() != o2d.get_shapeX_loc():
+        if o2d.shapeX_seq != o2d.shapeX_loc:
             raise ValueError('2d fft is with distributed memory...')
 
         ind0seq_first, ind1seq_first = self.get_seq_indices_first_K()
