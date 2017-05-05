@@ -49,10 +49,11 @@ def import_fft_class(method, raise_import_error=True):
     The corresponding FFT class.
 
     """
+    if method == 'sequential':
+        method = 'fft2d.with_fftw2d'
+
     if method.startswith('fft2d.') or method.startswith('fft3d.'):
         method = 'fluidfft.' + method
-    elif method.startswith('fluidfft.fft2d.'):
-        pass
     else:
         raise ValueError
 
@@ -90,33 +91,16 @@ def create_fft_object(method, n0, n1, n2=None):
 
     """
 
-    if n2 is None:
-        if method.startswith('fft2d.'):
-            method = 'fluidfft.' + method
-        elif method.startswith('fluidfft.fft2d.'):
-            pass
-        elif (method.startswith('fft3d.') and
-              method.startswith('fluidfft.fft3d.')):
-            raise ValueError('Arguments incompatible')
-        else:
-            method = 'fluidfft.fft2d.' + method
-    else:
-        if method.startswith('fft3d.'):
-            method = 'fluidfft.' + method
-        elif method.startswith('fluidfft.fft3d.'):
-            pass
-        elif (method.startswith('fft2d.') and
-              method.startswith('fluidfft.fft2d.')):
-            raise ValueError('Arguments incompatible')
-        else:
-            method = 'fluidfft.fft3d.' + method
+    cls = import_fft_class(method)
 
-    try:
-        mod = _import_module(method)
-    except ImportError:
-        raise ImportError(method)
+    str_module = cls.__module__
+
+    if n2 is None and str_module.startswith('fluidfft.fft3d.'):
+        raise ValueError('Arguments incompatible')
+    elif n2 is not None and str_module.startswith('fluidfft.fft2d.'):
+        raise ValueError('Arguments incompatible')
 
     if n2 is None:
-        return mod.FFTclass(n0, n1)
+        return cls(n0, n1)
     else:
-        return mod.FFTclass(n0, n1, n2)
+        return cls(n0, n1, n2)

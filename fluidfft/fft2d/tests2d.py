@@ -64,8 +64,8 @@ def make_testop_functions(name, cls):
 
         def test(self, n0=n0, n1=n1):
             op = OperatorsPseudoSpectral2D(n0, n1, 3*pi, 1*pi, fft=cls)
-            a = np.random.random(op._opfft.get_local_size_X()).reshape(
-                op._opfft.get_shapeX_loc())
+            a = np.random.random(op.opfft.get_local_size_X()).reshape(
+                op.opfft.get_shapeX_loc())
             afft = op.fft(a)
             a = op.ifft(afft)
             afft = op.fft(a)

@@ -44,13 +44,13 @@ class OperatorsPseudoSpectral2D(object):
         else:
             opfft = fft
 
-        self._opfft = opfft
+        self.opfft = opfft
         self.type_fft = opfft.__class__.__module__
 
         self.is_transposed = opfft.get_is_transposed()
 
-        self.fft2 = self.fft = self._opfft.fft
-        self.ifft2 = self.ifft = self._opfft.ifft
+        self.fft2 = self.fft = self.opfft.fft
+        self.ifft2 = self.ifft = self.opfft.ifft
 
         self.fft_as_arg = opfft.fft_as_arg
         self.ifft_as_arg = opfft.ifft_as_arg
@@ -60,7 +60,6 @@ class OperatorsPseudoSpectral2D(object):
         self.shapeK_seq = opfft.get_shapeK_seq()
         self.compute_energy_from_X = opfft.compute_energy_from_X
         self.compute_energy_from_K = opfft.compute_energy_from_K
-        self.sum_wavenumbers = opfft.sum_wavenumbers
 
         self.spectrum2D_from_fft = self.compute_2dspectrum
         self.spectra1D_from_fft = self.compute_1dspectra
@@ -129,8 +128,10 @@ class OperatorsPseudoSpectral2D(object):
 
         if mpi.nb_proc > 1:
             self.comm = mpi.comm
-            self.gather_Xspace = self._opfft.gather_Xspace
-            self.scatter_Xspace = self._opfft.scatter_Xspace
+
+        if not self.is_sequential:
+            self.gather_Xspace = self.opfft.gather_Xspace
+            self.scatter_Xspace = self.opfft.scatter_Xspace
 
         if mpi.rank == 0 or self.is_sequential:
             self.KK_not0[0, 0] = 10.e-10
@@ -175,11 +176,14 @@ class OperatorsPseudoSpectral2D(object):
         self.khE = self.kxE
         self.nkhE = self.nkxE
 
-        y_loc, x_loc = self._opfft.get_x_adim_loc()
+        y_loc, x_loc = self.opfft.get_x_adim_loc()
         y_loc = y_loc*self.deltay
         x_loc = x_loc*self.deltax
 
         self.XX, self.YY = np.meshgrid(x_loc, y_loc)
+
+    def sum_wavenumbers(self, field_fft):
+        return self.opfft.sum_wavenumbers(np.ascontiguousarray(field_fft))
 
     def produce_str_describing_oper(self):
         """Produce a string describing the operator."""
@@ -397,8 +401,8 @@ class OperatorsPseudoSpectral2D(object):
 if __name__ == '__main__':
     self = OperatorsPseudoSpectral2D(5, 3, 2*pi, 1*pi)
 
-    a = np.random.random(self._opfft.get_local_size_X()).reshape(
-        self._opfft.get_shapeX_loc())
+    a = np.random.random(self.opfft.get_local_size_X()).reshape(
+        self.opfft.get_shapeX_loc())
     afft = self.fft(a)
     a = self.ifft(afft)
     afft = self.fft(a)
