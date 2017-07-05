@@ -1,7 +1,7 @@
 FluidFFT: Efficient and easy Fast Fourier Transform for Python
 ==============================================================
 
-|release| |docs| |coverage|
+|release| |docs| |coverage| |travis|
 
 .. |release| image:: https://img.shields.io/pypi/v/fluidfft.svg
    :target: https://pypi.python.org/pypi/fluidfft/
@@ -14,6 +14,9 @@ FluidFFT: Efficient and easy Fast Fourier Transform for Python
 .. |coverage| image:: https://codecov.io/bb/fluiddyn/fluidfft/branch/default/graph/badge.svg
    :target: https://codecov.io/bb/fluiddyn/fluidfft/branch/default/
    :alt: Code coverage
+
+.. |travis| image:: https://travis-ci.org/fluiddyn/fluidfft.svg?branch=master
+    :target: https://travis-ci.org/fluiddyn/fluidfft
 
 This package provides C++ and Python classes useful to perform fast
 Fourier transform with different libraries, in particular
