@@ -217,19 +217,19 @@ class OperatorsPseudoSpectral3D(object):
             vy_fft = fft3d(vy)
             vz_fft = fft3d(vz)
 
-        return vgradv_from_v2(vx, vy, vz, vx_fft, vy_fft, vz_fft,
-                              self.Kx, self.Ky, self.Kz, self.ifft3d)
+        return _vgradv_from_v2(vx, vy, vz, vx_fft, vy_fft, vz_fft,
+                               self.Kx, self.Ky, self.Kz, self.ifft3d)
 
 
-# pythran export vgradv_from_v2(
-#     float64[][][][], float64[][][], float64[][][],
+# pythran export _vgradv_from_v2(
+#     float64[][][], float64[][][], float64[][][],
 #     complex128[][][], complex128[][][], complex128[][][],
 #     float64[][][], float64[][][], float64[][][],
 #     function(complex128[][][]) -> float64[][][])
 
 
-def vgradv_from_v2(vx, vy, vz, vx_fft, vy_fft, vz_fft,
-                   Kx, Ky, Kz, ifft3d):
+def _vgradv_from_v2(vx, vy, vz, vx_fft, vy_fft, vz_fft,
+                    Kx, Ky, Kz, ifft3d):
     px_vx_fft = 1j * Kx * vx_fft
     py_vx_fft = 1j * Ky * vx_fft
     pz_vx_fft = 1j * Kz * vx_fft
