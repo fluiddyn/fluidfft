@@ -178,6 +178,8 @@ def make_pythran_extensions(modules):
             pext = PythranExtension(
                 mod, [py_file], extra_compile_args=['-O3', '-fopenmp'])
             pext.include_dirs.append(np.get_include())
+            # bug pythran extension...
+            pext.extra_compile_args.extend(['-O3', '-fopenmp'])
             extensions.append(pext)
     return extensions
 
