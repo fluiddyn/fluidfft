@@ -3,7 +3,7 @@
 #     float64[][][], float64[][][], float64[][][],
 #     complex128[][][], complex128[][][], complex128[][][],
 #     float64[][][], float64[][][], float64[][][],
-#     function(complex128[][][]) -> float64[][][])
+#     function_to_be_called_from_python_interpreter -> float64[][][])
 
 
 def _vgradv_from_v2(vx, vy, vz, vx_fft, vy_fft, vz_fft,
@@ -36,7 +36,7 @@ def _vgradv_from_v2(vx, vy, vz, vx_fft, vy_fft, vz_fft,
 
 """If we can not use something like the syntax
 
-'function(complex128[][][]) -> float64[][][]'
+'function_to_be_called_from_python_interpreter -> float64[][][]'
 
 we have to slit the function _vgradv_from_v2 in parts that can be pythranized
 and other that can't be pythranized (here we are lucky, it's quite simple!).
