@@ -175,7 +175,8 @@ def make_pythran_extensions(modules):
         bin_file = base_file + suffix
         if not develop or not os.path.exists(bin_file) or \
            modification_date(bin_file) < modification_date(py_file):
-            pext = PythranExtension(mod, [py_file])
+            pext = PythranExtension(
+                mod, [py_file], extra_compile_args=['-O3', '-fopenmp'])
             pext.include_dirs.append(np.get_include())
             extensions.append(pext)
     return extensions

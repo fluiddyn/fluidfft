@@ -62,7 +62,7 @@ def bench_like_cpp_return(o, nb_time_execute=10):
     return t_fft, t_ifft
 
 
-def bench_like_cpp(o, nb_time_execute=10):
+def bench_like_cpp_generi(o, nb_time_execute=10):
     fieldX = np.ones(o.get_shapeX_loc(), dtype=float, order='C')
     fieldK = np.empty(o.get_shapeK_loc(), dtype=np.complex128, order='C')
 
@@ -92,7 +92,7 @@ def compare_benchs(o, nb_time_execute=10):
 
     t_fft_as_arg, t_ifft_as_arg = bench_like_cpp_as_arg(o, nb_time_execute)
     t_fft_return, t_ifft_return = bench_like_cpp_return(o, nb_time_execute)
-    # t_fft_generic, t_ifft_generic = bench_like_cpp(o, nb_time_execute)
+    # t_fft_generic, t_ifft_generic = bench_like_cpp_generi(o, nb_time_execute)
 
     if results:
         t_fft_cpp, t_ifft_cpp = results
@@ -115,7 +115,9 @@ if __name__ == '__main__':
             return
         o = FFT(n, n, n)
         o.run_tests()
-        o.run_benchs()
+        # warning: bug with running run_benchs more than one time!
+        # o.run_benchs(10)
+        # o.run_benchs(10)
         compare_benchs(o, nb_time_execute=10)
 
     if nb_proc == 1 and rank == 0:

@@ -25,10 +25,20 @@ def dealiasing_variable(ff_fft, where, nK0loc, nK1loc):
 # pythran export vecfft_from_rotfft(complex128[][], float64[][], float64[][])
 
 def vecfft_from_rotfft(rot_fft, KX_over_K2, KY_over_K2):
-    """Return the velocity in spectral space computed from the
-    rotational."""
+    """Return the velocity in spectral space computed from the rotational.
+    """
     ux_fft = 1j * KY_over_K2 * rot_fft
     uy_fft = -1j * KX_over_K2 * rot_fft
+    return ux_fft, uy_fft
+
+
+# pythran export vecfft_from_divfft(complex128[][], float64[][], float64[][])
+
+def vecfft_from_divfft(div_fft, KX_over_K2, KY_over_K2):
+    """Return the velocity in spectral space computed from the divergence.
+    """
+    ux_fft = -1j * KX_over_K2 * div_fft
+    uy_fft = -1j * KY_over_K2 * div_fft
     return ux_fft, uy_fft
 
 

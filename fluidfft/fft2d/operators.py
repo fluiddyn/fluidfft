@@ -389,6 +389,11 @@ class OperatorsPseudoSpectral2D(object):
         rotational."""
         return vecfft_from_rotfft(rot_fft, self.KX_over_K2, self.KY_over_K2)
 
+    def vecfft_from_divfft(self, div_fft):
+        """Return the velocity in spectral space computed from the
+        divergence."""
+        return vecfft_from_divfft(div_fft, self.KX_over_K2, self.KY_over_K2)
+    
     def gradfft_from_fft(self, f_fft):
         """Return the gradient of f_fft in spectral space."""
         return gradfft_from_fft(f_fft, self.KX, self.KY)

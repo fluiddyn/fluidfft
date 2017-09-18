@@ -33,10 +33,11 @@ for name, cls in get_classes_seq().items():
         continue
     setattr(Tests3D, 'test_{0}'.format(name), make_test_function(cls, True))
 
-for name, cls in get_classes_mpi().items():
-    if cls is None:
-        continue
-    setattr(Tests3D, 'test_{0}'.format(name), make_test_function(cls, False))
+if nb_proc > 1:
+    for name, cls in get_classes_mpi().items():
+        if cls is None:
+            continue
+        setattr(Tests3D, 'test_{0}'.format(name), make_test_function(cls, False))
 
 
 if __name__ == '__main__':

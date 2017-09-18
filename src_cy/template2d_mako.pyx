@@ -34,7 +34,7 @@ cdef class ${class_name}:
 
     def run_benchs(self, nb_time_execute=10):
         """Run the c++ benchmarcks"""
-        txt = self.thisptr.bench(nb_time_execute)
+        txt = self.thisptr.bench(nb_time_execute).decode()
         return tuple(float(word) for word in txt.split() if word[0].isdigit())
 
     @cython.boundscheck(False)

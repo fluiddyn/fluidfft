@@ -39,7 +39,7 @@ cdef class ${class_name}:
         return self.thisptr.test()
 
     def run_benchs(self, nb_time_execute=10):
-        txt = self.thisptr.bench(nb_time_execute)
+        txt = self.thisptr.bench(nb_time_execute).decode()
         return tuple(float(word) for word in txt.split() if word[0].isdigit())
 
     @cython.boundscheck(False)
