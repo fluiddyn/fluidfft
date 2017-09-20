@@ -64,3 +64,10 @@ def divfft_from_vecfft(vecx_fft, vecy_fft, KX, KY):
 
 def rotfft_from_vecfft(vecx_fft, vecy_fft, KX, KY):
     return 1j*(KX*vecy_fft - KY*vecx_fft)
+
+
+# pythran export myfunc(float64[][]):
+# pythran export myfunc(complex128[][]):
+
+def myfunc(a):
+    return (a**2 + a**3 + 2) / 5.
