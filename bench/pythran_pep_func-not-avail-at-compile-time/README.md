@@ -48,13 +48,13 @@ def myfunc(a, n, func0, func1):
 
 ```
 
-In the Python code where it will be used, `func` can be any Python functions
+In the Python code where it will be used, `func1` can be any Python functions
 returning an array of complex128. In particular this function can use funky
 compiled libraries (as for example in fluidfft), but Pythran does not have to
 worry about it.
 
 We see that even though Pythran can't do anything to speedup the execution of
-the function `func`, there are plenty of other opportunities of
+the function `func1`, there are plenty of other opportunities of
 optimization. We also see that pythran will not be lost in term of type
 inference. It will be able to check that the statement `tmp[i] = func0(i*c)` is
 correct and to infer that `ret` is an array of complex.
@@ -72,9 +72,9 @@ see two advantages for Pythran:
   have the code so the only thing that we can do is to work with the
   information that we have :
 
-  * the types of the returned objects
-  * the restrictions on the function_to_be_called_by_python_interpreter
-  * how the function is used in the code
+    * the types of the returned objects
+    * the restrictions on the function_to_be_called_by_python_interpreter
+    * how the function is used in the code
 
 ## Thoughts about the implementation
 
@@ -83,7 +83,7 @@ on the return type of the functions
 "function_to_be_called_by_python_interpreter". I do not see why it would be
 really difficult.
 
-In the C++ code, for each function_to_be_called_by_python_interpreter:
+In the C++ code, for each call of a function_to_be_called_by_python_interpreter:
 
 1. get back the GIL (something like `PyEval_RestoreThread(_save);`)
 2. create the necessary python objects (the arguments of the function) with
@@ -93,6 +93,7 @@ In the C++ code, for each function_to_be_called_by_python_interpreter:
    arguments after the function call)
 5. convert the returned Python objects and the arguments to C++ objects with
    `from_python<pythonic::types::...>(...);`
+6. release the GIL.
 
 All these steps of course take time but nothing huge and except the actual call
 of the Python function, every step already happens in Pythran extension (get
@@ -105,8 +106,8 @@ For what I want to do with Pythran in fluidfft and fluidsim, this new feature
 would be very very useful. I guess it can be useful for others.
 
 In real code (not stackoverflow questions), it is very common in Python to use
-compiled extensions and libraries with ctypes or ffi. When you use such things
-in numerical computing, it is very convenient and natural to use these
+compiled extensions and/or libraries with ctypes or ffi. When you use such
+things in numerical computing, it is very convenient and natural to use these
 functions in the core of the computational functions. And when you use Pythran,
 you want to pythranize your functions without reorganizing too much our code.
 
