@@ -21,7 +21,7 @@ def create_oper_cython(shape):
 
     return OperatorsPseudoSpectral2D(params=params)
 
-shape = [512]*2
+shape = [512*2]*2
 
 oper = create_oper_cython(shape)
 
@@ -38,15 +38,16 @@ for k in keys:
     mod = modules[k]
     print('bench', k)
 
+    nb_times = 1000
     t_start = time()
-    for i in range(1000):
+    for i in range(nb_times):
         # mod.util.divfft_from_vecfft(f_fft, f_fft, KX, KX)
         mod.util.gradfft_from_fft(f_fft, KX, KX)
         # mod.util.myfunc(a)
 
     duration = time() - t_start
 
-    print('duration = {:2.3f} s ({})'.format(duration, k))
+    print('duration = {:3.2f} ms ({})'.format(duration/nb_times*1000, k))
 
 print('bench cython')
 
@@ -57,6 +58,4 @@ for i in range(1000):
 
 duration = time() - t_start
 
-print('duration = {:2.3f} s (cython)'.format(duration))
-
-    
+print('duration = {:3.2f} ms (cython)'.format(duration/nb_times*1000))

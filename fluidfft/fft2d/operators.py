@@ -13,8 +13,8 @@ from fluiddyn.util import mpi
 from fluidfft import create_fft_object
 
 from .util_pythran import (
-    dealiasing_variable, vecfft_from_rotfft, gradfft_from_fft,
-    divfft_from_vecfft, rotfft_from_vecfft)
+    dealiasing_variable, vecfft_from_rotfft, vecfft_from_divfft,
+    gradfft_from_fft, divfft_from_vecfft, rotfft_from_vecfft)
 
 if mpi.nb_proc > 1:
     MPI = mpi.MPI
@@ -189,7 +189,7 @@ class OperatorsPseudoSpectral2D(object):
         """Produce a string describing the operator."""
         str_Lx = _make_str_length(self.Lx)
         str_Ly = _make_str_length(self.Ly)
-        return ('L='+str_Lx+'x'+str_Ly+'_{}x{}').format(
+        return ('L'+str_Lx+'x'+str_Ly+'_{}x{}').format(
             self.nx_seq, self.ny_seq)
 
     def produce_long_str_describing_oper(self):
