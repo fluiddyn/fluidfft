@@ -133,17 +133,19 @@ else:
 
     specials = {}
 
+
 def update_with_config(key):
     cfg = config[key]
     if len(cfg['dir']) > 0:
         path = cfg['dir']
-        include_dirs.update(os.path.join(path, 'include'))
-        lib_dirs.update(os.path.join(path, 'lib'))
+        include_dirs.add(os.path.join(path, 'include'))
+        lib_dirs.add(os.path.join(path, 'lib'))
     elif len(cfg['include_dir']) > 0:
-        include_dirs.update(cfg['include_dir'])
-    if len(cfg['library_dir']) > 0:
-        lib_dirs.update(cfg['library_dir'])
-    
+        include_dirs.add(cfg['include_dir'])
+    elif len(cfg['library_dir']) > 0:
+        lib_dirs.add(cfg['library_dir'])
+
+
 for base_name in base_names:
     ext_modules.append(create_ext(base_name))
     TMP = os.getenv('FFTW3_INC_DIR')
@@ -159,7 +161,7 @@ for base_name in base_names:
         libraries.update(['fftw3_mpi', 'pfft'])
         update_with_config('pfft')
     elif 'p3dfft' in base_name:
-        libraries.update(['p3dfft'])
+        libraries.add('p3dfft')
         update_with_config('p3dfft')
     elif 'cufft' in base_name:
         libraries.add('cufft')
@@ -225,7 +227,7 @@ setup(
         # 3 - Alpha
         # 4 - Beta
         # 5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Education',
         'Topic :: Scientific/Engineering',
@@ -238,14 +240,14 @@ setup(
         'Programming Language :: Python',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
-        # 'Programming Language :: Python :: 3',
-        # 'Programming Language :: Python :: 3.3',
-        # 'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Programming Language :: Cython',
         'Programming Language :: C'],
     packages=find_packages(exclude=[
         'doc', 'include', 'scripts', 'src_cpp', 'src_cy']),
     install_requires=['fluiddyn'],
     # cmdclass={'build_ext': build_ext},
-    ext_modules=ext_modules
-)
+    ext_modules=ext_modules)
