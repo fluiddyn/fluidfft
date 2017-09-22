@@ -68,7 +68,8 @@ def modification_date(filename):
 
 class CompilationError(Exception):
     def __init__(self, out, err):
-        self.message = '\nstdout:\n {}\nstderr:\n{}'.format(out, err)
+        self.message = '\nstdout:\n {}\nstderr:\n{}'.format(
+            out.decode(), err.decode())
         super(CompilationError, self). __init__()
 
     def __str__(self):

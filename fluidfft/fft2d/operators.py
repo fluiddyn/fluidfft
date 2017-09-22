@@ -21,8 +21,11 @@ if mpi.nb_proc > 1:
 
 
 def _make_str_length(length):
-    if (length/pi).is_integer():
-        return repr(int(length)) + 'pi'
+    l_over_pi = length / np.pi
+    if l_over_pi.is_integer():
+        return repr(int(l_over_pi)) + 'pi'
+    elif round(length) == length:
+        return '{}'.format(int(length))    
     else:
         return '{:.3f}'.format(length).rstrip('0')
 
@@ -189,7 +192,7 @@ class OperatorsPseudoSpectral2D(object):
         """Produce a string describing the operator."""
         str_Lx = _make_str_length(self.Lx)
         str_Ly = _make_str_length(self.Ly)
-        return ('L'+str_Lx+'x'+str_Ly+'_{}x{}').format(
+        return ('{}x{}_S' + str_Lx + 'x' + str_Ly).format(
             self.nx_seq, self.ny_seq)
 
     def produce_long_str_describing_oper(self):

@@ -133,7 +133,17 @@ else:
 
     specials = {}
 
-
+def update_with_config(key):
+    cfg = config[key]
+    if len(cfg['dir']) > 0:
+        path = cfg['dir']
+        include_dirs.update(os.path.join(path, 'include'))
+        lib_dirs.update(os.path.join(path, 'lib'))
+    elif len(cfg['include_dir']) > 0:
+        include_dirs.update(cfg['include_dir'])
+    if len(cfg['library_dir']) > 0:
+        lib_dirs.update(cfg['library_dir'])
+    
 for base_name in base_names:
     ext_modules.append(create_ext(base_name))
     TMP = os.getenv('FFTW3_INC_DIR')
@@ -144,18 +154,16 @@ for base_name in base_names:
         lib_dirs.add(TMP)
     if 'fftwmpi' in base_name:
         libraries.add('fftw3_mpi')
+        update_with_config('fftw-mpi')
     elif 'pfft' in base_name:
         libraries.update(['fftw3_mpi', 'pfft'])
-#        include_dirs.update(['/opt/pfft/1.0.6/include'])
-        lib_dirs.update(['/opt/pfft/1.0.6/lib'])
+        update_with_config('pfft')
     elif 'p3dfft' in base_name:
         libraries.update(['p3dfft'])
-#        include_dirs.update(['/opt/p3dfft/2.7.4-mt/include'])
-#        lib_dirs.update(['/opt/p3dfft/2.7.4-mt/lib'])
+        update_with_config('p3dfft')
     elif 'cufft' in base_name:
         libraries.add('cufft')
-        include_dirs.update(['/opt/cuda/7.5/include'])
-        lib_dirs.update(['/opt/cuda/7.5/lib64'])
+        update_with_config('cufft')
         specials[''] = {'CC': 'nvcc'}
 
 

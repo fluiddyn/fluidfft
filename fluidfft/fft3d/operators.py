@@ -11,6 +11,7 @@ from fluiddyn.util import mpi
 from fluiddyn.util.easypyfft import FFTW3DReal2Complex
 
 from fluidfft import create_fft_object
+from fluidfft.fft2d.operators import _make_str_length
 
 from .util_pythran import (
     project_perpk3d)
@@ -19,14 +20,6 @@ from .dream_pythran import _vgradv_from_v2
 
 if mpi.nb_proc > 1:
     MPI = mpi.MPI
-
-
-def _make_str_length(length):
-    l_over_pi = length / np.pi
-    if l_over_pi.is_integer():
-        return repr(int(l_over_pi)) + 'pi'
-    else:
-        return '{:.3f}'.format(length).rstrip('0')
 
 
 class OperatorsPseudoSpectral3D(object):
@@ -129,8 +122,8 @@ class OperatorsPseudoSpectral3D(object):
         str_Ly = _make_str_length(self.Ly)
         str_Lz = _make_str_length(self.Lz)
 
-        return ('L=' + str_Lx + 'x' + str_Ly + 'x' + str_Lz +
-                '_{}x{}x{}').format(self.nx_seq, self.ny_seq, self.nz_seq)
+        return ('{}x{}x{}_V' + str_Lx + 'x' + str_Ly +
+                'x' + str_Lz).format(self.nx_seq, self.ny_seq, self.nz_seq)
 
     def produce_long_str_describing_oper(self):
         """Produce a string describing the operator."""
