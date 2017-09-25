@@ -203,7 +203,7 @@ if not on_rtd:
     make_extensions(
         ext_modules, include_dirs=include_dirs,
         lib_dirs=lib_dirs, libraries=libraries,
-        specials=specials, CC='mpicxx')
+        specials=specials, CC='mpicxx', CFLAGS='-std=c++03')
 
 if not on_rtd and use_pythran:
     ext_modules = make_pythran_extensions(

@@ -20,6 +20,14 @@ fftw-mpi
 
 `FFTW <http://www.fftw.org/>`_ provide their parallel MPI implementation.
 
+If a system-wide installation of FFTW with OpenMP and MPI is not available,
+the user can make a local installation in a user-accessible directory. You can
+utilize this bash script with some modifications to the first few lines to
+install the FFTW library.
+
+.. literalinclude:: install_fftw.sh
+   :language: shell
+
 MKL library (FFT by intel)
 --------------------------
 
