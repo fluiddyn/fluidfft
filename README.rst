@@ -11,8 +11,8 @@ FluidFFT: efficient and easy Fast Fourier Transform for Python
    :target: http://fluidfft.readthedocs.org
    :alt: Documentation status
 
-.. |coverage| image:: https://codecov.io/bb/fluiddyn/fluidfft/branch/default/graph/badge.svg
-   :target: https://codecov.io/bb/fluiddyn/fluidfft/branch/default/
+.. |coverage| image:: https://codecov.io/gh/fluiddyn/fluidfft/graph/badge.svg
+   :target: https://codecov.io/gh/fluiddyn/fluidfft
    :alt: Code coverage
 
 .. |travis| image:: https://travis-ci.org/fluiddyn/fluidfft.svg?branch=master
