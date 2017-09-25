@@ -1,7 +1,6 @@
 Installation and advice
 =======================
 
-
 Dependencies
 ------------
 
@@ -10,18 +9,6 @@ Dependencies
 - a C++ compiler
 
 - Cython
-  
-- FFT libraries:
-
-  The libraries are used if they are installed so you shouldn't have any error
-  if you build-install FluidFFT without FFT libraries! However, nothing will be
-  built and it's not very interesting. So you have to install at least one of
-  the supported libraries.
-
-  .. toctree::
-     :maxdepth: 1
-
-     fft_libs
 
 - `Pythran <https://github.com/serge-sans-paille/pythran>`_ (optional)
 
@@ -38,26 +25,51 @@ Dependencies
 
      [pythran]
      complex_hook = True
+  
+- And of course FFT libraries!
 
-Install in development mode (recommended)
+The libraries are used if they are installed so you shouldn't have any error if
+you build-install FluidFFT without FFT libraries! However, nothing will be
+built and it's not very interesting. So you have to install at least one of the
+supported libraries, let's say at least fftw!
+
+.. toctree::
+   :maxdepth: 1
+
+   fft_libs
+
+Basic installation with pip
+---------------------------
+
+If you are in a hurry and that you are not really concerned about performance,
+you can use pip::
+
+  pip install fluidfft
+
+or
+
+  pip install fluidfft --user
+
+
+Install from the repository (recommended)
 -----------------------------------------
 
-FluidFFT is a very young project, so I would advice to work "as a developer",
-i.e. to get the source code and to use revision control and the development
-mode of the Python installer.
+Get the source code
+~~~~~~~~~~~~~~~~~~~
 
-For FluidFFT, I use the revision control software Mercurial and the main
+For FluidFFT, we use the revision control software Mercurial and the main
 repository is hosted `here <https://bitbucket.org/fluiddyn/fluidfft>`_ in
-Bitbucket. I would advice to fork this repository (click on "Fork") and to
-clone your newly created repository to get the code on your computer (click on
-"Clone" and run the command that will be given). If you are new with Mercurial
-and Bitbucket, you can also read `this short tutorial
+Bitbucket. Download the source with something like::
+
+  hg clone https://bitbucket.org/fluiddyn/fluidfft
+
+If you are new with Mercurial and Bitbucket, you can also read `this short
+tutorial
 <http://fluiddyn.readthedocs.org/en/latest/mercurial_bitbucket.html>`_.
 
-If you really don't want to use Mercurial, you can also just manually
-download the package from `the Bitbucket page
-<https://bitbucket.org/fluiddyn/fluidfft>`_ or from `the PyPI page
-<https://pypi.python.org/pypi/fluidfft>`_.
+If you don't want to use Mercurial, you can also just manually download the
+package from `the Bitbucket page <https://bitbucket.org/fluiddyn/fluidfft>`_ or
+from `the PyPI page <https://pypi.python.org/pypi/fluidfft>`_.
 
 Configuration file
 ~~~~~~~~~~~~~~~~~~
@@ -82,16 +94,6 @@ or (without virtualenv)::
 Of course you can also install FluidDyn with the install command ``python
 setup.py install``.
 
-After the installation, it is a good practice to run the unit tests by
-running ``python -m unittest discover`` from the root directory or
-from any of the "test" directories (or just ``make tests``).
-
-Installation with pip
----------------------
-
-FluidFFT can also be installed from the Python Package Index::
-
-  pip install fluidfft
-
-However, the project is so new that it is better to have the last version (from
-the mercurial repository hosted on Bitbucket).
+After the installation, it is a good practice to run the unit tests by running
+``python -m unittest discover`` from the root directory or from any of the
+"test" directories (or just ``make tests`` or ``make tests_mpi``).

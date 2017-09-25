@@ -36,6 +36,10 @@ transformations on distributed memory architectures. PFFT can be understood as
 a generalization of FFTW-MPI to multidimensional data decomposition. The
 library is written in C and MPI."*
 
+.. todo:: 
+
+   How can I install it? Link? Advice?
+
 `p3dfft <https://www.p3dfft.net/>`_
 -----------------------------------
 
@@ -46,9 +50,16 @@ limitation to scalability inherent in FFT libraries implementing 1D (or slab)
 decomposition: the number of processors/tasks used to run this problem in
 parallel can be as large as N2, where N is the linear problem size."*
 
+.. todo:: 
+
+   How can I install it? Link? Advice?
+
 cuda
 ----
-  
+
 Modify fftw.h ! https://github.com/FFTW/fftw3/issues/18
 
 
+.. todo:: 
+
+   How can I install it? Link? Advice?

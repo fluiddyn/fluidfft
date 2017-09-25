@@ -3,8 +3,9 @@
 FluidFFT documentation
 ======================
 
-This package provides C++ classes and their Python wrapper classes useful to
-perform Fast Fourier Transform (FFT) with different libraries, in particular
+This package provides C++ classes and their Python wrapper classes written in
+Cython useful to perform Fast Fourier Transform (FFT) with different libraries,
+in particular
 
 - fftw3 and fftw3-mpi
   
@@ -15,10 +16,18 @@ perform Fast Fourier Transform (FFT) with different libraries, in particular
 - `cufft <https://developer.nvidia.com/cufft>`_ (fft library by CUDA
   running on GPU)
 
-  
-The package can be used for example as a base to write spectral simulation
-code. In particular, fluidfft is used in the code `FluidSim
-<http://fluidsim.readthedocs.org>`_.
+`pfft <https://github.com/mpip/pfft>`_ and `p3dfft
+<https://github.com/sdsc/p3dfft>`_ are specialized in computing FFT efficiently
+on several cores of big clusters. The data is spit in pencils and can be
+distributed on several processes.
+
+Fluidfft provides an uniform API for all these libraries. Fluidfft can be used
+for example as a base to write pseudo-spectral simulation codes. In particular,
+fluidfft is used in the code `fluidsim
+<http://fluidsim.readthedocs.org>`_. Fluidfft also provides classes to
+efficiently perform linear operators (gradient, divergence, rotational, etc.)
+and easily deal with the data distribution (gather the data on one process,
+scatter the data to many processes).
 
 
 User Guide
@@ -39,21 +48,35 @@ Modules Reference
 
    fluidfft
 
-See also the `documentation of the cpp code produced by Doxygen
-<doxygen/index.html>`_...
+See also the `documentation of the cpp code produced with Doxygen
+<doxygen/index.html>`_
 
 More
 ----
 
+.. |release| image:: https://img.shields.io/pypi/v/fluidfft.svg
+   :target: https://pypi.python.org/pypi/fluidfft/
+   :alt: Latest version
+
+.. |coverage| image:: https://codecov.io/bb/fluiddyn/fluidfft/branch/default/graph/badge.svg
+   :target: https://codecov.io/bb/fluiddyn/fluidfft/branch/default/
+   :alt: Code coverage
+
+.. |travis| image:: https://travis-ci.org/fluiddyn/fluidfft.svg?branch=master
+    :target: https://travis-ci.org/fluiddyn/fluidfft
+
+
+- `FluidFFT forge on Bitbucket <https://bitbucket.org/fluiddyn/fluidfft>`_
+- FluidFFT in PyPI |release|
+- Unittest coverage |coverage|
+- Continuous integration |travis|
+
 .. toctree::
    :maxdepth: 1
 
-   FluidFFT forge on Bitbucket <https://bitbucket.org/fluiddyn/fluidfft>
-   FluidFFT in PyPI  <https://pypi.python.org/pypi/fluidfft/>
-   to_do
    changes
+   to_do
 
-   
 Indices and tables
 ==================
 

@@ -1,7 +1,6 @@
 
 
-0.0.0
+0.1.0
 -----
 
-- nothing
-
+- fluidfft can be used with mpi in fluidsim.

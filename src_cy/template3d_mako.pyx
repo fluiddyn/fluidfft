@@ -44,24 +44,6 @@ cdef class ${class_name}:
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
-    cpdef fft_generic(self, DTYPEf_t[:, :, ::1] fieldX,
-                      DTYPEc_t[:, :, ::1] fieldK=None):
-        if fieldK is None:
-            fieldK = np.empty(self._shapeK_loc, dtype=DTYPEc, order='C')
-        self.thisptr.fft(&fieldX[0, 0, 0], <mycomplex*> &fieldK[0, 0, 0])
-        return np.array(fieldK)
-
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
-    cpdef ifft_generic(self, DTYPEc_t[:, :, ::1] fieldK,
-                       DTYPEf_t[:, :, ::1] fieldX=None):
-        if fieldX is None:
-            fieldX = np.empty(self._shapeX_loc, dtype=DTYPEf, order='C')
-        self.thisptr.ifft(<mycomplex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
-        return np.array(fieldX)
-
-    @cython.boundscheck(False)
-    @cython.wraparound(False)
     cpdef fft_as_arg(self, DTYPEf_t[:, :, ::1] fieldX,
                      DTYPEc_t[:, :, ::1] fieldK):
         self.thisptr.fft(&fieldX[0, 0, 0], <mycomplex*> &fieldK[0, 0, 0])
