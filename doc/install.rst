@@ -4,16 +4,18 @@ Installation and advice
 Dependencies
 ------------
 
-- Python 2.7 or > 3.4
+- Python 2.7 or >= 3.4
 
-- a C++ compiler
+- a C++11 compiler (for example GCC 4.9)
 
 - Cython
 
-- `Pythran <https://github.com/serge-sans-paille/pythran>`_ (optional)
+- `Pythran <https://github.com/serge-sans-paille/pythran>`_
 
-  We choose to use the new static Python compiler Pythran for some functions of
-  the operators.
+  We choose to use the new static Python compiler `Pythran
+  <https://github.com/serge-sans-paille/pythran>`_ for some functions of the
+  operators. Our microbenchmarks show that the performances are as good as what
+  we are able to get with Fortran or C++!
 
 .. warning::
 
@@ -25,18 +27,20 @@ Dependencies
 
      [pythran]
      complex_hook = True
+
+- mpi4py (optional, only for mpi runs),
   
 - And of course FFT libraries!
 
-The libraries are used if they are installed so you shouldn't have any error if
-you build-install FluidFFT without FFT libraries! However, nothing will be
-built and it's not very interesting. So you have to install at least one of the
-supported libraries, let's say at least fftw!
+  The libraries are used if they are installed so you shouldn't have any error
+  if you build-install FluidFFT without FFT libraries! However, nothing will be
+  built and it's not very interesting. So you have to install at least one of
+  the supported libraries, let's say at least fftw!
 
-.. toctree::
-   :maxdepth: 1
+  .. toctree::
+     :maxdepth: 1
 
-   fft_libs
+     fft_libs
 
 Basic installation with pip
 ---------------------------
@@ -46,7 +50,7 @@ you can use pip::
 
   pip install fluidfft
 
-or
+or::
 
   pip install fluidfft --user
 

@@ -116,6 +116,11 @@ class OperatorsPseudoSpectral3D(object):
             self.gather_Xspace = op_fft.gather_Xspace
             self.scatter_Xspace = op_fft.scatter_Xspace
 
+        self.rank = mpi.rank
+
+    def produce_str_describing_grid(self):
+        return '{}x{}x{}'.format(self.nx_seq, self.ny_seq, self.nz_seq)
+        
     def produce_str_describing_oper(self):
         """Produce a string describing the operator."""
         str_Lx = _make_str_length(self.Lx)

@@ -188,6 +188,9 @@ class OperatorsPseudoSpectral2D(object):
     def sum_wavenumbers(self, field_fft):
         return self.opfft.sum_wavenumbers(np.ascontiguousarray(field_fft))
 
+    def produce_str_describing_grid(self):
+        return '{}x{}'.format(self.nx_seq, self.ny_seq)
+
     def produce_str_describing_oper(self):
         """Produce a string describing the operator."""
         str_Lx = _make_str_length(self.Lx)
