@@ -188,6 +188,9 @@ def make_ext_from_objs(ext_file, obj_files, lib_dirs=None, libraries=None,
         command = [w for w in ldshared.split()
                    if w not in ['-g']]
 
+        # needed with conda and mpich
+        command[0] = 'mpicxx'
+
         if 'cufft' in ext_file:
             command = 'nvcc -Xcompiler -pthread -shared'.split()
 

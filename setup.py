@@ -95,13 +95,13 @@ def create_ext(base_name):
 
 base_names = []
 if config['fftw']['use']:
-        base_names.extend([
-            'fft2d_with_fftw1d', 'fft2d_with_fftw2d', 'fft2dmpi_with_fftw1d',
-            'fft3d_with_fftw3d'])
+    base_names.extend([
+        'fft2d_with_fftw1d', 'fft2d_with_fftw2d', 'fft2dmpi_with_fftw1d',
+        'fft3d_with_fftw3d'])
 
 if config['fftw-mpi']['use']:
-        base_names.extend([
-            'fft2dmpi_with_fftwmpi2d', 'fft3dmpi_with_fftwmpi3d'])
+    base_names.extend([
+        'fft2dmpi_with_fftwmpi2d', 'fft3dmpi_with_fftwmpi3d'])
 
 if config['cufft']['use']:
     base_names.extend(['fft2d_with_cufft'])
@@ -125,7 +125,7 @@ else:
     import numpy as np
 
     ext_modules = []
-    libraries = set(['fftw3', 'mpi_cxx'])
+    libraries = set(['fftw3'])
     lib_dirs = set()
     include_dirs = set(
         [src_cy_dir, src_base, src_cpp_3d, src_cpp_2d,
@@ -205,9 +205,9 @@ if not on_rtd:
         lib_dirs=lib_dirs, libraries=libraries,
         specials=specials, CC='mpicxx', CFLAGS='-std=c++03')
 
-if not on_rtd and use_pythran:
-    ext_modules = make_pythran_extensions(
-        ['fluidfft.fft2d.util_pythran'])
+    if use_pythran:
+        ext_modules = make_pythran_extensions(
+            ['fluidfft.fft2d.util_pythran'])
 else:
     ext_modules = []
 
