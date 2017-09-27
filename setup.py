@@ -13,6 +13,9 @@ from purepymake import Extension, make_extensions
 from config import get_config
 from src_cy.make_files_with_mako import make_pyx_files
 
+from numpy.distutils.system_info import get_info
+from warnings import warn
+
 try:
     from pythran.dist import PythranExtension
     use_pythran = True
@@ -100,8 +103,14 @@ if config['fftw']['use']:
         'fft3d_with_fftw3d'])
 
 if config['fftw-mpi']['use']:
-    base_names.extend([
-        'fft2dmpi_with_fftwmpi2d', 'fft3dmpi_with_fftwmpi3d'])
+    if get_info('mkl'):
+        warn('When numpy uses mkl (as for example with conda), '
+             'there are symbol conflicts between mkl and fftw. '
+             'This can lead to a segmentation fault '
+             'so we do not build the extensions using fftwmpi.')
+    else:
+        base_names.extend([
+            'fft2dmpi_with_fftwmpi2d', 'fft3dmpi_with_fftwmpi3d'])
 
 if config['cufft']['use']:
     base_names.extend(['fft2d_with_cufft'])
@@ -118,20 +127,26 @@ on_rtd = os.environ.get('READTHEDOCS')
 if on_rtd:
     base_names = []
 else:
-    import mpi4py
-    if mpi4py.__version__[0] < '2':
-        raise ValueError('Please upgrade to mpi4py >= 2.0')
-
     import numpy as np
-
     ext_modules = []
     libraries = set(['fftw3'])
     lib_dirs = set()
     include_dirs = set(
         [src_cy_dir, src_base, src_cpp_3d, src_cpp_2d,
-         'include', mpi4py.get_include(), np.get_include()])
+         'include', np.get_include()])
 
-    specials = {}
+    try:
+        import mpi4py
+    except ImportError:
+        warn('ImportError for mpi4py: '
+             "all extensions based on mpi won't be built.")
+        base_names = [name for name in base_names if 'mpi' not in name]
+        CXX = None
+    else:
+        CXX = 'mpicxx'
+        if mpi4py.__version__[0] < '2':
+            raise ValueError('Please upgrade to mpi4py >= 2.0')
+        include_dirs.add(mpi4py.get_include())
 
 
 def update_with_config(key):
@@ -166,7 +181,6 @@ for base_name in base_names:
     elif 'cufft' in base_name:
         libraries.add('cufft')
         update_with_config('cufft')
-        specials[''] = {'CC': 'nvcc'}
 
 
 def modification_date(filename):
@@ -185,10 +199,7 @@ def make_pythran_extensions(modules):
         bin_file = base_file + suffix
         if not develop or not os.path.exists(bin_file) or \
            modification_date(bin_file) < modification_date(py_file):
-            pext = PythranExtension(
-                mod, [py_file],
-                # extra_compile_args=['-O3', '-fopenmp']
-            )
+            pext = PythranExtension(mod, [py_file],)
             pext.include_dirs.append(np.get_include())
             # bug pythran extension...
             pext.extra_compile_args.extend(['-O3', '-march=native'
@@ -203,7 +214,7 @@ if not on_rtd:
     make_extensions(
         ext_modules, include_dirs=include_dirs,
         lib_dirs=lib_dirs, libraries=libraries,
-        specials=specials, CC='mpicxx', CFLAGS='-std=c++03')
+        CXX=CXX, CFLAGS='-std=c++03')
 
     if use_pythran:
         ext_modules = make_pythran_extensions(

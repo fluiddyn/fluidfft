@@ -13,7 +13,9 @@ cdef class ${class_name}:
     """
     cdef mycppclass* thisptr
     cdef tuple _shapeK_loc, _shapeX_loc
-    cdef public MPI.Comm comm
+
+    IF MPI4PY:
+        cdef public MPI.Comm comm
     cdef public int nb_proc, rank
 
     def __cinit__(self, int n0=2, int n1=2, int n2=4):
@@ -94,12 +96,12 @@ cdef class ${class_name}:
 
         if root is None:
             ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
-            self.comm.Allgather(ff_loc, ff_seq)
+            comm.Allgather(ff_loc, ff_seq)
         elif isinstance(root, int):
             ff_seq = None
             if self.rank == root:
                 ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
-            self.comm.Gather(ff_loc, ff_seq, root=root)
+            comm.Gather(ff_loc, ff_seq, root=root)
         else:
             raise ValueError('root should be an int')
         return ff_seq
@@ -111,12 +113,12 @@ cdef class ${class_name}:
 
         if root is None:
             ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
-            self.comm.Scatter(ff_seq, ff_loc, root=0)
+            comm.Scatter(ff_seq, ff_loc, root=0)
         elif isinstance(root, int):
             ff_loc = None
             if self.rank == root:
                 ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
-            self.comm.Scatter(ff_seq, ff_loc, root=root)
+            comm.Scatter(ff_seq, ff_loc, root=root)
         else:
             raise ValueError('root should be an int')
         return ff_loc

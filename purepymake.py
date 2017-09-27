@@ -50,6 +50,11 @@ try:
 except ImportError:
     can_import_cython = False
 
+try:
+    import mpi4py
+    can_import_mpi4py = True
+except ImportError:
+    can_import_mpi4py = False
 
 short_version = '.'.join([str(i) for i in sys.version_info[:2]])
 
@@ -102,7 +107,7 @@ def make_cpp_from_pyx(cpp_file, pyx_file, full_module_name=None, options=None):
             include_path=include_path,
             output_file=cpp_file,
             cplus=True,
-            compile_time_env=None)
+            compile_time_env={'MPI4PY': can_import_mpi4py})
         result = cython_compile(pyx_file, options=options,
                                 full_module_name=full_module_name)
 
@@ -118,13 +123,14 @@ def make_obj_from_cpp(obj_file, cpp_file, options=None):
     if not os.path.exists(obj_file) or \
        modification_date(obj_file) < modification_date(cpp_file):
 
-        keys = ['CC', 'OPT', 'BASECFLAGS', 'CFLAGS', 'CCSHARED']
+        keys = ['CXX', 'OPT', 'BASECFLAGS', 'CFLAGS', 'CCSHARED']
 
         conf_vars = copy(config_vars)
 
         if options is not None:
             for k, v in options.items():
-                conf_vars[k] = v
+                if v is not None:
+                    conf_vars[k] = v
 
         command = ' '.join([conf_vars[k] for k in keys])
 
@@ -164,7 +170,7 @@ def make_obj_from_cpp(obj_file, cpp_file, options=None):
 
 
 def make_ext_from_objs(ext_file, obj_files, lib_dirs=None, libraries=None,
-                       specials=None, options=None):
+                       options=None):
 
     cond = False
     if not os.path.exists(ext_file):
@@ -180,16 +186,16 @@ def make_ext_from_objs(ext_file, obj_files, lib_dirs=None, libraries=None,
         if not os.path.exists(path_dir):
             os.makedirs(path_dir)
 
-        # cxx = config_vars['CXX']
+        cxx = config_vars['CXX']
         ldshared = config_vars['LDSHARED']
-
-        # keys = ['CONFIGURE_LDFLAGS']  # , 'CONFIGURE_CFLAGS']
 
         command = [w for w in ldshared.split()
                    if w not in ['-g']]
 
-        # needed with conda and mpich
-        command[0] = 'mpicxx'
+        if can_import_mpi4py:
+            command[0] = 'mpicxx'
+        else:
+            command[0] = cxx.split()[0]
 
         if 'cufft' in ext_file:
             command = 'nvcc -Xcompiler -pthread -shared'.split()
@@ -206,7 +212,7 @@ def make_ext_from_objs(ext_file, obj_files, lib_dirs=None, libraries=None,
 
 
 def make_extensions(extensions, lib_dirs=None, libraries=None,
-                    special=None, **options):
+                    **options):
 
     if all(command not in sys.argv for command in [
             'build_ext', 'install', 'develop']):

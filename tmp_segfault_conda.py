@@ -28,17 +28,20 @@ nm ~/opt/miniconda3/lib/python3.6/site-packages/numpy/core/../../../../libmkl_in
 
 """
 
-# Uncomment this import to get the segmentation fault
+# Uncomment this import to get the segmentation fault.
+# With this import, mpi_with_fftw1d is also faster because it uses mlk fft.
 # import numpy as np
 
-from fluidfft.fft2d.mpi_with_fftwmpi2d import FFT2DMPIWithFFTWMPI2D as cls
+from fluidfft.fft2d.mpi_with_fftw1d import FFT2DMPIWithFFTW1D as cls
+# from fluidfft.fft2d.mpi_with_fftwmpi2d import FFT2DMPIWithFFTWMPI2D as cls
+
 import numpy as np
 
 
-o = cls(64, 64)
+o = cls(1024, 1024)
 
 # o.run_tests()
-# o.run_benchs()
+o.run_benchs(100)
 
 # a = np.random.random(o.get_local_size_X()).reshape(
 #     o.get_shapeX_loc())
