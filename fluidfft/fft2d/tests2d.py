@@ -12,6 +12,9 @@ from fluiddyn.util import mpi
 from fluidfft.fft2d import get_classes_seq, get_classes_mpi
 from fluidfft.fft2d.operators import OperatorsPseudoSpectral2D
 
+# to check that at least this class can be imported
+import fluidfft.fft2d.with_fftw1d
+
 n = 32
 
 rank = mpi.rank
@@ -20,7 +23,6 @@ nb_proc = mpi.nb_proc
 classes_seq = get_classes_seq()
 classes_seq = {name: cls for name, cls in classes_seq.items()
                if cls is not None}
-
 
 if nb_proc > 1:
     classes_mpi = get_classes_mpi()
@@ -106,10 +108,18 @@ def complete_class(name, cls):
 
 
 if rank == 0:
+    if nb_proc == 1 and len(classes_seq) == 0:
+        raise Exception(
+            'ImportError for all sequential classes. Nothing is working!')
+
     for name, cls in classes_seq.items():
         complete_class(name, cls)
 
 if nb_proc > 1:
+    if len(classes_mpi) == 0:
+        raise Exception(
+            'ImportError for all mpi classes. Nothing is working in mpi!')
+
     for name, cls in classes_mpi.items():
         complete_class(name, cls)
 
