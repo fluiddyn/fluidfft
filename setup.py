@@ -27,8 +27,6 @@ try:
 except KeyError:
     use_mkl_intel_lp64 = False
 
-get_info('mkl')
-
 make_pyx_files()
 
 config = get_config()

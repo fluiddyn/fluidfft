@@ -25,6 +25,9 @@ cdef class ${class_name}:
         self.thisptr.destroy()
         del self.thisptr
 
+    def get_short_name(self):
+        self.__class__.__name__.lower()
+        
     def get_local_size_X(self):
         return self.thisptr.get_local_size_X()
     
@@ -35,7 +38,9 @@ cdef class ${class_name}:
     def run_benchs(self, nb_time_execute=10):
         """Run the c++ benchmarcks"""
         txt = self.thisptr.bench(nb_time_execute).decode()
-        return tuple(float(word) for word in txt.split() if word[0].isdigit())
+        if rank == 0:
+            return tuple(float(word) for word in txt.split()
+                         if word[0].isdigit())
 
     @cython.boundscheck(False)
     @cython.wraparound(False)

@@ -40,7 +40,7 @@ nb_procs.sort()
 keys_times = ['t_fft_cpp', 't_ifft_cpp', 't_fft_as_arg', 't_ifft_as_arg']
 
 for name in names:
-    df_name = df[df['name'] == name]    
+    df_name = df[df['name'] == name]
     times = pd.DataFrame(index=nb_procs, columns=keys_times)
 
     for nb_proc in nb_procs:
@@ -61,7 +61,6 @@ for name, times in times_names.items():
         ax.plot(ts, 'x')
 
 
-    
 # def plot_bench(nb_proc0=1):
 #     df0 = df.loc[df['nb_proc'] == nb_proc0]
 #     t_elapsed0 = df0['t_elapsed'].mean()

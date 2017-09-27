@@ -86,16 +86,16 @@ def pourc(t_slow, t_fast):
 
 def compare_benchs(o, nb_time_execute=10):
 
-    results_ccp = o.run_benchs(nb_time_execute)
+    results_cpp = o.run_benchs(nb_time_execute)
 
     t_fft_as_arg, t_ifft_as_arg = bench_like_cpp_as_arg(o, nb_time_execute)
     t_fft_return, t_ifft_return = bench_like_cpp_return(o, nb_time_execute)
 
-    if len(results_ccp) == 0:
-        # means rank != 0
+    if rank != 0:
         return
 
-    t_fft_cpp, t_ifft_cpp = results_ccp
+    # results_cpp is a tuple of size 2 only if rank == 0
+    t_fft_cpp, t_ifft_cpp = results_cpp
     txt = 'fft is {:4.2f} % slower than cpp'
     print('as_arg ' + txt.format(pourc(t_fft_as_arg, t_fft_cpp)))
     print('as_arg i' + txt.format(pourc(t_ifft_as_arg, t_ifft_cpp)))
@@ -103,7 +103,7 @@ def compare_benchs(o, nb_time_execute=10):
     print('return i' + txt.format(pourc(t_ifft_return, t_ifft_cpp)))
 
     results = {
-        'name': o.__class__.__name__.lower(),
+        'name': o.get_short_name(),
         't_fft_cpp': t_fft_cpp,
         't_ifft_cpp': t_ifft_cpp,
         't_fft_as_arg': t_fft_as_arg,
@@ -130,14 +130,14 @@ def bench_all(n0=1024*2, n1=None):
     t_as_str = time_as_str()
 
     if nb_proc == 1:
-        classes = get_classes_seq().values()
+        classes = get_classes_seq()
     else:
-        classes = get_classes_mpi().values()
+        classes = get_classes_mpi()
 
-    classes = (cls for cls in classes if cls is not None)
+    classes = {k: cls for k, cls in classes.items() if cls is not None}
 
     results_classes = []
-    for FFT2D in classes:
+    for key, FFT2D in sorted(classes.items()):
         results_classes.append(run(FFT2D))
 
     if rank > 0:
