@@ -124,6 +124,7 @@ if config['p3dfft']['use']:
 
 
 on_rtd = os.environ.get('READTHEDOCS')
+on_tox = os.environ.get('TOX_ENV')
 if on_rtd:
     base_names = []
 else:
@@ -216,11 +217,20 @@ if not on_rtd:
         lib_dirs=lib_dirs, libraries=libraries,
         CXX=CXX, CFLAGS='-std=c++03')
 
+    # Clear all purepymake.Extension objects after build is done.
+    ext_modules = []
+
     if use_pythran:
         ext_modules = make_pythran_extensions(
             ['fluidfft.fft2d.util_pythran'])
 else:
     ext_modules = []
+
+
+if on_tox:
+    install_requires=['fluiddyn', 'cython', 'pythran']
+else:
+    install_requires=['fluiddyn']
 
 
 setup(
@@ -259,6 +269,6 @@ setup(
         'Programming Language :: C'],
     packages=find_packages(exclude=[
         'doc', 'include', 'scripts', 'src_cpp', 'src_cy']),
-    install_requires=['fluiddyn'],
+    install_requires=install_requires,
     # cmdclass={'build_ext': build_ext},
     ext_modules=ext_modules)
