@@ -79,11 +79,11 @@ before_script:
       mkdir -p $HOME/.config/matplotlib
       echo 'backend      : agg' > $HOME/.config/matplotlib/matplotlibrc
 
-after_script:
-    - cat .tox/$TOX_ENV/log/*.log
-
 script:
     - tox
+
+after_failure:
+    - cat $TRAVIS_BUILD_DIR/.tox/log/*.log
 
 notifications:
   email: false
