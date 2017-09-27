@@ -59,6 +59,7 @@ addons:
             - gcc-4.9
             - g++-4.9
             - libfftw3-dev
+            - libfftw3-mpi-dev
             - libhdf5-openmpi-dev
             - openmpi-bin
             - libopenblas-dev

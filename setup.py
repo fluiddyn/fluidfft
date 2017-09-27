@@ -234,9 +234,11 @@ else:
 
 
 if on_tox:
-    install_requires=['fluiddyn', 'cython', 'pythran']
+    install_requires = ['fluiddyn', 'cython']
+    if 'pythran' in os.getenv('TOX_ENV'):
+        install_requires += ['pythran']
 else:
-    install_requires=['fluiddyn']
+    install_requires = ['fluiddyn']
 
 
 setup(
@@ -256,7 +258,7 @@ setup(
         # 5 - Production/Stable
         'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
-        'Intended Audience :: Education',
+        'Intended Audience :: Education',#
         'Topic :: Scientific/Engineering',
         'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
         # actually CeCILL License (GPL compatible license for French laws)
