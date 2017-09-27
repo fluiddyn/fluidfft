@@ -79,6 +79,9 @@ before_script:
       mkdir -p $HOME/.config/matplotlib
       echo 'backend      : agg' > $HOME/.config/matplotlib/matplotlibrc
 
+after_script:
+    - cat .tox/$TOX_ENV/log/*.log
+
 script:
     - tox
 
