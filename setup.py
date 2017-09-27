@@ -22,6 +22,12 @@ try:
 except ImportError:
     use_pythran = False
 
+try:
+    use_mkl_intel_lp64 = 'mkl_intel_lp64' in get_info('mkl')['libraries']
+except KeyError:
+    use_mkl_intel_lp64 = False
+
+get_info('mkl')
 
 make_pyx_files()
 
@@ -103,7 +109,7 @@ if config['fftw']['use']:
         'fft3d_with_fftw3d'])
 
 if config['fftw-mpi']['use']:
-    if get_info('mkl'):
+    if use_mkl_intel_lp64:
         warn('When numpy uses mkl (as for example with conda), '
              'there are symbol conflicts between mkl and fftw. '
              'This can lead to a segmentation fault '
