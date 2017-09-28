@@ -13,8 +13,8 @@ dim = '2d'
 hostname = 'cl7'
 hostname = None
 
-n0 = 512
-n1 = 512
+n0 = 1024
+n1 = 1024
 
 dicts = []
 
@@ -48,6 +48,7 @@ df2 = df2[(df['nb_proc'] == 1) &
 df2 = df2[df2.columns.difference(['n0', 'n1', 'nb_proc'])]
 
 df3 = df2.groupby(['name']).mean()
+# df3.plot()
 
 times_names = {}
 names = list(set(df['name']))

@@ -6,7 +6,6 @@ mpirun -np 2 python benchs2d.py
 
 """
 
-
 from __future__ import print_function, division
 
 import os
@@ -196,14 +195,33 @@ def run():
         prog='fluidfft-bench',
         description='Perform benchmarks of fluidfft classes.')
 
+    parser.add_argument('n0', nargs='?', type=int, default=64)
+    parser.add_argument('n1', nargs='?', type=int, default=None)
+    parser.add_argument('n2', nargs='?', type=int, default=None)
+
     parser.add_argument('-V', '--version',
                         action='version',
                         version=__version__)
 
+    parser.add_argument('-d', '--dim', default=None)
+
     args = parser.parse_args()
     print(args)
-    bench_all('2d', 1024//2, 1024//2)
 
-if __name__ == '__main__':
-    bench_all('2d', 1024//2, 1024//2)
-    # bench_all('3d', 64)
+    dim = args.dim
+    n0 = args.n0
+    n1 = args.n1
+    n2 = args.n2
+
+    if n1 is None:
+        n1 = n0
+
+    if dim.lower() in ['3', '3d']:
+        dim = '3d'
+        if n2 is None:
+            n2 = n0
+
+        bench_all(dim, n0, n1, n2)
+    else:
+        dim = '2d'
+        bench_all(dim, n0, n1)
