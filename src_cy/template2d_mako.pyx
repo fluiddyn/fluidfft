@@ -26,7 +26,7 @@ cdef class ${class_name}:
         del self.thisptr
 
     def get_short_name(self):
-        self.__class__.__name__.lower()
+        return self.__class__.__name__.lower()
         
     def get_local_size_X(self):
         return self.thisptr.get_local_size_X()

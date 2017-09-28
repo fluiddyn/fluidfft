@@ -6,13 +6,19 @@ from copy import copy
 import pandas as pd
 import matplotlib.pyplot as plt
 
-key_solver = 'ns2d'
+from .bench import path_results
+
+dim = '2d'
+
 hostname = 'cl7'
 hostname = None
 
+n0 = 512
+n1 = 512
+
 dicts = []
 
-for path in glob('results_bench/result_bench2d*.json'):
+for path in glob(path_results + '/result_bench{}*.json'.format(dim)):
     with open(path) as f:
         d = json.load(f)
     if hostname is not None and not d['hostname'].startswith(hostname):
@@ -29,8 +35,19 @@ for path in glob('results_bench/result_bench2d*.json'):
 
     dicts.extend(ds)
 
-
 df = pd.DataFrame(dicts)
+
+print(df)
+
+df2 = df[df.columns.difference(['hostname', 'pid', 'time_as_str'])]
+
+df2 = df2[(df['nb_proc'] == 1) &
+          (df['n0'] == n0) &
+          (df['n1'] == n1)]
+
+df2 = df2[df2.columns.difference(['n0', 'n1', 'nb_proc'])]
+
+df3 = df2.groupby(['name']).mean()
 
 times_names = {}
 names = list(set(df['name']))

@@ -12,6 +12,7 @@ from __future__ import print_function, division
 import os
 import json
 import socket
+import argparse
 
 try:
     from time import perf_counter as time
@@ -21,10 +22,11 @@ except ImportError:
 
 import numpy as np
 
+from . import __version__
+
 from fluiddyn.util import mpi, time_as_str
 
-from fluidfft.fft2d import get_classes_seq, get_classes_mpi
-
+path_results = '/tmp/fluidfft_bench'
 
 rank = mpi.rank
 nb_proc = mpi.nb_proc
@@ -45,14 +47,14 @@ def bench_like_cpp_as_arg(o, nb_time_execute=10):
 
     t_start = time()
     for i in range(nb_time_execute):
-        fieldK = o.fft_as_arg(fieldX, fieldK)
+        o.fft_as_arg(fieldX, fieldK)
     t_end = time()
     t_fft = (t_end - t_start)/nb_time_execute
     print('time fft_as_arg:  {}'.format(t_fft))
 
     t_start = time()
     for i in range(nb_time_execute):
-        fieldX = o.ifft_as_arg(fieldK, fieldX)
+        o.ifft_as_arg(fieldK, fieldX)
     t_end = time()
     t_ifft = (t_end - t_start)/nb_time_execute
     print('time ifft_as_arg: {}'.format(t_ifft))
@@ -114,17 +116,32 @@ def compare_benchs(o, nb_time_execute=10):
     return results
 
 
-def bench_all(n0=1024*2, n1=None):
+def bench_all(dim='2d', n0=1024*2, n1=None, n2=None):
 
     if n1 is None:
         n1 = n0
 
-    def run(FFT2D):
-        if FFT2D is None:
+    if n2 is None:
+        n2 = n0
+
+    if dim == '2d':
+        from fluidfft.fft2d import get_classes_seq, get_classes_mpi
+        str_grid = '{}x{}'.format(n0, n1)
+    elif dim == '3d':
+        from fluidfft.fft3d import get_classes_seq, get_classes_mpi
+        str_grid = '{}x{}x{}'.format(n0, n1, n2)
+    else:
+        raise ValueError("dim has to be in ['2d', '3d']")
+
+    def run(FFT):
+        if FFT is None:
             return
-        o = FFT2D(n0, n1)
+        if 'fft3d' in FFT.__name__.lower():
+            o = FFT(n0, n1, n2)
+        else:
+            o = FFT(n0, n1)
         o.run_tests()
-        o.run_benchs()
+        # o.run_benchs()
         return compare_benchs(o, nb_time_execute=10)
 
     t_as_str = time_as_str()
@@ -136,20 +153,21 @@ def bench_all(n0=1024*2, n1=None):
 
     classes = {k: cls for k, cls in classes.items() if cls is not None}
 
+    print(classes)
+
     results_classes = []
-    for key, FFT2D in sorted(classes.items()):
-        results_classes.append(run(FFT2D))
+    for key, FFT in sorted(classes.items()):
+        results_classes.append(run(FFT))
 
     if rank > 0:
         return
 
-    path_results = 'results_bench'
     if not os.path.exists(path_results):
-        os.mkdir(path_results)
+        os.makedirs(path_results)
 
     pid = os.getpid()
     nfile = (
-        'result_bench2d_{}x{}'.format(n0, n1) +
+        'result_bench' + dim + '_' + str_grid +
         '_' + t_as_str + '_{}'.format(pid) + '.json')
 
     path = os.path.join(path_results, nfile)
@@ -163,9 +181,29 @@ def bench_all(n0=1024*2, n1=None):
         'hostname': socket.gethostname(),
         'benchmarks_classes': results_classes}
 
+    if dim == '3d':
+        results['n2'] = n2
+
     with open(path, 'w') as f:
         json.dump(results, f, sort_keys=True)
         f.write('\n')
 
+    print('results benchmarks saved in\n' + path)
+
+
+def run():
+    parser = argparse.ArgumentParser(
+        prog='fluidfft-bench',
+        description='Perform benchmarks of fluidfft classes.')
+
+    parser.add_argument('-V', '--version',
+                        action='version',
+                        version=__version__)
+
+    args = parser.parse_args()
+    print(args)
+    bench_all('2d', 1024//2, 1024//2)
+
 if __name__ == '__main__':
-    bench_all(1024//2, 1024//2)
+    bench_all('2d', 1024//2, 1024//2)
+    # bench_all('3d', 64)

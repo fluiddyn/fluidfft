@@ -277,4 +277,6 @@ setup(
         'doc', 'include', 'scripts', 'src_cpp', 'src_cy']),
     install_requires=install_requires,
     # cmdclass={'build_ext': build_ext},
-    ext_modules=ext_modules)
+    ext_modules=ext_modules,
+    entry_points={'console_scripts':
+                  ['fluidfft-bench = fluidfft.bench:run']})
