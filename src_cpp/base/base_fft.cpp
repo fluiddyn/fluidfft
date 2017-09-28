@@ -151,16 +151,15 @@ int BaseFFT::test()
 }
 
 
-const char* BaseFFT::bench(int nb_time_execute)
+void BaseFFT::bench(int nb_time_execute, myreal* times)
 {
   int i;
   struct timeval start_time, end_time;
   myreal time_in_sec;
   myreal* fieldX;
   mycomplex* fieldK;
-  string result("");
   char tmp_char[80];
-  
+
   if (rank == 0) cout << "bench from cpp..." << endl;
 
   this->alloc_array_X(fieldX);
@@ -170,7 +169,6 @@ const char* BaseFFT::bench(int nb_time_execute)
   for (i=0; i<nb_time_execute; i++)
     {
         fft(fieldX, fieldK);
-	// fieldX[0] = i;
     }
   gettimeofday(&end_time, NULL);
 
@@ -178,17 +176,16 @@ const char* BaseFFT::bench(int nb_time_execute)
     {
       time_in_sec = compute_time_in_second(start_time, end_time) /
           nb_time_execute;
+      times[0] = time_in_sec;
       snprintf(tmp_char, sizeof(tmp_char),
 	       "time fft (%s):  %f s\n", this->get_classname(), time_in_sec);
       cout << tmp_char;
-      result.append(tmp_char);
     }
 
   gettimeofday(&start_time, NULL);
   for (i=0; i<nb_time_execute; i++)
     {
         ifft(fieldK, fieldX);
-	// fieldX[0] = i;
     }
   gettimeofday(&end_time, NULL);
 
@@ -199,12 +196,11 @@ const char* BaseFFT::bench(int nb_time_execute)
       snprintf(tmp_char, sizeof(tmp_char),
 	       "time ifft (%s): %f s\n", this->get_classname(), time_in_sec);
       cout << tmp_char;
-      result.append(tmp_char);
+      times[1] = time_in_sec;
     }
   
   free(fieldX);
   free(fieldK);
-  return result.c_str();
 }
 
 void BaseFFT::alloc_array_X(myreal* &fieldX)

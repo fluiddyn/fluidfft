@@ -1,6 +1,6 @@
-SINGLE_PREC:=yes
+SINGLE_PREC:=no
 OMP:=yes
-CUDA:=yes
+CUDA:=no
 PFFT:=no
 P3DFFT:=no
 

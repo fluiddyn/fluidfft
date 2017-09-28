@@ -37,10 +37,10 @@ cdef class ${class_name}:
 
     def run_benchs(self, nb_time_execute=10):
         """Run the c++ benchmarcks"""
-        txt = self.thisptr.bench(nb_time_execute).decode()
+        cdef DTYPEf_t[:] arr = np.empty([2], DTYPEf)
+        self.thisptr.bench(nb_time_execute, &arr[0])
         if rank == 0:
-            return tuple(float(word) for word in txt.split()
-                         if word[0].isdigit())
+            return arr
 
     @cython.boundscheck(False)
     @cython.wraparound(False)

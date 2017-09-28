@@ -6,7 +6,7 @@ cdef extern from "base_fft.h":
 cdef extern from "${module_name}.h":
     cdef cppclass ${class_name}:
         int test()
-        const char* bench(int)
+        void bench(int, double*)
 
         int get_local_size_X()
         int get_local_size_K()

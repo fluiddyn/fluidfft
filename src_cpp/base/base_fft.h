@@ -31,7 +31,7 @@ class BaseFFT
   virtual const char* get_classname();
   
   virtual int test();
-  virtual const char* bench(int nb_time_execute = 10);
+  virtual void bench(int nb_time_execute, myreal* times);
  
   virtual void fft(myreal *fieldX, mycomplex *fieldK);
   virtual void ifft(mycomplex *fieldK, myreal *fieldX);

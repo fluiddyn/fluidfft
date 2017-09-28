@@ -42,6 +42,8 @@ void parse_args(int nb_args, char **argv, int &N0, int &N1)
 int main(int argc, char **argv)
 {
   int N0, N1, nb_procs;
+  myreal* times = new myreal[2];
+  int nt = 10;
 
   parse_args(argc, argv, N0, N1);
   
@@ -51,35 +53,35 @@ int main(int argc, char **argv)
 #ifndef SINGLE_PREC
   FFT2DMPIWithFFTW1D s(N0, N1);
   s.test();
-  s.bench();
-  s.bench();
+  s.bench(nt, times);
+  s.bench(nt, times);
   s.destroy();
 #endif
   FFT2DMPIWithFFTWMPI2D s2(N0, N1);
   s2.test();
-  s2.bench();
-  s2.bench();
+  s2.bench(nt, times);
+  s2.bench(nt, times);
   s2.destroy();
 
   if (nb_procs == 1)
     {
       FFT2DWithFFTW1D s1(N0, N1);
       s1.test();
-      s1.bench();
-      s1.bench();
+      s1.bench(nt, times);
+      s1.bench(nt, times);
       s1.destroy();
 
       FFT2DWithFFTW2D s3(N0, N1);
       s3.test();
-      s3.bench();
-      s3.bench();
+      s3.bench(nt, times);
+      s3.bench(nt, times);
       s3.destroy();
 
 #ifdef CUDA
        FFT2DWithCUFFT s5(N0, N1);
        s5.test();
-       s5.bench();
-       s5.bench();
+       s5.bench(nt, times);
+       s5.bench(nt, times);
        s5.destroy();
 #endif
     }
