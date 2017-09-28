@@ -128,7 +128,7 @@ if config['p3dfft']['use']:
 
 
 on_rtd = os.environ.get('READTHEDOCS')
-on_tox = os.environ.get('TOX_ENV')
+on_tox = os.environ.get('TOXENV')
 if on_rtd:
     base_names = []
 else:
