@@ -232,7 +232,7 @@ else:
 
 
 if on_tox:
-    install_requires = ['fluiddyn', 'cython']
+    install_requires = ['fluiddyn', 'cython', 'mako', 'mpi4py']
     if 'pythran' in os.getenv('TOXENV'):
         install_requires.append('pythran')
 else:
