@@ -233,8 +233,8 @@ else:
 
 if on_tox:
     install_requires = ['fluiddyn', 'cython']
-    if 'pythran' in os.getenv('TOX_ENV'):
-        install_requires += ['pythran']
+    if 'pythran' in os.getenv('TOXENV'):
+        install_requires.append('pythran')
 else:
     install_requires = ['fluiddyn']
 
