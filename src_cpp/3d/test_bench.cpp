@@ -8,6 +8,7 @@ using namespace std;
 
 #include <fft3d_with_fftw3d.h>
 #include <fft3dmpi_with_fftwmpi3d.h>
+#include <fft3dmpi_with_fftw1d.h>
 
 #ifdef PFFT
 #include <fft3dmpi_with_pfft.h>
@@ -59,33 +60,42 @@ void parse_args(int nb_args, char **argv, int &N0, int &N1, int &N2)
 int main(int argc, char **argv)
 {
   int N0, N1, N2, nb_procs;
+  myreal* times = new myreal[2];
+  int nt = 10;
 
   parse_args(argc, argv, N0, N1, N2);
   
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &(nb_procs));
 
-  
+   
   FFT3DMPIWithFFTWMPI3D s(N0, N1, N2);
   s.test();
-  s.bench();
-  s.bench();
+  s.bench(nt, times);
+  s.bench(nt, times);
   s.destroy();
+
+
+  FFT3DMPIWithFFTW1D s1(N0, N1, N2);
+  s1.test();
+  s1.bench(nt, times);
+  s1.bench(nt, times);
+  s1.destroy();
 
   
    if (nb_procs == 1)
     {
        FFT3DWithFFTW3D s4(N0, N1, N2);
        s4.test();
-       s4.bench();
-       s4.bench();
+       s4.bench(nt, times);
+       s4.bench(nt, times);
        s4.destroy();
 
 #ifdef CUDA
        FFT3DWithCUFFT s5(N0, N1, N2);
        s5.test();
-       s5.bench();
-       s5.bench();
+       s5.bench(nt, times);
+       s5.bench(nt, times);
        s5.destroy();
 #endif
     }
@@ -94,15 +104,15 @@ int main(int argc, char **argv)
 #ifdef P3DFFT
      FFT3DMPIWithP3DFFT s2(N0, N1, N2);
      s2.test();
-     s2.bench();
-     s2.bench();
+     s2.bench(nt, times);
+     s2.bench(nt, times);
      s2.destroy();
 #endif
 #ifdef PFFT
     FFT3DMPIWithPFFT s3(N0, N1, N2);
      s3.test();
-     s3.bench();
-     s3.bench();
+     s3.bench(nt, times);
+     s3.bench(nt, times);
      s3.destroy();
 #endif
 

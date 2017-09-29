@@ -1,12 +1,12 @@
 SINGLE_PREC:=no
 OMP:=yes
 CUDA:=no
-PFFT:=yes
-P3DFFT:=yes
+PFFT:=no
+P3DFFT:=no
 
 LD:=mpic++
 CC:=mpic++
-FLAGS:= 
+FLAGS:= -g -O0 -Wall
 LDFLAGS:=
 LIBS:= -ldl -lhwloc -lm -lgfortran
 
@@ -17,7 +17,7 @@ INC_DIR:=-I. -I../base $(IDEV_PATH) -I$(FFTW3_INC_DIR) -I/panfs/panasas/softs/in
 
 
 SOURCES_CPP := $(wildcard base*.cpp)
-SOURCES_CPP += fft3d_with_fftw3d.cpp fft3dmpi_with_fftwmpi3d.cpp test_bench.cpp
+SOURCES_CPP += fft3d_with_fftw3d.cpp fft3dmpi_with_fftw1d.cpp fft3dmpi_with_fftwmpi3d.cpp test_bench.cpp
 
 
 ifeq "$(CUDA)" "yes"
