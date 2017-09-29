@@ -6,7 +6,7 @@ P3DFFT:=no
 
 LD:=mpic++
 CC:=mpic++
-FLAGS:= -g -O0 -Wall
+FLAGS:= #-g -O0 -Wall
 LDFLAGS:=
 LIBS:= -ldl -lhwloc -lm -lgfortran
 
