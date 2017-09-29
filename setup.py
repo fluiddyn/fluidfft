@@ -278,5 +278,7 @@ setup(
     install_requires=install_requires,
     # cmdclass={'build_ext': build_ext},
     ext_modules=ext_modules,
-    entry_points={'console_scripts':
-                  ['fluidfft-bench = fluidfft.bench:run']})
+    entry_points={
+        'console_scripts':
+        ['fluidfft-bench = fluidfft.bench:run',
+         'fluidfft-bench-analysis = fluidfft.bench_analysis:run']})

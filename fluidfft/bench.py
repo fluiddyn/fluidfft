@@ -115,7 +115,7 @@ def compare_benchs(o, nb_time_execute=10):
     return results
 
 
-def bench_all(dim='2d', n0=1024*2, n1=None, n2=None):
+def bench_all(dim='2d', n0=1024*2, n1=None, n2=None, path_dir=path_results):
 
     if n1 is None:
         n1 = n0
@@ -161,15 +161,15 @@ def bench_all(dim='2d', n0=1024*2, n1=None, n2=None):
     if rank > 0:
         return
 
-    if not os.path.exists(path_results):
-        os.makedirs(path_results)
+    if not os.path.exists(path_dir):
+        os.makedirs(path_dir)
 
     pid = os.getpid()
     nfile = (
         'result_bench' + dim + '_' + str_grid +
         '_' + t_as_str + '_{}'.format(pid) + '.json')
 
-    path = os.path.join(path_results, nfile)
+    path = os.path.join(path_dir, nfile)
 
     results = {
         'n0': n0,
@@ -190,6 +190,50 @@ def bench_all(dim='2d', n0=1024*2, n1=None, n2=None):
     print('results benchmarks saved in\n' + path)
 
 
+class MyValueError(ValueError):
+    pass
+
+
+def parse_args_dim(parser):
+
+    args = parser.parse_args()
+
+    dim = args.dim
+    n0 = args.n0
+    n1 = args.n1
+    n2 = args.n2
+
+    if dim is None:
+        if n0 is not None and n1 is not None and n2 is None:
+            dim = '2d'
+        elif n0 is not None and n1 is not None and n2 is not None:
+            dim = '3d'
+        else:
+            print(
+                'Cannot determine which shape you want to use for this bench '
+                "('2d' or '3d')")
+            raise MyValueError
+
+    if dim.lower() in ['3', '3d']:
+        if n2 is None:
+            n2 = n0
+        dim = '3d'
+    elif dim.lower() in ['2', '2d']:
+        dim = '2d'
+    else:
+        raise ValueError('dim should not be {}'.format(dim))
+
+    if n1 is None:
+        n1 = n0
+
+    args.dim = dim
+    args.n0 = n0
+    args.n1 = n1
+    args.n2 = n2
+
+    return args
+
+
 def run():
     parser = argparse.ArgumentParser(
         prog='fluidfft-bench',
@@ -205,23 +249,15 @@ def run():
 
     parser.add_argument('-d', '--dim', default=None)
 
-    args = parser.parse_args()
-    print(args)
+    parser.add_argument('-o', '--output_dir', default=path_results)
 
-    dim = args.dim
-    n0 = args.n0
-    n1 = args.n1
-    n2 = args.n2
+    try:
+        args = parse_args_dim(parser)
+    except MyValueError:
+        return
 
-    if n1 is None:
-        n1 = n0
-
-    if dim.lower() in ['3', '3d']:
-        dim = '3d'
-        if n2 is None:
-            n2 = n0
-
-        bench_all(dim, n0, n1, n2)
+    if args.dim == '3d':
+        bench_all(args.dim, args.n0, args.n1, args.n2,
+                  path_dir=args.output_dir)
     else:
-        dim = '2d'
-        bench_all(dim, n0, n1)
+        bench_all(args.dim, args.n0, args.n1, path_dir=args.output_dir)
