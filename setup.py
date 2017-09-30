@@ -104,7 +104,7 @@ base_names = []
 if config['fftw']['use']:
     base_names.extend([
         'fft2d_with_fftw1d', 'fft2d_with_fftw2d', 'fft2dmpi_with_fftw1d',
-        'fft3d_with_fftw3d'])
+        'fft3d_with_fftw3d', 'fft3dmpi_with_fftw1d'])
 
 if config['fftw-mpi']['use']:
     if use_mkl_intel_lp64:

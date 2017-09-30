@@ -39,7 +39,7 @@ except ImportError:
 methods_seq = ['fftw3d']
 methods_seq = ['fft3d.with_' + method for method in methods_seq]
 
-methods_mpi = ['fftwmpi3d', 'p3dfft', 'pfft']
+methods_mpi = ['fftw1d', 'fftwmpi3d', 'p3dfft', 'pfft']
 methods_mpi = ['fft3d.mpi_with_' + method for method in methods_mpi]
 
 

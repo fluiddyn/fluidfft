@@ -67,6 +67,7 @@ def make_pyx_files():
         ('fft2dmpi_with_fftw1d', 'FFT2DMPIWithFFTW1D'),
         ('fft2dmpi_with_fftwmpi2d', 'FFT2DMPIWithFFTWMPI2D'),
         ('fft3d_with_fftw3d', 'FFT3DWithFFTW3D'),
+        ('fft3dmpi_with_fftw1d', 'FFT3DMPIWithFFTW1D'),
         ('fft3dmpi_with_fftwmpi3d', 'FFT3DMPIWithFFTWMPI3D'),
         ('fft3dmpi_with_pfft', 'FFT3DMPIWithPFFT'),
         ('fft3dmpi_with_p3dfft', 'FFT3DMPIWithP3DFFT'),

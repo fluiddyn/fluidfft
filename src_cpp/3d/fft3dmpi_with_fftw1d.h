@@ -20,9 +20,11 @@ class FFT3DMPIWithFFTW1D: public BaseFFT3DMPI
   
   myreal compute_energy_from_X(myreal* fieldX);
   myreal compute_energy_from_K(mycomplex* fieldK);
-  myreal sum_wavenumbers(myreal* fieldK);
   myreal compute_mean_from_X(myreal* fieldX);
   myreal compute_mean_from_K(mycomplex* fieldK);
+
+  myreal sum_wavenumbers_double(myreal* fieldK);
+  void sum_wavenumbers_complex(mycomplex* fieldK, mycomplex* result);
 
   void init_array_X_random(myreal* &fieldX);
 
