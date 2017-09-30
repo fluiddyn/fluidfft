@@ -109,7 +109,7 @@ int main(int argc, char **argv)
      s2.destroy();
 #endif
 #ifdef PFFT
-    FFT3DMPIWithPFFT s3(16, 16, 4);
+    FFT3DMPIWithPFFT s3(N0, N1, N2);
      s3.test();
      s3.bench(nt, times);
      s3.bench(nt, times);

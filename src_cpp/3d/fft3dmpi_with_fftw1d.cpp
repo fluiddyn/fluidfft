@@ -38,12 +38,19 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2):
   nX1 = N1;
   nX2 = N2;
   nX0loc = N0/nb_proc;
+
   nXzloc = nX0loc;
 
   nKx = nx/2;
   nKxloc = (nKx)/nb_proc;
   nKy = ny;
   nKz = nz;
+
+  if (((nX0loc == 0) || (nKxloc == 0)) and (rank == 0))
+  {
+    cout << "Warning: number of mpi processus not coherent with dimension of the problem!" << endl;
+    exit;
+  }
 
   /* This 3D fft is transposed */
   is_transposed = 1;
