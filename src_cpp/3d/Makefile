@@ -1,8 +1,8 @@
 SINGLE_PREC:=no
 OMP:=yes
-CUDA:=no
-PFFT:=no
-P3DFFT:=no
+CUDA:=yes
+PFFT:=yes
+P3DFFT:=yes
 
 LD:=mpic++
 CC:=mpic++
@@ -26,7 +26,7 @@ SOURCES_CU := $(wildcard *.cu)
 FLAGS+=-DCUDA
 FLAGS_CU:=-m64 -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_32,code=sm_32 -gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_50,code=compute_50
 LD:=nvcc
-LIBS+=-lcufft -lmpi_cxx -lmpi -lmpi_f77 $(LDEV_PATH) -laf
+LIBS+=-lcufft -lmpi_cxx -lmpi -lmpi_f77 $(LDEV_PATH) #-laf
 INC_DIR_CU:=-I/usr/lib/openmpi/include -I/usr/lib/openmpi/include/openmpi -I$(CPATH)
 INC_DIR+=-I/opt/cuda/NVIDIA_CUDA-6.0_Samples/common/inc/
 endif
@@ -131,3 +131,6 @@ test:
 
 testmpi:
 	mpirun -np 4 ./test_bench.out --N0=64 --N1=32 --N2=16
+	mpirun -np 4 ./test_bench.out --N0=16 --N1=16 --N2=4
+	mpirun -np 4 ./test_bench.out --N0=4 --N1=16 --N2=16
+	mpirun -np 4 ./test_bench.out --N0=16 --N1=4 --N2=16

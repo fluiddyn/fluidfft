@@ -231,28 +231,31 @@ myreal FFT3DMPIWithPFFT::compute_energy_from_K(mycomplex* fieldK)
     for (i2=0; i2<nK2; i2++)
       energy_tmp += (double) pow(cabs(fieldK[i2 + (i0*nK1loc)*nK2]), 2);
 
-  if (local_K1_start == 0)
+  if ((local_K1_start == 0) || (nK1loc == 1 and local_K1_start + nK1loc == nK1))
     energy_loc = energy_tmp/2;
   else
     energy_loc = energy_tmp;
 
-  // modes i1_seq = iKx = last = nK1 - 1
-  i1 = nK1loc - 1;
-  energy_tmp = 0;
-  for (i0=0; i0<nK0loc; i0++)
-    for (i2=0; i2<nK2; i2++)
-      energy_tmp += (double) pow(cabs(fieldK[i2 + (i1 + i0*nK1loc)*nK2]), 2);
-
-  if (N1%2 == 0 and local_K1_start + nK1loc == nK1)
-      energy_loc += energy_tmp/2;
-  else
-    energy_loc += energy_tmp;
-  
-  // other modes
-  for (i0=0; i0<nK0loc; i0++)
-    for (i1=1; i1<nK1loc-1; i1++)
+  if (nK1loc != 1)
+  {
+    // modes i1_seq = iKx = last = nK1 - 1
+    i1 = nK1loc - 1;
+    energy_tmp = 0;
+    for (i0=0; i0<nK0loc; i0++)
       for (i2=0; i2<nK2; i2++)
-	energy_loc += (double) pow(cabs(fieldK[i2 + (i1 + i0*nK1loc)*nK2]), 2);
+        energy_tmp += (double) pow(cabs(fieldK[i2 + (i1 + i0*nK1loc)*nK2]), 2);
+
+    if (N1%2 == 0 and local_K1_start + nK1loc == nK1)
+      energy_loc += energy_tmp/2;
+    else
+      energy_loc += energy_tmp;
+  
+    // other modes
+    for (i0=0; i0<nK0loc; i0++)
+      for (i1=1; i1<nK1loc-1; i1++)
+        for (i2=0; i2<nK2; i2++)
+          energy_loc += (double) pow(cabs(fieldK[i2 + (i1 + i0*nK1loc)*nK2]), 2);
+  }
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
@@ -273,28 +276,31 @@ myreal FFT3DMPIWithPFFT::sum_wavenumbers_double(myreal* fieldK)
     for (i2=0; i2<nK2; i2++)
       sum_tmp += (double) fieldK[i2 + (i0*nK1loc)*nK2];
 
-  if (local_K1_start == 0)
+  if ((local_K1_start == 0) || (nK1loc == 1 and local_K1_start + nK1loc == nK1))
     sum_loc = sum_tmp/2;
   else
     sum_loc = sum_tmp;
 
-  // modes i1_seq = iKx = last = nK1 - 1
-  i1 = nK1loc - 1;
-  sum_tmp = 0;
-  for (i0=0; i0<nK0loc; i0++)
-    for (i2=0; i2<nK2; i2++)
-      sum_tmp += (double) fieldK[i2 + (i1 + i0*nK1loc)*nK2];
-
-  if (N1%2 == 0 and local_K1_start + nK1loc == nK1)
-      sum_loc += sum_tmp/2;
-  else
-    sum_loc += sum_tmp;
-  
-  // other modes
-  for (i0=0; i0<nK0loc; i0++)
-    for (i1=1; i1<nK1loc-1; i1++)
+  if (nK1loc != 1)
+  {
+    // modes i1_seq = iKx = last = nK1 - 1
+    i1 = nK1loc - 1;
+    sum_tmp = 0;
+    for (i0=0; i0<nK0loc; i0++)
       for (i2=0; i2<nK2; i2++)
-	sum_loc += (double) fieldK[i2 + (i1 + i0*nK1loc)*nK2];
+        sum_tmp += (double) fieldK[i2 + (i1 + i0*nK1loc)*nK2];
+
+    if (N1%2 == 0 and local_K1_start + nK1loc == nK1)
+        sum_loc += sum_tmp/2;
+    else
+      sum_loc += sum_tmp;
+  
+    // other modes
+    for (i0=0; i0<nK0loc; i0++)
+      for (i1=1; i1<nK1loc-1; i1++)
+        for (i2=0; i2<nK2; i2++)
+	  sum_loc += (double) fieldK[i2 + (i1 + i0*nK1loc)*nK2];
+  }
 
   MPI_Allreduce(&sum_loc, &sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
@@ -323,28 +329,31 @@ void FFT3DMPIWithPFFT::sum_wavenumbers_complex(
     for (i2=0; i2<nK2; i2++)
       sum_tmp += fieldK[i2 + (i0*nK1loc)*nK2];
 
-  if (local_K1_start == 0)
+  if ((local_K1_start == 0) || (nK1loc == 1 and local_K1_start + nK1loc == nK1))
     sum_loc = sum_tmp/2;
   else
     sum_loc = sum_tmp;
 
-  // modes i1_seq = iKx = last = nK1 - 1
-  i1 = nK1loc - 1;
-  sum_tmp = 0;
-  for (i0=0; i0<nK0loc; i0++)
-    for (i2=0; i2<nK2; i2++)
-      sum_tmp += fieldK[i2 + (i1 + i0*nK1loc)*nK2];
-
-  if (N1%2 == 0 and local_K1_start + nK1loc == nK1)
-      sum_loc += sum_tmp/2;
-  else
-    sum_loc += sum_tmp;
-  
-  // other modes
-  for (i0=0; i0<nK0loc; i0++)
-    for (i1=1; i1<nK1loc-1; i1++)
+  if (nK1loc != 1)
+  {
+    // modes i1_seq = iKx = last = nK1 - 1
+    i1 = nK1loc - 1;
+    sum_tmp = 0;
+    for (i0=0; i0<nK0loc; i0++)
       for (i2=0; i2<nK2; i2++)
-	sum_loc += fieldK[i2 + (i1 + i0*nK1loc)*nK2];
+        sum_tmp += fieldK[i2 + (i1 + i0*nK1loc)*nK2];
+
+    if (N1%2 == 0 and local_K1_start + nK1loc == nK1)
+      sum_loc += sum_tmp/2;
+    else
+      sum_loc += sum_tmp;
+  
+    // other modes
+    for (i0=0; i0<nK0loc; i0++)
+      for (i1=1; i1<nK1loc-1; i1++)
+        for (i2=0; i2<nK2; i2++)
+	  sum_loc += fieldK[i2 + (i1 + i0*nK1loc)*nK2];
+  }
 
   MPI_Allreduce(&sum_loc, &sum, 1, MPI_COMPLEX, MPI_SUM, MPI_COMM_WORLD);
 

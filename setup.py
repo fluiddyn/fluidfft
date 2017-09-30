@@ -7,14 +7,25 @@ from runpy import run_path
 from datetime import datetime
 
 from distutils.sysconfig import get_config_var
+from warnings import warn
 from setuptools import setup, find_packages
+from setuptools.dist import Distribution
+
+# Bootstrapping dependencies required for the setup
+setup_requires = ['numpy', 'cython', 'mako']
+on_tox = os.environ.get('TOXENV')
+if on_tox:
+    setup_requires.append('mpi4py')
+    if 'pythran' in os.getenv('TOXENV'):
+        setup_requires.extend(['networkx>=1.5, <2.0', 'pythran'])
+
+Distribution(dict(setup_requires=setup_requires))
+
+from numpy.distutils.system_info import get_info
 
 from purepymake import Extension, make_extensions
 from config import get_config
 from src_cy.make_files_with_mako import make_pyx_files
-
-from numpy.distutils.system_info import get_info
-from warnings import warn
 
 try:
     from pythran.dist import PythranExtension
@@ -128,7 +139,6 @@ if config['p3dfft']['use']:
 
 
 on_rtd = os.environ.get('READTHEDOCS')
-on_tox = os.environ.get('TOXENV')
 if on_rtd:
     base_names = []
 else:
@@ -160,9 +170,9 @@ def update_with_config(key):
         path = cfg['dir']
         include_dirs.add(os.path.join(path, 'include'))
         lib_dirs.add(os.path.join(path, 'lib'))
-    elif len(cfg['include_dir']) > 0:
+    if len(cfg['include_dir']) > 0:
         include_dirs.add(cfg['include_dir'])
-    elif len(cfg['library_dir']) > 0:
+    if len(cfg['library_dir']) > 0:
         lib_dirs.add(cfg['library_dir'])
 
 
@@ -184,7 +194,7 @@ for base_name in base_names:
         libraries.add('p3dfft')
         update_with_config('p3dfft')
     elif 'cufft' in base_name:
-        libraries.add('cufft')
+        libraries.update(['cufft', 'mpi_cxx'])
         update_with_config('cufft')
 
 
@@ -231,14 +241,6 @@ else:
     ext_modules = []
 
 
-if on_tox:
-    install_requires = ['fluiddyn', 'cython', 'mako', 'mpi4py']
-    if 'pythran' in os.getenv('TOXENV'):
-        install_requires.append('pythran')
-else:
-    install_requires = ['fluiddyn']
-
-
 setup(
     name='fluidfft',
     version=__version__,
@@ -275,7 +277,7 @@ setup(
         'Programming Language :: C'],
     packages=find_packages(exclude=[
         'doc', 'include', 'scripts', 'src_cpp', 'src_cy']),
-    install_requires=install_requires,
+    install_requires=['fluiddyn'],
     # cmdclass={'build_ext': build_ext},
     ext_modules=ext_modules,
     entry_points={

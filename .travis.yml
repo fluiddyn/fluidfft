@@ -80,7 +80,7 @@ before_script:
       echo 'backend      : agg' > $HOME/.config/matplotlib/matplotlibrc
 
 script:
-    - tox
+    - tox -vv
 
 after_failure:
     - cat $TRAVIS_BUILD_DIR/.tox/log/*.log

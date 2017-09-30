@@ -34,6 +34,12 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2):
   nKy = ny;
   nKz = nz;
 
+  if (((nX0loc == 0) || (nKxloc == 0)) and (rank == 0))
+  {
+    cout << "Warning: number of mpi processus not coherent with dimension of the problem!" << endl;
+    exit;
+  }
+
   /* This 3D fft is transposed */
   is_transposed = 1;
   nK0 = nKx;
@@ -283,8 +289,6 @@ void FFT3DMPIWithFFTW1D::sum_wavenumbers_complex(
 
   *result = sum_tot;
 }
-
-
 
 
 myreal FFT3DMPIWithFFTW1D::compute_mean_from_X(myreal* fieldX)
