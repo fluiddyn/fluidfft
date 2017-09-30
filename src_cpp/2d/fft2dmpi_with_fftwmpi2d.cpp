@@ -1,15 +1,4 @@
 
-
-#include <iostream>
-using namespace std;
-
-#include <stdlib.h>
-
-#include <sys/time.h>
-
-#include <complex.h>
-#include <fftw3-mpi.h>
-
 #include <fft2dmpi_with_fftwmpi2d.h>
 
 FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1):

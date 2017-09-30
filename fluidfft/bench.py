@@ -152,8 +152,6 @@ def bench_all(dim='2d', n0=1024*2, n1=None, n2=None, path_dir=path_results):
 
     classes = {k: cls for k, cls in classes.items() if cls is not None}
 
-    print(classes)
-
     results_classes = []
     for key, FFT in sorted(classes.items()):
         results_classes.append(run(FFT))

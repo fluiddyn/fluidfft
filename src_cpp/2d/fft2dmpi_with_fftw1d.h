@@ -1,9 +1,4 @@
 
-#include <complex.h>
-#include <fftw3.h>
-
-#include <mpi.h>
-
 #include <base_fft2dmpi.h>
 
 class FFT2DMPIWithFFTW1D: public BaseFFT2DMPI

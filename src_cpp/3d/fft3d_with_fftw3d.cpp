@@ -1,19 +1,4 @@
 
-
-#include <iostream>
-using namespace std;
-
-#include <stdlib.h>
-
-#include <sys/time.h>
-
-#include <complex.h>
-#include <fftw3.h>
-
-#ifdef OMP
-#include <omp.h>
-#endif
-
 #include <fft3d_with_fftw3d.h>
 
 FFT3DWithFFTW3D::FFT3DWithFFTW3D(int argN0, int argN1, int argN2):

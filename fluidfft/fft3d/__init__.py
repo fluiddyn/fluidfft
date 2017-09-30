@@ -11,6 +11,8 @@ classes depend on how fluidfft has been compiled.
 
 - `fluidfft3d.mpi_with_fftwmpi3d.FFT3DMPIWithFFTWMPI3D`
 
+- `fluidfft3d.mpi_with_fftwmpi3d.FFT3DMPIWithFFTW1D`
+
 - `fluidfft3d.mpi_with_pfft.FFT3DMPIWithPFFT`
 
 - `fluidfft3d.mpi_with_p3dfft.FFT3DMPIWithP3DFFT` (do not work -> need .so)
@@ -39,7 +41,7 @@ except ImportError:
 methods_seq = ['fftw3d']
 methods_seq = ['fft3d.with_' + method for method in methods_seq]
 
-methods_mpi = ['fftwmpi3d', 'p3dfft', 'pfft']
+methods_mpi = ['fftwmpi3d', 'fftw1d', 'p3dfft', 'pfft']
 methods_mpi = ['fft3d.mpi_with_' + method for method in methods_mpi]
 
 

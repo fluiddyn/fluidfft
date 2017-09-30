@@ -1,17 +1,5 @@
 
 
-#include <iostream>
-using namespace std;
-
-#include <stdlib.h>
-
-#include <sys/time.h>
-
-#include <complex.h>
-#include <fftw3.h>
-
-#include <mpi.h>
-
 #include <fft3dmpi_with_fftw1d.h>
 
 
@@ -38,6 +26,7 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2):
   nX1 = N1;
   nX2 = N2;
   nX0loc = N0/nb_proc;
+  nX1loc = N1;
   nXzloc = nX0loc;
 
   nKx = nx/2;
@@ -50,6 +39,7 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2):
   nK0 = nKx;
   nK0loc = nKxloc;
   nK1 = N1;
+  nK1loc = N1;
   nK2 = N0;
   coef_norm = N0*N1*N2;
 
@@ -179,12 +169,6 @@ void FFT3DMPIWithFFTW1D::destroy(void)
 }
 
 
-FFT3DMPIWithFFTW1D::~FFT3DMPIWithFFTW1D(void)
-{
-  // cout << "Object is being deleted" << endl;
-}
-
-
 char const* FFT3DMPIWithFFTW1D::get_classname()
 { return "FFT3DMPIWithFFTW1D";}
 
@@ -238,7 +222,7 @@ myreal FFT3DMPIWithFFTW1D::compute_energy_from_K(mycomplex* fieldK)
 }
 
 
-myreal FFT3DMPIWithFFTW1D::sum_wavenumbers(myreal* fieldK)
+myreal FFT3DMPIWithFFTW1D::sum_wavenumbers_double(myreal* fieldK)
 {
   int i0, i1, i2;
   myreal sum_loc = 0;
@@ -266,6 +250,38 @@ myreal FFT3DMPIWithFFTW1D::sum_wavenumbers(myreal* fieldK)
   // cout << "mean= " << sum_tot << endl;  
 
   return sum_tot;
+}
+
+
+void FFT3DMPIWithFFTW1D::sum_wavenumbers_complex(
+    mycomplex* fieldK, mycomplex* result)
+{
+  int i0, i1, i2;
+  mycomplex sum_loc = 0;
+  mycomplex sum_tmp = 0;
+  mycomplex sum_tot;
+
+  // modes i0 = iKx = 0
+  i0 = 0;
+  for (i1=0; i1<nK1; i1++)
+    for (i2=0; i2<nK2; i2++)
+      sum_tmp += fieldK[i2 + i1*nK2];
+  
+  if (rank == 0)  // i.e. if iKx == 0
+    sum_loc = sum_tmp/2;
+  else
+    sum_loc = sum_tmp;
+
+  // other modes
+  for (i0=1; i0<nK0loc; i0++)
+    for (i1=0; i1<nK1; i1++)
+      for (i2=0; i2<nK2; i2++)
+        sum_loc += fieldK[i2 + i1*nK2 + i0*nK1*nK2];
+
+  MPI_Allreduce(&sum_loc, &sum_tot, 1, MPI_COMPLEX, MPI_SUM, MPI_COMM_WORLD);
+  // cout << "mean= " << sum_tot << endl;  
+
+  *result = sum_tot;
 }
 
 
@@ -366,3 +382,9 @@ int FFT3DMPIWithFFTW1D::get_local_size_X()
   return nX0loc * nX1 * nX2;
 }
 
+void FFT3DMPIWithFFTW1D::get_dimX_K(int *d0, int *d1, int *d2)
+{
+  *d0 = 2;
+  *d1 = 1;
+  *d2 = 0;
+}

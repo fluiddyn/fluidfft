@@ -7,9 +7,6 @@ using namespace std;
 
 #include <sys/time.h>
 
-#include <complex.h>
-#include <fftw3-mpi.h>
-
 #ifdef OMP
 #include <omp.h>
 #endif
@@ -150,11 +147,6 @@ void FFT3DMPIWithFFTWMPI3D::destroy(void)
   fftw_cleanup_threads();
 #endif
 #endif
-}
-
-
-FFT3DMPIWithFFTWMPI3D::~FFT3DMPIWithFFTWMPI3D(void)
-{
 }
 
 

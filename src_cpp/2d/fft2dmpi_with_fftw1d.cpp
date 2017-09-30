@@ -1,16 +1,5 @@
 
 
-#include <iostream>
-using namespace std;
-
-#include <stdlib.h>
-
-#include <sys/time.h>
-
-#include <complex.h>
-#include <fftw3.h>
-
-#include <mpi.h>
 
 #include <fft2dmpi_with_fftw1d.h>
 

@@ -8,9 +8,6 @@ using namespace std;
 
 #include <sys/time.h>
 
-#include <complex.h>
-#include <fftw3.h>
-
 #include <fft2d_with_fftw1d.h>
 
 

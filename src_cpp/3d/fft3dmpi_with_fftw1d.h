@@ -1,16 +1,10 @@
 
-#include <complex.h>
-#include <fftw3.h>
-
-#include <mpi.h>
-
 #include <base_fft3dmpi.h>
 
 class FFT3DMPIWithFFTW1D: public BaseFFT3DMPI
 {
  public:
   FFT3DMPIWithFFTW1D(int N0, int N1, int N2);
-  ~FFT3DMPIWithFFTW1D();
   void destroy();
   
   virtual const char* get_classname();
@@ -20,7 +14,10 @@ class FFT3DMPIWithFFTW1D: public BaseFFT3DMPI
   
   myreal compute_energy_from_X(myreal* fieldX);
   myreal compute_energy_from_K(mycomplex* fieldK);
-  myreal sum_wavenumbers(myreal* fieldK);
+
+  myreal sum_wavenumbers_double(myreal* fieldK);
+  void sum_wavenumbers_complex(mycomplex* fieldK, mycomplex* result);
+  
   myreal compute_mean_from_X(myreal* fieldX);
   myreal compute_mean_from_K(mycomplex* fieldK);
 
@@ -28,6 +25,8 @@ class FFT3DMPIWithFFTW1D: public BaseFFT3DMPI
 
   int get_local_size_K();
   int get_local_size_X();
+
+  void get_dimX_K(int*, int*, int*);
 
   char is_transposed;
   ptrdiff_t local_X0_start, local_K0_start;
@@ -40,7 +39,6 @@ class FFT3DMPIWithFFTW1D: public BaseFFT3DMPI
   mycomplex *arrayK_pR, *arrayK_pC;
 
   unsigned flags;
-  MPI_Datatype MPI_type_column, MPI_type_block, MPI_type_block1, MPI_type_block2; 
-
+  MPI_Datatype MPI_type_column, MPI_type_block, MPI_type_block1, MPI_type_block2;
 
 };

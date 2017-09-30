@@ -1,7 +1,4 @@
 
-#include <complex.h>
-#include <fftw3.h>
-
 #include <base_fft3d.h>
 
 class FFT3DWithFFTW3D: public BaseFFT3D

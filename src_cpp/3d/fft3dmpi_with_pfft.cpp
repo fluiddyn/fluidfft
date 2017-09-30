@@ -1,15 +1,4 @@
 
-
-#include <iostream>
-using namespace std;
-
-#include <stdlib.h>
-
-#include <sys/time.h>
-
-#include <complex.h>
-#include <pfft.h>
-
 #include <fft3dmpi_with_pfft.h>
 
 FFT3DMPIWithPFFT::FFT3DMPIWithPFFT(int argN0, int argN1, int argN2):

@@ -2,14 +2,26 @@
 #ifndef _CLASS_BaseFFT
 #define _CLASS_BaseFFT
 
-#include <string.h>
+#ifdef OMP
+#include <omp.h>
+#endif
 
+#include <sys/time.h>
+
+/* It seems that we need these strange includes in this order to use fftw3 in
+   cpp (?) */
 #include <complex.h>
 #include <fftw3.h>
 
-//#include <math.h>
 #include <complex>
 using std::complex;
+
+#include <cstdlib>
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
 
 #ifdef SINGLE_PREC
   typedef float myreal;

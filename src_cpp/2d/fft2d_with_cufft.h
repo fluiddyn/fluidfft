@@ -1,5 +1,5 @@
 
-#include <stdio.h>
+/* #include <stdio.h> */
 #include <complex.h>
 #include <cuda_runtime.h>
 #include <cufft.h>

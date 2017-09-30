@@ -1,10 +1,4 @@
 #include <p3dfft.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <complex.h>
-#include <fftw3-mpi.h>
-
 #include <base_fft3dmpi.h>
 
 class FFT3DMPIWithP3DFFT: public BaseFFT3DMPI

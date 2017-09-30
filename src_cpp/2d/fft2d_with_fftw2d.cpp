@@ -1,15 +1,4 @@
 
-
-#include <iostream>
-using namespace std;
-
-#include <stdlib.h>
-
-#include <sys/time.h>
-
-#include <complex.h>
-#include <fftw3.h>
-
 #include <fft2d_with_fftw2d.h>
 
 
