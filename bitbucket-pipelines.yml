@@ -13,4 +13,4 @@ pipelines:
           - pip install -U mako
           - pip --version
           - tox --version
-          - tox -e py27-pythran,py36-pythran,codecov
+          - tox -e py27-pythran,py36-pythran,codecov -vv

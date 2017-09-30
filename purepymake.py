@@ -38,6 +38,7 @@ from datetime import datetime
 from distutils import sysconfig
 import subprocess
 from copy import copy
+import importlib
 
 config_vars = sysconfig.get_config_vars()
 
@@ -64,6 +65,34 @@ path_lib_python = os.path.join(sys.prefix, 'lib', 'python' + short_version)
 
 path_tmp = 'build/temp.' + '-'.join(
     [platform.system().lower(), platform.machine(), short_version])
+
+
+def can_import(pkg):
+    try:
+        importlib.import_module(pkg)
+    except ImportError:
+        return False
+    else:
+        return True
+
+
+def check_deps():
+    def check_and_print(pkg='', result=None):
+        if result is None:
+            result = can_import(pkg)
+
+        print('{} installed: '.format(pkg).rjust(25) + repr(result))
+
+    print('*' * 40)
+    check_and_print('numpy')
+    check_and_print('mpi4py', can_import_mpi4py)
+    check_and_print('cython', can_import_cython)
+    check_and_print('pythran')
+    check_and_print('mako')
+    print('*' * 40)
+
+
+check_deps()
 
 
 def modification_date(filename):
