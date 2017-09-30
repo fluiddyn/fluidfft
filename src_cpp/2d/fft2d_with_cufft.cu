@@ -119,14 +119,12 @@ myreal FFT2DWithCUFFT::compute_energy_from_X(myreal* fieldX)
   myreal energy1;
 
   for (ii=0; ii<nX0; ii++)
-    {
+  {
     energy1=0.;
     for (jj=0; jj<nX1; jj++)
-      {
       energy1 += pow(fieldX[ii*nX1+jj], 2);
-      }
     energy += energy1 / nX1;
-    }
+  }
   //cout << "energyX=" << energy / nX0 / 2 << endl;
 
   return energy / nX0 / 2;
@@ -143,12 +141,13 @@ myreal FFT2DWithCUFFT::compute_energy_from_K(mycomplex* fieldK)
   for (i0=0; i0<nK0; i0++)
     energy += (double) pow(cabs(fieldK[i1 + i0*nK1]), 2);//we must divide by 2 ==> after
 
+  if (nK1%2 != 0)
     energy *= 0.5;//divide by 2!!!
 
   // other modes
   for (i0=0; i0<nK0; i0++)
     for (i1=1; i1<nK1-1; i1++)
-        energy += (double) pow(cabs(fieldK[i1 + i0*nK1]), 2);
+      energy += (double) pow(cabs(fieldK[i1 + i0*nK1]), 2);
     
   // modes i1_seq = iKx = 0
   i1 = 0;
@@ -179,7 +178,7 @@ myreal FFT2DWithCUFFT::sum_wavenumbers(myreal* fieldK)
   // other modes
   for (i0=0; i0<nK0; i0++)
     for (i1=1; i1<nK1-1; i1++)
-        sum_tot += (double) fieldK[i1 + i0*nK1];
+      sum_tot += (double) fieldK[i1 + i0*nK1];
     
   // modes i1_seq = iKx = 0
   i1 = 0;
