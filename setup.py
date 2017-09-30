@@ -170,9 +170,9 @@ def update_with_config(key):
         path = cfg['dir']
         include_dirs.add(os.path.join(path, 'include'))
         lib_dirs.add(os.path.join(path, 'lib'))
-    elif len(cfg['include_dir']) > 0:
+    if len(cfg['include_dir']) > 0:
         include_dirs.add(cfg['include_dir'])
-    elif len(cfg['library_dir']) > 0:
+    if len(cfg['library_dir']) > 0:
         lib_dirs.add(cfg['library_dir'])
 
 
@@ -194,7 +194,7 @@ for base_name in base_names:
         libraries.add('p3dfft')
         update_with_config('p3dfft')
     elif 'cufft' in base_name:
-        libraries.add('cufft')
+        libraries.update(['cufft', 'mpi_cxx'])
         update_with_config('cufft')
 
 
