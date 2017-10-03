@@ -1,7 +1,6 @@
 
-#include <pfft.h>
 #include <base_fft3dmpi.h>
-
+#include <pfft.h>
 
 class FFT3DMPIWithPFFT: public BaseFFT3DMPI
 {

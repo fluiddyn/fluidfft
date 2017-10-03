@@ -1,11 +1,11 @@
 
 
-#include <iostream>
-using namespace std;
+// #include <iostream>
+// using namespace std;
 
-#include <stdlib.h>
+// #include <stdlib.h>
 
-#include <sys/time.h>
+// #include <sys/time.h>
 
 #include <fft3dmpi_with_p3dfft.h>
 

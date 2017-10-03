@@ -42,6 +42,8 @@ site.cfg
 bench/operator2d/*/__init__.py
 bench/operator2d/util.py
 bench/results_bench/*.json
+bench/oar_launcher_*
+bench/OAR_*
 
 doc/ipynb/.ipynb_checkpoints
 doc/ipynb/*.rst
