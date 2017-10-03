@@ -14,10 +14,10 @@ import socket
 import argparse
 
 try:
-    from time import perf_counter as time
+    from time import perf_counter, time
 except ImportError:
     # python 2.7
-    from time import time
+    from time import time, clock as perf_counter
 
 import numpy as np
 

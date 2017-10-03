@@ -26,6 +26,9 @@ html:
 	@echo
 	@echo "Build finished.\nfile://"$(shell pwd)"/_build/html/index.html"
 
+notebook:
+	python $(shell which jupyter-notebook)
+
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
 	@echo "  html       to make standalone HTML files"

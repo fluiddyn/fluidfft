@@ -68,7 +68,6 @@ def plot_scaling(path_dir, hostname, n0, n1, dim):
     df_fft_nb_proc_min = df_fft.xs(nb_proc_min, level=1)
     df_ifft_nb_proc_min = df_ifft.xs(nb_proc_min, level=1)
 
-
     def get_min(df):
         m = df.as_matrix()
         i0, i1 = np.unravel_index(np.argmin(m), m.shape)
@@ -76,7 +75,6 @@ def plot_scaling(path_dir, hostname, n0, n1, dim):
         ind = df.index[i0]
         key = df.columns[i1]
         return mymin, ind, key
-
 
     t_min_fft, name_min_fft, key_min_fft = get_min(
         df_fft_nb_proc_min)
@@ -89,7 +87,7 @@ def plot_scaling(path_dir, hostname, n0, n1, dim):
 
     for name in df3.index.levels[0]:
         tmp = df3.loc[name]
-        print(name)
+        # print(name)
 
         for k in keys_fft:
             speedup = t_min_fft/tmp[k]*nb_proc_min
@@ -98,7 +96,7 @@ def plot_scaling(path_dir, hostname, n0, n1, dim):
                 label='{}, {}'.format(name, k))
 
         for k in keys_ifft:
-            print(k)
+            # print(k)
             speedup = t_min_ifft/tmp[k]*nb_proc_min
             ax1.plot(
                 speedup.index, speedup.values, 'x-',
@@ -106,6 +104,10 @@ def plot_scaling(path_dir, hostname, n0, n1, dim):
 
         for ax in [ax0, ax1]:
             ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+
+    for ax in [ax0, ax1]:
+        ax.set_xscale('log')
+        ax.set_yscale('log')
 
     ax0.set_title('best for {} procs: {}, {}'.format(
         nb_proc_min, name_min_fft, key_min_fft))
@@ -141,7 +143,7 @@ def run():
         return
 
     if args.dim == '3d':
-        raise NotImplemented
+        raise NotImplementedError
     else:
         plot_scaling(args.input_dir, args.hostname, args.n0, args.n1, args.dim)
 

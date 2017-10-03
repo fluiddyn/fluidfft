@@ -8,6 +8,31 @@ Dependencies
 
 - a C++11 compiler (for example GCC 4.9)
 
+- Numpy
+
+  Make sure to correctly install numpy before anything. 
+
+  .. note::
+  
+     Be careful, the wheels install with `pip install numpy` can be slow. You
+     might get something more efficient by compiling from source using `pip
+     install numpy --no-binary numpy`.
+
+  .. warning::
+
+     In anaconda (or miniconda), Numpy installed with `conda install numpy` is
+     built and linked with MKL (an Intel library).  This can be a real plus for
+     performance since MKL replaces fftw functions by (usually) faster ones but
+     it has a drawback for fft using the library fftw3_mpi (an implementation
+     of parallel fft using 1D decomposition by fftw).  MKL implements some fftw
+     functions but not all the functions defined in fftw3_mpi. Since the
+     libraries are loaded dynamically, if numpy is imported before the fftw_mpi
+     libraries, this can lead to very bad issues (segmentation fault, only if
+     numpy is imported before the class!). For security, we prefer to
+     automatically disable the building of the fft classes using fftw3_mpi when
+     it is detected that numpy uses the MKL library where some fftw symbols are
+     defined.
+
 - Cython
 
 - `Pythran <https://github.com/serge-sans-paille/pythran>`_
@@ -17,16 +42,16 @@ Dependencies
   operators. Our microbenchmarks show that the performances are as good as what
   we are able to get with Fortran or C++!
 
-.. warning::
+  .. warning::
 
-  To reach good performance, we advice to try to put in the file `~/.pythranrc`
-  the lines (see the `Pythran documentation
-  <https://pythonhosted.org/pythran/MANUAL.html>`_):
+     To reach good performance, we advice to try to put in the file
+     `~/.pythranrc` the lines (see the `Pythran documentation
+     <https://pythonhosted.org/pythran/MANUAL.html>`_):
 
-  .. code:: bash
+     .. code:: bash
 
-     [pythran]
-     complex_hook = True
+        [pythran]
+        complex_hook = True
 
 - mpi4py (optional, only for mpi runs),
   
