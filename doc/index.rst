@@ -38,8 +38,8 @@ User Guide
 
    overview
    install
-   tutorials
    bench
+   tutorials
 
 
 Modules Reference

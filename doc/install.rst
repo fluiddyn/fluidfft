@@ -126,3 +126,11 @@ setup.py install``.
 After the installation, it is a good practice to run the unit tests by running
 ``python -m unittest discover`` from the root directory or from any of the
 "test" directories (or just ``make tests`` or ``make tests_mpi``).
+
+Examples of installation
+------------------------
+
+.. toctree::
+   :maxdepth: 1
+
+   install_occigen
