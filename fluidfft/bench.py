@@ -14,10 +14,12 @@ import socket
 import argparse
 
 try:
-    from time import perf_counter, time
+    # from time import perf_counter as time
+    from time import time
 except ImportError:
     # python 2.7
-    from time import time, clock as perf_counter
+    # from time import clock as time
+    from time import time
 
 import numpy as np
 
@@ -39,11 +41,12 @@ def print(*args, **kwargs):
         print_old(*args, **kwargs)
 
 
-def bench_like_cpp_as_arg(o, nb_time_execute=10):
+def bench_like_cpp_as_arg(o, nb_time_execute=20):
 
     fieldX = np.ones(o.get_shapeX_loc(), dtype=float, order='C')
     fieldK = np.empty(o.get_shapeK_loc(), dtype=np.complex128, order='C')
 
+    o.fft_as_arg(fieldX, fieldK)
     t_start = time()
     for i in range(nb_time_execute):
         o.fft_as_arg(fieldX, fieldK)
@@ -51,6 +54,7 @@ def bench_like_cpp_as_arg(o, nb_time_execute=10):
     t_fft = (t_end - t_start)/nb_time_execute
     print('time fft_as_arg:  {}'.format(t_fft))
 
+    o.ifft_as_arg(fieldK, fieldX)
     t_start = time()
     for i in range(nb_time_execute):
         o.ifft_as_arg(fieldK, fieldX)
@@ -60,11 +64,12 @@ def bench_like_cpp_as_arg(o, nb_time_execute=10):
     return t_fft, t_ifft
 
 
-def bench_like_cpp_return(o, nb_time_execute=10):
+def bench_like_cpp_return(o, nb_time_execute=20):
 
     fieldX = np.ones(o.get_shapeX_loc(), dtype=float, order='C')
     fieldK = np.empty(o.get_shapeK_loc(), dtype=np.complex128, order='C')
 
+    o.fft(fieldX)
     t_start = time()
     for i in range(nb_time_execute):
         o.fft(fieldX)
@@ -72,6 +77,7 @@ def bench_like_cpp_return(o, nb_time_execute=10):
     t_fft = (t_end - t_start)/nb_time_execute
     print('time return_fft:  {}'.format(t_fft))
 
+    o.ifft(fieldK)
     t_start = time()
     for i in range(nb_time_execute):
         o.ifft(fieldK)
@@ -85,7 +91,7 @@ def pourc(t_slow, t_fast):
     return 100. * (t_slow - t_fast) / t_fast
 
 
-def compare_benchs(o, nb_time_execute=10):
+def compare_benchs(o, nb_time_execute=20):
 
     results_cpp = o.run_benchs(nb_time_execute)
 
@@ -141,7 +147,7 @@ def bench_all(dim='2d', n0=1024*2, n1=None, n2=None, path_dir=path_results):
             o = FFT(n0, n1)
         o.run_tests()
         # o.run_benchs()
-        return compare_benchs(o, nb_time_execute=10)
+        return compare_benchs(o, nb_time_execute=20)
 
     t_as_str = time_as_str()
 

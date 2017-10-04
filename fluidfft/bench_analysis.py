@@ -104,6 +104,8 @@ def plot_scaling(path_dir, hostname, n0, n1, dim):
 
         for ax in [ax0, ax1]:
             ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+            theoratical = [speedup.index.min(), speedup.index.max()]
+            ax.plot(theoratical, theoratical, '-k')
 
     for ax in [ax0, ax1]:
         ax.set_xscale('log')

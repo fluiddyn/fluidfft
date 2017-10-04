@@ -10,7 +10,6 @@ cluster.commands_setting_env.extend([
 
 
 def submit(nb_nodes, nb_cores_per_node=None):
-    print(nb_nodes)
     if nb_cores_per_node is None:
         nb_cores_per_node = cluster.nb_cores_per_node
     cluster.submit_command(

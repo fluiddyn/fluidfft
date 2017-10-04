@@ -48,7 +48,6 @@ cdef class ${class_name}:
                      DTYPEc_t[:, ::1] fieldK):
         """Perform the fft and copy the result in the second argument."""
         self.thisptr.fft(&fieldX[0, 0], <mycomplex*> &fieldK[0, 0])
-        return fieldK
         
     @cython.boundscheck(False)
     @cython.wraparound(False)
@@ -56,7 +55,6 @@ cdef class ${class_name}:
                       DTYPEf_t[:, ::1] fieldX):
         """Perform the ifft and copy the result in the second argument."""
         self.thisptr.ifft(<mycomplex*> &fieldK[0, 0], &fieldX[0, 0])
-        return fieldX
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
