@@ -16,6 +16,11 @@ import os
 import subprocess
 from runpy import run_path
 
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
+plt.ioff()
+
 from fluidrtd.ipynb_maker import ipynb_to_rst
 import fluidfft
 import fluidfft.bench_analysis
