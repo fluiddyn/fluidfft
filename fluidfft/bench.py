@@ -46,20 +46,21 @@ def bench_like_cpp_as_arg(o, nb_time_execute=20):
     fieldX = np.ones(o.get_shapeX_loc(), dtype=float, order='C')
     fieldK = np.empty(o.get_shapeK_loc(), dtype=np.complex128, order='C')
 
-    o.fft_as_arg(fieldX, fieldK)
-    t_start = time()
+    times = np.empty([nb_time_execute])
     for i in range(nb_time_execute):
+        t_start = time()
         o.fft_as_arg(fieldX, fieldK)
-    t_end = time()
-    t_fft = (t_end - t_start)/nb_time_execute
+        t_end = time()
+        times[i] = t_end - t_start
+    t_fft = np.median(times)
     print('time fft_as_arg:  {}'.format(t_fft))
 
-    o.ifft_as_arg(fieldK, fieldX)
-    t_start = time()
     for i in range(nb_time_execute):
+        t_start = time()
         o.ifft_as_arg(fieldK, fieldX)
-    t_end = time()
-    t_ifft = (t_end - t_start)/nb_time_execute
+        t_end = time()
+        times[i] = t_end - t_start
+    t_ifft = np.median(times)
     print('time ifft_as_arg: {}'.format(t_ifft))
     return t_fft, t_ifft
 
@@ -69,20 +70,21 @@ def bench_like_cpp_return(o, nb_time_execute=20):
     fieldX = np.ones(o.get_shapeX_loc(), dtype=float, order='C')
     fieldK = np.empty(o.get_shapeK_loc(), dtype=np.complex128, order='C')
 
-    o.fft(fieldX)
-    t_start = time()
+    times = np.empty([nb_time_execute])
     for i in range(nb_time_execute):
+        t_start = time()
         o.fft(fieldX)
-    t_end = time()
-    t_fft = (t_end - t_start)/nb_time_execute
+        t_end = time()
+        times[i] = t_end - t_start
+    t_fft = np.median(times)
     print('time return_fft:  {}'.format(t_fft))
 
-    o.ifft(fieldK)
-    t_start = time()
     for i in range(nb_time_execute):
+        t_start = time()
         o.ifft(fieldK)
-    t_end = time()
-    t_ifft = (t_end - t_start)/nb_time_execute
+        t_end = time()
+        times[i] = t_end - t_start
+    t_ifft = np.median(times)
     print('time return_ifft: {}'.format(t_ifft))
     return t_fft, t_ifft
 
@@ -93,10 +95,11 @@ def pourc(t_slow, t_fast):
 
 def compare_benchs(o, nb_time_execute=20):
 
+    t_start = time()
     results_cpp = o.run_benchs(nb_time_execute)
-
     t_fft_as_arg, t_ifft_as_arg = bench_like_cpp_as_arg(o, nb_time_execute)
     t_fft_return, t_ifft_return = bench_like_cpp_return(o, nb_time_execute)
+    t_end = time()
 
     if rank != 0:
         return
@@ -109,8 +112,12 @@ def compare_benchs(o, nb_time_execute=20):
     print('return ' + txt.format(pourc(t_fft_return, t_fft_cpp)))
     print('return i' + txt.format(pourc(t_ifft_return, t_ifft_cpp)))
 
+    name = o.get_short_name()
+    print('total time bench for lib ' + name + ': {:4.2f} s'.format(
+        t_end-t_start))
+
     results = {
-        'name': o.get_short_name(),
+        'name': name,
         't_fft_cpp': t_fft_cpp,
         't_ifft_cpp': t_ifft_cpp,
         't_fft_as_arg': t_fft_as_arg,
@@ -147,7 +154,7 @@ def bench_all(dim='2d', n0=1024*2, n1=None, n2=None, path_dir=path_results):
             o = FFT(n0, n1)
         o.run_tests()
         # o.run_benchs()
-        return compare_benchs(o, nb_time_execute=20)
+        return compare_benchs(o, nb_time_execute=50)
 
     t_as_str = time_as_str()
 

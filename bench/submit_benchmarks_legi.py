@@ -1,7 +1,7 @@
 
 
-# from fluiddyn.clusters.legi import Calcul7 as Cluster
-from fluiddyn.clusters.legi import Calcul8 as Cluster
+from fluiddyn.clusters.legi import Calcul7 as Cluster
+# from fluiddyn.clusters.legi import Calcul8 as Cluster
 
 cluster = Cluster()
 cluster.commands_setting_env.extend([
@@ -12,14 +12,18 @@ cluster.commands_setting_env.extend([
 def submit(nb_nodes, nb_cores_per_node=None):
     if nb_cores_per_node is None:
         nb_cores_per_node = cluster.nb_cores_per_node
+    nb_mpi = nb_cores_per_node*nb_nodes
     cluster.submit_command(
         'fluidfft-bench 1024 -d 2 '
         '-o /.fsnet/data/legi/calcul9/home/augier3pi/fluidfft_bench',
-        name_run='fluidfft-bench',
-        nb_nodes=nb_nodes, nb_cores_per_node=cluster.nb_cores_per_node,
-        walltime='00:10:00',
-        nb_mpi_processes=nb_cores_per_node*nb_nodes, omp_num_threads=1,
-        ask=False)
+        name_run='fluidfft-bench_{}'.format(nb_mpi),
+        nb_nodes=nb_nodes,
+        # nb_cores_per_node=nb_cores_per_node,
+        nb_cores_per_node=cluster.nb_cores_per_node,
+        walltime='00:04:00',
+        nb_mpi_processes=nb_mpi, omp_num_threads=1,
+        ask=False,
+        delay_signal_walltime=None)
 
 nb_nodes = 1
 for nb_cores_per_node in [2, 4, 8, 12, 16, 20]:
@@ -27,5 +31,5 @@ for nb_cores_per_node in [2, 4, 8, 12, 16, 20]:
         continue
     submit(nb_nodes, nb_cores_per_node)
 
-for nb_nodes in [2]:
+for nb_nodes in []:
     submit(nb_nodes)
