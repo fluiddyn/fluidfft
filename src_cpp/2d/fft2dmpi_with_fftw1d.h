@@ -7,6 +7,8 @@ class FFT2DMPIWithFFTW1D: public BaseFFT2DMPI
   FFT2DMPIWithFFTW1D(int N0, int N1);
   ~FFT2DMPIWithFFTW1D();
   void destroy();
+
+  virtual bool are_parameters_bad();
   
   virtual const char* get_classname();
   

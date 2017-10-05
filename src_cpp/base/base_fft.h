@@ -19,6 +19,7 @@ using std::complex;
 #include <cstdlib>
 #include <iostream>
 #include <cstring>
+#include <stdexcept>
 
 using namespace std;
 
@@ -39,6 +40,7 @@ class BaseFFT
 
   virtual void _init();
   virtual void _init_parallel();
+  virtual bool are_parameters_bad();
   
   virtual const char* get_classname();
   

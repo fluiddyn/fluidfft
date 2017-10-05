@@ -11,18 +11,25 @@ from fluiddyn.util import mpi
 
 cdef class ${class_name}:
     """Class to perform Fast Fourier Transform in 2d."""
+    cdef int _has_to_destroy
     cdef mycppclass* thisptr
     cdef tuple _shape_K_loc, _shape_X_loc
 
     def __cinit__(self, int n0=2, int n1=2):
-        self.thisptr = new mycppclass(n0, n1)
-
+        self._has_to_destroy = 1
+        try:
+            self.thisptr = new mycppclass(n0, n1)
+        except ValueError:
+            self._has_to_destroy = 0
+            raise
+            
     def __init__(self, int n0=2, int n1=2):
         self._shape_K_loc = self.get_shapeK_loc()
         self._shape_X_loc = self.get_shapeX_loc()
 
     def __dealloc__(self):
-        self.thisptr.destroy()
+        if self._has_to_destroy:
+            self.thisptr.destroy()
         del self.thisptr
 
     def get_short_name(self):

@@ -45,12 +45,21 @@ void BaseFFT::_init()
 {
   this->_init_parallel();
 
+  if (this->are_parameters_bad())
+    if (rank == 0)
+      throw invalid_argument("Invalid arguments");
+  
   if (rank == 0)
     {
       cout << endl << "--------" << endl;
       if (nb_proc > 1)
 	cout << "nb_proc: " << nb_proc << endl;
     }
+}
+
+bool BaseFFT::are_parameters_bad()
+{
+  return 0;
 }
 
 char const* BaseFFT::get_classname()

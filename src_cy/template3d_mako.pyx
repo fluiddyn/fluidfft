@@ -11,6 +11,7 @@ cdef class ${class_name}:
     """Perform fast Fourier transform in 3D.
 
     """
+    cdef int _has_to_destroy
     cdef mycppclass* thisptr
     cdef tuple _shapeK_loc, _shapeX_loc
 
@@ -19,7 +20,12 @@ cdef class ${class_name}:
     cdef public int nb_proc, rank
 
     def __cinit__(self, int n0=2, int n1=2, int n2=4):
-        self.thisptr = new mycppclass(n0, n1, n2)
+        self._has_to_destroy = 1
+        try:
+            self.thisptr = new mycppclass(n0, n1, n2)
+        except ValueError:
+            self._has_to_destroy = 0
+            raise
 
     def __init__(self, int n0=2, int n1=2, int n2=4):
         self._shapeK_loc = self.get_shapeK_loc()
@@ -31,7 +37,8 @@ cdef class ${class_name}:
             self.comm = comm
 
     def __dealloc__(self):
-        self.thisptr.destroy()
+        if self._has_to_destroy:
+            self.thisptr.destroy()
         del self.thisptr
 
     def get_short_name(self):
