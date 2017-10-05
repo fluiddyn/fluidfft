@@ -7,7 +7,8 @@ This package provides C++ classes and their Python wrapper classes written in
 Cython useful to perform Fast Fourier Transform (FFT) with different libraries,
 in particular
 
-- fftw3 and fftw3-mpi
+- `fftw3 <http://www.fftw.org/>`_ and `fftw3-mpi
+  <http://www.fftw.org/fftw3_doc/Distributed_002dmemory-FFTW-with-MPI.html>`_
   
 - `pfft <https://github.com/mpip/pfft>`_
 

@@ -42,7 +42,7 @@ def filter_by_shape(df, n0, n1):
     return df[df.columns.difference(['n0', 'n1'])]
 
 
-def plot_scaling(path_dir, hostname, n0, n1, dim):
+def plot_scaling(path_dir, hostname, n0, n1, dim, show=True):
 
     df = load_bench(path_dir, hostname, dim)
     df = filter_by_shape(df, n0, n1)
@@ -53,7 +53,8 @@ def plot_scaling(path_dir, hostname, n0, n1, dim):
     if df.empty:
         raise ValueError('No benchmarks corresponding to the input parameters')
 
-    print(df)
+    if show:
+        print(df)
 
     nb_proc_min = df.nb_proc.min()
 
@@ -81,7 +82,7 @@ def plot_scaling(path_dir, hostname, n0, n1, dim):
     t_min_ifft, name_min_ifft, key_min_ifft = get_min(
         df_ifft_nb_proc_min)
 
-    plt.figure(figsize=[15, 5])
+    fig = plt.figure(figsize=[15, 5])
     ax0 = plt.subplot(121)
     ax1 = plt.subplot(122)
 
@@ -111,15 +112,17 @@ def plot_scaling(path_dir, hostname, n0, n1, dim):
         ax.set_xscale('log')
         ax.set_yscale('log')
 
-    ax0.set_title('best for {} procs: {}, {}'.format(
-        nb_proc_min, name_min_fft, key_min_fft))
-    ax1.set_title('best for {} procs: {}, {}'.format(
-        nb_proc_min, name_min_ifft, key_min_ifft))
+    ax0.set_title('Best for {} procs: {}, {} ({:.2f} ms)'.format(
+        nb_proc_min, name_min_fft, key_min_fft, t_min_fft*1000))
+    ax1.set_title('Best for {} procs: {}, {} ({:.2f} ms)'.format(
+        nb_proc_min, name_min_ifft, key_min_ifft, t_min_ifft*1000))
 
     ax0.legend()
     ax1.legend()
 
-    plt.show()
+    if show:
+        plt.show()
+    return fig
 
 
 def run():

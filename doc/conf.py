@@ -16,10 +16,30 @@ import os
 import subprocess
 from runpy import run_path
 
-import fluidfft
-
 from fluidrtd.ipynb_maker import ipynb_to_rst
+import fluidfft
+import fluidfft.bench_analysis
+from fluidfft.bench_analysis import plot_scaling
+
+here = os.path.dirname(__file__)
+tmp = os.path.join(here, 'tmp')
+
+
+def save_fig_scaling(dir_name, n0, n1, dim):
+    path_dir = os.path.join(here, 'benchmarks', dir_name)
+    path_fig = os.path.join(tmp, 'fig_' + dir_name + '.png')
+
+    fig = plot_scaling(path_dir, None, n0, n1, dim, show=False)
+    fig.savefig(path_fig)
+
+
+tmp = os.path.join(os.path.dirname(__file__), 'tmp')
+if not os.path.exists(tmp):
+    os.mkdir(tmp)
+
 ipynb_to_rst()
+
+save_fig_scaling('legi_cluster7_2d', 1024, 1024, '2d')
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
