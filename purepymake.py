@@ -223,7 +223,7 @@ def make_ext_from_objs(ext_file, obj_files, lib_dirs=None, libraries=None,
                    if w not in ['-g']]
 
         if can_import_mpi4py:
-            command[0] = 'mpicxx'
+            command[0] = os.getenv('MPICXX', 'mpicxx')
         else:
             command[0] = cxx.split()[0]
 

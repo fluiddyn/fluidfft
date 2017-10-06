@@ -163,7 +163,7 @@ else:
         base_names = [name for name in base_names if 'mpi' not in name]
         CXX = None
     else:
-        CXX = 'mpicxx'
+        CXX = os.getenv('MPICXX', 'mpicxx')
         if mpi4py.__version__[0] < '2':
             raise ValueError('Please upgrade to mpi4py >= 2.0')
         include_dirs.add(mpi4py.get_include())
