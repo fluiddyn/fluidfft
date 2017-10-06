@@ -45,6 +45,7 @@ if not os.path.exists(tmp):
 ipynb_to_rst()
 
 save_fig_scaling('legi_cluster7_2d', 1024, 1024, '2d')
+save_fig_scaling('legi_cluster8_2d', 960, 960, '2d')
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

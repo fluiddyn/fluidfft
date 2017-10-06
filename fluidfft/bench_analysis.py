@@ -58,7 +58,7 @@ def plot_scaling(path_dir, hostname, n0, n1, dim, show=True):
 
     nb_proc_min = df.nb_proc.min()
 
-    df3 = df.groupby(['name', 'nb_proc']).median()
+    df3 = df.groupby(['name', 'nb_proc']).quantile(q=0.2)
 
     keys_fft = [k for k in df3.columns if k.startswith('t_fft')]
     keys_ifft = [k for k in df3.columns if k.startswith('t_ifft')]
@@ -111,6 +111,8 @@ def plot_scaling(path_dir, hostname, n0, n1, dim, show=True):
     for ax in [ax0, ax1]:
         ax.set_xscale('log')
         ax.set_yscale('log')
+        ax.set_xlabel('number of processes')
+        ax.set_ylabel('speedup')
 
     ax0.set_title('Best for {} procs: {}, {} ({:.2f} ms)'.format(
         nb_proc_min, name_min_fft, key_min_fft, t_min_fft*1000))

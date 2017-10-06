@@ -46,3 +46,10 @@ Benchmarks on `LEGI <http://www.legi.grenoble-inp.fr>`_ clusters
    The benchmark is not sufficiently accurate to measure the cost of calling
    the functions from Python. The method fft2dmpiwithfftw1d is slower and seems
    less regular.
+
+.. figure:: tmp/fig_legi_cluster8_2d.png
+   :scale: 80 %
+   :alt: Benchmarks at LEGI on cluster8.
+
+   Same as previous figure but for "cluster8" (2015, 12 nodes Xeon DELL C6320,
+   20 cores per node).

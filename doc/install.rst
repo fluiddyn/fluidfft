@@ -134,3 +134,4 @@ Examples of installation
    :maxdepth: 1
 
    install_occigen
+   install_froggy

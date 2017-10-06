@@ -145,7 +145,7 @@ else:
     import numpy as np
     ext_modules = []
 
-    if config['fftw']['use'].lower() == 'mkl':
+    if config['fftw']['use'] == 'mkl':
         libraries = set(('mkl_intel_ilp64', 'mkl_sequential', 'mkl_core'))
     else:
         libraries = set(['fftw3'])
