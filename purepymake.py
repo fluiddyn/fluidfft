@@ -101,9 +101,9 @@ def modification_date(filename):
 
 
 class CompilationError(Exception):
-    def __init__(self, out, err):
-        self.message = '\nstdout:\n {}\nstderr:\n{}'.format(
-            out.decode(), err.decode())
+    def __init__(self, command, out, err):
+        self.message = '\ncommand:\n{}\nstdout:\n {}\nstderr:\n{}'.format(
+            command, out.decode(), err.decode())
         super(CompilationError, self). __init__()
 
     def __str__(self):
@@ -194,9 +194,10 @@ def make_obj_from_cpp(obj_file, cpp_file, options=None):
         command += ['-I' + incdir for incdir in include_dirs]
         command += ['-c', cpp_file, '-o', obj_file]
         print(' '.join(command))
-        return subprocess.Popen(
+        p = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
+        p.command = ' '.join(command)
+        return p
 
 def make_ext_from_objs(ext_file, obj_files, lib_dirs=None, libraries=None,
                        options=None):
@@ -302,7 +303,7 @@ def make_extensions(extensions, lib_dirs=None, libraries=None,
     for p in processes:
         if p.returncode != 0:
             out, err = p.communicate()
-            raise CompilationError(out, err)
+            raise CompilationError(p.command, out, err)
 
     files['so'] = []
 

@@ -144,7 +144,12 @@ if on_rtd:
 else:
     import numpy as np
     ext_modules = []
-    libraries = set(['fftw3'])
+
+    if config['fftw']['use'].lower() == 'mkl':
+        libraries = set(('mkl_intel_ilp64', 'mkl_sequential', 'mkl_core'))
+    else:
+        libraries = set(['fftw3'])
+
     lib_dirs = set()
     include_dirs = set(
         [src_cy_dir, src_base, src_cpp_3d, src_cpp_2d,
@@ -174,6 +179,10 @@ def update_with_config(key):
         include_dirs.add(cfg['include_dir'])
     if len(cfg['library_dir']) > 0:
         lib_dirs.add(cfg['library_dir'])
+
+
+if config['fftw']['use']:
+    update_with_config('fftw')
 
 
 for base_name in base_names:

@@ -30,11 +30,11 @@ def get_default_config():
     return config
 
 
-def make_site_cfg_example_file():
+def make_site_cfg_default_file():
 
     config = get_default_config()
 
-    with open('site.cfg.example', 'wb') as configfile:
+    with open('site.cfg.default', 'w') as configfile:
         config.write(configfile)
 
 
@@ -51,9 +51,10 @@ def get_config():
             value = config.get(section, option)
             if option == 'use':
                 value = value.lower()
-                if value not in ['true', 'false']:
-                    raise ValueError('"use" should be "True" of "False".')
-                value = value == 'true'
+                if not (section == 'fftw' and value == 'mkl'):
+                    if value not in ['true', 'false']:
+                        raise ValueError('"use" should be "True" of "False".')
+                    value = value == 'true'
             section_dict[option] = value
         config_dict[section] = section_dict
 
