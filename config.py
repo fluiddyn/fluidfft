@@ -55,6 +55,8 @@ def get_config():
                     if value not in ['true', 'false']:
                         raise ValueError('"use" should be "True" of "False".')
                     value = value == 'true'
+            else:
+                value = os.path.expandvars(value)
             section_dict[option] = value
         config_dict[section] = section_dict
 
