@@ -24,7 +24,7 @@ Distribution(dict(setup_requires=setup_requires))
 from numpy.distutils.system_info import get_info
 
 from purepymake import Extension, make_extensions
-from config import get_config
+from config import parse_config
 from src_cy.make_files_with_mako import make_pyx_files
 
 try:
@@ -40,7 +40,7 @@ except KeyError:
 
 make_pyx_files()
 
-config = get_config()
+config, lib_flags_dict, lib_dirs_dict = parse_config()
 
 # Get the long description from the relevant file
 with open('README.rst') as f:
@@ -106,18 +106,30 @@ def create_ext(base_name):
             [os.path.join(src_base, 'base_fftmpi.cpp'),
              os.path.join(src_cpp_dim, 'base_fft' + dim + 'mpi.cpp')])
 
+    libraries = ['fftw3']
+
+    if 'fftwmpi' in base_name:
+        libraries.append('fftw3_mpi')
+    elif 'pfft' in base_name:
+        libraries.extend(['fftw3_mpi', 'pfft'])
+    elif 'p3dfft' in base_name:
+        libraries.append('p3dfft')
+    elif 'cufft' in base_name:
+        libraries.append(['cufft', 'mpi_cxx'])
+
     return Extension(
         name='fluidfft.fft' + dim + '.' + base_name,
-        sources=sources)
+        sources=sources,
+        libraries=libraries)
 
 
 base_names = []
-if config['fftw']['use']:
+if config['fftw3']['use']:
     base_names.extend([
         'fft2d_with_fftw1d', 'fft2d_with_fftw2d', 'fft2dmpi_with_fftw1d',
         'fft3d_with_fftw3d', 'fft3dmpi_with_fftw1d'])
 
-if config['fftw-mpi']['use']:
+if config['fftw3_mpi']['use']:
     if use_mkl_intel_lp64:
         warn('When numpy uses mkl (as for example with conda), '
              'there are symbol conflicts between mkl and fftw. '
@@ -131,13 +143,12 @@ if config['cufft']['use']:
     base_names.extend(['fft2d_with_cufft'])
     base_names.extend(['fft3d_with_cufft'])
 
-if config['pfft']['use']:
+if config['pfft']['use'] and not use_mkl_intel_lp64:
     base_names.extend(['fft3dmpi_with_pfft'])
 
 if config['p3dfft']['use']:
     base_names.extend(['fft3dmpi_with_p3dfft'])
 
-# todo: include_dirs has to be a list (ordered)
 
 on_rtd = os.environ.get('READTHEDOCS')
 if on_rtd:
@@ -146,16 +157,9 @@ else:
     import numpy as np
     ext_modules = []
 
-    # todo: this has to be in config ("library_flags")
-    if config['fftw']['use'] == 'mkl':
-        libraries = set(('mkl_intel_ilp64', 'mkl_sequential', 'mkl_core'))
-    else:
-        libraries = set(['fftw3'])
-
-    lib_dirs = set()
-    include_dirs = set(
-        [src_cy_dir, src_base, src_cpp_3d, src_cpp_2d,
-         'include', np.get_include()])
+    include_dirs = [
+        src_cy_dir, src_base, src_cpp_3d, src_cpp_2d,
+        'include', np.get_include()]
 
     try:
         import mpi4py
@@ -163,54 +167,36 @@ else:
         warn('ImportError for mpi4py: '
              "all extensions based on mpi won't be built.")
         base_names = [name for name in base_names if 'mpi' not in name]
-        CXX = None
     else:
-        CXX = os.getenv('MPICXX', 'mpicxx')
         if mpi4py.__version__[0] < '2':
             raise ValueError('Please upgrade to mpi4py >= 2.0')
-        include_dirs.add(mpi4py.get_include())
+        include_dirs.append(mpi4py.get_include())
 
-
-# todo: libraries have to be attached to extensions
-# todo: library paths have to be handle in config
 
 def update_with_config(key):
     cfg = config[key]
     if len(cfg['dir']) > 0:
-        path = cfg['dir']
-        include_dirs.add(os.path.join(path, 'include'))
-        lib_dirs.add(os.path.join(path, 'lib'))
+        path = os.path.join(cfg['dir'], 'include')
+        if path not in include_dirs:
+            include_dirs.append(path)
     if len(cfg['include_dir']) > 0:
-        include_dirs.add(cfg['include_dir'])
-    if len(cfg['library_dir']) > 0:
-        lib_dirs.add(cfg['library_dir'])
+        path = cfg['include_dir']
+        if path not in include_dirs:
+            include_dirs.append(path)
 
+if config['fftw3']['use']:
+    update_with_config('fftw3')
 
-if config['fftw']['use']:
-    update_with_config('fftw')
+keys = ['pfft', 'p3dfft', 'cufft']
 
 
 for base_name in base_names:
     ext_modules.append(create_ext(base_name))
-    # todo: this has to be in config
-    TMP = os.getenv('FFTW3_INC_DIR')
-    if TMP is not None:
-        include_dirs.add(TMP)
-    TMP = os.getenv('FFTW3_LIB_DIR')
-    if TMP is not None:
-        lib_dirs.add(TMP)
     if 'fftwmpi' in base_name:
-        libraries.add('fftw3_mpi')
-        update_with_config('fftw-mpi')
-    elif 'pfft' in base_name:
-        libraries.update(['fftw3_mpi', 'pfft'])
-        update_with_config('pfft')
-    elif 'p3dfft' in base_name:
-        libraries.add('p3dfft')
-        update_with_config('p3dfft')
-    elif 'cufft' in base_name:
-        libraries.update(['cufft', 'mpi_cxx'])
-        update_with_config('cufft')
+        update_with_config('fftw3_mpi')
+    for key in keys:
+        if key in base_name:
+            update_with_config(key)
 
 
 # todo: pythran build has to be in purepymake (in parallel)
@@ -245,8 +231,8 @@ def make_pythran_extensions(modules):
 if not on_rtd:
     make_extensions(
         ext_modules, include_dirs=include_dirs,
-        lib_dirs=lib_dirs, libraries=libraries,
-        CXX=CXX, CFLAGS='-std=c++03')
+        lib_flags_dict=lib_flags_dict, lib_dirs_dict=lib_dirs_dict,
+        CFLAGS='-std=c++03')
 
     # Clear all purepymake.Extension objects after build is done.
     ext_modules = []
@@ -275,7 +261,7 @@ setup(
         # 5 - Production/Stable
         'Development Status :: 4 - Beta',
         'Intended Audience :: Science/Research',
-        'Intended Audience :: Education',#
+        'Intended Audience :: Education',
         'Topic :: Scientific/Engineering',
         'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
         # actually CeCILL License (GPL compatible license for French laws)

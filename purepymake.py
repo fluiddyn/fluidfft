@@ -57,6 +57,9 @@ try:
     can_import_mpi4py = True
 except ImportError:
     can_import_mpi4py = False
+else:
+    if mpi4py.__version__[0] < '2':
+        raise ValueError('Please upgrade to mpi4py >= 2.0')
 
 short_version = '.'.join([str(i) for i in sys.version_info[:2]])
 
@@ -110,9 +113,10 @@ class CompilationError(Exception):
 
 
 class Extension(object):
-    def __init__(self, name, sources=None, language=None, ):
+    def __init__(self, name, sources=None, libraries=None, language=None):
         self.name = name
         self.sources = sources
+        self.libraries = libraries
         self.language = language
 
 
@@ -179,6 +183,7 @@ class FunctionsRunner(CommandsRunner):
 
 
 def make_function_cpp_from_pyx(cpp_file, pyx_file,
+                               include_dirs=None,
                                full_module_name=None, options=None):
     path_dir = os.path.split(cpp_file)[0]
     if not os.path.exists(path_dir):
@@ -190,13 +195,9 @@ def make_function_cpp_from_pyx(cpp_file, pyx_file,
     if not can_import_cython:
         raise ImportError('Can not import Cython.')
 
-    include_path = None
-    if options is not None and 'include_dirs' in options.keys():
-        include_path = list(options['include_dirs'])
-
     options = CompilationOptions(
         cython_default_options,
-        include_path=include_path,
+        include_path=include_dirs,
         output_file=cpp_file,
         cplus=True,
         compile_time_env={'MPI4PY': can_import_mpi4py})
@@ -206,7 +207,8 @@ def make_function_cpp_from_pyx(cpp_file, pyx_file,
             {'options': options, 'full_module_name': full_module_name})
 
 
-def make_command_obj_from_cpp(obj_file, cpp_file, options=None):
+def make_command_obj_from_cpp(obj_file, cpp_file, include_dirs=None,
+                              options=None):
     path_dir = os.path.split(obj_file)[0]
     if not os.path.exists(path_dir):
         os.makedirs(path_dir)
@@ -218,8 +220,8 @@ def make_command_obj_from_cpp(obj_file, cpp_file, options=None):
 
     conf_vars = copy(config_vars)
 
-    for k in keys:
-        print(k, conf_vars[k])
+    # for k in keys:
+    #     print(k, conf_vars[k])
 
     # problem: it replaces the value (add it better?)
     if options is not None:
@@ -242,19 +244,26 @@ def make_command_obj_from_cpp(obj_file, cpp_file, options=None):
     command = [w for w in command.split()
                if w not in ['-g', '-DNDEBUG', '-Wstrict-prototypes']]
 
-    include_dirs = [conf_vars['INCLUDEPY']]
+    if can_import_mpi4py and not cpp_file.endswith('.cu'):
+        command[0] = os.getenv('MPICXX', 'mpicxx')
 
-    if 'cufft' in cpp_file:
-        include_dirs.extend([
-            '/opt/cuda/NVIDIA_CUDA-6.0_Samples/common/inc/'])
+    includepy = [conf_vars['INCLUDEPY']]
 
-    if cpp_file.endswith('.cu'):
-        include_dirs.extend([
-            '/usr/lib/openmpi/include',
-            '/usr/lib/openmpi/include/openmpi'])
+    if include_dirs is None:
+        include_dirs = includepy
+    else:
+        include_dirs = includepy + include_dirs
 
-    if options is not None and 'include_dirs' in options.keys():
-        include_dirs.extend(options['include_dirs'])
+    # this should not be here! No hard-coded path...
+    # if 'cufft' in cpp_file:
+    #     include_dirs.extend([
+    #         '/opt/cuda/NVIDIA_CUDA-6.0_Samples/common/inc/'])
+
+    # cu + mpi ? No hard-coded path...
+    # if cpp_file.endswith('.cu'):
+    #     include_dirs.extend([
+    #         '/usr/lib/openmpi/include',
+    #         '/usr/lib/openmpi/include/openmpi'])
 
     command += ['-I' + incdir for incdir in include_dirs]
     command += ['-c', cpp_file, '-o', obj_file]
@@ -262,8 +271,8 @@ def make_command_obj_from_cpp(obj_file, cpp_file, options=None):
 
 
 def make_command_ext_from_objs(
-        ext_file, obj_files, lib_dirs=None,
-        libraries=None, options=None):
+        ext_file, obj_files, lib_flags=None, lib_dirs=None,
+        options=None):
 
     if not has_to_build(ext_file, obj_files):
         return
@@ -290,13 +299,15 @@ def make_command_ext_from_objs(
     if lib_dirs is not None:
         command.extend(['-L' + lib_dir for lib_dir in lib_dirs])
 
-    if libraries is not None:
-        command.extend(['-l' + lib for lib in libraries])
+    if lib_flags is not None:
+        command.extend(['-l' + lib for lib in lib_flags])
 
     return command
 
 
-def make_extensions(extensions, lib_dirs=None, libraries=None,
+def make_extensions(extensions,
+                    include_dirs=None,
+                    lib_dirs_dict=None, lib_flags_dict=None,
                     **options):
 
     if all(command not in sys.argv for command in [
@@ -339,7 +350,9 @@ def make_extensions(extensions, lib_dirs=None, libraries=None,
 
         command = make_function_cpp_from_pyx(
             cpp_file, pyx_file,
-            full_module_name=full_module_name, options=options)
+            full_module_name=full_module_name,
+            include_dirs=include_dirs,
+            options=options)
         if command is not None:
             commands.append(command)
 
@@ -351,7 +364,8 @@ def make_extensions(extensions, lib_dirs=None, libraries=None,
     commands = []
     for path in files['cpp']:
         result = os.path.join(path_tmp, os.path.splitext(path)[0] + '.o')
-        command = make_command_obj_from_cpp(result, path, options)
+        command = make_command_obj_from_cpp(
+            result, path, include_dirs, options)
         if command is not None:
             commands.append(command)
         files['o'].append(result)
@@ -368,8 +382,19 @@ def make_extensions(extensions, lib_dirs=None, libraries=None,
         objects = [
             os.path.join(path_tmp, os.path.splitext(source)[0] + '.o')
             for source in ext.sources]
+
+        lib_dirs = []
+        lib_flags = []
+        for lib in ext.libraries:
+            if lib_dirs_dict is not None and lib in lib_dirs_dict:
+                lib_dirs.append(lib_dirs_dict[lib])
+            if lib_flags_dict is not None and lib in lib_flags_dict:
+                lib_flags.extend(lib_flags_dict[lib])
+            else:
+                lib_flags.append(lib)
+
         command = make_command_ext_from_objs(
-            result, objects, lib_dirs=lib_dirs, libraries=libraries)
+            result, objects, lib_dirs=lib_dirs, lib_flags=lib_flags)
         if command is not None:
             commands.append(command)
         files['so'].append(result)
