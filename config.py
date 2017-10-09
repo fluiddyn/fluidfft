@@ -10,18 +10,17 @@ try:  # python 3
 except:  # python 2.7
     from ConfigParser import ConfigParser
 
+sections_libs = ['fftw3', 'fftw3_mpi', 'cufft', 'pfft', 'p3dfft']
+
 
 def get_default_config():
 
     config = ConfigParser()
 
-    # todo: replace by 'fftw3' and 'fftw3_mpi'
-    sections = ['fftw', 'fftw-mpi', 'cufft', 'pfft', 'p3dfft']
+    use = {k: 'False' for k in sections_libs}
+    use['fftw3'] = 'True'
 
-    use = {k: 'False' for k in sections}
-    use['fftw'] = 'True'
-
-    for section in sections:
+    for section in sections_libs:
         config.add_section(section)
         config.set(section, 'use', use[section])
         config.set(section, 'dir', '')
@@ -63,6 +62,37 @@ def get_config():
 
     return config_dict
 
+
+def parse_config():
+    config = get_config()
+
+    TMP = os.getenv('FFTW3_INC_DIR')
+    if TMP is not None:
+        print('Use value in FFTW3_INC_DIR')
+        config['fftw3']['include_dir'] = TMP
+
+    TMP = os.getenv('FFTW3_LIB_DIR')
+    if TMP is not None:
+        print('Use value in FFTW3_LIB_DIR')
+        config['fftw3']['library_dir'] = TMP
+
+    lib_flags_dict = {}
+
+    if config['fftw3']['use'] == 'mkl':
+        lib_flags_dict['fftw3'] = [
+            'mkl_intel_ilp64', 'mkl_sequential', 'mkl_core']
+
+    lib_dirs_dict = {}
+    for lib in sections_libs:
+        cfg = config[lib]
+        if len(cfg['dir']) > 0:
+            lib_dirs_dict[lib] = os.path.join(cfg['dir'], 'lib')
+
+        path = cfg['library_dir']
+        if len(path) > 0:
+            lib_dirs_dict[lib] = path
+
+    return config, lib_flags_dict, lib_dirs_dict
 
 if __name__ == '__main__':
     make_site_cfg_default_file()

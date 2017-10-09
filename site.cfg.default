@@ -1,10 +1,10 @@
-[fftw]
-use = True
+[fftw3]
+use = False
 dir = 
 include_dir = 
 library_dir = 
 
-[fftw-mpi]
+[fftw3_mpi]
 use = False
 dir = 
 include_dir = 
