@@ -16,10 +16,10 @@ export MAKEFLAGS="-j$(nproc)"
 download() {
   cd ${srcdir}
 
-  if [ ! -f $pkgname-$pkgver.tar.gz ]; then
-    wget http://www.fftw.org/$pkgname-$pkgver.tar.gz
+  if [ ! -f ${pkgname}-${pkgver}.tar.gz ]; then
+    wget http://www.fftw.org/${pkgname}-${pkgver}.tar.gz
   fi
-  tar vxzf $pkgname-$pkgver.tar.gz
+  tar vxzf ${pkgname}-${pkgver}.tar.gz
 }
 
 build() {

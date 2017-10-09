@@ -15,8 +15,17 @@ Dependencies
   .. note::
   
      Be careful, the wheels install with `pip install numpy` can be slow. You
-     might get something more efficient by compiling from source using `pip
-     install numpy --no-binary numpy`.
+     might get something more efficient by compiling from source using:
+
+     .. code:: bash
+
+        pip install numpy --no-binary numpy
+        python -c 'import numpy; numpy.test()'
+
+  .. toctree::
+     :maxdepth: 1
+
+     blas_libs
 
   .. warning::
 
