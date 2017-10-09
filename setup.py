@@ -137,6 +137,7 @@ if config['pfft']['use']:
 if config['p3dfft']['use']:
     base_names.extend(['fft3dmpi_with_p3dfft'])
 
+# todo: include_dirs has to be a list (ordered)
 
 on_rtd = os.environ.get('READTHEDOCS')
 if on_rtd:
@@ -145,6 +146,7 @@ else:
     import numpy as np
     ext_modules = []
 
+    # todo: this has to be in config ("library_flags")
     if config['fftw']['use'] == 'mkl':
         libraries = set(('mkl_intel_ilp64', 'mkl_sequential', 'mkl_core'))
     else:
@@ -169,6 +171,9 @@ else:
         include_dirs.add(mpi4py.get_include())
 
 
+# todo: libraries have to be attached to extensions
+# todo: library paths have to be handle in config
+
 def update_with_config(key):
     cfg = config[key]
     if len(cfg['dir']) > 0:
@@ -187,6 +192,7 @@ if config['fftw']['use']:
 
 for base_name in base_names:
     ext_modules.append(create_ext(base_name))
+    # todo: this has to be in config
     TMP = os.getenv('FFTW3_INC_DIR')
     if TMP is not None:
         include_dirs.add(TMP)
@@ -206,6 +212,8 @@ for base_name in base_names:
         libraries.update(['cufft', 'mpi_cxx'])
         update_with_config('cufft')
 
+
+# todo: pythran build has to be in purepymake (in parallel)
 
 def modification_date(filename):
     t = os.path.getmtime(filename)

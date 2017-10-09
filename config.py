@@ -15,6 +15,7 @@ def get_default_config():
 
     config = ConfigParser()
 
+    # todo: replace by 'fftw3' and 'fftw3_mpi'
     sections = ['fftw', 'fftw-mpi', 'cufft', 'pfft', 'p3dfft']
 
     use = {k: 'False' for k in sections}
@@ -64,4 +65,4 @@ def get_config():
 
 
 if __name__ == '__main__':
-    make_site_cfg_example_file()
+    make_site_cfg_default_file()

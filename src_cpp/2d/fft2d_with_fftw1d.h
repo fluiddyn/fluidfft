@@ -5,7 +5,7 @@ class FFT2DWithFFTW1D: public BaseFFT2D
 {
  public:
   FFT2DWithFFTW1D(int N0, int N1);
-  ~FFT2DWithFFTW1D();
+  virtual ~FFT2DWithFFTW1D();
   void destroy();
 
   virtual const char* get_classname();
