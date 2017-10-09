@@ -39,6 +39,7 @@ from distutils import sysconfig
 import subprocess
 from copy import copy
 import importlib
+import multiprocessing
 
 config_vars = sysconfig.get_config_vars()
 
@@ -60,8 +61,6 @@ except ImportError:
 short_version = '.'.join([str(i) for i in sys.version_info[:2]])
 
 path_lib_python = os.path.join(sys.prefix, 'lib', 'python' + short_version)
-# path_include_python = os.path.join(
-#     sys.prefix, 'include', 'python' + short_version)
 
 path_tmp = 'build/temp.' + '-'.join(
     [platform.system().lower(), platform.machine(), short_version])
@@ -111,134 +110,190 @@ class CompilationError(Exception):
 
 
 class Extension(object):
-    def __init__(self, name, sources=None, language=None):
+    def __init__(self, name, sources=None, language=None, ):
         self.name = name
         self.sources = sources
         self.language = language
 
 
-def make_cpp_from_pyx(cpp_file, pyx_file, full_module_name=None, options=None):
+def has_to_build(output_file, input_files):
+    if not os.path.exists(output_file):
+        return True
+    mod_date_output = modification_date(output_file)
+    for input_file in input_files:
+        if mod_date_output < modification_date(input_file):
+            return True
+    return False
+
+
+class CommandsRunner(object):
+    nb_proc = 4
+
+    def __init__(self, commands):
+        self.commands = commands
+        self._processes = []
+
+    def run(self):
+        while len(self.commands) != 0:
+            if len(self._processes) < self.nb_proc:
+                command = self.commands.pop()
+                self._launch_process(command)
+
+            sleep(0.1)
+            self._check_processes()
+
+        while len(self._processes) != 0:
+            sleep(0.1)
+            self._check_processes()
+
+    def _launch_process(self, command):
+        print('launching command:\n' + ' '.join(command))
+        process = subprocess.Popen(
+            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process.command = ' '.join(command)
+        self._processes.append(process)
+
+    def _check_processes(self):
+        for process in self._processes.copy():
+            if process.poll() is not None:
+                self._processes.remove(process)
+                if process.returncode != 0:
+                    out, err = process.communicate()
+                    raise CompilationError(process.command, out, err)
+
+
+class FunctionsRunner(CommandsRunner):
+    def _launch_process(self, command):
+        print('launching command:\n', command)
+        func, args, kwargs = command
+        process = multiprocessing.Process(
+            target=func, args=args, kwargs=kwargs)
+        process.start()
+        process.command = command
+        self._processes.append(process)
+
+    def _check_processes(self):
+        for process in self._processes.copy():
+            if process.exitcode is not None:
+                self._processes.remove(process)
+
+
+def make_function_cpp_from_pyx(cpp_file, pyx_file,
+                               full_module_name=None, options=None):
     path_dir = os.path.split(cpp_file)[0]
     if not os.path.exists(path_dir):
         os.makedirs(path_dir)
-    if not os.path.exists(cpp_file) or \
-       modification_date(cpp_file) < modification_date(pyx_file):
 
-        if not can_import_cython:
-            raise ImportError('Can not import Cython.')
+    if not has_to_build(cpp_file, (pyx_file,)):
+        return
 
-        include_path = None
-        if options is not None and 'include_dirs' in options.keys():
-            include_path = list(options['include_dirs'])
+    if not can_import_cython:
+        raise ImportError('Can not import Cython.')
 
-        options = CompilationOptions(
-            cython_default_options,
-            include_path=include_path,
-            output_file=cpp_file,
-            cplus=True,
-            compile_time_env={'MPI4PY': can_import_mpi4py})
-        result = cython_compile(pyx_file, options=options,
-                                full_module_name=full_module_name)
+    include_path = None
+    if options is not None and 'include_dirs' in options.keys():
+        include_path = list(options['include_dirs'])
 
-        print('cythonize ' + pyx_file)
+    options = CompilationOptions(
+        cython_default_options,
+        include_path=include_path,
+        output_file=cpp_file,
+        cplus=True,
+        compile_time_env={'MPI4PY': can_import_mpi4py})
 
-        return result
+    # return (func, args, kwargs)
+    return (cython_compile, (pyx_file,),
+            {'options': options, 'full_module_name': full_module_name})
 
 
-def make_obj_from_cpp(obj_file, cpp_file, options=None):
+def make_command_obj_from_cpp(obj_file, cpp_file, options=None):
     path_dir = os.path.split(obj_file)[0]
     if not os.path.exists(path_dir):
         os.makedirs(path_dir)
-    if not os.path.exists(obj_file) or \
-       modification_date(obj_file) < modification_date(cpp_file):
 
-        keys = ['CXX', 'OPT', 'BASECFLAGS', 'CFLAGS', 'CCSHARED']
+    if not has_to_build(obj_file, (cpp_file,)):
+        return
 
-        conf_vars = copy(config_vars)
+    keys = ['CXX', 'OPT', 'BASECFLAGS', 'CFLAGS', 'CCSHARED']
 
-        if options is not None:
-            for k, v in options.items():
-                if v is not None:
-                    conf_vars[k] = v
+    conf_vars = copy(config_vars)
 
-        command = ' '.join([conf_vars[k] for k in keys])
+    for k in keys:
+        print(k, conf_vars[k])
 
-        if cpp_file.endswith('.cu'):
-            command = (
-                'nvcc -m64 '
-                '-gencode arch=compute_20,code=sm_20 '
-                '-gencode arch=compute_30,code=sm_30 '
-                '-gencode arch=compute_32,code=sm_32 '
-                '-gencode arch=compute_35,code=sm_35 '
-                '-gencode arch=compute_50,code=sm_50 '
-                '-gencode arch=compute_50,code=compute_50 -Xcompiler -fPIC')
+    # problem: it replaces the value (add it better?)
+    if options is not None:
+        for k, v in options.items():
+            if v is not None:
+                conf_vars[k] = v
 
-        command = [w for w in command.split()
-                   if w not in ['-g', '-DNDEBUG', '-Wstrict-prototypes']]
+    command = ' '.join([conf_vars[k] for k in keys])
 
-        include_dirs = [conf_vars['INCLUDEPY']]
+    if cpp_file.endswith('.cu'):
+        command = (
+            'nvcc -m64 '
+            '-gencode arch=compute_20,code=sm_20 '
+            '-gencode arch=compute_30,code=sm_30 '
+            '-gencode arch=compute_32,code=sm_32 '
+            '-gencode arch=compute_35,code=sm_35 '
+            '-gencode arch=compute_50,code=sm_50 '
+            '-gencode arch=compute_50,code=compute_50 -Xcompiler -fPIC')
 
-        if 'cufft' in cpp_file:
-            include_dirs.extend([
-                '/opt/cuda/NVIDIA_CUDA-6.0_Samples/common/inc/'
-                 ])
+    command = [w for w in command.split()
+               if w not in ['-g', '-DNDEBUG', '-Wstrict-prototypes']]
 
-        if cpp_file.endswith('.cu'):
-            include_dirs.extend([
-                '/usr/lib/openmpi/include',
-                '/usr/lib/openmpi/include/openmpi'])
+    include_dirs = [conf_vars['INCLUDEPY']]
 
-        if options is not None and 'include_dirs' in options.keys():
-            include_dirs.extend(options['include_dirs'])
+    if 'cufft' in cpp_file:
+        include_dirs.extend([
+            '/opt/cuda/NVIDIA_CUDA-6.0_Samples/common/inc/'])
 
-        command += ['-I' + incdir for incdir in include_dirs]
-        command += ['-c', cpp_file, '-o', obj_file]
-        print(' '.join(command))
-        p = subprocess.Popen(
-            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        p.command = ' '.join(command)
-        return p
+    if cpp_file.endswith('.cu'):
+        include_dirs.extend([
+            '/usr/lib/openmpi/include',
+            '/usr/lib/openmpi/include/openmpi'])
 
-def make_ext_from_objs(ext_file, obj_files, lib_dirs=None, libraries=None,
-                       options=None):
+    if options is not None and 'include_dirs' in options.keys():
+        include_dirs.extend(options['include_dirs'])
 
-    cond = False
-    if not os.path.exists(ext_file):
-        cond = True
+    command += ['-I' + incdir for incdir in include_dirs]
+    command += ['-c', cpp_file, '-o', obj_file]
+    return command
+
+
+def make_command_ext_from_objs(
+        ext_file, obj_files, lib_dirs=None,
+        libraries=None, options=None):
+
+    if not has_to_build(ext_file, obj_files):
+        return
+
+    path_dir = os.path.split(ext_file)[0]
+    if not os.path.exists(path_dir):
+        os.makedirs(path_dir)
+
+    cxx = config_vars['CXX']
+    ldshared = config_vars['LDSHARED']
+
+    command = [w for w in ldshared.split()
+               if w not in ['-g']]
+
+    if can_import_mpi4py:
+        command[0] = os.getenv('MPICXX', 'mpicxx')
     else:
-        date_ext = modification_date(ext_file)
-        if any([date_ext < modification_date(obj_file)
-                for obj_file in obj_files]):
-            cond = True
+        command[0] = cxx.split()[0]
 
-    if cond:
-        path_dir = os.path.split(ext_file)[0]
-        if not os.path.exists(path_dir):
-            os.makedirs(path_dir)
+    if 'cufft' in ext_file:
+        command = 'nvcc -Xcompiler -pthread -shared'.split()
 
-        cxx = config_vars['CXX']
-        ldshared = config_vars['LDSHARED']
+    command += obj_files + ['-o', ext_file]
+    if lib_dirs is not None:
+        command.extend(['-L' + lib_dir for lib_dir in lib_dirs])
 
-        command = [w for w in ldshared.split()
-                   if w not in ['-g']]
+    if libraries is not None:
+        command.extend(['-l' + lib for lib in libraries])
 
-        if can_import_mpi4py:
-            command[0] = os.getenv('MPICXX', 'mpicxx')
-        else:
-            command[0] = cxx.split()[0]
-
-        if 'cufft' in ext_file:
-            command = 'nvcc -Xcompiler -pthread -shared'.split()
-
-        command += obj_files + ['-o', ext_file]
-        if lib_dirs is not None:
-            command.extend(['-L' + lib_dir for lib_dir in lib_dirs])
-
-        if libraries is not None:
-            command.extend(['-l' + lib for lib in libraries])
-
-        print(' '.join(command))
-        return subprocess.Popen(command)
+    return command
 
 
 def make_extensions(extensions, lib_dirs=None, libraries=None,
@@ -273,6 +328,7 @@ def make_extensions(extensions, lib_dirs=None, libraries=None,
     files['o'] = []
 
     # cythonize .pyx files if needed
+    commands = []
     for pyx_file in files['pyx']:
         cpp_file = os.path.splitext(pyx_file)[0] + '.cpp'
 
@@ -281,34 +337,30 @@ def make_extensions(extensions, lib_dirs=None, libraries=None,
             if pyx_file in ext.sources:
                 full_module_name = ext.name
 
-        result = make_cpp_from_pyx(
+        command = make_function_cpp_from_pyx(
             cpp_file, pyx_file,
             full_module_name=full_module_name, options=options)
+        if command is not None:
+            commands.append(command)
 
         files['cpp'].append(cpp_file)
 
+    FunctionsRunner(commands).run()
+
     # compile .cpp files if needed
-    processes = []
+    commands = []
     for path in files['cpp']:
         result = os.path.join(path_tmp, os.path.splitext(path)[0] + '.o')
-        p = make_obj_from_cpp(result, path, options)
-        if p is not None:
-            processes.append(p)
+        command = make_command_obj_from_cpp(result, path, options)
+        if command is not None:
+            commands.append(command)
         files['o'].append(result)
 
-    # wait for compilation
-    while not all([process.poll() is not None for process in processes]):
-        sleep(0.1)
-
-    for p in processes:
-        if p.returncode != 0:
-            out, err = p.communicate()
-            raise CompilationError(p.command, out, err)
-
-    files['so'] = []
+    CommandsRunner(commands).run()
 
     # link .o files to produce the .so files if needed
-    processes = []
+    files['so'] = []
+    commands = []
     for ext in extensions:
         suffix = sysconfig.get_config_var('EXT_SUFFIX') or '.so'
         result = os.path.join(path_base_output,
@@ -316,14 +368,11 @@ def make_extensions(extensions, lib_dirs=None, libraries=None,
         objects = [
             os.path.join(path_tmp, os.path.splitext(source)[0] + '.o')
             for source in ext.sources]
-        p = make_ext_from_objs(result, objects,
-                               lib_dirs=lib_dirs, libraries=libraries)
-        if p is not None:
-            processes.append(p)
+        command = make_command_ext_from_objs(
+            result, objects, lib_dirs=lib_dirs, libraries=libraries)
+        if command is not None:
+            commands.append(command)
         files['so'].append(result)
 
     # wait for linking
-    while not all([process.poll() is not None for process in processes]):
-        sleep(0.1)
-
-    # print(files)
+    CommandsRunner(commands).run()
