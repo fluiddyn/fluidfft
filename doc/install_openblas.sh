@@ -19,6 +19,7 @@ _config="FC=${fcompiler} USE_OPENMP=0 USE_THREAD=1 \
         "
 
 download() {
+  mkdir -p ${srcdir}
   cd ${srcdir}
 
   if [ ! -f ${pkgname}-${pkgver}.tar.gz ]; then
