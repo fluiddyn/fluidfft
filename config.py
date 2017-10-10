@@ -2,7 +2,7 @@
 site.cfg.example to site.cfg and modify this file.
 
 """
-
+from __future__ import print_function
 import os
 
 try:  # python 3
@@ -42,16 +42,20 @@ def get_config():
     config = get_default_config()
 
     if os.path.exists('site.cfg'):
+        print('Parsing site.cfg.')
         config.read('site.cfg')
 
     config_dict = {}
     for section in config.sections():
+        if section not in sections_libs:
+            raise ValueError('Unexpected library in site.cfg: {}'.format(section))
+
         section_dict = {}
         for option in config.options(section):
             value = config.get(section, option)
             if option == 'use':
                 value = value.lower()
-                if not (section == 'fftw' and value == 'mkl'):
+                if not (section == 'fftw3' and value == 'mkl'):
                     if value not in ['true', 'false']:
                         raise ValueError('"use" should be "True" of "False".')
                     value = value == 'true'

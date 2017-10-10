@@ -7,8 +7,11 @@ import fluidfft
 
 # Parameters
 # ----------
-# argv = dict(dim='2d', nh='1024 -d 2', time='00:04:00')  # 2D benchmarks
-argv = dict(dim='3d', nh='960 960 240', time='00:20:00')  # 3D benchmarks
+# n0 = 1024; nb_cores = [2, 4, 8, 12, 16, 20, 24, 28, 32]  # n0 = 2**10
+n0 = 1008; nb_cores = [2, 4, 8, 12, 16, 21, 24, 28]  # n0 = 2**6 * 3**2 * 7
+
+argv = dict(dim='2d', nh='{} -d 2'.format(n0), time='00:04:00')  # 2D benchmarks
+# argv = dict(dim='3d', nh='960 960 240', time='00:20:00')  # 3D benchmarks
 # mode = 'intra'
 # mode = 'inter'
 mode = 'inter-intra'
@@ -54,10 +57,6 @@ def submit(cluster, interactive, nb_nodes, nb_cores_per_node=None):
 cluster, interactive = init_cluster()
 if 'intra' in mode:
     nb_nodes = 1
-    # nb_cores = [2, 4, 8, 12, 16, 20, 24, 28, 32]
-    nb_cores = 4 * np.arange(0, 9)
-    nb_cores[0] = 2
-
     for nb_cores_per_node in nb_cores:
         if nb_cores_per_node > cluster.nb_cores_per_node:
             continue

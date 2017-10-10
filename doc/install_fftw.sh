@@ -14,6 +14,7 @@ export MAKEFLAGS="-j$(nproc)"
 # Should be no reason to change anything below
 # --------------------------------------------
 download() {
+  mkdir -p ${srcdir}
   cd ${srcdir}
 
   if [ ! -f ${pkgname}-${pkgver}.tar.gz ]; then
