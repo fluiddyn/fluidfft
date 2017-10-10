@@ -7,8 +7,11 @@ import fluidfft
 
 # Parameters
 # ----------
-# n0 = 1024; nb_cores = [2, 4, 8, 12, 16, 20, 24, 28, 32]  # n0 = 2**10
-n0 = 1008; nb_cores = [2, 4, 8, 12, 16, 21, 24, 28]  # n0 = 2**6 * 3**2 * 7
+## n0 = 2 ** 10; 'Triolith'
+# n0 = 1024; nb_cores = [2, 4, 8, 12, 16]; nodes = [2, 4, 8]
+
+## n0 = 2**6 * 3**2 * 7; 'Kebnekaise'
+n0 = 1008; nb_cores = [2, 4, 8, 12, 16, 21, 24, 28]; nodes = [2, 3, 4, 6]
 
 argv = dict(dim='2d', nh='{} -d 2'.format(n0), time='00:04:00')  # 2D benchmarks
 # argv = dict(dim='3d', nh='960 960 240', time='00:20:00')  # 3D benchmarks
@@ -16,6 +19,7 @@ argv = dict(dim='2d', nh='{} -d 2'.format(n0), time='00:04:00')  # 2D benchmarks
 # mode = 'inter'
 mode = 'inter-intra'
 
+mode='inter'; nodes=[6]
 
 def init_cluster():
     global output_dir
@@ -63,6 +67,5 @@ if 'intra' in mode:
         submit(cluster, interactive, nb_nodes, nb_cores_per_node)
 
 if 'inter' in mode:
-    nodes = [2, 4, 8]
     for nb_nodes in nodes:
         submit(cluster, interactive, nb_nodes)
