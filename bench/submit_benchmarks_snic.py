@@ -5,10 +5,13 @@ from fluiddyn.clusters.snic import ClusterSNIC as Cluster
 import fluidfft
 
 
-argv = ('2D', '1024 -d 2')  # 2D benchmarks
-# argv = ('3D', '960 960 240')  # 3D benchmarks
+# Parameters
+# ----------
+# argv = dict(dim='2d', nh='1024 -d 2', time='00:04:00')  # 2D benchmarks
+argv = dict(dim='3d', nh='960 960 240', time='00:20:00')  # 3D benchmarks
 # mode = 'intra'
-mode = 'inter'
+# mode = 'inter'
+mode = 'inter-intra'
 
 
 def init_cluster():
@@ -23,7 +26,7 @@ def init_cluster():
         interactive=True
 
     output_dir = os.path.abspath('{}/../doc/benchmarks/snic_{}_{}'.format(
-        os.path.split(fluidfft.__file__)[0], cluster.name_cluster, argv[0]))
+        os.path.split(fluidfft.__file__)[0], cluster.name_cluster, argv['dim']))
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -39,17 +42,17 @@ def submit(cluster, interactive, nb_nodes, nb_cores_per_node=None):
 
     nb_mpi = nb_cores_per_node * nb_nodes
     cluster.submit_command(
-        'fluidfft-bench ' + argv[1] + ' -o ' + output_dir,
-        name_run='bench_{}_{}'.format(argv[0], nb_mpi),
+        'fluidfft-bench ' + argv['nh'] + ' -o ' + output_dir,
+        name_run='fft{}_{}'.format(argv['dim'], nb_mpi),
         nb_nodes=nb_nodes,
         nb_cores_per_node=nb_cores_per_node,
-        walltime='00:01:00',
+        walltime=argv['time'],
         nb_mpi_processes=nb_mpi, omp_num_threads=1,
         ask=False, bash=False, interactive=interactive)
 
 
 cluster, interactive = init_cluster()
-if mode == 'intra':
+if 'intra' in mode:
     nb_nodes = 1
     # nb_cores = [2, 4, 8, 12, 16, 20, 24, 28, 32]
     nb_cores = 4 * np.arange(0, 9)
@@ -59,7 +62,8 @@ if mode == 'intra':
         if nb_cores_per_node > cluster.nb_cores_per_node:
             continue
         submit(cluster, interactive, nb_nodes, nb_cores_per_node)
-else:
+
+if 'inter' in mode:
     nodes = [2, 4, 8]
     for nb_nodes in nodes:
         submit(cluster, interactive, nb_nodes)

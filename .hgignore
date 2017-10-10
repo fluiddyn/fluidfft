@@ -44,6 +44,8 @@ bench/operator2d/util.py
 bench/results_bench/*.json
 bench/oar_launcher_*
 bench/OAR_*
+bench/launcher_*
+bench/SLURM*
 
 doc/ipynb/.ipynb_checkpoints
 doc/ipynb/*.rst
