@@ -119,6 +119,9 @@ class Extension(object):
         self.libraries = libraries
         self.language = language
 
+    def __repr__(self):
+        return 'purepymake.Extension<{}>'.format(self.name)
+
 
 def has_to_build(output_file, input_files):
     if not os.path.exists(output_file):
@@ -321,6 +324,7 @@ def make_extensions(extensions,
 
     sources = set()
     for ext in extensions:
+        print('make_extensions: ', ext)
         sources.update(ext.sources)
 
     # prepare a dictionary listing all files
