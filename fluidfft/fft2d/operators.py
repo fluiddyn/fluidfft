@@ -25,7 +25,7 @@ def _make_str_length(length):
     if l_over_pi.is_integer():
         return repr(int(l_over_pi)) + 'pi'
     elif round(length) == length:
-        return '{}'.format(int(length))    
+        return '{}'.format(int(length))
     else:
         return '{:.3f}'.format(length).rstrip('0')
 

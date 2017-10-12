@@ -41,6 +41,11 @@ from copy import copy
 import importlib
 import multiprocessing
 
+from distutils.ccompiler import CCompiler
+from setuptools.command.build_ext import build_ext
+
+import numpy as np
+
 config_vars = sysconfig.get_config_vars()
 
 try:
@@ -60,6 +65,18 @@ except ImportError:
 else:
     if mpi4py.__version__[0] < '2':
         raise ValueError('Please upgrade to mpi4py >= 2.0')
+
+try:
+    from concurrent.futures import ThreadPoolExecutor as Pool
+    PARALLEL_COMPILE = True
+except ImportError:
+    # from multiprocessing.pool import ThreadPool as Pool  # inefficient
+    PARALLEL_COMPILE = False
+    print('*' * 50 +
+          '\nTo compile pythran extensions in parallel, '
+          'requires concurrent.futures module\n'
+          '    pip install futures  # for Python 2.7 backport\n' +
+          '*' * 50)
 
 short_version = '.'.join([str(i) for i in sys.version_info[:2]])
 
@@ -171,8 +188,9 @@ class CommandsRunner(object):
 
 class FunctionsRunner(CommandsRunner):
     def _launch_process(self, command):
-        print('launching command:\n', command)
         func, args, kwargs = command
+        print('launching command:\n{}(\n    *args={},\n    **kwargs={})'.format(
+            func.__name__, args, kwargs))
         process = multiprocessing.Process(
             target=func, args=args, kwargs=kwargs)
         process.start()
@@ -405,3 +423,76 @@ def make_extensions(extensions,
 
     # wait for linking
     CommandsRunner(commands).run()
+
+
+# building with pythran
+
+try:
+    from pythran.dist import PythranExtension
+except ImportError:
+    pass
+
+
+def make_pythran_extensions(modules):
+    develop = sys.argv[-1] == 'develop'
+    extensions = []
+    for mod in modules:
+        base_file = mod.replace('.', os.path.sep)
+        py_file = base_file + '.py'
+        # warning: does not work on Windows (?)
+        suffix = sysconfig.get_config_var('EXT_SUFFIX') or '.so'
+        bin_file = base_file + suffix
+        if not develop or not os.path.exists(bin_file) or \
+           modification_date(bin_file) < modification_date(py_file):
+            pext = PythranExtension(mod, [py_file],)
+            pext.include_dirs.append(np.get_include())
+            # bug pythran extension...
+            pext.extra_compile_args.extend(['-O3', '-march=native'])
+            # pext.extra_compile_args.append('-fopenmp')
+            # pext.extra_link_args.extend([])
+            extensions.append(pext)
+    return extensions
+
+
+def build_extensions(self):
+    # monkey-patch as in distutils.command.build_ext (parallel)
+    self.check_extensions_list(self.extensions)
+    try:
+        self.compiler.compiler_so.remove('-Wstrict-prototypes')
+    except (AttributeError, ValueError):
+        pass
+
+    for ext in self.extensions:
+        try:
+            ext.sources = self.cython_sources(ext.sources, ext)
+        except AttributeError:
+            pass
+
+    num_jobs = os.cpu_count()
+    pool = Pool(num_jobs)
+    pool.map(self.build_extension, self.extensions)
+    pool.shutdown()
+
+
+def compile(self, sources, output_dir=None, macros=None,
+            include_dirs=None, debug=0, extra_preargs=None,
+            extra_postargs=None, depends=None):
+    macros, objects, extra_postargs, pp_opts, build = \
+        self._setup_compile(output_dir, macros, include_dirs, sources,
+                            depends, extra_postargs)
+    cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
+
+    for obj in objects:
+        try:
+            src, ext = build[obj]
+        except KeyError:
+            continue
+        self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
+
+    # Return *all* object filenames, not just the ones we just built.
+    return objects
+
+
+def monkeypatch_parallel_build():
+    build_ext.build_extensions = build_extensions
+    CCompiler.compile = compile

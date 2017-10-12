@@ -67,6 +67,8 @@ class OperatorsPseudoSpectral3D(object):
         self.ifft3d = op_fft.ifft
         self.fft3d = op_fft.fft
         self.sum_wavenumbers = op_fft.sum_wavenumbers
+        self.compute_energy_from_X = op_fft.compute_energy_from_X
+        self.compute_energy_from_K = op_fft.compute_energy_from_K
 
         self.shapeK_loc = op_fft.get_shapeK_loc()
         self.nk0, self.nk1, self.nk2 = self.shapeK_loc
@@ -120,7 +122,7 @@ class OperatorsPseudoSpectral3D(object):
 
     def produce_str_describing_grid(self):
         return '{}x{}x{}'.format(self.nx_seq, self.ny_seq, self.nz_seq)
-        
+
     def produce_str_describing_oper(self):
         """Produce a string describing the operator."""
         str_Lx = _make_str_length(self.Lx)

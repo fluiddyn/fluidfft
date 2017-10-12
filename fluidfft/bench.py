@@ -13,13 +13,12 @@ import json
 import socket
 import argparse
 
-try:
-    # from time import perf_counter as time
-    from time import time
-except ImportError:
-    # python 2.7
-    # from time import clock as time
-    from time import time
+from time import time
+# try:
+#     from time import perf_counter as clock
+# except ImportError:
+#     # python 2.7
+#     from time import clock as time
 
 import numpy as np
 

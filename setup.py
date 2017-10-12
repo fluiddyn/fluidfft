@@ -1,12 +1,9 @@
 
 from __future__ import print_function
 
-import sys
 import os
 from runpy import run_path
-from datetime import datetime
 
-from distutils.sysconfig import get_config_var
 from warnings import warn
 from setuptools import setup, find_packages
 from setuptools.dist import Distribution
@@ -23,15 +20,20 @@ Distribution(dict(setup_requires=setup_requires))
 
 from numpy.distutils.system_info import get_info
 
-from purepymake import Extension, make_extensions
-from config import parse_config
 from src_cy.make_files_with_mako import make_pyx_files
+from purepymake import (
+    Extension, make_extensions, monkeypatch_parallel_build,
+    make_pythran_extensions)
+from config import parse_config
+
+monkeypatch_parallel_build()
 
 try:
-    from pythran.dist import PythranExtension
+    import pythran
     use_pythran = True
 except ImportError:
     use_pythran = False
+
 
 try:
     use_mkl_intel_lp64 = 'mkl_intel_lp64' in get_info('mkl')['libraries']
@@ -199,33 +201,9 @@ for base_name in base_names:
             update_with_config(key)
 
 
-# todo: pythran build has to be in purepymake (in parallel)
-
-def modification_date(filename):
-    t = os.path.getmtime(filename)
-    return datetime.fromtimestamp(t)
-
-
-def make_pythran_extensions(modules):
-    develop = sys.argv[-1] == 'develop'
-    extensions = []
-    for mod in modules:
-        base_file = mod.replace('.', os.path.sep)
-        py_file = base_file + '.py'
-        # warning: does not work on Windows
-        suffix = get_config_var('EXT_SUFFIX') or '.so'
-        bin_file = base_file + suffix
-        if not develop or not os.path.exists(bin_file) or \
-           modification_date(bin_file) < modification_date(py_file):
-            pext = PythranExtension(mod, [py_file],)
-            pext.include_dirs.append(np.get_include())
-            # bug pythran extension...
-            pext.extra_compile_args.extend(['-O3', '-march=native'
-                                            # '-fopenmp'
-                                        ])
-            pext.extra_link_args.extend(['-O3', '-march=native'])
-            extensions.append(pext)
-    return extensions
+# import inspect
+# curframe = inspect.currentframe()
+# calframe = inspect.getouterframes(curframe, 2)
 
 
 if not on_rtd:
@@ -239,7 +217,8 @@ if not on_rtd:
 
     if use_pythran:
         ext_modules = make_pythran_extensions(
-            ['fluidfft.fft2d.util_pythran'])
+            ['fluidfft.fft2d.util_pythran',
+             'fluidfft.fft3d.util_pythran'])
 else:
     ext_modules = []
 
