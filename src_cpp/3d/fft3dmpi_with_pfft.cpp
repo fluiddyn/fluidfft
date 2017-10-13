@@ -308,19 +308,12 @@ myreal FFT3DMPIWithPFFT::sum_wavenumbers_double(myreal* fieldK)
 }
 
 
-#ifdef SINGLE_PREC
 void FFT3DMPIWithPFFT::sum_wavenumbers_complex(
-    pfftf_complex* fieldK, pfftf_complex* result)
+    mycomplex* fieldK, mycomplex* result)
 {
-  pfftf_complex sum_tmp = 0;
-  pfftf_complex sum_loc, sum;
-#else
-void FFT3DMPIWithPFFT::sum_wavenumbers_complex(
-    pfft_complex* fieldK, pfft_complex* result)
-{
-  pfft_complex sum_tmp = 0;
-  pfft_complex sum_loc, sum;
-#endif
+  mycomplex sum_tmp = 0;
+  mycomplex sum_loc, sum;
+
   int i0, i1, i2;
 
   // modes i1_seq = iKx = 0

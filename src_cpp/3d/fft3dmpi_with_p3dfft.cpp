@@ -231,19 +231,12 @@ myreal FFT3DMPIWithP3DFFT::sum_wavenumbers_double(myreal* fieldK)
 }
 
 
-#ifdef SINGLE_PREC
 void FFT3DMPIWithP3DFFT::sum_wavenumbers_complex(
-    fftwf_complex* fieldK, fftwf_complex* result)
+    mycomplex* fieldK, mycomplex* result)
 {
-  fftwf_complex sum_tmp = 0;
-  fftwf_complex sum_loc, sum;
-#else
-void FFT3DMPIWithP3DFFT::sum_wavenumbers_complex(
-    fftw_complex* fieldK, fftw_complex* result)
-{
-  fftw_complex sum_tmp = 0;
-  fftw_complex sum_loc, sum;
-#endif
+  mycomplex sum_tmp = 0;
+  mycomplex sum_loc, sum;
+
   int i0, i1, i2;
 
   i0 = 0;
@@ -296,11 +289,8 @@ myreal FFT3DMPIWithP3DFFT::compute_mean_from_X(myreal* fieldX)
   return (myreal) mean / coef_norm;
 }
 
-#ifdef SINGLE_PREC
-myreal FFT3DMPIWithP3DFFT::compute_mean_from_K(fftwf_complex* fieldK)
-#else
-myreal FFT3DMPIWithP3DFFT::compute_mean_from_K(fftw_complex* fieldK)
-#endif
+
+myreal FFT3DMPIWithP3DFFT::compute_mean_from_K(mycomplex* fieldK)
 {
   double mean, local_mean;
  
@@ -316,17 +306,17 @@ myreal FFT3DMPIWithP3DFFT::compute_mean_from_K(fftw_complex* fieldK)
 
 void FFT3DMPIWithP3DFFT::fft(myreal *fieldX, mycomplex *fieldK)
 {
-  int i0, i1, i2;
+  int i0;
   unsigned char op_f[]="fft";
   //cout << "FFT3DMPIWithP3DFFT::fft" << endl;
   myreal coef_normdiv = 1./coef_norm;
 
   memcpy(arrayX, fieldX, nX0loc*nX1loc*nX2loc*sizeof(myreal));
-  Cp3dfft_ftran_r2c(arrayX, reinterpret_cast<mycomplex_fftw*>(arrayK), op_f);
+  Cp3dfft_ftran_r2c(arrayX, arrayK, op_f);
   memcpy(fieldK, arrayK, nK0loc*nK1loc*nK2loc*sizeof(mycomplex));
 
   for (i0=0; i0<nK0loc*nK1loc*nK2loc; i0++)
-    fieldK[i0]  *= coef_normdiv;
+    fieldK[i0] *= coef_normdiv;
 }
 
 void FFT3DMPIWithP3DFFT::ifft(mycomplex *fieldK, myreal *fieldX)
@@ -335,7 +325,7 @@ void FFT3DMPIWithP3DFFT::ifft(mycomplex *fieldK, myreal *fieldX)
   //cout << "FFT3DMPIWithP3DFFT::ifft" << endl;
 
   memcpy(arrayK, fieldK, nK0loc*nK1loc*nK2loc*sizeof(mycomplex));
-  Cp3dfft_btran_c2r(reinterpret_cast<mycomplex_fftw*>(arrayK), arrayX, op_b);
+  Cp3dfft_btran_c2r(arrayK, arrayX, op_b);
   memcpy(fieldX, arrayX, nX0loc*nX1loc*nX2loc*sizeof(myreal)); 
 }
 

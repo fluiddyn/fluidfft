@@ -1,0 +1,30 @@
+[fftw3]
+use = mkl
+dir = 
+include_dir = /opt/software/common/intel/compilers_and_libraries_2017.2.174/linux/mkl/include/fftw
+library_dir = /opt/software/common/intel/compilers_and_libraries_2017.2.174/linux/mkl/lib/intel64
+
+[fftw3_mpi]
+use = False
+dir = 
+include_dir = 
+library_dir = 
+
+[cufft]
+use = False
+dir = 
+include_dir = 
+library_dir = 
+
+[pfft]
+use = False
+dir = 
+include_dir = 
+library_dir = 
+
+[p3dfft]
+use = False
+dir = 
+include_dir = 
+library_dir = 
+
