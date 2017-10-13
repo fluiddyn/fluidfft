@@ -1,5 +1,4 @@
 
-#include <complex.h>
 #include <fftw3-mpi.h>
 
 #include <base_fft3dmpi.h>
@@ -31,7 +30,7 @@ class FFT3DMPIWithFFTWMPI3D: public BaseFFT3DMPI
   
  private:
   int nX1_pad;
-  int coef_norm;
+  myreal coef_norm;
   myreal *arrayX;
   mycomplex *arrayK;
   myfftw_plan plan_r2c, plan_c2r;

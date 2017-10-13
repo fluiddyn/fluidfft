@@ -29,7 +29,7 @@ class FFT3DMPIWithP3DFFT: public BaseFFT3DMPI
 
  private:
   int nX2loc, nK2loc, nXxloc, nXyloc, nXzloc, nKzloc, nXx, nXy, nXz;
-  int coef_norm;
+  myreal coef_norm;
   myreal *arrayX;
   myreal *arrayK;
   ptrdiff_t alloc_local;

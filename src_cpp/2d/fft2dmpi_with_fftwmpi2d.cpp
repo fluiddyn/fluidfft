@@ -69,18 +69,18 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1):
       flags|FFTW_MPI_TRANSPOSED_IN);
 #else
   arrayX = fftw_alloc_real(2 * alloc_local);
-  arrayK = fftw_alloc_complex(alloc_local);
+  arrayK = reinterpret_cast<mycomplex*>(fftw_alloc_complex(alloc_local));
 
   gettimeofday(&start_time, NULL);
 
   plan_r2c = fftw_mpi_plan_dft_r2c_2d(
       N0, N1, arrayX,
-      arrayK, MPI_COMM_WORLD,
+      reinterpret_cast<mycomplex_fftw*>(arrayK), MPI_COMM_WORLD,
       flags|FFTW_MPI_TRANSPOSED_OUT);
 
   plan_c2r = fftw_mpi_plan_dft_c2r_2d(
       N0, N1,
-      arrayK, arrayX,
+      reinterpret_cast<mycomplex_fftw*>(arrayK), arrayX,
       MPI_COMM_WORLD,
       flags|FFTW_MPI_TRANSPOSED_IN);
 #endif
@@ -149,7 +149,7 @@ myreal FFT2DMPIWithFFTWMPI2D::compute_energy_from_K(mycomplex* fieldK)
   // modes i0 = iKx = 0
   i0 = 0;
   for (i1=0; i1<nK1; i1++)
-    energy_tmp += pow(cabs(fieldK[i1]), 2);
+    energy_tmp += pow(abs(fieldK[i1]), 2);
   
   if (local_K0_start == 0)  // i.e. if iKx == 0
     energy_loc = energy_tmp/2;
@@ -161,7 +161,7 @@ myreal FFT2DMPIWithFFTWMPI2D::compute_energy_from_K(mycomplex* fieldK)
   energy_tmp = 0.;
   i_tmp = i0 * nK1;
   for (i1=0; i1<nK1; i1++)
-    energy_tmp += pow(cabs(fieldK[i1 + i_tmp]), 2);
+    energy_tmp += pow(abs(fieldK[i1 + i_tmp]), 2);
 
   if (rank == nb_proc - 1)
     energy_loc += energy_tmp/2;
@@ -171,7 +171,7 @@ myreal FFT2DMPIWithFFTWMPI2D::compute_energy_from_K(mycomplex* fieldK)
   // other modes
   for (i0=1; i0<nK0loc-1; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy_loc += pow(cabs(fieldK[i1 + i0*nK1]), 2);
+      energy_loc += pow(abs(fieldK[i1 + i0*nK1]), 2);
 #ifdef SINGLE_PREC
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
 #else
@@ -244,7 +244,7 @@ myreal FFT2DMPIWithFFTWMPI2D::compute_mean_from_K(mycomplex* fieldK)
 {
   myreal mean, local_mean;
   if (local_K0_start == 0)
-    local_mean = creal(fieldK[0]);
+    local_mean = real(fieldK[0]);
   else
     local_mean = 0.;
 #ifdef SINGLE_PREC

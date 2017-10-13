@@ -8,13 +8,10 @@
 
 #include <sys/time.h>
 
-/* It seems that we need these strange includes in this order to use fftw3 in
-   cpp (?) */
-#include <complex.h>
-#include <fftw3.h>
-
 #include <complex>
 using std::complex;
+
+#include <fftw3.h>
 
 #include <cstdlib>
 #include <iostream>
@@ -26,11 +23,13 @@ using namespace std;
 
 #ifdef SINGLE_PREC
   typedef float myreal;
-  typedef fftwf_complex mycomplex;
+  typedef complex<float> mycomplex;
+  typedef fftwf_complex mycomplex_fftw;
   typedef fftwf_plan myfftw_plan;
 #else
   typedef double myreal;
-  typedef fftw_complex mycomplex;
+  typedef complex<double> mycomplex;
+  typedef fftw_complex mycomplex_fftw;
   typedef fftw_plan myfftw_plan;
 #endif
 
@@ -65,6 +64,8 @@ class BaseFFT
   virtual void alloc_array_X(myreal* &fieldX);
 
   int rank, nb_proc;
+
+  myreal coef_norm;
 
 protected:
   /* X and K denote physical and Fourier spaces. */

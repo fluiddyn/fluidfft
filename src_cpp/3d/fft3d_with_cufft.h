@@ -1,6 +1,5 @@
 
 #include <stdio.h>
-#include <complex.h>
 #include <cuda_runtime.h>
 #include <cufft.h>
 #include <base_fft3d.h>
@@ -39,7 +38,7 @@ class FFT3DWithCUFFT: public BaseFFT3D
 
  private:
   int nX2loc, nK2loc, nXxloc, nXyloc, nXzloc, nKzloc, nXx, nXy, nXz, nKyloc;
-  int coef_norm;
+  myreal coef_norm;
 
   int mem_size;//equivalent à la taille de arrayK?
   int mem_sizer;//equivalent à la taille de arrayK?

@@ -24,7 +24,7 @@ class FFT3DWithFFTW3D: public BaseFFT3D
   void init_array_X_random(myreal* &fieldX);
 
  private:
-  int coef_norm;
+  myreal coef_norm;
   myreal *arrayX;
 
   myfftw_plan plan_r2c, plan_c2r;

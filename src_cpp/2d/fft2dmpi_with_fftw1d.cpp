@@ -57,13 +57,13 @@ FFT2DMPIWithFFTW1D::FFT2DMPIWithFFTW1D(int argN0, int argN1):
       1, &N1, howmany,
       arrayX, NULL,
       istride, N1,
-      arrayK_pR, NULL,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pR), NULL,
       ostride, nKx+1,
       flags);
     
   plan_c2r = fftw_plan_many_dft_c2r(
       1, &N1, howmany,
-      arrayK_pR, NULL,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pR), NULL,
       istride, nKx+1,
       arrayX, NULL,
       ostride, N1,
@@ -73,18 +73,18 @@ FFT2DMPIWithFFTW1D::FFT2DMPIWithFFTW1D(int argN0, int argN1):
   sign = FFTW_FORWARD;
   plan_c2c_fwd = fftw_plan_many_dft(
       1, &N0, howmany,
-      arrayK_pC, &N0,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pC), &N0,
       istride, N0,
-      arrayK_pC, &N0,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pC), &N0,
       ostride, N0,
       sign, flags);
 
   sign = FFTW_BACKWARD;
   plan_c2c_bwd = fftw_plan_many_dft(
       1, &N0, howmany,
-      arrayK_pC, &N0,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pC), &N0,
       istride, N0,
-      arrayK_pC, &N0,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pC), &N0,
       ostride, N0,
       sign, flags);
 
@@ -187,7 +187,7 @@ myreal FFT2DMPIWithFFTW1D::compute_energy_from_K(mycomplex* fieldK)
   // modes i0 = iKx = 0
   i0 = 0;
   for (i1=0; i1<nK1; i1++)
-    energy_tmp += pow(cabs(fieldK[i1]), 2);
+    energy_tmp += pow(abs(fieldK[i1]), 2);
   
   if (rank == 0)  // i.e. if iKx == 0
     energy_loc = energy_tmp/2;
@@ -197,7 +197,7 @@ myreal FFT2DMPIWithFFTW1D::compute_energy_from_K(mycomplex* fieldK)
   // other modes
   for (i0=1; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy_loc += pow(cabs(fieldK[i1 + i0*nK1]), 2);
+      energy_loc += pow(abs(fieldK[i1 + i0*nK1]), 2);
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
@@ -254,7 +254,7 @@ myreal FFT2DMPIWithFFTW1D::compute_mean_from_K(mycomplex* fieldK)
 {
   myreal mean;
   if (rank == 0)
-    mean = creal(fieldK[0]);
+    mean = real(fieldK[0]);
 
   MPI_Bcast(&mean, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   

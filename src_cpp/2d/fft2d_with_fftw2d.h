@@ -22,7 +22,7 @@ class FFT2DWithFFTW2D: public BaseFFT2D
   void init_array_X_random(myreal* &fieldX);
 
  private:
-  int coef_norm;
+  myreal coef_norm;
   myfftw_plan plan_r2c, plan_c2r;
   myreal *arrayX;
   mycomplex *arrayK;

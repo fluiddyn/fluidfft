@@ -1,8 +1,8 @@
 SINGLE_PREC:=no
-OMP:=yes
-CUDA:=yes
-PFFT:=yes
-P3DFFT:=yes
+OMP:=no
+CUDA:=no
+PFFT:=no
+P3DFFT:=no
 
 LD:=mpic++
 CC:=mpic++

@@ -46,14 +46,14 @@ FFT2DWithFFTW2D::FFT2DWithFFTW2D(int argN0, int argN1):
       N0, N1, arrayK, arrayX, flags);
 #else
   arrayX = fftw_alloc_real(nX0 * nX1);
-  arrayK = fftw_alloc_complex(nK0 * nK1);
+  arrayK = reinterpret_cast<mycomplex*>(fftw_alloc_complex(nK0 * nK1));
   gettimeofday(&start_time, NULL);
 
   plan_r2c = fftw_plan_dft_r2c_2d(
-      N0, N1, arrayX, arrayK, flags);
+      N0, N1, arrayX, reinterpret_cast<mycomplex_fftw*>(arrayK), flags);
 
   plan_c2r = fftw_plan_dft_c2r_2d(
-      N0, N1, arrayK, arrayX, flags);
+      N0, N1, reinterpret_cast<mycomplex_fftw*>(arrayK), arrayX, flags);
 #endif
 
   gettimeofday(&end_time, NULL);
@@ -113,7 +113,7 @@ myreal FFT2DWithFFTW2D::compute_energy_from_K(mycomplex* fieldK)
   // modes i1 = iKx = 0
   i1 = 0;
   for (i0=0; i0<nK0; i0++)
-    energy_tmp += pow(cabs(fieldK[i0 * nK1]), 2);
+    energy_tmp += pow(abs(fieldK[i0 * nK1]), 2);
   
   energy = energy_tmp/2;
 
@@ -121,7 +121,7 @@ myreal FFT2DWithFFTW2D::compute_energy_from_K(mycomplex* fieldK)
   i1 = nK1 - 1;
   energy_tmp = 0.;
   for (i0=0; i0<nK0; i0++)
-    energy_tmp += pow(cabs(fieldK[i1 + i0 * nK1]), 2);
+    energy_tmp += pow(abs(fieldK[i1 + i0 * nK1]), 2);
 
   if (nX1 % 2 == 0)
     energy_tmp = energy_tmp/2;
@@ -131,7 +131,7 @@ myreal FFT2DWithFFTW2D::compute_energy_from_K(mycomplex* fieldK)
   // other modes
   for (i0=0; i0<nK0loc; i0++)
     for (i1=1; i1<nK1-1; i1++)
-      energy += pow(cabs(fieldK[i1 + i0 * nK1]), 2);
+      energy += pow(abs(fieldK[i1 + i0 * nK1]), 2);
 
   return energy;
 }
@@ -184,7 +184,7 @@ myreal FFT2DWithFFTW2D::compute_mean_from_X(myreal* fieldX)
 
 myreal FFT2DWithFFTW2D::compute_mean_from_K(mycomplex* fieldK)
 {
-  myreal mean = creal(fieldK[0]);
+  myreal mean = real(fieldK[0]);
   return mean;
 }
 

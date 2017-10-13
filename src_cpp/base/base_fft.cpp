@@ -23,6 +23,17 @@ myreal compute_time_in_second(struct timeval start_time,
     (end_time.tv_usec - start_time.tv_usec)/1000000.;
 }
 
+// template <typename T, typename U>
+// inline std::complex<T> operator*(std::complex<T> lhs, const U& rhs)
+// {
+//     return lhs *= rhs;
+// }
+
+// template <typename T, typename U>
+// inline std::complex<T> operator/(std::complex<T> lhs, const U& rhs)
+// {
+//     return lhs /= rhs;
+// }
 
 int are_nearly_equal(myreal a, myreal b)
 {

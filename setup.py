@@ -209,8 +209,8 @@ for base_name in base_names:
 if not on_rtd:
     make_extensions(
         ext_modules, include_dirs=include_dirs,
-        lib_flags_dict=lib_flags_dict, lib_dirs_dict=lib_dirs_dict,
-        CFLAGS='-std=c++03')
+        lib_flags_dict=lib_flags_dict, lib_dirs_dict=lib_dirs_dict)
+    #  CFLAGS='-std=c++03')
 
     # Clear all purepymake.Extension objects after build is done.
     ext_modules = []

@@ -24,7 +24,7 @@ class FFT2DMPIWithFFTW1D: public BaseFFT2DMPI
   void init_array_X_random(myreal* &fieldX);
 
  private:
-  int coef_norm;
+  myreal coef_norm;
   fftw_plan plan_r2c, plan_c2c_fwd, plan_c2r, plan_c2c_bwd;
   myreal *arrayX;
   mycomplex *arrayK_pR, *arrayK_pC;

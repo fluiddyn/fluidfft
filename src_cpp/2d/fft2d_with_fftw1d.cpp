@@ -105,13 +105,13 @@ FFT2DWithFFTW1D::FFT2DWithFFTW1D(int argN0, int argN1):
       1, &N1, howmany,
       arrayX, NULL,
       istride, N1,
-      arrayK_pR, NULL,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pR), NULL,
       ostride, nKx+1,
       flags);
     
   plan_c2r = fftw_plan_many_dft_c2r(
       1, &N1, howmany,
-      arrayK_pR, NULL,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pR), NULL,
       istride, nKx+1,
       arrayX, NULL,
       ostride, N1,
@@ -121,18 +121,18 @@ FFT2DWithFFTW1D::FFT2DWithFFTW1D(int argN0, int argN1):
   sign = FFTW_FORWARD;
   plan_c2c_fwd = fftw_plan_many_dft(
       1, &N0, howmany,
-      arrayK_pC, &N0,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pC), &N0,
       istride, N0,
-      arrayK_pC, &N0,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pC), &N0,
       ostride, N0,
       sign, flags);
 
   sign = FFTW_BACKWARD;
   plan_c2c_bwd = fftw_plan_many_dft(
       1, &N0, howmany,
-      arrayK_pC, &N0,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pC), &N0,
       istride, N0,
-      arrayK_pC, &N0,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pC), &N0,
       ostride, N0,
       sign, flags);
 #endif
@@ -201,14 +201,14 @@ myreal FFT2DWithFFTW1D::compute_energy_from_K(mycomplex* fieldK)
   // modes i0 = iKx = 0
   i0 = 0;
   for (i1=0; i1<nK1; i1++)
-    energy_tmp += pow(cabs(fieldK[i1]), 2);
+    energy_tmp += pow(abs(fieldK[i1]), 2);
   
   energy = energy_tmp/2;
 
   // other modes
   for (i0=1; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy += pow(cabs(fieldK[i1 + i0*nK1]), 2);
+      energy += pow(abs(fieldK[i1 + i0*nK1]), 2);
 
   return energy;
 }
@@ -247,7 +247,7 @@ myreal FFT2DWithFFTW1D::compute_mean_from_X(myreal* fieldX)
 }
 myreal FFT2DWithFFTW1D::compute_mean_from_K(mycomplex* fieldK)
 {
-  myreal mean = creal(fieldK[0]);
+  myreal mean = fieldK[0].real();
   return mean;
 }
 void FFT2DWithFFTW1D::fft(myreal *fieldX, mycomplex *fieldK)

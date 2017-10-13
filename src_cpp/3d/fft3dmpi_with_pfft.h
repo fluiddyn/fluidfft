@@ -29,7 +29,7 @@ class FFT3DMPIWithPFFT: public BaseFFT3DMPI
 
  private:
   int nX2loc, nK2loc, nXxloc, nXyloc, nXzloc, nKzloc, nXx, nXy, nXz;
-  int coef_norm;
+  myreal coef_norm;
 #ifdef SINGLE_PREC
   pfftf_plan plan_r2c, plan_c2r;
 #else

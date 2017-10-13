@@ -69,13 +69,13 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2):
       1, &N2, howmany,
       arrayX, NULL,
       1, N2,
-      arrayK_pR, NULL,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pR), NULL,
       N1*nX0loc, 1,
       flags);
     
   plan_c2r = fftw_plan_many_dft_c2r(
       1, &N2, howmany,
-      arrayK_pR, NULL,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pR), NULL,
       N1*nX0loc, 1,
       arrayX, NULL,
       1, N2,
@@ -84,18 +84,18 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2):
   sign = FFTW_FORWARD;
   plan_c2c1_fwd = fftw_plan_many_dft(
       1, &N1, howmany,
-      arrayK_pR, NULL,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pR), NULL,
       1, N1,
-      arrayK_pR, NULL,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pR), NULL,
       1, N1,
       sign, flags);
     
   sign = FFTW_BACKWARD;
   plan_c2c1_bwd = fftw_plan_many_dft(
       1, &N1, howmany,
-      arrayK_pR, NULL,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pR), NULL,
       1, N1,
-      arrayK_pR, NULL,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pR), NULL,
       1, N1,
       sign, flags);
 
@@ -103,18 +103,18 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2):
   sign = FFTW_FORWARD;
   plan_c2c_fwd = fftw_plan_many_dft(
       1, &N0, howmany,
-      arrayK_pC, &N0,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pC), &N0,
       istride, N0,
-      arrayK_pC, &N0,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pC), &N0,
       ostride, N0,
       sign, flags);
 
   sign = FFTW_BACKWARD;
   plan_c2c_bwd = fftw_plan_many_dft(
       1, &N0, howmany,
-      arrayK_pC, &N0,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pC), &N0,
       istride, N0,
-      arrayK_pC, &N0,
+      reinterpret_cast<mycomplex_fftw*>(arrayK_pC), &N0,
       ostride, N0,
       sign, flags);
 
@@ -208,10 +208,10 @@ myreal FFT3DMPIWithFFTW1D::compute_energy_from_K(mycomplex* fieldK)
   i0 = 0;
   for (i1=0; i1<nK1; i1++)
     for (i2=0; i2<nK2; i2++)
-      energy_tmp += pow(cabs(fieldK[i1*nK2 + i2]), 2);
+      energy_tmp += pow(abs(fieldK[i1*nK2 + i2]), 2);
   
   if (rank == 0)  // i.e. if iKx == 0
-    energy_loc = energy_tmp/2;
+    energy_loc = energy_tmp/2.;
   else
     energy_loc = energy_tmp;
 
@@ -219,7 +219,7 @@ myreal FFT3DMPIWithFFTW1D::compute_energy_from_K(mycomplex* fieldK)
   for (i0=1; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
       for (i2=0; i2<nK2; i2++)
-        energy_loc += pow(cabs(fieldK[i2 + i1*nK2 + i0*nK1*nK2]), 2);
+        energy_loc += pow(abs(fieldK[i2 + i1*nK2 + i0*nK1*nK2]), 2);
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
   // cout << "energy" << energy << endl;
@@ -242,7 +242,7 @@ myreal FFT3DMPIWithFFTW1D::sum_wavenumbers_double(myreal* fieldK)
       sum_tmp += fieldK[i2 + i1*nK2];
   
   if (rank == 0)  // i.e. if iKx == 0
-    sum_loc = sum_tmp/2;
+    sum_loc = sum_tmp/2.;
   else
     sum_loc = sum_tmp;
 
@@ -274,7 +274,7 @@ void FFT3DMPIWithFFTW1D::sum_wavenumbers_complex(
       sum_tmp += fieldK[i2 + i1*nK2];
   
   if (rank == 0)  // i.e. if iKx == 0
-    sum_loc = sum_tmp/2;
+    sum_loc = sum_tmp/2.;
   else
     sum_loc = sum_tmp;
 
@@ -312,7 +312,7 @@ myreal FFT3DMPIWithFFTW1D::compute_mean_from_K(mycomplex* fieldK)
 {
   myreal mean;
   if (rank == 0)
-    mean = creal(fieldK[0]);
+    mean = real(fieldK[0]);
 
   MPI_Bcast(&mean, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
  // cout << "meanK="<<mean<<endl; 

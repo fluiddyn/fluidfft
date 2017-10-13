@@ -1,12 +1,4 @@
 
-
-// #include <iostream>
-// using namespace std;
-
-// #include <stdlib.h>
-
-// #include <sys/time.h>
-
 #include <fft3dmpi_with_p3dfft.h>
 
 FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
@@ -163,7 +155,7 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex* fieldK)
   energy_tmp=0.;
   for (i2=0; i2<nK2loc; i2++)
     for (i1=0; i1<nK1loc; i1++)
-      energy_tmp += (double) pow(cabs(fieldK[i0 + (i1+i2*nK1loc)*nK0loc]), 2);
+      energy_tmp += (double) pow(abs(fieldK[i0 + (i1+i2*nK1loc)*nK0loc]), 2);
 
   if ((local_K0_start == 1) || (nK0loc == 1 and local_K0_start + nK0loc == nK0 + 1))
     energy_loc = energy_tmp /2.;
@@ -177,17 +169,17 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex* fieldK)
     energy_tmp = 0;
     for (i2=0; i2<nK2loc; i2++)
       for (i1=0; i1<nK1loc; i1++)
-        energy_tmp += (double) pow(cabs(fieldK[i0 + (i1 + i2*nK1loc)*nK0loc]), 2);
+        energy_tmp += (double) pow(abs(fieldK[i0 + (i1 + i2*nK1loc)*nK0loc]), 2);
 
     if (local_K0_start + nK0loc -1== nK0/2+1)
-      energy_loc += energy_tmp/2;
+      energy_loc += energy_tmp/2.;
     else
       energy_loc += energy_tmp;
 
     for (i2=0; i2<nK2loc; i2++)
       for (i1=0; i1<nK1loc; i1++)
         for (i0=1; i0<nK0loc-1; i0++)
-          energy_loc += (double) pow(cabs(fieldK[i0 + (i1 + i2*nK1loc)*nK0loc]), 2);
+          energy_loc += (double) pow(abs(fieldK[i0 + (i1 + i2*nK1loc)*nK0loc]), 2);
   }
   
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
@@ -223,7 +215,7 @@ myreal FFT3DMPIWithP3DFFT::sum_wavenumbers_double(myreal* fieldK)
         sum_tmp += (double) fieldK[i0 + (i1 + i2*nK1loc)*nK0loc];
 
     if (local_K0_start + nK0loc -1== nK0/2+1)
-      sum_loc += sum_tmp/2;
+      sum_loc += sum_tmp/2.;
     else
       sum_loc += sum_tmp;
 
@@ -274,7 +266,7 @@ void FFT3DMPIWithP3DFFT::sum_wavenumbers_complex(
         sum_tmp += fieldK[i0 + (i1 + i2*nK1loc)*nK0loc];
 
     if (local_K0_start + nK0loc -1== nK0/2+1)
-      sum_loc += sum_tmp/2;
+      sum_loc += sum_tmp/2.;
     else
       sum_loc += sum_tmp;
 
@@ -313,7 +305,7 @@ myreal FFT3DMPIWithP3DFFT::compute_mean_from_K(fftw_complex* fieldK)
   double mean, local_mean;
  
   if (local_K0_start == 1 and local_K1_start == 1)
-    local_mean = (double) creal(fieldK[0]);
+    local_mean = (double) real(fieldK[0]);
   else
     local_mean = 0.;
 
@@ -330,7 +322,7 @@ void FFT3DMPIWithP3DFFT::fft(myreal *fieldX, mycomplex *fieldK)
   myreal coef_normdiv = 1./coef_norm;
 
   memcpy(arrayX, fieldX, nX0loc*nX1loc*nX2loc*sizeof(myreal));
-  Cp3dfft_ftran_r2c(arrayX,arrayK,op_f);
+  Cp3dfft_ftran_r2c(arrayX, reinterpret_cast<mycomplex_fftw*>(arrayK), op_f);
   memcpy(fieldK, arrayK, nK0loc*nK1loc*nK2loc*sizeof(mycomplex));
 
   for (i0=0; i0<nK0loc*nK1loc*nK2loc; i0++)
@@ -343,7 +335,7 @@ void FFT3DMPIWithP3DFFT::ifft(mycomplex *fieldK, myreal *fieldX)
   //cout << "FFT3DMPIWithP3DFFT::ifft" << endl;
 
   memcpy(arrayK, fieldK, nK0loc*nK1loc*nK2loc*sizeof(mycomplex));
-  Cp3dfft_btran_c2r(arrayK,arrayX,op_b);
+  Cp3dfft_btran_c2r(reinterpret_cast<mycomplex_fftw*>(arrayK), arrayX, op_b);
   memcpy(fieldX, arrayX, nX0loc*nX1loc*nX2loc*sizeof(myreal)); 
 }
 

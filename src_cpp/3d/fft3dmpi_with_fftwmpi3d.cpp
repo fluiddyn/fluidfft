@@ -100,18 +100,18 @@ fftwf_plan_with_nthreads(omp_get_max_threads());
       flags|FFTW_MPI_TRANSPOSED_IN);
 #else
   arrayX = fftw_alloc_real(2 * alloc_local);
-  arrayK = fftw_alloc_complex(alloc_local);
+  arrayK = reinterpret_cast<mycomplex*>(fftw_alloc_complex(alloc_local));
 
   gettimeofday(&start_time, NULL);
 #ifdef OMP
 fftw_plan_with_nthreads(omp_get_max_threads());
 #endif
   plan_r2c = fftw_mpi_plan_dft_r2c_3d(
-      N0, N1, N2, arrayX, arrayK, MPI_COMM_WORLD,
+      N0, N1, N2, arrayX, reinterpret_cast<mycomplex_fftw*>(arrayK), MPI_COMM_WORLD,
       flags|FFTW_MPI_TRANSPOSED_OUT);
 
   plan_c2r = fftw_mpi_plan_dft_c2r_3d(
-      N0, N1, N2, arrayK, arrayX, MPI_COMM_WORLD,
+      N0, N1, N2, reinterpret_cast<mycomplex_fftw*>(arrayK), arrayX, MPI_COMM_WORLD,
       flags|FFTW_MPI_TRANSPOSED_IN);
 #endif
   gettimeofday(&end_time, NULL);
@@ -179,19 +179,19 @@ myreal FFT3DMPIWithFFTWMPI3D::compute_energy_from_K(mycomplex* fieldK)
   i2 = 0;
   for (i0=0; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy_tmp += (double) pow(cabs(fieldK[(i1 + i0 * nK1) * nK2]), 2);
+      energy_tmp += (double) pow(abs(fieldK[(i1 + i0 * nK1) * nK2]), 2);
 
-  energy_loc = energy_tmp/2;
+  energy_loc = energy_tmp/2.;
 
   // modes i2 = iKx = last = nK2 - 1
   i2 = nK2 - 1;
   energy_tmp = 0;
   for (i0=0; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy_tmp += (double) pow(cabs(fieldK[i2 + (i1 + i0 * nK1) * nK2]), 2);
+      energy_tmp += (double) pow(abs(fieldK[i2 + (i1 + i0 * nK1) * nK2]), 2);
 
   if (N2%2 == 0)
-    energy_loc += energy_tmp/2;
+    energy_loc += energy_tmp/2.;
   else
     energy_loc += energy_tmp;
   
@@ -199,7 +199,7 @@ myreal FFT3DMPIWithFFTWMPI3D::compute_energy_from_K(mycomplex* fieldK)
   for (i0=0; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
       for (i2=1; i2<nK2-1; i2++)
-	energy_loc += (double) pow(cabs(fieldK[i2 + (i1 + i0 * nK1) * nK2]), 2);
+	energy_loc += (double) pow(abs(fieldK[i2 + (i1 + i0 * nK1) * nK2]), 2);
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
@@ -219,7 +219,7 @@ myreal FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_double(myreal* fieldK)
     for (i1=0; i1<nK1; i1++)
       energy_tmp += (double) fieldK[(i1 + i0 * nK1) * nK2];
 
-  energy_loc = energy_tmp/2;
+  energy_loc = energy_tmp/2.;
 
   // modes i2 = iKx = last = nK2 - 1
   i2 = nK2 - 1;
@@ -229,7 +229,7 @@ myreal FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_double(myreal* fieldK)
       energy_tmp += (double) fieldK[i2 + (i1 + i0 * nK1) * nK2];
 
   if (N2%2 == 0)
-    energy_loc += energy_tmp/2;
+    energy_loc += energy_tmp/2.;
   else
     energy_loc += energy_tmp;
   
@@ -256,7 +256,7 @@ void FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_complex(
     for (i1=0; i1<nK1; i1++)
       energy_tmp += fieldK[(i1 + i0 * nK1) * nK2];
 
-  energy_loc = energy_tmp/2;
+  energy_loc = energy_tmp/2.;
 
   // modes i2 = iKx = last = nK2 - 1
   i2 = nK2 - 1;
@@ -266,7 +266,7 @@ void FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_complex(
       energy_tmp += fieldK[i2 + (i1 + i0 * nK1) * nK2];
 
   if (N2%2 == 0)
-    energy_loc += energy_tmp/2;
+    energy_loc += energy_tmp/2.;
   else
     energy_loc += energy_tmp;
   
@@ -301,7 +301,7 @@ myreal FFT3DMPIWithFFTWMPI3D::compute_mean_from_K(mycomplex* fieldK)
 {
   double mean, local_mean;
   if (local_K0_start == 0)
-    local_mean = (double) creal(fieldK[0]);
+    local_mean = (double) real(fieldK[0]);
   else
     local_mean = 0.;
 

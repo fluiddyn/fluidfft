@@ -32,7 +32,7 @@ class FFT3DMPIWithFFTW1D: public BaseFFT3DMPI
   ptrdiff_t local_X0_start, local_K0_start;
 
  private:
-  int coef_norm;
+  myreal coef_norm;
   fftw_plan plan_r2c, plan_c2c_fwd, plan_c2r, plan_c2c_bwd;
   fftw_plan plan_c2c1_fwd, plan_c2c1_bwd;
   myreal *arrayX;

@@ -51,7 +51,7 @@ FFT3DWithFFTW3D::FFT3DWithFFTW3D(int argN0, int argN1, int argN2):
   arrayK = fftwf_alloc_complex(nK0 * nK1 * nK2);
 #else
   arrayX = fftw_alloc_real(nX0 * nX1 * nX2);
-  arrayK = fftw_alloc_complex(nK0 * nK1 * nK2);
+  arrayK =  reinterpret_cast<mycomplex*>(fftw_alloc_complex(nK0 * nK1 * nK2));
 #endif
 
   gettimeofday(&start_time, NULL);
@@ -65,16 +65,16 @@ FFT3DWithFFTW3D::FFT3DWithFFTW3D(int argN0, int argN1, int argN2):
 
 #ifdef SINGLE_PREC
   plan_r2c = fftwf_plan_dft_r2c_3d(
-      N0, N1, N2, arrayX, arrayK, flags);
+      N0, N1, N2, arrayX,  reinterpret_cast<mycomplex_fftw*>(arrayK), flags);
 
   plan_c2r = fftwf_plan_dft_c2r_3d(
-      N0, N1, N2, arrayK, arrayX, flags);
+      N0, N1, N2,  reinterpret_cast<mycomplex_fftw*>(arrayK), arrayX, flags);
 #else
   plan_r2c = fftw_plan_dft_r2c_3d(
-      N0, N1, N2, arrayX, arrayK, flags);
+      N0, N1, N2, arrayX,  reinterpret_cast<mycomplex_fftw*>(arrayK), flags);
 
   plan_c2r = fftw_plan_dft_c2r_3d(
-      N0, N1, N2, arrayK, arrayX, flags);
+      N0, N1, N2,  reinterpret_cast<mycomplex_fftw*>(arrayK), arrayX, flags);
 #endif
 
   gettimeofday(&end_time, NULL);
@@ -152,7 +152,7 @@ myreal FFT3DWithFFTW3D::compute_energy_from_K(mycomplex* fieldK)
   i2 = 0;
   for (i0=0; i0<nK0; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy_tmp += (double) pow(cabs(fieldK[(i1 + i0 * nK1) * nK2]), 2);
+      energy_tmp += (double) pow(abs(fieldK[(i1 + i0 * nK1) * nK2]), 2);
   
   energy = energy_tmp/2;
 
@@ -161,7 +161,7 @@ myreal FFT3DWithFFTW3D::compute_energy_from_K(mycomplex* fieldK)
   energy_tmp = 0.;
   for (i0=0; i0<nK0; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy_tmp += (double) pow(cabs(fieldK[i2 + (i1 + i0 * nK1) * nK2]), 2);
+      energy_tmp += (double) pow(abs(fieldK[i2 + (i1 + i0 * nK1) * nK2]), 2);
 
   if (N2%2 == 0)
     energy += energy_tmp/2;
@@ -172,7 +172,7 @@ myreal FFT3DWithFFTW3D::compute_energy_from_K(mycomplex* fieldK)
   for (i0=0; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
       for (i2=1; i2<nK2-1; i2++)
-	energy += (double) pow(cabs(fieldK[i2 + (i1 + i0 * nK1) * nK2]), 2);
+	energy += (double) pow(abs(fieldK[i2 + (i1 + i0 * nK1) * nK2]), 2);
 
   return (myreal) energy;
 }
@@ -225,7 +225,7 @@ void FFT3DWithFFTW3D::sum_wavenumbers_complex(mycomplex* fieldK, mycomplex* resu
     for (i1=0; i1<nK1; i1++)
       sum_tmp += fieldK[(i1 + i0 * nK1) * nK2];
   
-  sum = sum_tmp/2;
+  sum = sum_tmp/2.;
 
   // modes i2 = iKx = last = nK2 - 1
   i2 = nK2 - 1;
@@ -235,7 +235,7 @@ void FFT3DWithFFTW3D::sum_wavenumbers_complex(mycomplex* fieldK, mycomplex* resu
       sum_tmp += fieldK[i2 + (i1 + i0 * nK1) * nK2];
 
   if (N2%2 == 0)
-    sum += sum_tmp/2;
+    sum += sum_tmp/2.;
   else
     sum += sum_tmp;
 
@@ -272,7 +272,7 @@ myreal FFT3DWithFFTW3D::compute_mean_from_X(myreal* fieldX)
 
 myreal FFT3DWithFFTW3D::compute_mean_from_K(mycomplex* fieldK)
 {
-  myreal mean = creal(fieldK[0]);
+  myreal mean = real(fieldK[0]);
   return mean;
 }
 

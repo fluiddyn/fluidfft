@@ -66,7 +66,6 @@ FFT3DWithCUFFT::FFT3DWithCUFFT(int argN0, int argN1, int argN2):
 
   coef_norm = N0*N1*N2;
 
-
   mem_sizer = sizeof(myreal) * N0 * N1 * N2 ;//taille de arrayX
   int new_size = nK0 * nK1 * nK2 ;
   mem_size = 2 * sizeof(myreal) * new_size ;//taille de arrayK
@@ -149,7 +148,7 @@ myreal FFT3DWithCUFFT::compute_energy_from_K(mycomplex* fieldK)
   i2 = nK2 - 1;
   for (i0=0; i0<nK0; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy += (double) pow(cabs(fieldK[i2 + (i1 + i0*nK1)*nK2]), 2);
+      energy += (double) pow(abs(fieldK[i2 + (i1 + i0*nK1)*nK2]), 2);
       // we must divide by 2 ==> after
   
     energy *= 0.5; //divide by 2!!!
@@ -158,13 +157,13 @@ myreal FFT3DWithCUFFT::compute_energy_from_K(mycomplex* fieldK)
   for (i0=0; i0<nK0; i0++)
     for (i1=0; i1<nK1; i1++)
       for (i2=1; i2<nK2-1; i2++)
-        energy += (double) pow(cabs(fieldK[i2 + (i1 + i0*nK1)*nK2]), 2);
+        energy += (double) pow(abs(fieldK[i2 + (i1 + i0*nK1)*nK2]), 2);
     
   // modes i1_seq = iKx = 0
   i2 = 0;
   for (i0=0; i0<nK0; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy0 += (double) pow(cabs(fieldK[(i1 + i0*nK1)*nK2]), 2);
+      energy0 += (double) pow(abs(fieldK[(i1 + i0*nK1)*nK2]), 2);
       // we must divide by 2 ==> after
 
   energy += energy0/2.;
@@ -267,7 +266,7 @@ myreal FFT3DWithCUFFT::compute_mean_from_X(myreal* fieldX)
 myreal FFT3DWithCUFFT::compute_mean_from_K(mycomplex* fieldK)
 {
   myreal mean;
-  mean = creal(fieldK[0]);
+  mean = real(fieldK[0]);
 
   return mean;
 }
