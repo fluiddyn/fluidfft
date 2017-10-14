@@ -44,6 +44,9 @@ def get_config():
     if os.path.exists('site.cfg'):
         print('Parsing site.cfg.')
         config.read('site.cfg')
+    else:
+        print('Using default configuration. Copy site.cfg.default -> '
+              'site.cfg to specify site specific libraries.')
 
     config_dict = {}
     for section in config.sections():
@@ -55,14 +58,19 @@ def get_config():
             value = config.get(section, option)
             if option == 'use':
                 value = value.lower()
-                if not (section == 'fftw3' and value == 'mkl'):
+                if not (section == 'fftw3' and value in ('mkl', 'mkl_rt')):
                     if value not in ['true', 'false']:
                         raise ValueError('"use" should be "True" of "False".')
                     value = value == 'true'
             else:
                 value = os.path.expandvars(value)
             section_dict[option] = value
+
         config_dict[section] = section_dict
+        if section_dict['use']:
+            print(section + ': ')
+            for k, v in section_dict.items():
+                print('{}: '.format(k).rjust(25) + v)
 
     return config_dict
 
@@ -82,9 +90,12 @@ def parse_config():
 
     lib_flags_dict = {}
 
+    # See https://software.intel.com/en-us/articles/intel-mkl-link-line-advisor
     if config['fftw3']['use'] == 'mkl':
         lib_flags_dict['fftw3'] = [
             'mkl_intel_ilp64', 'mkl_sequential', 'mkl_core']
+    elif config['fftw3']['use'] == 'mkl_rt':
+        lib_flags_dict['fftw3'] = ['mkl_rt', 'pthread', 'm', 'dl']
 
     lib_dirs_dict = {}
     for lib in sections_libs:

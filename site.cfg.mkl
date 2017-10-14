@@ -1,8 +1,10 @@
 [fftw3]
+# Set `use = mkl` or `use = mkl_rt` to link dynamic or single-dynamic
+# libraries respectively. Run `fluidinfo -v` to decide which one to use.
 use = mkl
 dir = 
-include_dir = /opt/software/common/intel/compilers_and_libraries_2017.2.174/linux/mkl/include/fftw
-library_dir = /opt/software/common/intel/compilers_and_libraries_2017.2.174/linux/mkl/lib/intel64
+include_dir = $MKLROOT/include/fftw
+library_dir = $MKLROOT/lib/intel64
 
 [fftw3_mpi]
 use = False

@@ -102,13 +102,13 @@ def check_deps():
 
         print('{} installed: '.format(pkg).rjust(25) + repr(result))
 
-    print('*' * 40)
+    print('*' * 50)
     check_and_print('numpy')
     check_and_print('mpi4py', can_import_mpi4py)
     check_and_print('cython', can_import_cython)
     check_and_print('pythran')
     check_and_print('mako')
-    print('*' * 40)
+    print('*' * 50)
 
 
 check_deps()

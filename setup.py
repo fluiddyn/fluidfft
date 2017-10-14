@@ -36,9 +36,10 @@ except ImportError:
 
 
 try:
-    use_mkl_intel_lp64 = 'mkl_intel_lp64' in get_info('mkl')['libraries']
+    mkl_libs = get_info('mkl')['libraries']
+    use_mkl_intel = 'mkl_intel_lp64' in mkl_libs or 'mkl_rt' in mkl_libs
 except KeyError:
-    use_mkl_intel_lp64 = False
+    use_mkl_intel = False
 
 make_pyx_files()
 
@@ -132,7 +133,7 @@ if config['fftw3']['use']:
         'fft3d_with_fftw3d', 'fft3dmpi_with_fftw1d'])
 
 if config['fftw3_mpi']['use']:
-    if use_mkl_intel_lp64:
+    if use_mkl_intel:
         warn('When numpy uses mkl (as for example with conda), '
              'there are symbol conflicts between mkl and fftw. '
              'This can lead to a segmentation fault '
@@ -145,7 +146,7 @@ if config['cufft']['use']:
     base_names.extend(['fft2d_with_cufft'])
     base_names.extend(['fft3d_with_cufft'])
 
-if config['pfft']['use'] and not use_mkl_intel_lp64:
+if config['pfft']['use'] and not use_mkl_intel:
     base_names.extend(['fft3dmpi_with_pfft'])
 
 if config['p3dfft']['use']:
