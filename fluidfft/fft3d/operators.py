@@ -81,6 +81,7 @@ class OperatorsPseudoSpectral3D(object):
         elif order == (2, 1, 0):
             self.deltaks = deltakx, deltaky, deltakz
         else:
+            print('order =', order)
             raise NotImplementedError
 
         k0_adim_loc, k1_adim_loc, k2_adim_loc = op_fft.get_k_adim_loc()

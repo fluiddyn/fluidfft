@@ -1,5 +1,5 @@
-"""Do not modify this file to modify your configuration. Copy
-site.cfg.example to site.cfg and modify this file.
+"""Do not modify this file to modify your configuration. Instead, copy
+site.cfg.default to site.cfg and modify this file.
 
 """
 from __future__ import print_function
@@ -70,6 +70,8 @@ def get_config():
         if section_dict['use']:
             print(section + ': ')
             for k, v in section_dict.items():
+                if isinstance(v, bool):
+                    v = str(v)
                 print('{}: '.format(k).rjust(25) + v)
 
     return config_dict
