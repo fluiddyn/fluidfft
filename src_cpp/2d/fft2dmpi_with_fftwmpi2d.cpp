@@ -291,23 +291,3 @@ void FFT2DMPIWithFFTWMPI2D::ifft(mycomplex *fieldK, myreal *fieldX)
       fieldX[i1 + i0*nX1] = arrayX[i1 + i0*nX1_pad];
 }
 
-
-void FFT2DMPIWithFFTWMPI2D::init_array_X_random(myreal* &fieldX)
-{
-  int ii;
-  this->alloc_array_X(fieldX);
-  // for (i0=0; i0<nX0loc; i0++)
-  //   for (i1=0; i1<nX1; i1++)
-  //     fieldX[i1 + i0*nX1] = 1.3425243;
-  // if (local_X0_start==0) 
-  // {
-  //   for (i0=0; i0<nX0loc; i0++)
-  //     for (i1=0; i1<nX1; i1++)
-  //       fieldX[i1 + i0*nX1] = 1111.3425243;
-  // }
-
-  for (ii = 0; ii < nX0loc*nX1; ++ii)
-    fieldX[ii] = (myreal)rand() / RAND_MAX;
-}
-
-

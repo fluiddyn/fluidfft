@@ -25,8 +25,6 @@ class FFT2DMPIWithFFTWMPI2D: public BaseFFT2DMPI
   myreal compute_mean_from_X(myreal* fieldX);
   myreal compute_mean_from_K(mycomplex* fieldK);
 
-  void init_array_X_random(myreal* &fieldX);
-
  private:
   int nX1_pad;
   myreal coef_norm;

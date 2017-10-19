@@ -30,8 +30,6 @@ class FFT2DWithCUFFT: public BaseFFT2D
   myreal compute_energy_from_X(myreal* fieldX);
   myreal compute_mean_from_X(myreal* fieldX);
 
-  void init_array_X_random(myreal* &fieldX);
-
  private:
   int nX1loc, nK1loc, nXxloc, nXyloc, nXx, nXy, nKyloc;
   myreal coef_norm;

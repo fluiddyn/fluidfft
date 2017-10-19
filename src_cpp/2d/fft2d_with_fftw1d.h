@@ -18,8 +18,6 @@ class FFT2DWithFFTW1D: public BaseFFT2D
   myreal compute_energy_from_X(myreal* fieldX);
   myreal compute_mean_from_X(myreal* fieldX);
 
-  void init_array_X_random(myreal* &fieldX);
-
  private:
   myreal coef_norm;
   myreal *arrayX;

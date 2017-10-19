@@ -48,3 +48,45 @@ void calcul_nprocmesh(int rank, int nb_proc, int* nprocmesh)
   nprocmesh[1] = np1;
 
 }
+
+
+myreal BaseFFT3DMPI::compute_mean_from_X(myreal* fieldX)
+{
+  myreal mean, local_mean;
+  int ii;
+  local_mean=0.;
+
+  for (ii=0; ii<nX0loc*nX1loc*nX2loc; ii++)
+    local_mean += fieldX[ii];
+
+  MPI_Allreduce(&local_mean, &mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+  return mean / coef_norm;
+}
+
+
+myreal BaseFFT3DMPI::compute_mean_from_K(mycomplex* fieldK)
+{
+  myreal mean;
+  if (rank == 0)
+    mean = real(fieldK[0]);
+
+  MPI_Bcast(&mean, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  return mean;
+}
+
+
+myreal BaseFFT3DMPI::compute_energy_from_X(myreal* fieldX)
+{
+  int ii;
+  double energy_loc = 0;
+  double energy;
+
+  for (ii=0; ii<nX0loc*nX1loc*nX2loc; ii++)
+    energy_loc += (double) pow(fieldX[ii], 2);
+  MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+
+  return (myreal) energy / 2 /coef_norm;
+}
+
+

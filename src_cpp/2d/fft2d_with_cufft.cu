@@ -276,13 +276,3 @@ void FFT2DWithCUFFT::ifft(mycomplex *fieldK, myreal *fieldX)
 
 }
 
-
-void FFT2DWithCUFFT::init_array_X_random(myreal* &fieldX)
-{
-  int ii;
-  this->alloc_array_X(fieldX);
-
-  for (ii = 0; ii < nX0*nX1; ++ii)
-    fieldX[ii] = (myreal)rand() / RAND_MAX;
-}
-

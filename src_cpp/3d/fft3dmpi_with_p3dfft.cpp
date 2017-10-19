@@ -17,6 +17,9 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   this->_init();
 
   ndim=2;
+  nz = N0;
+  ny = N1;
+  nx = N2;
   nXz = N0;
   nXy = N1;
   nXx = N2;
@@ -66,9 +69,9 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   /* ky corresponds to dim 0 */
   /* kx corresponds to dim 1 */
   /* kz corresponds to dim 2 */
-  nKx = nXx; // /2+1;
-  nKy = nXy;
-  nKz = nXz;
+  nKx = nx; // /2+1;
+  nKy = ny;
+  nKz = nz;
 
   nK0 = nKz;
   nK1 = nKy;
@@ -129,21 +132,6 @@ FFT3DMPIWithP3DFFT::~FFT3DMPIWithP3DFFT(void)
 char const* FFT3DMPIWithP3DFFT::get_classname()
 { return "FFT3DMPIWithP3DFFT";}
 
-
-myreal FFT3DMPIWithP3DFFT::compute_energy_from_X(myreal* fieldX)
-{
-  int ii;
-  double energy_loc = 0;
-  double energy;
-
-  for (ii=0; ii<nX0loc*nX1loc*nX2loc; ii++)
-	energy_loc += (double) pow(fieldX[ii], 2);
-
-  MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-
-  return (myreal) energy / 2 /coef_norm;
-
-}
 
 myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex* fieldK)
 {
@@ -275,21 +263,6 @@ void FFT3DMPIWithP3DFFT::sum_wavenumbers_complex(
 }
 
 
-myreal FFT3DMPIWithP3DFFT::compute_mean_from_X(myreal* fieldX)
-{
-  double mean, local_mean;
-  int ii;
-  local_mean=0.;
-
-  for (ii=0; ii < nX0loc * nX1loc * nX2loc ; ii++)
-    local_mean += (double) fieldX[ii];
-
-  MPI_Allreduce(&local_mean, &mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-
-  return (myreal) mean / coef_norm;
-}
-
-
 myreal FFT3DMPIWithP3DFFT::compute_mean_from_K(mycomplex* fieldK)
 {
   double mean, local_mean;
@@ -303,6 +276,7 @@ myreal FFT3DMPIWithP3DFFT::compute_mean_from_K(mycomplex* fieldK)
 
   return (myreal) mean;
 }
+
 
 void FFT3DMPIWithP3DFFT::fft(myreal *fieldX, mycomplex *fieldK)
 {
@@ -327,14 +301,4 @@ void FFT3DMPIWithP3DFFT::ifft(mycomplex *fieldK, myreal *fieldX)
   memcpy(arrayK, fieldK, nK0loc*nK1loc*nK2loc*sizeof(mycomplex));
   Cp3dfft_btran_c2r(arrayK, arrayX, op_b);
   memcpy(fieldX, arrayX, nX0loc*nX1loc*nX2loc*sizeof(myreal)); 
-}
-
-
-void FFT3DMPIWithP3DFFT::init_array_X_random(myreal* &fieldX)
-{
-  int ii;
-  this->alloc_array_X(fieldX);
-
-  for (ii = 0; ii < nX0loc*nX1loc*nX2loc; ++ii)
-    fieldX[ii] = (myreal)rand() / RAND_MAX;
 }

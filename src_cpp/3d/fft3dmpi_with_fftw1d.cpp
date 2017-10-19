@@ -27,7 +27,7 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2):
   nX2 = N2;
   nX0loc = N0/nb_proc;
   nX1loc = N1;
-  nXzloc = nX0loc;
+  nX2loc = N2;
 
   nKx = nx/2;
   nKxloc = (nKx)/nb_proc;
@@ -47,7 +47,8 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2):
   nK1 = N1;
   nK1loc = N1;
   nK2 = N0;
-  coef_norm = N0*N1*N2;
+  nK2loc = N0;
+//  coef_norm = N0*N1*N2;
 
   local_X0_start = rank * nX0loc;
   local_K0_start = rank * nK0loc;
@@ -179,24 +180,6 @@ char const* FFT3DMPIWithFFTW1D::get_classname()
 { return "FFT3DMPIWithFFTW1D";}
 
 
-myreal FFT3DMPIWithFFTW1D::compute_energy_from_X(myreal* fieldX)
-{
-  int i0, i1, i2;
-  myreal energy_loc = 0;
-  myreal energy;
-
-  for (i0=0; i0<nX0loc; i0++)
-    for (i1=0; i1<nX1; i1++)
-      for (i2=0; i2<nX2; i2++)
-        energy_loc += pow(fieldX[i2 + i1*nX2 + i0*nX1*nX2], 2);
-
-  MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-  // cout << "energyX" << energy / 2 /coef_norm << endl;
-
-  return energy / 2 /coef_norm;
-}
-
-
 myreal FFT3DMPIWithFFTW1D::compute_energy_from_K(mycomplex* fieldK)
 {
   int i0, i1, i2;
@@ -291,35 +274,6 @@ void FFT3DMPIWithFFTW1D::sum_wavenumbers_complex(
 }
 
 
-myreal FFT3DMPIWithFFTW1D::compute_mean_from_X(myreal* fieldX)
-{
-  myreal mean, local_mean;
-  int ii;
-  local_mean=0.;
-
-  for (ii=0; ii<nX0loc*nX1*nX2; ii++)
-    local_mean += fieldX[ii];
-
-  MPI_Allreduce(&local_mean, &mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-
-
- // cout << "mean="<<mean / coef_norm<<endl; 
-  return mean / coef_norm;
-}
-
-
-myreal FFT3DMPIWithFFTW1D::compute_mean_from_K(mycomplex* fieldK)
-{
-  myreal mean;
-  if (rank == 0)
-    mean = real(fieldK[0]);
-
-  MPI_Bcast(&mean, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
- // cout << "meanK="<<mean<<endl; 
-  return mean;
-}
-
-
 void FFT3DMPIWithFFTW1D::fft(myreal *fieldX, mycomplex *fieldK)
 {
   int ii;
@@ -362,33 +316,22 @@ void FFT3DMPIWithFFTW1D::ifft(mycomplex *fieldK, myreal *fieldX)
 }
 
 
-void FFT3DMPIWithFFTW1D::init_array_X_random(myreal* &fieldX)
-{
-  int ii;
-  this->alloc_array_X(fieldX);
-
-  // cout << "init fieldX" << endl;
-  for (ii = 0; ii < nX0loc*nX1*nX2; ++ii)
-    fieldX[ii] = (myreal)rand() / RAND_MAX;
-}
-
-
-int FFT3DMPIWithFFTW1D::get_local_size_K()
-{
-  // cout << "FFT3DMPIWithFFTW1D::get_local_size_K" << endl;
-  return nKxloc * nKy * nKz;
-}
-
-
-int FFT3DMPIWithFFTW1D::get_local_size_X()
-{
-  // cout << "FFT3DMPIWithFFTW1D::get_local_size_X" << endl;
-  return nX0loc * nX1 * nX2;
-}
-
 void FFT3DMPIWithFFTW1D::get_dimX_K(int *d0, int *d1, int *d2)
 {
   *d0 = 2;
   *d1 = 1;
   *d2 = 0;
 }
+
+
+bool FFT3DMPIWithFFTW1D::are_parameters_bad()
+{
+  if ((N0/nb_proc == 0) || (N2/2/nb_proc == 0))
+    {
+      if (rank == 0)
+        cout << "bad parameters N0 or N2" << endl;
+      return 1;
+    }
+  return 0;
+}
+

@@ -218,12 +218,3 @@ void FFT2DWithFFTW2D::ifft(mycomplex *fieldK, myreal *fieldX)
   memcpy(fieldX, arrayX, nX0*nX1*sizeof(myreal));
 }
 
-
-void FFT2DWithFFTW2D::init_array_X_random(myreal* &fieldX)
-{
-  int ii;
-  this->alloc_array_X(fieldX);
-
-  for (ii = 0; ii < nX0*nX1; ++ii)
-    fieldX[ii] = (myreal)rand() / RAND_MAX;
-}

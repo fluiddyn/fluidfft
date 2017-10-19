@@ -27,9 +27,9 @@ FFT3DWithFFTW3D::FFT3DWithFFTW3D(int argN0, int argN1, int argN2):
   nX2 = N2;
   nX0loc = nX0;
   nX1loc = nX1;
+  nX2loc = nX2;
 
   nKx = nx/2+1;
-  nKxloc = nKx;
   nKy = ny;
   nKz = nz;
 
@@ -39,6 +39,7 @@ FFT3DWithFFTW3D::FFT3DWithFFTW3D(int argN0, int argN1, int argN2):
   nK1 = nKy;
   nK1loc = nK1;
   nK2 = nKx;
+  nK2loc = nK2;
   
   coef_norm = N0*N1*N2;
 
@@ -169,7 +170,7 @@ myreal FFT3DWithFFTW3D::compute_energy_from_K(mycomplex* fieldK)
     energy += energy_tmp;
 
   // other modes
-  for (i0=0; i0<nK0loc; i0++)
+  for (i0=0; i0<nK0; i0++)
     for (i1=0; i1<nK1; i1++)
       for (i2=1; i2<nK2-1; i2++)
 	energy += (double) pow(abs(fieldK[i2 + (i1 + i0 * nK1) * nK2]), 2);
@@ -205,7 +206,7 @@ myreal FFT3DWithFFTW3D::sum_wavenumbers_double(myreal* fieldK)
     sum += sum_tmp;
 
   // other modes
-  for (i0=0; i0<nK0loc; i0++)
+  for (i0=0; i0<nK0; i0++)
     for (i1=0; i1<nK1; i1++)
       for (i2=1; i2<nK2-1; i2++)
 	sum += fieldK[i2 + (i1 + i0 * nK1) * nK2];
@@ -240,33 +241,12 @@ void FFT3DWithFFTW3D::sum_wavenumbers_complex(mycomplex* fieldK, mycomplex* resu
     sum += sum_tmp;
 
   // other modes
-  for (i0=0; i0<nK0loc; i0++)
+  for (i0=0; i0<nK0; i0++)
     for (i1=0; i1<nK1; i1++)
       for (i2=1; i2<nK2-1; i2++)
 	sum += fieldK[i2 + (i1 + i0 * nK1) * nK2];
 
   *result = sum;
-}
-
-myreal FFT3DWithFFTW3D::compute_mean_from_X(myreal* fieldX)
-{
-  myreal mean,mean1,mean2;
-  int ii,jj,kk;
-  mean=0.;
-
-  for (ii=0; ii<nX0; ii++)
-  {
-    mean1=0.;
-    for (jj=0; jj<nX1; jj++)
-    {
-      mean2=0.;
-      for (kk=0; kk<nX2; kk++)
-        mean2 += fieldX[(ii*nX1+jj)*nX2+kk];
-      mean1 += mean2/nX2;
-    }
-    mean += mean1 / nX1;
-  }
-  return mean / nX0;
 }
 
 
@@ -291,7 +271,7 @@ void FFT3DWithFFTW3D::fft(myreal *fieldX, mycomplex *fieldK)
   fftw_execute(plan_r2c);
 #endif
   
-  for (ii=0; ii<nK0loc*nK1loc*nK2; ii++)
+  for (ii=0; ii<nK0*nK1*nK2; ii++)
     fieldK[ii]  = arrayK[ii]/coef_norm;
 }
 
@@ -306,14 +286,4 @@ void FFT3DWithFFTW3D::ifft(mycomplex *fieldK, myreal *fieldX)
   fftw_execute(plan_c2r);
 #endif
   memcpy(fieldX, arrayX, nX0*nX1*nX2*sizeof(myreal));
-}
-
-
-void FFT3DWithFFTW3D::init_array_X_random(myreal* &fieldX)
-{
-  int ii;
-  this->alloc_array_X(fieldX);
-
-  for (ii = 0; ii < nX0*nX1*nX2; ++ii)
-    fieldX[ii] = (myreal)rand() / RAND_MAX;
 }

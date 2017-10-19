@@ -59,7 +59,7 @@ void BaseFFT::_init()
   if (this->are_parameters_bad())
     if (rank == 0)
       throw invalid_argument("Invalid arguments");
-  
+
   if (rank == 0)
     {
       cout << endl << "--------" << endl;
@@ -238,9 +238,11 @@ void BaseFFT::alloc_array_K(mycomplex* &fieldK)
 
 void BaseFFT::init_array_X_random(myreal* &fieldX)
 {
-  cout << "BaseFFT::init_array_X_random" << endl;
+  int ii;
+  // cout << "BaseFFT::init_array_X_random" << endl;
   this->alloc_array_X(fieldX);
-  fieldX[0] = 1;
+  for (ii = 0; ii < this->get_local_size_X(); ++ii)
+    fieldX[ii] = (myreal)rand() / RAND_MAX;
 }
 
 void BaseFFT::fft(myreal *fieldX, mycomplex *fieldK)

@@ -18,17 +18,12 @@ class FFT3DMPIWithPFFT: public BaseFFT3DMPI
   myreal compute_mean_from_K(mycomplex* fieldK);
   void sum_wavenumbers_complex(mycomplex* fieldK, mycomplex* result);
 
-  myreal compute_energy_from_X(myreal* fieldX);
-  myreal compute_mean_from_X(myreal* fieldX);
   myreal sum_wavenumbers_double(myreal* fieldK);
-
-  void init_array_X_random(myreal* &fieldX);
 
   virtual void get_dimX_K(int*, int*, int*);
   virtual void get_seq_indices_first_K(int*, int*);
 
  private:
-  int nX2loc, nK2loc, nXxloc, nXyloc, nXzloc, nKzloc, nXx, nXy, nXz;
   myreal coef_norm;
 #ifdef SINGLE_PREC
   pfftf_plan plan_r2c, plan_c2r;

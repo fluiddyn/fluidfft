@@ -300,13 +300,3 @@ void FFT2DMPIWithFFTW1D::ifft(mycomplex *fieldK, myreal *fieldX)
   memcpy(fieldX,arrayX, nX0loc*nX1*sizeof(myreal));
 }
 
-
-void FFT2DMPIWithFFTW1D::init_array_X_random(myreal* &fieldX)
-{
-  int ii;
-  this->alloc_array_X(fieldX);
-
-  for (ii = 0; ii < nX0loc*nX1; ++ii)
-    fieldX[ii] = (myreal)rand() / RAND_MAX;
-}
-

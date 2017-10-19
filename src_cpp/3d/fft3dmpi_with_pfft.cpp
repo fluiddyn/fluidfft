@@ -71,6 +71,9 @@ FFT3DMPIWithPFFT::FFT3DMPIWithPFFT(int argN0, int argN1, int argN2):
   nXz = N0;
   nXy = N1;
   nXx = N2;
+  nz = N0;
+  ny = N1;
+  nx = N2;
 
   nX0 = N0;
   nX1 = N1;
@@ -201,21 +204,6 @@ FFT3DMPIWithPFFT::~FFT3DMPIWithPFFT(void)
 
 char const* FFT3DMPIWithPFFT::get_classname()
 { return "FFT3DMPIWithPFFT";}
-
-
-myreal FFT3DMPIWithPFFT::compute_energy_from_X(myreal* fieldX)
-{
-  int ii;
-  double energy_loc = 0;
-  double energy;
-
-  for (ii=0; ii<nX0loc*nX1loc*nX2; ii++)
-	energy_loc += (double) pow(fieldX[ii], 2);
-
-  MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-
-  return (myreal) energy / 2 /coef_norm;
-}
 
 
 myreal FFT3DMPIWithPFFT::compute_energy_from_K(mycomplex* fieldK)
@@ -353,20 +341,6 @@ void FFT3DMPIWithPFFT::sum_wavenumbers_complex(
   *result = sum;
 }
 
-myreal FFT3DMPIWithPFFT::compute_mean_from_X(myreal* fieldX)
-{
-  double mean, local_mean;
-  int ii;
-  local_mean=0.;
-
-  for (ii=0; ii<nX0loc*nX1loc*nX2; ii++)
-    local_mean += (double) fieldX[ii];
-
-  MPI_Allreduce(&local_mean, &mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-
-  return (myreal) mean / coef_norm;
-}
-
 
 myreal FFT3DMPIWithPFFT::compute_mean_from_K(mycomplex* fieldK)
 {
@@ -416,21 +390,13 @@ void FFT3DMPIWithPFFT::ifft(mycomplex *fieldK, myreal *fieldX)
 }
 
 
-void FFT3DMPIWithPFFT::init_array_X_random(myreal* &fieldX)
-{
-  int ii;
-  this->alloc_array_X(fieldX);
-
-  for (ii = 0; ii < nX0loc*nX1loc*nX2; ++ii)
-    fieldX[ii] = (myreal)rand() / RAND_MAX;
-}
-
 void FFT3DMPIWithPFFT::get_dimX_K(int *d0, int *d1, int *d2)
 {
   *d0 = 2;
   *d1 = 1;
   *d2 = 0;
 }
+
 
 void FFT3DMPIWithPFFT::get_seq_indices_first_K(int *i0, int *i1)
 {

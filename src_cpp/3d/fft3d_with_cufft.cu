@@ -51,9 +51,9 @@ FFT3DWithCUFFT::FFT3DWithCUFFT(int argN0, int argN1, int argN2):
   nX1 = N1;
   nX1loc = nX1;
   nX2 = N2;
+  nX2loc = N2;
 
   nKx = nx/2+1;
-  nKxloc = nKx;
   nKy = ny;
   nKz = nz;
 
@@ -63,6 +63,7 @@ FFT3DWithCUFFT::FFT3DWithCUFFT(int argN0, int argN1, int argN2):
   nK1 = nKy;
   nK1loc = nK1;
   nK2 = nKx;
+  nK2loc = nK2;
 
   coef_norm = N0*N1*N2;
 
@@ -134,7 +135,7 @@ myreal FFT3DWithCUFFT::compute_energy_from_X(myreal* fieldX)
     }
   //cout << "energyX=" << energy / nX0 / 2 << endl;
 
-  return energy / nX0 / 2;
+  return (myreal) (energy / nX0 / 2);
 }
 
 
@@ -241,28 +242,6 @@ void FFT3DWithCUFFT::sum_wavenumbers_complex(mycomplex* fieldK, mycomplex* resul
 }
 
 
-myreal FFT3DWithCUFFT::compute_mean_from_X(myreal* fieldX)
-{
-  myreal mean,mean1,mean2;
-  int ii,jj,kk;
-  mean=0.;
-
-  for (ii=0; ii<nX0; ii++)
-    {
-    mean1=0.;
-    for (jj=0; jj<nX1; jj++)
-      {
-      mean2=0.;
-        for (kk=0; kk<nX2; kk++)      
-        mean2 += fieldX[(ii*nX1+jj)*nX2+kk];
-      mean1 += mean2/nX2;
-      }
-    mean += mean1 / nX1;
-    }
-  return mean / nX0;
-}
-
-
 myreal FFT3DWithCUFFT::compute_mean_from_K(mycomplex* fieldK)
 {
   myreal mean;
@@ -326,13 +305,4 @@ void FFT3DWithCUFFT::ifft(mycomplex *fieldK, myreal *fieldX)
 
 }
 
-
-void FFT3DWithCUFFT::init_array_X_random(myreal* &fieldX)
-{
-  int ii;
-  this->alloc_array_X(fieldX);
-
-  for (ii = 0; ii < nX0*nX1*nX2; ++ii)
-    fieldX[ii] = (myreal)rand() / RAND_MAX;
-}
 
