@@ -127,7 +127,8 @@ def compare_benchs(o, nb_time_execute=20):
     return results
 
 
-def bench_all(dim='2d', n0=1024*2, n1=None, n2=None, path_dir=path_results):
+def bench_all(dim='2d', n0=1024*2, n1=None, n2=None, path_dir=path_results,
+              skip_patterns=None):
 
     if n1 is None:
         n1 = n0
@@ -163,6 +164,11 @@ def bench_all(dim='2d', n0=1024*2, n1=None, n2=None, path_dir=path_results):
         classes = get_classes_mpi()
 
     classes = {k: cls for k, cls in classes.items() if cls is not None}
+
+    if skip_patterns is not None:
+        for pattern in skip_patterns:
+            classes = {k: cls for k, cls in classes.items()
+                       if pattern not in k}
 
     results_classes = []
     for key, FFT in sorted(classes.items()):

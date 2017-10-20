@@ -40,7 +40,7 @@ def make_test_function(cls, sequential=False):
 def make_testop_functions(name, cls):
 
     tests = {}
-    shapes = {'even': (4, 2, 4)}
+    shapes = {'even': (8, 8, 8)}
     if nb_proc == 1:
         shapes['odd'] = (5, 3, 3)
 
@@ -84,7 +84,7 @@ class Tests3D(unittest.TestCase):
 
 def complete_class(name, cls):
 
-    setattr(Tests3D, 'test_{}'.format(name), make_test_function(cls))
+    # setattr(Tests3D, 'test_{}'.format(name), make_test_function(cls))
 
     # setattr(Tests3D, 'test_{}_seq'.format(name),
     #         make_test_function(cls, sequential=1))

@@ -37,7 +37,8 @@ except ImportError:
 
 try:
     mkl_libs = get_info('mkl')['libraries']
-    use_mkl_intel = 'mkl_intel_lp64' in mkl_libs or 'mkl_rt' in mkl_libs
+    # [pa] it seems to me that it is sufficient... (?)
+    use_mkl_intel = 'mkl_intel_lp64' in mkl_libs  # or 'mkl_rt' in mkl_libs
 except KeyError:
     use_mkl_intel = False
 

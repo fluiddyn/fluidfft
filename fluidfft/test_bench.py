@@ -22,8 +22,8 @@ class TestsBench(unittest.TestCase):
 
     def test3d(self):
         with stdout_redirected():
-            bench_all(dim='3d', n0=8, n1=None, n2=None, path_dir=path_tmp)
-
+            bench_all(dim='3d', n0=8, n1=None, n2=None, path_dir=path_tmp,
+                      skip_patterns=['p3dfft'])
 
 if __name__ == '__main__':
     unittest.main()
