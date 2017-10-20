@@ -186,12 +186,12 @@ myreal FFT3DMPIWithFFTW1D::compute_energy_from_K(mycomplex* fieldK)
   myreal energy_loc = 0;
   myreal energy_tmp = 0;
   myreal energy;
-
+  mycomplex toto = 0;
   // modes i0 = iKx = 0
   i0 = 0;
   for (i1=0; i1<nK1; i1++)
     for (i2=0; i2<nK2; i2++)
-      energy_tmp += pow(abs(fieldK[i1*nK2 + i2]), 2);
+      energy_tmp += square_abs(fieldK[i1*nK2 + i2]);
   
   if (rank == 0)  // i.e. if iKx == 0
     energy_loc = energy_tmp/2.;
@@ -202,7 +202,7 @@ myreal FFT3DMPIWithFFTW1D::compute_energy_from_K(mycomplex* fieldK)
   for (i0=1; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
       for (i2=0; i2<nK2; i2++)
-        energy_loc += pow(abs(fieldK[i2 + i1*nK2 + i0*nK1*nK2]), 2);
+        energy_loc += square_abs(fieldK[i2 + i1*nK2 + i0*nK1*nK2]);
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
   // cout << "energy" << energy << endl;

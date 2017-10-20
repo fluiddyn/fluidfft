@@ -63,6 +63,8 @@ class BaseFFT
 
   virtual void alloc_array_X(myreal* &fieldX);
 
+  myreal square_abs(mycomplex cm);
+
   int rank, nb_proc;
 
   myreal coef_norm;

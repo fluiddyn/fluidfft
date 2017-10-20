@@ -149,7 +149,7 @@ myreal FFT3DWithCUFFT::compute_energy_from_K(mycomplex* fieldK)
   i2 = nK2 - 1;
   for (i0=0; i0<nK0; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy += (double) pow(abs(fieldK[i2 + (i1 + i0*nK1)*nK2]), 2);
+      energy += (double) square_abs(fieldK[i2 + (i1 + i0*nK1)*nK2]);
       // we must divide by 2 ==> after
   
     energy *= 0.5; //divide by 2!!!
@@ -158,13 +158,13 @@ myreal FFT3DWithCUFFT::compute_energy_from_K(mycomplex* fieldK)
   for (i0=0; i0<nK0; i0++)
     for (i1=0; i1<nK1; i1++)
       for (i2=1; i2<nK2-1; i2++)
-        energy += (double) pow(abs(fieldK[i2 + (i1 + i0*nK1)*nK2]), 2);
+        energy += (double) square_abs(fieldK[i2 + (i1 + i0*nK1)*nK2]);
     
   // modes i1_seq = iKx = 0
   i2 = 0;
   for (i0=0; i0<nK0; i0++)
     for (i1=0; i1<nK1; i1++)
-      energy0 += (double) pow(abs(fieldK[(i1 + i0*nK1)*nK2]), 2);
+      energy0 += (double) square_abs(fieldK[(i1 + i0*nK1)*nK2]);
       // we must divide by 2 ==> after
 
   energy += energy0/2.;

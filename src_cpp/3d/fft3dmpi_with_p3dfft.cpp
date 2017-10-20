@@ -143,7 +143,7 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex* fieldK)
   energy_tmp=0.;
   for (i2=0; i2<nK2loc; i2++)
     for (i1=0; i1<nK1loc; i1++)
-      energy_tmp += (double) pow(abs(fieldK[i0 + (i1+i2*nK1loc)*nK0loc]), 2);
+      energy_tmp += (double) square_abs(fieldK[i0 + (i1+i2*nK1loc)*nK0loc]);
 
   if ((local_K0_start == 1) || (nK0loc == 1 and local_K0_start + nK0loc == nK0 + 1))
     energy_loc = energy_tmp /2.;
@@ -157,7 +157,7 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex* fieldK)
     energy_tmp = 0;
     for (i2=0; i2<nK2loc; i2++)
       for (i1=0; i1<nK1loc; i1++)
-        energy_tmp += (double) pow(abs(fieldK[i0 + (i1 + i2*nK1loc)*nK0loc]), 2);
+        energy_tmp += (double) square_abs(fieldK[i0 + (i1 + i2*nK1loc)*nK0loc]);
 
     if (local_K0_start + nK0loc -1== nK0/2+1)
       energy_loc += energy_tmp/2.;
@@ -167,7 +167,7 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex* fieldK)
     for (i2=0; i2<nK2loc; i2++)
       for (i1=0; i1<nK1loc; i1++)
         for (i0=1; i0<nK0loc-1; i0++)
-          energy_loc += (double) pow(abs(fieldK[i0 + (i1 + i2*nK1loc)*nK0loc]), 2);
+          energy_loc += (double) square_abs(fieldK[i0 + (i1 + i2*nK1loc)*nK0loc]);
   }
   
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
