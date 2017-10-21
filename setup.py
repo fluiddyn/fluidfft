@@ -14,7 +14,7 @@ on_tox = os.environ.get('TOXENV')
 if on_tox:
     setup_requires.append('mpi4py')
     if 'pythran' in os.getenv('TOXENV'):
-        setup_requires.extend(['networkx>=1.5, <2.0', 'pythran'])
+        setup_requires.extend(['pythran'])
 
 Distribution(dict(setup_requires=setup_requires))
 

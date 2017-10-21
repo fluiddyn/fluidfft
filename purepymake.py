@@ -178,7 +178,7 @@ class CommandsRunner(object):
         self._processes.append(process)
 
     def _check_processes(self):
-        for process in self._processes.copy():
+        for process in copy(self._processes):
             if process.poll() is not None:
                 self._processes.remove(process)
                 if process.returncode != 0:
@@ -198,7 +198,7 @@ class FunctionsRunner(CommandsRunner):
         self._processes.append(process)
 
     def _check_processes(self):
-        for process in self._processes.copy():
+        for process in copy(self._processes):
             if process.exitcode is not None:
                 self._processes.remove(process)
 
@@ -468,7 +468,7 @@ def build_extensions(self):
         except AttributeError:
             pass
 
-    num_jobs = os.cpu_count()
+    num_jobs = multiprocessing.cpu_count()
     pool = Pool(num_jobs)
     pool.map(self.build_extension, self.extensions)
     pool.shutdown()
