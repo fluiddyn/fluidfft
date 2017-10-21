@@ -11,10 +11,12 @@ from setuptools.dist import Distribution
 # Bootstrapping dependencies required for the setup
 setup_requires = ['numpy', 'cython', 'mako']
 on_tox = os.environ.get('TOXENV')
-if on_tox:
+if on_tox is not None:
     setup_requires.append('mpi4py')
-    if 'pythran' in os.getenv('TOXENV'):
-        setup_requires.extend(['pythran'])
+    if 'pythran' in on_tox:
+        setup_requires.append('pythran')
+    if 'py27' in on_tox:
+        setup_requires.append('futures')
 
 Distribution(dict(setup_requires=setup_requires))
 

@@ -494,5 +494,6 @@ def compile(self, sources, output_dir=None, macros=None,
 
 
 def monkeypatch_parallel_build():
-    build_ext.build_extensions = build_extensions
-    CCompiler.compile = compile
+    if PARALLEL_COMPILE:
+        build_ext.build_extensions = build_extensions
+        CCompiler.compile = compile
