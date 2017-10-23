@@ -85,6 +85,9 @@ path_lib_python = os.path.join(sys.prefix, 'lib', 'python' + short_version)
 path_tmp = 'build/temp.' + '-'.join(
     [platform.system().lower(), platform.machine(), short_version])
 
+path_lib = 'build/lib.' + '-'.join(
+    [platform.system().lower(), platform.machine(), short_version])
+
 
 def can_import(pkg):
     try:
@@ -337,6 +340,9 @@ def make_extensions(extensions,
 
     if '--inplace' in sys.argv or 'develop' in sys.argv:
         path_base_output = '.'
+    elif ('install' in sys.argv and
+          '--single-version-externally-managed' in sys.argv):
+        path_base_output = path_lib
     else:
         path_base_output = path_tmp
 
