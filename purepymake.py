@@ -48,23 +48,29 @@ import numpy as np
 
 config_vars = sysconfig.get_config_vars()
 
-try:
+
+def can_import(pkg_name, check_version=None):
+    try:
+        pkg = importlib.import_module(pkg_name)
+    except ImportError:
+        return False
+    else:
+        if check_version is not None:
+            if pkg.__version__ < check_version:
+                raise ValueError('Please upgrade to {} >= {}'.format(
+                    pkg_name, check_version))
+        return True
+
+
+can_import_cython = can_import('cython')
+can_import_mpi4py = can_import('mpi4py', '2.0.0')
+can_import_pythran = can_import('pythran')
+
+if can_import_cython:
     from Cython.Compiler.Main import \
         CompilationOptions, \
         default_options as cython_default_options, \
         compile_single as cython_compile
-    can_import_cython = True
-except ImportError:
-    can_import_cython = False
-
-try:
-    import mpi4py
-    can_import_mpi4py = True
-except ImportError:
-    can_import_mpi4py = False
-else:
-    if mpi4py.__version__[0] < '2':
-        raise ValueError('Please upgrade to mpi4py >= 2.0')
 
 try:
     from concurrent.futures import ThreadPoolExecutor as Pool
@@ -80,22 +86,14 @@ except ImportError:
 
 short_version = '.'.join([str(i) for i in sys.version_info[:2]])
 
-path_lib_python = os.path.join(sys.prefix, 'lib', 'python' + short_version)
+path_lib_python = os.path.join(
+    sys.prefix, 'lib', 'python' + short_version, 'site-packages')
 
 path_tmp = 'build/temp.' + '-'.join(
     [platform.system().lower(), platform.machine(), short_version])
 
 path_lib = 'build/lib.' + '-'.join(
     [platform.system().lower(), platform.machine(), short_version])
-
-
-def can_import(pkg):
-    try:
-        importlib.import_module(pkg)
-    except ImportError:
-        return False
-    else:
-        return True
 
 
 def check_deps():
@@ -109,7 +107,7 @@ def check_deps():
     check_and_print('numpy')
     check_and_print('mpi4py', can_import_mpi4py)
     check_and_print('cython', can_import_cython)
-    check_and_print('pythran')
+    check_and_print('pythran', can_import_pythran)
     check_and_print('mako')
     print('*' * 50)
 
@@ -342,7 +340,12 @@ def make_extensions(extensions,
         path_base_output = '.'
     elif ('install' in sys.argv and
           '--single-version-externally-managed' in sys.argv):
-        path_base_output = path_lib
+        if can_import_pythran:
+            # build_ext will take care of copying .so to site-packages
+            path_base_output = path_lib
+        else:
+            # build_ext will not be invoked
+            path_base_output = path_lib_python
     else:
         path_base_output = path_tmp
 
