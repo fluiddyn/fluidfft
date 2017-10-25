@@ -40,6 +40,7 @@ import subprocess
 from copy import copy
 import importlib
 import multiprocessing
+import warnings
 
 from distutils.ccompiler import CCompiler
 from setuptools.command.build_ext import build_ext
@@ -71,6 +72,7 @@ if can_import_cython:
         CompilationOptions, \
         default_options as cython_default_options, \
         compile_single as cython_compile
+
 
 try:
     from concurrent.futures import ThreadPoolExecutor as Pool
@@ -206,7 +208,8 @@ class FunctionsRunner(CommandsRunner):
 
 def make_function_cpp_from_pyx(cpp_file, pyx_file,
                                include_dirs=None,
-                               full_module_name=None, options=None):
+                               compiler_directives={},
+                               full_module_name=None, options={}):
     path_dir = os.path.split(cpp_file)[0]
     if not os.path.exists(path_dir):
         os.makedirs(path_dir)
@@ -222,6 +225,7 @@ def make_function_cpp_from_pyx(cpp_file, pyx_file,
         include_path=include_dirs,
         output_file=cpp_file,
         cplus=True,
+        compiler_directives=compiler_directives,
         compile_time_env={'MPI4PY': can_import_mpi4py})
 
     # return (func, args, kwargs)
@@ -369,6 +373,20 @@ def make_extensions(extensions,
             files['cpp'].append(source)
     files['o'] = []
 
+    # Enable linetrace for Cython extensions while using tox
+    if can_import_cython and os.getenv('TOXENV') is not None:
+        warnings.warn(
+            'Enabling linetrace for coverage tests. Extensions can be really '
+            'slow. Recompile for practical use.')
+        compiler_directives = {'linetrace': True}
+        cython_options = {'CFLAGS': ' -DCYTHON_TRACE_NOGIL=1'}
+        if 'CFLAGS' in options:
+            options['CFLAGS'] += cython_options['CFLAGS']
+        else:
+            options.update(cython_options)
+    else:
+        compiler_directives = {}
+
     # cythonize .pyx files if needed
     commands = []
     for pyx_file in files['pyx']:
@@ -383,6 +401,7 @@ def make_extensions(extensions,
             cpp_file, pyx_file,
             full_module_name=full_module_name,
             include_dirs=include_dirs,
+            compiler_directives=compiler_directives,
             options=options)
         if command is not None:
             commands.append(command)
