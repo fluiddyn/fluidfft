@@ -78,13 +78,9 @@ try:
     from concurrent.futures import ThreadPoolExecutor as Pool
     PARALLEL_COMPILE = True
 except ImportError:
-    # from multiprocessing.pool import ThreadPool as Pool  # inefficient
-    PARALLEL_COMPILE = False
-    print('*' * 50 +
-          '\nTo compile pythran extensions in parallel, '
-          'requires concurrent.futures module\n'
-          '    pip install futures  # for Python 2.7 backport\n' +
-          '*' * 50)
+    #  pip install futures  # to use concurrent.futures Python 2.7 backport
+    from multiprocessing.pool import ThreadPool as Pool
+    PARALLEL_COMPILE = True
 
 short_version = '.'.join([str(i) for i in sys.version_info[:2]])
 
@@ -496,10 +492,18 @@ def build_extensions(self):
         except AttributeError:
             pass
 
-    num_jobs = multiprocessing.cpu_count()
+    try:
+        num_jobs = os.cpu_count()
+    except AttributeError:
+        num_jobs = multiprocessing.cpu_count()
+
     pool = Pool(num_jobs)
     pool.map(self.build_extension, self.extensions)
-    pool.shutdown()
+    try:
+        pool.shutdown()
+    except AttributeError:
+        pool.close()
+        pool.join()
 
 
 def compile(self, sources, output_dir=None, macros=None,
