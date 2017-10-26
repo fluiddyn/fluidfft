@@ -9,6 +9,7 @@ class FFT3DMPIWithPFFT: public BaseFFT3DMPI
   ~FFT3DMPIWithPFFT();
   void destroy();
   
+  bool are_parameters_bad();
   virtual const char* get_classname();
 
   void fft(myreal *fieldX, mycomplex *fieldK);

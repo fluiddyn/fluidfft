@@ -1,8 +1,8 @@
 SINGLE_PREC:=no
 OMP:=no
 CUDA:=no
-PFFT:=no
-P3DFFT:=no
+PFFT:=yes
+P3DFFT:=yes
 
 LD:=mpic++
 CC:=mpic++
@@ -131,6 +131,6 @@ test:
 
 testmpi:
 	mpirun -np 4 ./test_bench.out --N0=64 --N1=32 --N2=16
-	mpirun -np 4 ./test_bench.out --N0=16 --N1=16 --N2=4
-	mpirun -np 4 ./test_bench.out --N0=4 --N1=16 --N2=16
-	mpirun -np 4 ./test_bench.out --N0=16 --N1=4 --N2=16
+	mpirun -np 4 ./test_bench.out --N0=128 --N1=128 --N2=128
+	mpirun -np 4 ./test_bench.out --N0=256 --N1=256 --N2=256
+	mpirun -np 4 ./test_bench.out --N0=512 --N1=512 --N2=512

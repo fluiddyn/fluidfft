@@ -268,10 +268,3 @@ int BaseFFT::get_local_size_K()
   cout << "BaseFFT::get_local_size_K" << endl;
   return nKxloc * nKy;
 }
-
-
-myreal BaseFFT::square_abs(mycomplex cm)
-{
-//  return pow(abs(cm), 2);
-  return real(cm) * real(cm) + imag(cm) * imag(cm);
-}

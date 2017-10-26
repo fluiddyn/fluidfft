@@ -33,6 +33,11 @@ using namespace std;
   typedef fftw_plan myfftw_plan;
 #endif
 
+inline myreal square_abs(mycomplex cm)
+{
+  return real(cm) * real(cm) + imag(cm) * imag(cm);
+}
+
 class BaseFFT
 {
  public:
@@ -63,7 +68,6 @@ class BaseFFT
 
   virtual void alloc_array_X(myreal* &fieldX);
 
-  myreal square_abs(mycomplex cm);
 
   int rank, nb_proc;
 

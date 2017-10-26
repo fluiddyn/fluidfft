@@ -403,3 +403,15 @@ void FFT3DMPIWithPFFT::get_seq_indices_first_K(int *i0, int *i1)
   *i0 = local_K0_start;
   *i1 = local_K1_start;
 }
+
+bool FFT3DMPIWithPFFT::are_parameters_bad()
+{
+  if ((N0/nb_proc == 1) || (N2/nb_proc == 1) || (N1/nb_proc == 1))
+    {
+      if (rank == 0)
+        cout << "bad parameters N0 or N1 or N2" << endl;
+      return 1;
+    }
+  return 0;
+}
+
