@@ -116,7 +116,7 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
 void FFT3DMPIWithP3DFFT::destroy(void)
 {
 //   cout << "Object is being destroyed" << endl;
-   Cp3dfft_clean();
+//   Cp3dfft_clean();
    free(arrayX);
    free(arrayK);
 }

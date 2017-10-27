@@ -106,7 +106,7 @@ int main(int argc, char **argv)
      s2.test();
      s2.bench(nt, times);
      s2.bench(nt, times);
-//     s2.destroy();
+     s2.destroy();
 #endif
 #ifdef PFFT
     FFT3DMPIWithPFFT s3(N0, N1, N2);
