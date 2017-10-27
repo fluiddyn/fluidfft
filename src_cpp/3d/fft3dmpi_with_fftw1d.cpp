@@ -37,7 +37,6 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2):
   if (((nX0loc == 0) || (nKxloc == 0)) and (rank == 0))
   {
     cout << "Warning: number of mpi processus not coherent with dimension of the problem!" << endl;
-    exit;
   }
 
   /* This 3D fft is transposed */
@@ -186,7 +185,6 @@ myreal FFT3DMPIWithFFTW1D::compute_energy_from_K(mycomplex* fieldK)
   myreal energy_loc = 0;
   myreal energy_tmp = 0;
   myreal energy;
-  mycomplex toto = 0;
   // modes i0 = iKx = 0
   i0 = 0;
   for (i1=0; i1<nK1; i1++)

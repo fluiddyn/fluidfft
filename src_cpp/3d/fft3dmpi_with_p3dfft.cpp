@@ -6,9 +6,8 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
 {
   struct timeval start_time, end_time;
   double total_usecs;
-  int irank;
   
-  int ndim, conf;
+  int conf;
   int memsize[3];
   int istart[3],isize[3],iend[3];
   int fstart[3],fsize[3],fend[3];
@@ -16,7 +15,6 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   
   this->_init();
 
-  ndim=2;
   nz = N0;
   ny = N1;
   nx = N2;
