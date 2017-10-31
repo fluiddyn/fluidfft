@@ -1,1 +1,0 @@
-{"benchmarks_classes": [{"name": "fft2dmpiwithfftw1d", "t_fft_as_arg": 0.0069741010665893555, "t_fft_cpp": 0.00699064, "t_fft_return": 0.0069580078125, "t_ifft_as_arg": 0.007443785667419434, "t_ifft_cpp": 0.007388939999999999, "t_ifft_return": 0.007124662399291992}], "hostname": "nid01261", "n0": 1024, "n1": 1024, "nb_proc": 4, "pid": 24995, "time_as_str": "2017-10-14_09-08-31"}

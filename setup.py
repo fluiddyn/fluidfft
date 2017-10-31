@@ -39,8 +39,11 @@ except ImportError:
 
 try:
     mkl_libs = get_info('mkl')['libraries']
-    # [pa] it seems to me that it is sufficient... (?)
-    use_mkl_intel = 'mkl_intel_lp64' in mkl_libs  # or 'mkl_rt' in mkl_libs
+    use_mkl_intel = 'mkl_intel_lp64' in mkl_libs
+    # Note: No symbol clash occurs if 'mkl_rt' appears in numpy libraries 
+    #       instead.
+    # P.S.: If 'mkl_rt' is detected, use FFTW libraries, not Intel's MKL/FFTW
+    #       implementation.
 except KeyError:
     use_mkl_intel = False
 
