@@ -220,7 +220,7 @@ ext_modules = make_extensions(
     lib_flags_dict=lib_flags_dict, lib_dirs_dict=lib_dirs_dict)
 
 if use_pythran:
-    ext_modules.expand(make_pythran_extensions(
+    ext_modules.extend(make_pythran_extensions(
         ['fluidfft.fft2d.util_pythran',
          'fluidfft.fft3d.util_pythran']))
 
