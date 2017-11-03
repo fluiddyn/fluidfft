@@ -337,7 +337,7 @@ def make_extensions(extensions,
 
     if all(command not in sys.argv for command in [
             'build_ext', 'install', 'develop', 'bdist_wheel', 'bdist_egg']):
-        return
+        return []
 
     path_base_output = path_lib
 
