@@ -41,9 +41,11 @@ from copy import copy
 import importlib
 import multiprocessing
 import warnings
+from shutil import copyfile
 
 from distutils.ccompiler import CCompiler
 from setuptools.command.build_ext import build_ext
+from setuptools import Extension as SetuptoolsExtension
 
 import numpy as np
 
@@ -188,8 +190,9 @@ class CommandsRunner(object):
 class FunctionsRunner(CommandsRunner):
     def _launch_process(self, command):
         func, args, kwargs = command
-        print('launching command:\n{}(\n    *args={},\n    **kwargs={})'.format(
-            func.__name__, args, kwargs))
+        print('launching command:\n'
+              '{}(\n    *args={},\n    **kwargs={})'.format(
+                  func.__name__, args, kwargs))
         process = multiprocessing.Process(
             target=func, args=args, kwargs=kwargs)
         process.start()
@@ -336,24 +339,7 @@ def make_extensions(extensions,
             'build_ext', 'install', 'develop', 'bdist_wheel', 'bdist_egg']):
         return
 
-    if '--inplace' in sys.argv or 'develop' in sys.argv:
-        path_base_output = '.'
-    elif ('install' in sys.argv and
-          '--single-version-externally-managed' in sys.argv):
-        if can_import_pythran:
-            # build_ext will take care of copying .so to site-packages
-            path_base_output = path_lib
-        else:
-            # build_ext will not be invoked
-            path_base_output = path_lib_python
-    elif 'bdist_wheel' in sys.argv:
-        path_base_output = 'build/bdist.' + '-'.join(
-            [platform.system().lower(), platform.machine()]) + '/wheel'
-    elif 'bdist_egg' in sys.argv:
-        path_base_output = 'build/bdist.' + '-'.join(
-            [platform.system().lower(), platform.machine()]) + '/egg'
-    else:
-        path_base_output = path_tmp
+    path_base_output = path_lib
 
     sources = set()
     for ext in extensions:
@@ -424,6 +410,8 @@ def make_extensions(extensions,
 
     CommandsRunner(commands).run()
 
+    extensions_out = []
+
     # link .o files to produce the .so files if needed
     files['so'] = []
     commands = []
@@ -434,6 +422,8 @@ def make_extensions(extensions,
         objects = [
             os.path.join(path_tmp, os.path.splitext(source)[0] + '.o')
             for source in ext.sources]
+
+        extensions_out.append(SetuptoolsExtension(ext.name, sources=[result]))
 
         lib_dirs = []
         lib_flags = []
@@ -453,7 +443,7 @@ def make_extensions(extensions,
 
     # wait for linking
     CommandsRunner(commands).run()
-
+    return extensions_out
 
 # building with pythran
 
@@ -497,6 +487,8 @@ def build_extensions(self):
             ext.sources = self.cython_sources(ext.sources, ext)
         except AttributeError:
             pass
+
+        
 
     try:
         num_jobs = os.cpu_count()
