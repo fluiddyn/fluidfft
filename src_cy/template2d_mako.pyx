@@ -82,21 +82,32 @@ cdef class ${class_name}:
         return fieldX
 
     def get_shapeX_loc(self):
+        """Get the local shape of the array in the "real space"."""
         cdef int output_nX0loc, output_nX1
         self.thisptr.get_local_shape_X(&output_nX0loc, &output_nX1)
         return output_nX0loc, output_nX1
 
     def get_shapeK_loc(self):
+        """Get the local shape of the array in the Fourier space"""
         cdef int output_nK0loc, output_nK1
         self.thisptr.get_local_shape_K(&output_nK0loc, &output_nK1)
         return output_nK0loc, output_nK1
 
     def get_shapeX_seq(self):
+        """Get the shape of the real array as it would be with nb_proc = 1"""
         cdef int output_nX0, output_nX1
         self.thisptr.get_shapeX_seq(&output_nX0, &output_nX1)
         return output_nX0, output_nX1
 
     def get_shapeK_seq(self):
+        """Get the shape of the complex array as it would be with nb_proc = 1
+
+        Warning: if get_is_transposed(), the complex array would also be
+        transposed, so in this case, one should write:: 
+
+          nKy = self.get_shapeK_seq[1]
+
+        """
         cdef int output_nK0, output_nK1
         self.thisptr.get_shapeK_seq(&output_nK0, &output_nK1)
         return output_nK0, output_nK1
