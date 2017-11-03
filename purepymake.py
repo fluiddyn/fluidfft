@@ -333,7 +333,7 @@ def make_extensions(extensions,
                     **options):
 
     if all(command not in sys.argv for command in [
-            'build_ext', 'install', 'develop', 'bdist_wheel']):
+            'build_ext', 'install', 'develop', 'bdist_wheel', 'bdist_egg']):
         return
 
     if '--inplace' in sys.argv or 'develop' in sys.argv:
@@ -349,6 +349,9 @@ def make_extensions(extensions,
     elif 'bdist_wheel' in sys.argv:
         path_base_output = 'build/bdist.' + '-'.join(
             [platform.system().lower(), platform.machine()]) + '/wheel'
+    elif 'bdist_egg' in sys.argv:
+        path_base_output = 'build/bdist.' + '-'.join(
+            [platform.system().lower(), platform.machine()]) + '/egg'
     else:
         path_base_output = path_tmp
 
