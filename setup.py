@@ -48,7 +48,7 @@ except ImportError:
 try:
     mkl_libs = get_info('mkl')['libraries']
     use_mkl_intel = 'mkl_intel_lp64' in mkl_libs
-    # Note: No symbol clash occurs if 'mkl_rt' appears in numpy libraries 
+    # Note: No symbol clash occurs if 'mkl_rt' appears in numpy libraries
     #       instead.
     # P.S.: If 'mkl_rt' is detected, use FFTW libraries, not Intel's MKL/FFTW
     #       implementation.
@@ -167,27 +167,22 @@ if config['p3dfft']['use']:
     base_names.extend(['fft3dmpi_with_p3dfft'])
 
 
-on_rtd = os.environ.get('READTHEDOCS')
-if on_rtd:
-    base_names = []
+ext_modules = []
+
+include_dirs = [
+    src_cy_dir, src_base, src_cpp_3d, src_cpp_2d,
+    'include', np.get_include()]
+
+try:
+    import mpi4py
+except ImportError:
+    warn('ImportError for mpi4py: '
+         "all extensions based on mpi won't be built.")
+    base_names = [name for name in base_names if 'mpi' not in name]
 else:
-    import numpy as np
-    ext_modules = []
-
-    include_dirs = [
-        src_cy_dir, src_base, src_cpp_3d, src_cpp_2d,
-        'include', np.get_include()]
-
-    try:
-        import mpi4py
-    except ImportError:
-        warn('ImportError for mpi4py: '
-             "all extensions based on mpi won't be built.")
-        base_names = [name for name in base_names if 'mpi' not in name]
-    else:
-        if mpi4py.__version__[0] < '2':
-            raise ValueError('Please upgrade to mpi4py >= 2.0')
-        include_dirs.append(mpi4py.get_include())
+    if mpi4py.__version__[0] < '2':
+        raise ValueError('Please upgrade to mpi4py >= 2.0')
+    include_dirs.append(mpi4py.get_include())
 
 
 def update_with_config(key):

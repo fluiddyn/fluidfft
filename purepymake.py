@@ -41,7 +41,6 @@ from copy import copy
 import importlib
 import multiprocessing
 import warnings
-from shutil import copyfile
 
 from distutils.ccompiler import CCompiler
 from setuptools.command.build_ext import build_ext
@@ -272,23 +271,16 @@ def make_command_obj_from_cpp(obj_file, cpp_file, include_dirs=None,
     if can_import_mpi4py and not cpp_file.endswith('.cu'):
         command[0] = os.getenv('MPICXX', 'mpicxx')
 
-    includepy = [conf_vars['INCLUDEPY']]
-
+    includepy = conf_vars['INCLUDEPY']
+    includedir = os.path.split(includepy)[0]
+    if os.path.split(includedir)[-1] == 'include':
+        includepy = [includepy, includedir]
+    else:
+        includepy = [includepy]
     if include_dirs is None:
         include_dirs = includepy
     else:
         include_dirs = includepy + include_dirs
-
-    # this should not be here! No hard-coded path...
-    # if 'cufft' in cpp_file:
-    #     include_dirs.extend([
-    #         '/opt/cuda/NVIDIA_CUDA-6.0_Samples/common/inc/'])
-
-    # cu + mpi ? No hard-coded path...
-    # if cpp_file.endswith('.cu'):
-    #     include_dirs.extend([
-    #         '/usr/lib/openmpi/include',
-    #         '/usr/lib/openmpi/include/openmpi'])
 
     command += ['-I' + incdir for incdir in include_dirs]
     command += ['-c', cpp_file, '-o', obj_file]
