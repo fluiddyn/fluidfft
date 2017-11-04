@@ -20,6 +20,7 @@ if on_tox is not None:
 
 Distribution(dict(setup_requires=setup_requires))
 
+import numpy as np
 from numpy.distutils.system_info import get_info
 
 from src_cy.make_files_with_mako import make_pyx_files
