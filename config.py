@@ -4,16 +4,18 @@ site.cfg.default to site.cfg and modify this file.
 """
 from __future__ import print_function
 import os
+import sys
 
 try:  # python 3
     from configparser import ConfigParser
-except:  # python 2.7
+except ImportError:  # python 2.7
     from ConfigParser import ConfigParser
 
 sections_libs = ['fftw3', 'fftw3_mpi', 'cufft', 'pfft', 'p3dfft']
 
 
 def get_default_config():
+    """Generate default configuration."""
 
     config = ConfigParser()
 
@@ -31,6 +33,7 @@ def get_default_config():
 
 
 def make_site_cfg_default_file():
+    """Write the default configuration to site.cfg.default."""
 
     config = get_default_config()
 
@@ -39,14 +42,33 @@ def make_site_cfg_default_file():
 
 
 def get_config():
+    """Check for site-specific configuration file saved as either:
+
+    1. site.cfg in source directory, or
+    2. $HOME/.fluidfft-site.cfg
+
+    and read if found, else revert to default configuration.
+
+    Returns
+    -------
+    dict
+
+    """
     config = get_default_config()
 
-    if os.path.exists('site.cfg'):
-        print('Parsing site.cfg.')
-        config.read('site.cfg')
+    user_dir = '~user' if sys.platform == 'win32' else '~'
+    configfile_user = os.path.expanduser(os.path.join(
+        user_dir, '.fluidfft-site.cfg'))
+
+    for configfile in ('site.cfg', configfile_user):
+        if os.path.exists(configfile):
+            print('Parsing', configfile)
+            config.read(configfile)
+            break
     else:
-        print('Using default configuration. Copy site.cfg.default -> '
-              'site.cfg to specify site specific libraries.')
+        print('Using default configuration.')
+        print('Copy site.cfg.default -> site.cfg or $HOME/.fluidfft-site.cfg '
+              'to specify site specific libraries.')
 
     config_dict = {}
     for section in config.sections():
@@ -70,14 +92,14 @@ def get_config():
         if section_dict['use']:
             print(section + ': ')
             for k, v in section_dict.items():
-                if isinstance(v, bool):
-                    v = str(v)
-                print('{}: '.format(k).rjust(25) + v)
+                k = '{}: '.format(k).rjust(25)
+                print(k, v)
 
     return config_dict
 
 
 def parse_config():
+    """Parse configuration dictionary for special cases."""
     config = get_config()
 
     TMP = os.getenv('FFTW3_INC_DIR')
