@@ -204,7 +204,7 @@ myreal FFT3DWithCUFFT::sum_wavenumbers_double(myreal* fieldK)
 
   sum += sum0/2.;
 
-  return (myreal) sum;
+  return (myreal) 2.*sum;
 }
 
 
@@ -238,7 +238,7 @@ void FFT3DWithCUFFT::sum_wavenumbers_complex(mycomplex* fieldK, mycomplex* resul
 
   sum += sum0/2.;
 
-  *result = sum;
+  *result = 2.*sum;
 }
 
 

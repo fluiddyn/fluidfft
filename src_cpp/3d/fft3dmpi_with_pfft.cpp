@@ -292,7 +292,7 @@ myreal FFT3DMPIWithPFFT::sum_wavenumbers_double(myreal* fieldK)
 
   MPI_Allreduce(&sum_loc, &sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return (myreal) sum;
+  return (myreal) sum*2.;
 }
 
 
@@ -338,7 +338,7 @@ void FFT3DMPIWithPFFT::sum_wavenumbers_complex(
 
   MPI_Allreduce(&sum_loc, &sum, 1, MPI_COMPLEX, MPI_SUM, MPI_COMM_WORLD);
 
-  *result = sum;
+  *result = sum*2.;
 }
 
 

@@ -211,7 +211,7 @@ myreal FFT3DWithFFTW3D::sum_wavenumbers_double(myreal* fieldK)
       for (i2=1; i2<nK2-1; i2++)
 	sum += fieldK[i2 + (i1 + i0 * nK1) * nK2];
 
-  return sum;
+  return sum*2.;
 }
 
   
@@ -246,7 +246,7 @@ void FFT3DWithFFTW3D::sum_wavenumbers_complex(mycomplex* fieldK, mycomplex* resu
       for (i2=1; i2<nK2-1; i2++)
 	sum += fieldK[i2 + (i1 + i0 * nK1) * nK2];
 
-  *result = sum;
+  *result = sum*2.;
 }
 
 

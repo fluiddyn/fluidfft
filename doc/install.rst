@@ -88,6 +88,12 @@ or::
 
   pip install fluidfft --user
 
+You can also configure the installation of fluidfft by creating the file
+``~/.fluidfft-site.cfg`` and modify it to fit your requirements before the
+installation with pip::
+
+  wget https://bitbucket.org/fluiddyn/fluidfft/raw/default/site.cfg.default -O ~/.fluidfft-site.cfg
+
 
 Install from the repository (recommended)
 -----------------------------------------

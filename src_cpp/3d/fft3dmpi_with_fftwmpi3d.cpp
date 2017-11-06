@@ -228,7 +228,7 @@ myreal FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_double(myreal* fieldK)
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return (myreal) energy;
+  return (myreal) energy*2.;
 }
 
 void FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_complex(
@@ -265,7 +265,7 @@ void FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_complex(
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_COMPLEX, MPI_SUM, MPI_COMM_WORLD);
 //ERREUR PTET LA... COMPLEX OU DOUBLE COMPLEX???
-  *result = energy;
+  *result = energy*2.;
 }
 
 

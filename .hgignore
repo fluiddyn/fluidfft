@@ -24,6 +24,7 @@ src_cy/fft*_pxd.pxd
 
 *egg-info*
 dist*
+*.egg/*
 
 *OAR.*
 

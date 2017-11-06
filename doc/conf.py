@@ -21,7 +21,7 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 plt.ioff()
 
-from fluidrtd.ipynb_maker import ipynb_to_rst
+from fluiddoc.ipynb_maker import ipynb_to_rst
 import fluidfft
 import fluidfft.bench_analysis
 from fluidfft.bench_analysis import plot_scaling

@@ -236,7 +236,7 @@ myreal FFT3DMPIWithFFTW1D::sum_wavenumbers_double(myreal* fieldK)
   MPI_Allreduce(&sum_loc, &sum_tot, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
   // cout << "mean= " << sum_tot << endl;  
 
-  return sum_tot;
+  return sum_tot*2.;
 }
 
 
@@ -268,7 +268,7 @@ void FFT3DMPIWithFFTW1D::sum_wavenumbers_complex(
   MPI_Allreduce(&sum_loc, &sum_tot, 1, MPI_COMPLEX, MPI_SUM, MPI_COMM_WORLD);
   // cout << "mean= " << sum_tot << endl;  
 
-  *result = sum_tot;
+  *result = sum_tot*2.;
 }
 
 

@@ -50,8 +50,9 @@ def make_testop_functions(name, cls):
 
             op = OperatorsPseudoSpectral3D(n0, n1, n2,
                                            3*pi, 1*pi, 2*pi, fft=cls)
-            a = np.random.random(op._op_fft.get_local_size_X()).reshape(
-                op._op_fft.get_shapeX_loc())
+            a = np.random.random(
+                op._op_fft.get_local_size_X()).reshape(
+                    op._op_fft.get_shapeX_loc())
             afft = op.fft3d(a)
             a = op.ifft3d(afft)
             afft = op.fft3d(a)
@@ -62,8 +63,7 @@ def make_testop_functions(name, cls):
 
             energy_fft = 0.5 * abs(afft)**2
             nrj = op.sum_wavenumbers(energy_fft)
-            # error so we skip but this should work...
-            # self.assertAlmostEqual(nrjafft, nrj)
+            self.assertAlmostEqual(nrjafft, nrj)
 
             # not implemented...
             # E_kx, E_ky, E_kz = op.compute_1dspectra(energy_fft)

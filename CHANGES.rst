@@ -1,4 +1,9 @@
 
+0.2.1
+-----
+
+- install with pip (+ configure install setup with ``~/.fluidfft-site.cfg``)
+
 0.2.0
 -----
 
