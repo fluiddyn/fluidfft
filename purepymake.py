@@ -469,18 +469,20 @@ def make_pythran_extensions(modules):
 def build_extensions(self):
     # monkey-patch as in distutils.command.build_ext (parallel)
     self.check_extensions_list(self.extensions)
-    try:
-        self.compiler.compiler_so.remove('-Wstrict-prototypes')
-    except (AttributeError, ValueError):
-        pass
+
+    to_be_removed = ['-Wstrict-prototypes']
+    starts_forbiden = ['-axMIC_', '-diag-disable:']
+
+    self.compiler.compiler_so = [
+        key for key in self.compiler.compiler_so 
+        if key not in to_be_removed and 
+        all([not key.startswith(s) for s in starts_forbiden])]
 
     for ext in self.extensions:
         try:
             ext.sources = self.cython_sources(ext.sources, ext)
         except AttributeError:
             pass
-
-        
 
     try:
         num_jobs = os.cpu_count()
