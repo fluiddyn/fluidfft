@@ -25,7 +25,7 @@ Dependencies
   .. toctree::
      :maxdepth: 1
 
-     blas_libs
+     install/blas_libs
 
   .. warning::
 
@@ -74,7 +74,7 @@ Dependencies
   .. toctree::
      :maxdepth: 1
 
-     fft_libs
+     install/fft_libs
 
 Basic installation with pip
 ---------------------------
@@ -148,5 +148,5 @@ Examples of installation
 .. toctree::
    :maxdepth: 1
 
-   install_occigen
-   install_froggy
+   install/occigen
+   install/froggy

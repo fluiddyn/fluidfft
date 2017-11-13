@@ -13,8 +13,7 @@ from fluiddyn.util.easypyfft import FFTW3DReal2Complex
 from fluidfft import create_fft_object
 from fluidfft.fft2d.operators import _make_str_length
 
-from .util_pythran import (
-    project_perpk3d)
+from .util_pythran import project_perpk3d
 
 from .dream_pythran import _vgradv_from_v2
 
@@ -146,14 +145,14 @@ class OperatorsPseudoSpectral3D(object):
             'Lx = ' + str_Lx + ' ; Ly = ' + str_Ly +
             ' ; Lz = ' + str_Lz + '\n')
 
-    def constant_arrayX(self, value=None, SHAPE='LOC'):
+    def constant_arrayX(self, value=None, shape='LOC'):
         """Return a constant array in real space."""
-        if SHAPE == 'LOC':
+        if shape.lower() == 'loc':
             shapeX = self.shapeX_loc
-        elif SHAPE == 'SEQ':
+        elif shape.lower() == 'seq':
             shapeX = self.shapeX_seq
         else:
-            raise ValueError('SHAPE should be "LOC" of "SEQ"')
+            raise ValueError('shape should be "loc" or "seq"')
         if value is None:
             field = np.empty(shapeX)
         elif value == 0:
@@ -163,6 +162,11 @@ class OperatorsPseudoSpectral3D(object):
         return field
 
     def project_perpk3d(self, vx_fft, vy_fft, vz_fft):
+        t = (vx_fft, vy_fft, vz_fft, self.Kx, self.Ky, self.Kz,
+             self.K_square_nozero)
+        for a in t:        
+            print(a.dtype, a.shape)
+
         project_perpk3d(vx_fft, vy_fft, vz_fft, self.Kx, self.Ky, self.Kz,
                         self.K_square_nozero)
 

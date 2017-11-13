@@ -7,6 +7,15 @@ from ${module_name}_pxd cimport (
     mycomplex)
 
 
+def compute_k_adim_seq(nk, d):
+    if d == 2:
+        return np.arange(nk)
+    else:
+        k_adim_max = nk//2
+        k_adim_min = -((nk-1)//2)
+        return np.r_[0:k_adim_max+1, k_adim_min:0]
+
+
 cdef class ${class_name}:
     """Perform fast Fourier transform in 3D.
 
@@ -196,27 +205,13 @@ cdef class ${class_name}:
         d0, d1, d2 = self.get_dimX_K()
         i0_start, i1_start = self.get_seq_indices_first_K()
 
-        if d0 == 2:
-            tmp = np.arange(nK0)
-        else:
-            k0_adim_max = nK0//2
-            tmp = np.r_[0:k0_adim_max+1, -k0_adim_max+1:0]
+        k0_adim = compute_k_adim_seq(nK0, d0)
+        k0_adim_loc = k0_adim[i0_start:i0_start+nK0_loc]
 
-        k0_adim_loc = tmp[i0_start:i0_start+nK0_loc]
+        k1_adim = compute_k_adim_seq(nK1, d1)
+        k1_adim_loc = k1_adim[i1_start:i1_start+nK1_loc]
 
-        if d1 == 2:
-            tmp = np.arange(nK1)
-        else:
-            k1_adim_max = nK1//2
-            tmp = np.r_[0:k1_adim_max+1, -k1_adim_max+1:0]
-
-        k1_adim_loc = tmp[i1_start:i1_start+nK1_loc]
-
-        if d2 == 2:
-            k2_adim_loc = np.arange(nK2)
-        else:
-            k2_adim_max = nK2//2
-            k2_adim_loc = np.r_[0:k2_adim_max+1, -k2_adim_max+1:0]
+        k2_adim_loc = compute_k_adim_seq(nK2, d2)
 
         return k0_adim_loc, k1_adim_loc, k2_adim_loc
 

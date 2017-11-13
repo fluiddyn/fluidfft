@@ -10,26 +10,16 @@ better in python 2 and because there is no pip in the system python 2
    module load python/2.7.13
    pip2 install mercurial --user
 
-The commands to load the environment:
+We write in a file occigen_setenv.sh the commands to setup the environment:
 
-.. code-block:: bash
+.. literalinclude:: occigen_setenv.sh
+   :language: shell
 
-   # normal environment loading with intel
-   export PATH=$HOME/.local/bin:$PATH
-   module load intel/17.2
-   module load openmpi/intel/2.0.2
-   module load qt
-   module load hdf5-seq
-   module load python/3.6.3
-   unset PYTHONPATH
+We source this file::
 
-   # to be able to compile cpp pythran code
-   module load gcc/6.2.0
+  source occigen_setenv.sh
 
-   # activation the virtualenv (won't work the first time!)
-   source ~/mypy/bin/activate
-
-Prepare the environment:
+We can then prepare the python environment:
 
 .. code-block:: bash
 
@@ -42,3 +32,9 @@ Prepare the environment:
 
    pip install pythran colorlog
    pip install fluiddyn
+
+Finally, we can install fluidfft::
+
+  hg clone http://bitbucket.org/fluiddyn/fluidfft
+  cd fluidfft
+  make develop

@@ -32,10 +32,8 @@ install the FFTW library.
 MKL library (FFT by intel)
 --------------------------
 
-.. todo:: 
-
-   Try to use MKL wrappers. Note that there are wrappers to use the MKL library
-   (FFT by intel) using the FFTW API.
+There are wrappers to use the MKL library (FFT by intel) using the FFTW
+API. See the file ``site.cfg.mkl``.
 
 `pfft <https://github.com/mpip/pfft>`_ 
 --------------------------------------

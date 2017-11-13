@@ -40,7 +40,7 @@ def make_test_function(cls, sequential=False):
 def make_testop_functions(name, cls):
 
     tests = {}
-    shapes = {'even': (8, 8, 8)}
+    shapes = {'even': (4, 4, 4)}
     if nb_proc == 1:
         shapes['odd'] = (5, 3, 3)
 
@@ -48,11 +48,15 @@ def make_testop_functions(name, cls):
 
         def test(self, n0=n0, n1=n1, n2=n2):
 
+            print('n0, n1, n2 = {}, {}, {}'.format(n0, n1, n2))
+            
             op = OperatorsPseudoSpectral3D(n0, n1, n2,
                                            3*pi, 1*pi, 2*pi, fft=cls)
+            op_fft = op._op_fft
+
             a = np.random.random(
-                op._op_fft.get_local_size_X()).reshape(
-                    op._op_fft.get_shapeX_loc())
+                op_fft.get_local_size_X()).reshape(
+                    op_fft.get_shapeX_loc())
             afft = op.fft3d(a)
             a = op.ifft3d(afft)
             afft = op.fft3d(a)
@@ -72,6 +76,17 @@ def make_testop_functions(name, cls):
 
             # E_kh = op.compute_2dspectrum(energy_fft)
             # self.assertAlmostEqual(nrja, E_kh.sum()*op.deltakh)
+
+            op.produce_str_describing_grid()
+            op.produce_str_describing_oper()
+            op.produce_long_str_describing_oper()
+            op.constant_arrayX(value=None, shape='loc')
+            op.constant_arrayX(value=None, shape='seq')
+            op.constant_arrayX(value=0.)
+
+            # op.project_perpk3d(afft, afft, afft)
+            op.vgradv_from_v(a, a, a)
+            op.vgradv_from_v2(a, a, a)
 
         tests[key] = test
 
