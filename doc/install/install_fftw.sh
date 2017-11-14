@@ -4,7 +4,7 @@
 # ----------------------
 pkgname='fftw'
 # FFTW version
-pkgver='3.3.6-pl2'
+pkgver=3.3.7
 # Directory in which the source tarball will be downloaded and extracted
 srcdir=$PWD
 # Directory to which the compiled FFTW library will be installed
@@ -20,7 +20,18 @@ download() {
   if [ ! -f ${pkgname}-${pkgver}.tar.gz ]; then
     wget http://www.fftw.org/${pkgname}-${pkgver}.tar.gz
   fi
-  tar vxzf ${pkgname}-${pkgver}.tar.gz
+  tar vxzf $pkgname-$pkgver.tar.gz
+}
+
+clean() {
+  cd ${srcdir}/${pkgname}-${pkgver}-double
+  make distclean
+
+  cd ${srcdir}/${pkgname}-${pkgver}-long-double
+  make distclean
+
+  cd ${srcdir}/${pkgname}-${pkgver}-single
+  make distclean
 }
 
 build() {
@@ -57,6 +68,17 @@ build() {
   make
 }
 
+check() {
+  cd ${srcdir}/${pkgname}-${pkgver}-double
+  make check
+
+  cd ${srcdir}/${pkgname}-${pkgver}-long-double
+  make check
+
+  cd ${srcdir}/${pkgname}-${pkgver}-single
+  make check
+}
+
 package() {
   cd ${srcdir}/${pkgname}-${pkgver}-double
   make install
@@ -76,5 +98,7 @@ then
   download
 fi
 
+clean
 build
+check
 package
