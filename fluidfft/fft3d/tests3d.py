@@ -47,9 +47,6 @@ def make_testop_functions(name, cls):
     for key, (n0, n1, n2) in shapes.items():
 
         def test(self, n0=n0, n1=n1, n2=n2):
-
-            print('n0, n1, n2 = {}, {}, {}'.format(n0, n1, n2))
-            
             op = OperatorsPseudoSpectral3D(n0, n1, n2,
                                            3*pi, 1*pi, 2*pi, fft=cls)
             op_fft = op._op_fft
@@ -84,7 +81,7 @@ def make_testop_functions(name, cls):
             op.constant_arrayX(value=None, shape='seq')
             op.constant_arrayX(value=0.)
 
-            # op.project_perpk3d(afft, afft, afft)
+            op.project_perpk3d(afft, afft, afft)
             op.vgradv_from_v(a, a, a)
             op.vgradv_from_v2(a, a, a)
 
