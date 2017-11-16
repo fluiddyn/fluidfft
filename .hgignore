@@ -38,6 +38,8 @@ site.cfg
 
 .tox/*
 
+.cache/*
+
 */*_pythran.cpp
 
 bench/operator2d/*/__init__.py

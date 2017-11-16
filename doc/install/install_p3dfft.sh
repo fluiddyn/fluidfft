@@ -22,8 +22,8 @@ fftwdir="${HOME}/.local/"
 # Should be no reason to change anything below
 # --------------------------------------------
 git_clone() {
-  git clone https://github.com/CyrilleBonamy/p3dfft.git ${srcdir}/${pkgname}-${pkgver}
-  # git clone https://github.com/sdsc/p3dfft.git ${srcdir}/${pkgname}-${pkgver}
+  git clone https://github.com/CyrilleBonamy/p3dfft.git ${srcdir}/${pkgname}-${pkgver} --depth=10
+  # git clone https://github.com/sdsc/p3dfft.git ${srcdir}/${pkgname}-${pkgver} --depth=10
 }
 
 download() {

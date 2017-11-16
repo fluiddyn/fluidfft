@@ -23,7 +23,7 @@ if mpi.nb_proc > 1:
 
 class OperatorsPseudoSpectral3D(object):
 
-    def __init__(self, nx, ny, nz, lx, ly, lz, fft='fft3d.with_fftw2d',
+    def __init__(self, nx, ny, nz, lx, ly, lz, fft='fft3d.with_fftw3d',
                  coef_dealiasing=1.):
         self.nx = self.nx_seq = nx
         self.ny = self.ny_seq = ny
@@ -91,6 +91,10 @@ class OperatorsPseudoSpectral3D(object):
 
         # oh that's strange!
         K1, K0, K2 = np.meshgrid(self.k1, self.k0, self.k2, copy=False)
+
+        K0 = np.ascontiguousarray(K0)
+        K1 = np.ascontiguousarray(K1)
+        K2 = np.ascontiguousarray(K2)
 
         self.Kz = K0
         self.Ky = K1
@@ -162,11 +166,6 @@ class OperatorsPseudoSpectral3D(object):
         return field
 
     def project_perpk3d(self, vx_fft, vy_fft, vz_fft):
-        t = (vx_fft, vy_fft, vz_fft, self.Kx, self.Ky, self.Kz,
-             self.K_square_nozero)
-        for a in t:        
-            print(a.dtype, a.shape)
-
         project_perpk3d(vx_fft, vy_fft, vz_fft, self.Kx, self.Ky, self.Kz,
                         self.K_square_nozero)
 
