@@ -75,6 +75,15 @@ class OperatorsPseudoSpectral2D(object):
         self.deltakx = 2*pi/lx
         self.deltaky = 2*pi/ly
 
+        x0_adim, x1_adim = opfft.get_x_adim_loc()
+        self.nX0_loc = len(x0_adim)
+        self.nX1_loc = len(x1_adim)
+
+        self.x = self.x_loc = self.deltax * x1_adim
+        self.y = self.y_loc = self.deltay * x0_adim
+
+        [self.X, self.Y] = np.meshgrid(self.x_loc, self.y_loc)
+
         k0_adim, k1_adim = opfft.get_k_adim_loc()
 
         self.nK0_loc = len(k0_adim)
