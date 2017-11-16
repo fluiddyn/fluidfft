@@ -14,7 +14,7 @@ standard open-source library for discrete Fourier transform.
 .. todo::
 
    Use OpenMP...
-    
+
 fftw-mpi
 --------
 
@@ -57,27 +57,35 @@ limitation to scalability inherent in FFT libraries implementing 1D (or slab)
 decomposition: the number of processors/tasks used to run this problem in
 parallel can be as large as N2, where N is the linear problem size."*
 
-To use p3dfft with python binding, we need shared library and then a modified
-version of the package. Please follow the process detailed in the INSTALL file
-of this fork of the official p3dfft package : 
-https://github.com/CyrilleBonamy/p3dfft
+To use p3dfft with python binding, we need a shared library (.so) and therefore,
+we use a modified version of the package. Please follow the process detailed
+in the INSTALL file of this fork of the official p3dfft github repository :
+`CyrilleBonamy/p3dfft <https://github.com/CyrilleBonamy/p3dfft>`_. The process
+can be summarized as follows :
 
-It can be convenient to link p3dfft with fftw3. So one fftw directory with lib 
-and include directories must exist.
+It can be convenient to link p3dfft with fftw3. A single fftw directory with
+lib and include directories must exist for this purpose.
 
-For example, on debian system, you can do that with :
-mkdir -p $HOME/opt/fft_gcc/include/
-mkdir -p $HOME/opt/fft_gcc/lib/
-cp /usr/include/fftw* $HOME/opt/fft_gcc/include/.
-cp /usr/lib/x86_64-linux-gnu/libfftw3* $HOME/opt/fft_gcc/lib/.
+For example, on Debian system, you can do that with :
+
+.. code-block:: bash
+
+   mkdir -p $HOME/opt/fft_gcc/include/
+   mkdir -p $HOME/opt/fft_gcc/lib/
+   cp /usr/include/fftw* $HOME/opt/fft_gcc/include/.
+   cp /usr/lib/x86_64-linux-gnu/libfftw3* $HOME/opt/fft_gcc/lib/.
 
 And next you can compile p3dfft with the following command
 (in this case the final install directory is /opt/p3dfft/2.7.5 directory) :
-CC=mpicc CCLD=mpif90 ./configure --enable-fftw --with-fftw=$HOME/opt/fft_gcc_bak/ --prefix=/opt/p3dfft/2.7.5
 
-.. todo:: 
+.. code-block:: bash
 
-   How can I install it? Link? Advice?
+   CC=mpicc CCLD=mpif90 ./configure --enable-fftw --with-fftw=$HOME/opt/fft_gcc_bak/ --prefix=/opt/p3dfft/2.7.5
+
+You may adapt the shell script given below to automate this process :
+
+.. literalinclude:: install_p3dfft.sh
+   :language: shell
 
 cuda
 ----

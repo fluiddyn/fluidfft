@@ -6,16 +6,18 @@ pkgname='p3dfft'
 # P3DFFT version
 pkgver=2.7.6
 # Directory in which the source git repository will be downloaded
-srcdir=$PWD
+srcdir="${PWD}"
 # Directory to which the compiled p3dfft library will be installed
-pkgdir="$HOME/.local/"
+pkgdir="${HOME}/.local/"
 
+# C and Fortran 90 MPI compilers
 CC=mpicc
 FTN=mpif90
 
 # FFTW
 # ----
-fftwdir="$HOME/.local/"
+fftwdir="${HOME}/.local/"
+# fftwdir="/usr/"
 
 # Should be no reason to change anything below
 # --------------------------------------------
@@ -31,7 +33,7 @@ download() {
   if [ ! -f ${pkgname}-${pkgver}.tar.gz ]; then
     wget https://github.com/sdsc/p3dfft/archive/v${pkgver}.tar.gz -O ${pkgname}-${pkgver}.tar.gz
   fi
-  tar vxzf $pkgname-$pkgver.tar.gz
+  tar vxzf ${pkgname}-${pkgver}.tar.gz
 }
 
 clean() {
@@ -40,9 +42,10 @@ clean() {
 
 build() {
   cd ${srcdir}/${pkgname}-${pkgver}
-  aclocal -I . && autoheader && autoconf && automake --add-missing -c
 
-  CC=mpicc CCLD=mpif90 ./configure \
+  libtoolize && aclocal && autoconf && automake --add-missing
+
+  CC=${CC} CCLD=${FTN} ./configure \
     --prefix=${pkgdir} \
     --enable-fftw --with-fftw=${fftwdir}
 
