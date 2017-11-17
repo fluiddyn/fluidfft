@@ -30,6 +30,10 @@ dist*
 
 doc/generated/*
 doc/doxygen/doxygen_sqlite3.db
+doc/install/fftw*
+doc/install/p3dfft*
+doc/install/pfft*
+doc/install/OpenBLAS*
 
 */fake_mod_fft*d_for_doc.py
 

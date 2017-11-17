@@ -12,7 +12,7 @@ pkgdir="${HOME}/.local/"
 
 # C and Fortran 90 MPI compilers
 CC=mpicc
-FTN=mpif90
+FC=mpif90
 
 # FFTW
 # ----
@@ -45,7 +45,7 @@ build() {
 
   libtoolize && aclocal && autoconf && automake --add-missing
 
-  CC=${CC} CCLD=${FTN} ./configure \
+  CC=${CC} CCLD=${FC} ./configure \
     --prefix=${pkgdir} \
     --enable-fftw --with-fftw=${fftwdir}
 

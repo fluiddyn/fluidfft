@@ -23,7 +23,7 @@ download() {
   cd ${srcdir}
 
   if [ ! -f ${pkgname}-${pkgver}.tar.gz ]; then
-    wget http://github.com/xianyi/OpenBLAS/archive/v${pkgver}.tar.gz
+    wget http://github.com/xianyi/OpenBLAS/archive/v${pkgver}.tar.gz -O ${pkgname}-${pkgver}.tar.gz
   fi
   tar vxzf ${pkgname}-${pkgver}.tar.gz
 }

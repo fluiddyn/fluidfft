@@ -28,7 +28,6 @@ install the FFTW library.
 .. literalinclude:: install_fftw.sh
    :language: shell
 
-
 MKL library (FFT by intel)
 --------------------------
 
@@ -43,9 +42,11 @@ transformations on distributed memory architectures. PFFT can be understood as
 a generalization of FFTW-MPI to multidimensional data decomposition. The
 library is written in C and MPI."*
 
-.. todo:: 
+You may adapt the shell script given below to install pfft. Some other scripts
+related to IBM clusters can be found `here <https://www-user.tu-chemnitz.de/~potts/workgroup/pippig/software.php.en#scripts>`_.
 
-   How can I install it? Link? Advice?
+.. literalinclude:: install_pfft.sh
+   :language: shell
 
 `p3dfft <https://www.p3dfft.net/>`_
 -----------------------------------
