@@ -20,6 +20,8 @@ The fft classes are in the two subpackages
 
 from __future__ import print_function
 
+from fluiddyn.util.mpi import printby0
+
 from fluidfft._version import __version__
 
 from importlib import import_module as _import_module
@@ -64,7 +66,7 @@ def import_fft_class(method, raise_import_error=True):
         if raise_import_error:
             raise ImportError(method)
         else:
-            print('ImportError:', method)
+            printby0('ImportError:', method)
             return None
 
     return mod.FFTclass

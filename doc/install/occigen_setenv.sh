@@ -16,3 +16,7 @@ unset PYTHONPATH
 
 # activation the virtualenv (won't work the first time!)
 source ~/mypy/bin/activate
+
+OPT=$HOME/opt
+
+export LD_LIBRARY_PATH=$OPT/fftw/3.3.7/lib:$OPT/p3dfft/2.7.5/lib:$OPT/pfft/lib:$LD_LIBRARY_PATH

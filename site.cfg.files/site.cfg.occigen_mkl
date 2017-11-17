@@ -1,0 +1,32 @@
+[fftw3]
+# Set `use = mkl` or `use = mkl_rt` to link dynamic or single-dynamic
+# libraries respectively. Run `fluidinfo -v` to decide which one to use.
+use = mkl_rt
+dir =
+include_dir = $MKLROOT/include/fftw
+library_dir = $MKLROOT/lib/intel64
+
+[fftw3_mpi]
+use = True
+dir = 
+include_dir = 
+library_dir = 
+
+[cufft]
+use = False
+dir = 
+include_dir = 
+library_dir = 
+
+[pfft]
+use = False
+dir = 
+include_dir = 
+library_dir = 
+
+[p3dfft]
+use = True
+dir = $HOME/opt/p3dfft/2.7.5/
+include_dir = 
+library_dir = 
+
