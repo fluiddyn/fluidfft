@@ -6,8 +6,7 @@ ROOTP3DFFT=$OPT/p3dfft/2.7.5
 
 mkdir -p $ROOTP3DFFT
 
-cd p3dfft 
-
+cd p3dfft
 libtoolize
 aclocal
 autoconf

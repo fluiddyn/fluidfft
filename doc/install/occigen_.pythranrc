@@ -1,0 +1,6 @@
+[compiler]
+CC=gcc
+CXX=g++
+
+[pythran]
+complex_hook = True

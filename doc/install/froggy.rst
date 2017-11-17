@@ -24,7 +24,6 @@ conda...
    pip install mpi4py --no-deps --no-binary mpi4py
    pip install h5py --no-deps --no-binary h5py
 
-   pip install "networkx<2.0"
    pip install pythran colorlog
 
    # fftw3: we need to recompile fftw3 (.so)...

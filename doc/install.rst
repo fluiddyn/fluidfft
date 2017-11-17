@@ -120,7 +120,7 @@ Configuration file
 
 For particular installation setup, copy the default configuration file::
 
-  cp site.cfg.example site.cfg
+  cp site.cfg.default site.cfg
 
 and modify it to fit your requirements.
 
