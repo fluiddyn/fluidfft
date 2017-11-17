@@ -1,6 +1,8 @@
 Installation on occigen
 =======================
 
+.. _occigen:
+
 First install mercurial in python 2 because mercurial still works
 better in python 2 and because there is no pip in the system python 2
 
@@ -58,4 +60,15 @@ Finally, we can install fluidfft::
 
   hg clone http://bitbucket.org/fluiddyn/fluidfft
   cd fluidfft
+
+There are two different ``site.cfg`` files for occigen, one to use fftw3 and
+the other to use MKL (in this case, pfft cannot be used because it depends on
+fftw3_mpi)::
+
+  cp site.cfg.files/site.cfg.occigen_fftw3 site.cfg
+  # or
+  # cp site.cfg.files/site.cfg.occigen_mkl site.cfg
+
   make develop
+
+You can then submit jobs using the class ``fluiddyn.cluster.cines.Occigen``.

@@ -15,7 +15,7 @@ classes depend on how fluidfft has been compiled.
 
 - `fluidfft3d.mpi_with_pfft.FFT3DMPIWithPFFT`
 
-- `fluidfft3d.mpi_with_p3dfft.FFT3DMPIWithP3DFFT` (do not work -> need .so)
+- `fluidfft3d.mpi_with_p3dfft.FFT3DMPIWithP3DFFT`
 
 All classes are very similar and provide the same public functions. Since these
 classes are defined in Cython extensions that can not easily be compiled on the

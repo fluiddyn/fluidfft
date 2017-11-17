@@ -4,7 +4,7 @@ FluidFFT: efficient and easy Fast Fourier Transform for Python
 |release| |docs| |coverage| |travis|
 
 .. |release| image:: https://img.shields.io/pypi/v/fluidfft.svg
-   :target: https://pypi.python.org/pypi/fluidfft/
+   :target: https://pypi.org/project/fluidfft/
    :alt: Latest version
 
 .. |docs| image:: https://readthedocs.org/projects/fluidfft/badge/?version=latest
@@ -22,7 +22,8 @@ This package provides C++ classes and their Python wrapper classes written in
 Cython useful to perform Fast Fourier Transform (FFT) with different libraries,
 in particular
 
-- fftw3 and fftw3-mpi
+- `fftw3 <http://www.fftw.org/>`_ and `fftw3-mpi
+  <http://www.fftw.org/fftw3_doc/Distributed_002dmemory-FFTW-with-MPI.html>`_
 
 - `pfft <https://github.com/mpip/pfft>`_
 

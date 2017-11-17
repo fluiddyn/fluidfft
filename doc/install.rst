@@ -54,8 +54,8 @@ Dependencies
   .. warning::
 
      To reach good performance, we advice to try to put in the file
-     `~/.pythranrc` the lines (see the `Pythran documentation
-     <https://pythonhosted.org/pythran/MANUAL.html>`_):
+     `~/.pythranrc` the lines (it seems to work well on Linux, see the `Pythran
+     documentation <https://pythonhosted.org/pythran/MANUAL.html>`_):
 
      .. code:: bash
 

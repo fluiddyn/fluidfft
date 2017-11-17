@@ -1,22 +1,18 @@
 Supported FFT libraries and their installation
 ==============================================
 
-.. todo::
-
-   Add more on building of FFT libraries.
-
-fftw (better to build with OpenMP enabled)
-------------------------------------------
+fftw3 (better to build with OpenMP enabled)
+-------------------------------------------
 
 `FFTW <http://www.fftw.org/>`_ (*Fastest Fourier Transform in the West*) is the
 standard open-source library for discrete Fourier transform.
 
 .. todo::
 
-   Use OpenMP...
+   Try hybrid OpenMP + MPI...
 
-fftw-mpi
---------
+fftw3_mpi
+---------
 
 `FFTW <http://www.fftw.org/>`_ provide their parallel MPI implementation.
 
@@ -27,6 +23,7 @@ install the FFTW library.
 
 .. literalinclude:: install_fftw.sh
    :language: shell
+
 
 MKL library (FFT by intel)
 --------------------------
@@ -67,33 +64,47 @@ can be summarized as follows :
 It can be convenient to link p3dfft with fftw3. A single fftw directory with
 lib and include directories must exist for this purpose.
 
-For example, on Debian system, you can do that with :
+For example, on Debian system, you can do that with::
 
-.. code-block:: bash
+  ROOTFFTW=$HOME/opt/fft_gcc
+  mkdir -p $ROOTFFTW/include
+  mkdir -p $ROOTFFTW/lib
+  cp /usr/include/fftw* $ROOTFFTW/include
+  cp /usr/lib/x86_64-linux-gnu/libfftw3* $ROOTFFTW/lib
 
-   mkdir -p $HOME/opt/fft_gcc/include/
-   mkdir -p $HOME/opt/fft_gcc/lib/
-   cp /usr/include/fftw* $HOME/opt/fft_gcc/include/.
-   cp /usr/lib/x86_64-linux-gnu/libfftw3* $HOME/opt/fft_gcc/lib/.
+And next you can compile p3dfft with the following command::
 
-And next you can compile p3dfft with the following command
-(in this case the final install directory is /opt/p3dfft/2.7.5 directory) :
-
-.. code-block:: bash
-
-   CC=mpicc CCLD=mpif90 ./configure --enable-fftw --with-fftw=$HOME/opt/fft_gcc_bak/ --prefix=/opt/p3dfft/2.7.5
+  CC=mpicc CCLD=mpif90 ./configure --enable-fftw --with-fftw=$ROOTFFTW \
+      --prefix=/opt/p3dfft/2.7.5
 
 You may adapt the shell script given below to automate this process :
 
 .. literalinclude:: install_p3dfft.sh
    :language: shell
 
+See also how we build p3dfft with intel compiler for the :doc:`occigen`.
+
 cuda
 ----
 
 Modify fftw.h ! https://github.com/FFTW/fftw3/issues/18
 
-
-.. todo:: 
+.. todo::
 
    How can I install it? Link? Advice?
+
+Unsupported libraries
+=====================
+
+`openfft <http://www.openmx-square.org/openfft/>`__
+---------------------------------------------------
+
+There is no class of fluidfft to use the library openfft because it does not
+provide a function for inverse fft.
+
+
+`2decomp <http://www.2decomp.org>`__
+------------------------------------
+
+There is no class of fluidfft to use the library 2decomp because we didn't
+manage to build their shared libraries.

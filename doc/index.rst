@@ -58,7 +58,7 @@ More
 ----
 
 .. |release| image:: https://img.shields.io/pypi/v/fluidfft.svg
-   :target: https://pypi.python.org/pypi/fluidfft/
+   :target: https://pypi.org/project/fluidfft/
    :alt: Latest version
 
 .. |coverage| image:: https://codecov.io/gh/fluiddyn/fluidfft/graph/badge.svg
