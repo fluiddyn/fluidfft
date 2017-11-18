@@ -57,7 +57,7 @@ build() {
             --prefix=${pkgdir} \
             CC=${CC} FC=${FC} MPICC=${CC} MPIFC=${FC} "
   if [ -n "$fftwdir" ]; then
-    CONFIGURE+="--enable-fftw --with-fftw=${fftwdir}"
+    CONFIGURE+="--with-fftw3=${fftwdir}"
   else
     CONFIGURE+="CPPFLAGS=-I${fftwinc}  LDFLAGS=-L${fftwlib}"
   fi

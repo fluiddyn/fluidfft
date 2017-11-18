@@ -44,6 +44,8 @@ build() {
   cd ${srcdir}/${pkgname}-${pkgver}
 
   libtoolize && aclocal && autoconf && automake --add-missing
+  ## If the above fails, use:
+  # autoreconf -fvi
 
   CC=${CC} CCLD=${FC} ./configure \
     --prefix=${pkgdir} \
@@ -55,6 +57,8 @@ build() {
 package() {
   cd ${srcdir}/${pkgname}-${pkgver}
   make install
+  ## If the above fails, use (with caution):
+  # make -i install
 }
 
 
