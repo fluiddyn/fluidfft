@@ -151,3 +151,4 @@ Examples of installation
    install/occigen
    install/froggy
    install/triolith
+   install/beskow

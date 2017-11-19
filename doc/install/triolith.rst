@@ -45,4 +45,7 @@ as described in occigen installation:
   .. toctree::
      :maxdepth: 1
 
-     occigen_install
+     occigen
+
+
+
