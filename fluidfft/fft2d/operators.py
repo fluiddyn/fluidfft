@@ -41,7 +41,12 @@ class OperatorsPseudoSpectral2D(object):
         self.ly = ly = float(ly)
 
         if isinstance(fft, basestring):
-            opfft = create_fft_object(fft, ny, nx)
+            if any([fft.startswith(s) for s in ['fluidfft.', 'fft2d.']]):
+                opfft = create_fft_object(fft, ny, nx)
+            else:
+                raise ValueError(
+                    ("Cannot instantiate %s. Expected something like"
+                     " 'fluidfft.fft2d.<method>' or 'fft2d.<method>'") % fft)
         elif isinstance(fft, type):
             opfft = fft(ny, nx)
         else:

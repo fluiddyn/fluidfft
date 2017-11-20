@@ -35,7 +35,9 @@ class OperatorsPseudoSpectral3D(object):
             elif any([fft.startswith(s) for s in ['fluidfft.', 'fft3d.']]):
                 op_fft = create_fft_object(fft, nz, ny, nx)
             else:
-                raise ValueError
+                raise ValueError(
+                    ("Cannot instantiate %s. Expected something like 'fftwpy'"
+                     " or 'fluidfft.fft3d.<method>' or 'fft3d.<method>'") % fft)
         elif isinstance(fft, type):
             op_fft = fft(nz, ny, nx)
         else:
