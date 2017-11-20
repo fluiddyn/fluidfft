@@ -1,53 +1,36 @@
-sudo: required
 language: python
+
+python:
+  - 3.6
+  - 2.7
+
+env:
+  - TOXENV=py,codecov-travis OMPI_CC=/usr/bin/gcc-4.9 OMPI_CXX=/usr/bin/g++-4.9
+  - TOXENV=py-pythran,codecov-travis OMPI_CC=/usr/bin/gcc-4.9 OMPI_CXX=/usr/bin/g++-4.9
+  - TOXENV=py-pythran,codecov-travis OMPI_CC=/usr/bin/gcc-6 OMPI_CXX=/usr/bin/g++-6
 
 matrix:
   include:
-    - python: 3.6
-      env:
-        - GCC_VERSION=4.9
-        - TOXENV=py,codecov-travis
     - python: 3.5
       env:
-        - GCC_VERSION=4.9
+        - OMPI_CC=/usr/bin/gcc-4.9
+        - OMPI_CXX=/usr/bin/g++-4.9
         - TOXENV=py,codecov-travis
     - python: 3.4
       env:
-        - GCC_VERSION=4.9
+        - OMPI_CC=/usr/bin/gcc-4.9
+        - OMPI_CXX=/usr/bin/g++-4.9
         - TOXENV=py,codecov-travis
-    - python: 2.7
-      env:
-        - GCC_VERSION=4.9
-        - TOXENV=py,codecov-travis
-    - python: 3.6
-      env:
-        - GCC_VERSION=4.9
-        - TOXENV=py-pythran,codecov-travis
-    - python: 2.7
-      env:
-        - GCC_VERSION=4.9
-        - TOXENV=py-pythran,codecov-travis
-    - python: 3.6
-      env:
-        - GCC_VERSION=6
-        - TOXENV=py-pythran,codecov-travis
-    - python: 2.7
-      env:
-        - GCC_VERSION=6
-        - TOXENV=py-pythran,codecov-travis
-
 
 before_cache:
   - |
       coverage erase
       rm -f $HOME/.cache/pip/log/debug.log
 
-
 cache:
     directories:
         - $HOME/.cache/pip
         - $TRAVIS_BUILD_DIR/.tox
-
 
 addons:
     apt:
@@ -64,14 +47,10 @@ addons:
             - openmpi-bin
             - libopenblas-dev
 
-# update-alternatives required so that mpicc will also use gcc-4.9
-before_install:
-    - |
-      sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-$GCC_VERSION 10
-      sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-$GCC_VERSION 10
-
+# Hotfix to make bootstrapping setup_requires work until PEP 518 is implemented
+# with the release of pip==10.0.0
 install:
-    - pip install -U pip setuptools wheel six colorlog
+    - pip install -U pip "setuptools<=36.6.0" wheel six colorlog
     - pip install -U tox coverage
 
 before_script:
