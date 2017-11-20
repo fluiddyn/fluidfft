@@ -30,6 +30,7 @@ dist*
 
 doc/generated/*
 doc/doxygen/doxygen_sqlite3.db
+doc/install/autotools*
 doc/install/fftw*
 doc/install/p3dfft*
 doc/install/pfft*
