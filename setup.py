@@ -211,6 +211,11 @@ if can_import_pythran:
         ['fluidfft.fft2d.util_pythran',
          'fluidfft.fft3d.util_pythran']))
 
+    # from purepymake import can_import_cython
+    # if can_import_cython:
+    #     from Cython.Build import cythonize
+    #     ext_modules.extend(cythonize('./fluidfft/fft3d/dream_cythran.pyx'))
+
 
 setup(
     name='fluidfft',
