@@ -39,13 +39,23 @@ Setup a virtual environment, using ``virtualenv``, or ``mkvirtualenv`` command
 from ``virtualenvwrapper`` package or simply using Python's built-in module
 ``python -m venv`` module.
 
-Set up ``~/.pythranrc`` and ``~/.fluidfft-site.cfg`` and install python packages
-as described in occigen installation:
+Create the file ``~/.pythranrc`` with::
+
+  [pythran]
+  complex_hook = True
+
+  [compiler]
+  cflags=-std=c++11 -fno-math-errno -w -fwhole-program -fvisibility=hidden -I$NSC_COMP_BIN_PATH/../include/c++/$NSC_COMP_VER
+  ldflags=-fvisibility=hidden -Wl,-strip-all -L$NSC_COMP_LIB_PATH
+
+Set environment variable ``LD_LIBRARY_PATH`` as::
+
+  export LD_LIBRARY_PATH=$HOME/.local/lib:$NSC_COMP_LIB_PATH:$LD_LIBRARY_PATH
+
+Set up ``~/.fluidfft-site.cfg`` and install python packages as described in
+occigen installation:
 
   .. toctree::
      :maxdepth: 1
 
      occigen
-
-
-
