@@ -7,6 +7,10 @@ dependencies:
   - numpy
   - cython
   - h5py
+  - sphinx
+  - numpydoc
+  - jupyter
   - matplotlib
   - pandas
   - fftw
+  - mako
