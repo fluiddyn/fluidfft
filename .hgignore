@@ -58,5 +58,6 @@ bench/SLURM*
 doc/ipynb/.ipynb_checkpoints
 doc/ipynb/*.rst
 doc/tmp/*
+doc/ipynb/*.nbconvert.ipynb
 
 .eggs/*

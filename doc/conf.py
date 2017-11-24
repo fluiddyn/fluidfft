@@ -42,9 +42,8 @@ tmp = os.path.join(os.path.dirname(__file__), 'tmp')
 if not os.path.exists(tmp):
     os.mkdir(tmp)
 
-ipynb_to_rst(executed=[
-    'tuto_fft2d_mpi.ipynb', 'tuto_fft2d_seq.ipynb',
-    'tuto_fft3d_mpi.ipynb', 'tuto_fft3d_seq.ipynb'])
+ipynb_to_rst()
+ipynb_to_rst('ipynb/executed', executed=True)
 
 save_fig_scaling('legi_cluster7_2d', 1024, 1024, '2d')
 save_fig_scaling('legi_cluster8_2d', 960, 960, '2d')

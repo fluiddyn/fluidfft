@@ -60,7 +60,7 @@ Therefore we explicitly use Intel compilers in the following steps:
 
 For fftw3:
 
-.. literalinclude:: beskow_install_fftw3.sh
+.. literalinclude:: beskow_install_fftw.sh
    :language: shell
 
 For p3dfft:
