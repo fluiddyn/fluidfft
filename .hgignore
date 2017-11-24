@@ -56,7 +56,8 @@ bench/launcher_*
 bench/SLURM*
 
 doc/ipynb/.ipynb_checkpoints
-doc/ipynb/*.rst
+doc/ipynb/executed/.ipynb_checkpoints
+doc/ipynb/**.rst
 doc/tmp/*
 doc/ipynb/*.nbconvert.ipynb
 

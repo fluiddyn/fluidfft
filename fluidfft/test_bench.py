@@ -1,6 +1,9 @@
 
 import unittest
 
+import matplotlib as mpl
+mpl.use('Agg')
+
 from fluiddyn.io import stdout_redirected
 
 from fluiddyn.util import mpi

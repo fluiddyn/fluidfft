@@ -392,8 +392,8 @@ void FFT3DMPIWithPFFT::ifft(mycomplex *fieldK, myreal *fieldX)
 
 void FFT3DMPIWithPFFT::get_dimX_K(int *d0, int *d1, int *d2)
 {
-  *d0 = 2;
-  *d1 = 1;
+  *d0 = 1;
+  *d1 = 2;
   *d2 = 0;
 }
 

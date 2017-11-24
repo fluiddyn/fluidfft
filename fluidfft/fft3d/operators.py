@@ -81,6 +81,8 @@ class OperatorsPseudoSpectral3D(object):
             self.deltaks = deltaky, deltakz, deltakx
         elif order == (2, 1, 0):
             self.deltaks = deltakx, deltaky, deltakz
+        elif order == (1, 2, 0):
+            self.deltaks = deltaky, deltakx, deltakz
         else:
             print('order =', order)
             raise NotImplementedError
