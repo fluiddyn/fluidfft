@@ -13,6 +13,9 @@ clean:
 cleanso:
 	find fluidfft* -name "*.so" -delete
 
+cleanpythran:
+	find fluidfft* -name "*pythran*.so" -delete
+
 cleancython:
 	rm -f src_cy/*_cy.cpp
 

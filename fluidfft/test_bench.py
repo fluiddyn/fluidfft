@@ -1,5 +1,6 @@
 
 import unittest
+import sys
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -8,8 +9,9 @@ from fluiddyn.io import stdout_redirected
 
 from fluiddyn.util import mpi
 
-from .bench import bench_all
-from .bench_analysis import plot_scaling
+from .bench import bench_all, run
+from . import bench_analysis
+
 
 path_tmp = '/tmp/fluidfft_test_bench'
 
@@ -17,11 +19,16 @@ path_tmp = '/tmp/fluidfft_test_bench'
 class TestsBench(unittest.TestCase):
 
     def test2d(self):
-        n0 = 24
         with stdout_redirected():
-            bench_all(dim='2d', n0=24, n1=None, n2=None, path_dir=path_tmp)
+            args = 'fluidfft-bench 24 -d 2 -o'.split()
+            args.append(path_tmp)
+            sys.argv = args
+            run()
             if mpi.nb_proc > 1 and mpi.rank == 0:
-                plot_scaling(path_tmp, None, n0, n0, '2d', show=False)
+                args = 'fluidfft-bench-analysis 24 -d 2 -i'.split()
+                args.append(path_tmp)
+                sys.argv = args
+                bench_analysis.run()
 
     def test3d(self):
         with stdout_redirected():

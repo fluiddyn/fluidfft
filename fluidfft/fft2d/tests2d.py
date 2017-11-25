@@ -64,7 +64,7 @@ def make_testop_functions(name, cls):
     for key, (n0, n1) in shapes.items():
 
         def test(self, n0=n0, n1=n1):
-            op = OperatorsPseudoSpectral2D(n0, n1, 3*pi, 1*pi, fft=cls)
+            op = OperatorsPseudoSpectral2D(n0, n1, 3*pi, 1., fft=cls)
             a = np.random.random(op.opfft.get_local_size_X()).reshape(
                 op.opfft.get_shapeX_loc())
             afft = op.fft(a)
@@ -86,6 +86,30 @@ def make_testop_functions(name, cls):
             E_kh = op.compute_2dspectrum(energy_fft)
 
             self.assertAlmostEqual(nrja, E_kh.sum()*op.deltakh)
+
+            op.sum_wavenumbers(energy_fft)
+            op.produce_str_describing_grid()
+            op.produce_str_describing_oper()
+            op.produce_long_str_describing_oper()
+
+            op.projection_perp(afft, afft)
+
+            rot_fft = afft
+            vecx_fft, vecy_fft = op.vecfft_from_rotfft(rot_fft)
+            rot_fft = op.rotfft_from_vecfft(vecx_fft, vecy_fft)
+            vecx_fft, vecy_fft = op.vecfft_from_rotfft(rot_fft)
+            rot_fft_back = op.rotfft_from_vecfft(vecx_fft, vecy_fft)
+            self.assertTrue(np.allclose(rot_fft, rot_fft_back))
+
+            div_fft = afft
+            vecx_fft, vecy_fft = op.vecfft_from_divfft(div_fft)
+            div_fft = op.divfft_from_vecfft(vecx_fft, vecy_fft)
+            vecx_fft, vecy_fft = op.vecfft_from_divfft(div_fft)
+            div_fft_back = op.divfft_from_vecfft(vecx_fft, vecy_fft)
+            self.assertTrue(np.allclose(div_fft, div_fft_back))
+
+            op.gradfft_from_fft(afft)
+            op.dealiasing_variable(afft)
 
         tests[key] = test
 

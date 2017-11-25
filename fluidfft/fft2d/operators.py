@@ -212,19 +212,19 @@ class OperatorsPseudoSpectral2D(object):
 
     def produce_str_describing_oper(self):
         """Produce a string describing the operator."""
-        str_Lx = _make_str_length(self.Lx)
-        str_Ly = _make_str_length(self.Ly)
-        return ('{}x{}_S' + str_Lx + 'x' + str_Ly).format(
+        str_lx = _make_str_length(self.lx)
+        str_ly = _make_str_length(self.ly)
+        return ('{}x{}_S' + str_lx + 'x' + str_ly).format(
             self.nx_seq, self.ny_seq)
 
     def produce_long_str_describing_oper(self):
         """Produce a string describing the operator."""
-        str_Lx = _make_str_length(self.Lx)
-        str_Ly = _make_str_length(self.Ly)
+        str_lx = _make_str_length(self.lx)
+        str_ly = _make_str_length(self.ly)
         return (
             'type fft: ' + str(self.type_fft) + '\n' +
             'nx = {0:6d} ; ny = {1:6d}\n'.format(self.nx_seq, self.ny_seq) +
-            'Lx = ' + str_Lx + ' ; Ly = ' + str_Ly + '\n')
+            'lx = ' + str_lx + ' ; ly = ' + str_ly + '\n')
 
     def compute_1dspectra(self, energy_fft):
         """Compute the 1D spectra. Return a dictionary."""
@@ -324,24 +324,24 @@ class OperatorsPseudoSpectral2D(object):
 
             raise NotImplementedError
 
-            E_kx = 2.*energy_fft.sum(self.dim_ky)/self.deltakx
-            E_kx[0] = E_kx[0]/2
-            E_kx = self.comm.allreduce(E_kx, op=MPI.SUM)
-            E_kx = E_kx[:self.nkxE]
-            # computation of E_ky
-            E_ky_tmp = energy_fft[:, 0].copy()
-            E_ky_tmp += 2*energy_fft[:, 1:].sum(1)
-            E_ky_tmp = np.ascontiguousarray(E_ky_tmp)
-            # print(self.rank, 'E_ky_tmp', E_ky_tmp, E_ky_tmp.shape)
-            E_ky_long = np.empty(self.nky_seq)
-            counts = self.comm.allgather(self.nky_loc)
-            self.comm.Allgatherv(sendbuf=[E_ky_tmp, MPI.DOUBLE],
-                                 recvbuf=[E_ky_long, (counts, None),
-                                          MPI.DOUBLE])
-            nkyE = self.nkyE
-            E_ky = E_ky_long[0:nkyE]
-            E_ky[1:nkyE] = E_ky[1:nkyE] + E_ky_long[self.nky_seq:nkyE:-1]
-            E_ky = E_ky/self.deltaky
+            # E_kx = 2.*energy_fft.sum(self.dim_ky)/self.deltakx
+            # E_kx[0] = E_kx[0]/2
+            # E_kx = self.comm.allreduce(E_kx, op=MPI.SUM)
+            # E_kx = E_kx[:self.nkxE]
+            # # computation of E_ky
+            # E_ky_tmp = energy_fft[:, 0].copy()
+            # E_ky_tmp += 2*energy_fft[:, 1:].sum(1)
+            # E_ky_tmp = np.ascontiguousarray(E_ky_tmp)
+            # # print(self.rank, 'E_ky_tmp', E_ky_tmp, E_ky_tmp.shape)
+            # E_ky_long = np.empty(self.nky_seq)
+            # counts = self.comm.allgather(self.nky_loc)
+            # self.comm.Allgatherv(sendbuf=[E_ky_tmp, MPI.DOUBLE],
+            #                      recvbuf=[E_ky_long, (counts, None),
+            #                               MPI.DOUBLE])
+            # nkyE = self.nkyE
+            # E_ky = E_ky_long[0:nkyE]
+            # E_ky[1:nkyE] = E_ky[1:nkyE] + E_ky_long[self.nky_seq:nkyE:-1]
+            # E_ky = E_ky/self.deltaky
 
         return E_kx, E_ky
 
@@ -418,13 +418,13 @@ class OperatorsPseudoSpectral2D(object):
         """Return the velocity in spectral space computed from the
         divergence."""
         return vecfft_from_divfft(div_fft, self.KX_over_K2, self.KY_over_K2)
-    
+
     def gradfft_from_fft(self, f_fft):
         """Return the gradient of f_fft in spectral space."""
         return gradfft_from_fft(f_fft, self.KX, self.KY)
 
-    def dealiasing_variable(self, ff_fft):
-        dealiasing_variable(ff_fft, self.where_dealiased,
+    def dealiasing_variable(self, f_fft):
+        dealiasing_variable(f_fft, self.where_dealiased,
                             self.nK0_loc, self.nK1_loc)
 
 
