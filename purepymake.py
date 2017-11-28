@@ -39,7 +39,6 @@ from datetime import datetime
 from distutils import sysconfig
 import subprocess
 from copy import copy
-import importlib
 import multiprocessing
 import warnings
 

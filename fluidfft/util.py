@@ -2,14 +2,15 @@
 =========================
 
 """
-from importlib import import_module as _import_module
 import inspect as _inspect
 
 
 def can_import(pkg_name, check_version=None):
     """Checks if a package can be imported."""
+    from importlib import import_module
+
     try:
-        pkg = _import_module(pkg_name)
+        pkg = import_module(pkg_name)
     except ImportError:
         return False
     else:
