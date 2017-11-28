@@ -30,11 +30,11 @@ here = os.path.dirname(__file__)
 tmp = os.path.join(here, 'tmp')
 
 
-def save_fig_scaling(dir_name, n0, n1, dim):
+def save_fig_scaling(dir_name, dim, n0, n1, n2=None):
     path_dir = os.path.join(here, 'benchmarks', dir_name)
     path_fig = os.path.join(tmp, 'fig_' + dir_name + '.png')
 
-    fig = plot_scaling(path_dir, None, n0, n1, dim, show=False)
+    fig = plot_scaling(path_dir, None, dim, n0, n1, n2, show=False)
     fig.savefig(path_fig)
 
 
@@ -45,8 +45,9 @@ if not os.path.exists(tmp):
 ipynb_to_rst()
 ipynb_to_rst('ipynb/executed', executed=True)
 
-save_fig_scaling('legi_cluster7_2d', 1024, 1024, '2d')
-save_fig_scaling('legi_cluster8_2d', 960, 960, '2d')
+save_fig_scaling('legi_cluster7_2d', '2d', 1024, 1024)
+save_fig_scaling('legi_cluster8_2d', '2d', 960, 960)
+save_fig_scaling('legi_cluster8_3d', '3d', 640, 640, 320)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

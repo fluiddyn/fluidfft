@@ -12,6 +12,32 @@ from .bench import (path_results, argparse, __version__, parse_args_dim,
                     MyValueError)
 
 
+def _get_typeline_from_key(key):
+    if key.endswith('_as_arg'):
+        return '--'
+    elif key.endswith('_cpp'):
+        return '-'
+    else:
+        return '-.'
+
+def _get_color_from_lib(name):
+    if name.endswith('fftw1d'):
+        return 'b'
+    elif name.endswith('fftwmpi3d') or name.endswith('fftwmpi2d'):
+        return 'r'
+    elif name.endswith('p3dfft'):
+        return 'm'
+    elif name.endswith('pfft'):
+        return 'g'
+    else:
+        return 'y'
+
+def _get_short_name(name):
+    if name.startswith('fft3dmpiwith') or name.startswith('fft2dmpiwith'):
+        return name[len('fft3dmpiwith'):]
+    return name
+
+
 def load_bench(path_dir, hostname, dim):
 
     dicts = []
@@ -42,7 +68,7 @@ def filter_by_shape(df, n0, n1):
     return df[df.columns.difference(['n0', 'n1'])]
 
 
-def plot_scaling(path_dir, hostname, n0, n1, dim, show=True):
+def plot_scaling(path_dir, hostname, dim, n0, n1, n2=None, show=True):
 
     df = load_bench(path_dir, hostname, dim)
     df = filter_by_shape(df, n0, n1)
@@ -59,7 +85,9 @@ def plot_scaling(path_dir, hostname, n0, n1, dim, show=True):
     nb_proc_min = df.nb_proc.min()
 
     df3 = df.groupby(['name', 'nb_proc']).quantile(q=0.2)
-
+    # df3 = df.groupby(['name', 'nb_proc']).quantile(q=0.8)
+    # df3 = df.groupby(['name', 'nb_proc']).min()
+    
     keys_fft = [k for k in df3.columns if k.startswith('t_fft')]
     keys_ifft = [k for k in df3.columns if k.startswith('t_ifft')]
 
@@ -73,7 +101,7 @@ def plot_scaling(path_dir, hostname, n0, n1, dim, show=True):
         m = df.as_matrix()
         i0, i1 = np.unravel_index(np.argmin(m), m.shape)
         mymin = m[i0, i1]
-        ind = df.index[i0]
+        ind = _get_short_name(df.index[i0])
         key = df.columns[i1]
         return mymin, ind, key
 
@@ -82,26 +110,33 @@ def plot_scaling(path_dir, hostname, n0, n1, dim, show=True):
     t_min_ifft, name_min_ifft, key_min_ifft = get_min(
         df_ifft_nb_proc_min)
 
-    fig = plt.figure(figsize=[15, 5])
+    fig = plt.figure(figsize=[15, 7])
     ax0 = plt.subplot(121)
     ax1 = plt.subplot(122)
 
     for name in df3.index.levels[0]:
         tmp = df3.loc[name]
+        name = _get_short_name(name)
+
         # print(name)
 
+        color = _get_color_from_lib(name)
+
         for k in keys_fft:
+            typeline = _get_typeline_from_key(k)
             speedup = t_min_fft/tmp[k]*nb_proc_min
             ax0.plot(
-                speedup.index, speedup.values, 'x-',
-                label='{}, {}'.format(name, k))
+                speedup.index, speedup.values, 'x' + typeline,
+                color=color,
+                label='{}, {}'.format(name, k[2:]))
 
         for k in keys_ifft:
-            # print(k)
+            typeline = _get_typeline_from_key(k)
             speedup = t_min_ifft/tmp[k]*nb_proc_min
             ax1.plot(
-                speedup.index, speedup.values, 'x-',
-                label='{}, {}'.format(name, k))
+                speedup.index, speedup.values, 'x' + typeline,
+                color=color,
+                label='{}, {}'.format(name, k[2:]))
 
         for ax in [ax0, ax1]:
             ax.xaxis.set_major_locator(MaxNLocator(integer=True))
@@ -114,11 +149,17 @@ def plot_scaling(path_dir, hostname, n0, n1, dim, show=True):
         ax.set_xlabel('number of processes')
         ax.set_ylabel('speedup')
 
-    ax0.set_title('Best for {} procs: {}, {} ({:.2f} ms)'.format(
-        nb_proc_min, name_min_fft, key_min_fft, t_min_fft*1000))
-    ax1.set_title('Best for {} procs: {}, {} ({:.2f} ms)'.format(
-        nb_proc_min, name_min_ifft, key_min_ifft, t_min_ifft*1000))
+    ax0.set_title('FFT, best for {} procs: {}, {} ({:.2f} ms)'.format(
+        nb_proc_min, name_min_fft, key_min_fft[2:], t_min_fft*1000))
+    ax1.set_title('IFFT, best for {} procs: {}, {} ({:.2f} ms)'.format(
+        nb_proc_min, name_min_ifft, key_min_ifft[2:], t_min_ifft*1000))
 
+    title = 'Fast Fourier Transform {} {}x{}'.format(dim, n0, n1)
+    if n2 is not None:
+        title += 'x{}'.format(n2)
+    
+    fig.suptitle(title)
+    
     ax0.legend()
     ax1.legend()
 
@@ -150,9 +191,10 @@ def run():
         return
 
     if args.dim == '3d':
-        raise NotImplementedError
+        plot_scaling(args.input_dir, args.hostname, args.dim,
+                     args.n0, args.n1, args.n2)
     else:
-        plot_scaling(args.input_dir, args.hostname, args.n0, args.n1, args.dim)
+        plot_scaling(args.input_dir, args.hostname, args.dim, args.n0, args.n1)
 
 
 # dim = '2d'

@@ -1,7 +1,5 @@
-"""
-
-python benchs2d.py
-mpirun -np 2 python benchs2d.py
+"""Benchmarking of fluidfft classes (:mod:`fluidfft.bench`)
+===========================================================
 
 
 """
@@ -12,6 +10,7 @@ import os
 import json
 import socket
 import argparse
+import gc
 
 from time import time
 # try:
@@ -40,51 +39,66 @@ def print(*args, **kwargs):
         print_old(*args, **kwargs)
 
 
-def bench_like_cpp_as_arg(o, nb_time_execute=20):
+def _format_times(times):
+    return ('\tmedian = {:.6f} s\n'
+            '\tmean =   {:.6f} s\n'
+            '\tmin =    {:.6f} s').format(
+                np.median(times), times.mean(), times.min())
 
-    fieldX = np.ones(o.get_shapeX_loc(), dtype=float, order='C')
-    fieldK = np.empty(o.get_shapeK_loc(), dtype=np.complex128, order='C')
 
-    times = np.empty([nb_time_execute])
-    for i in range(nb_time_execute):
+def bench_like_cpp_as_arg(obj, nb_exec=20):
+
+    fieldX = np.ones(obj.get_shapeX_loc(), dtype=float, order='C')
+    fieldK = np.empty(obj.get_shapeK_loc(), dtype=np.complex128, order='C')
+
+    times = np.empty([nb_exec])
+    gc.disable()
+    for i in range(nb_exec):
         t_start = time()
-        o.fft_as_arg(fieldX, fieldK)
+        result = obj.fft_as_arg(fieldX, fieldK)
         t_end = time()
+        del result
         times[i] = t_end - t_start
     t_fft = np.median(times)
-    print('time fft_as_arg:  {}'.format(t_fft))
+    print('time fft_as_arg:\n' + _format_times(times))
 
-    for i in range(nb_time_execute):
+    for i in range(nb_exec):
         t_start = time()
-        o.ifft_as_arg(fieldK, fieldX)
+        result = obj.ifft_as_arg(fieldK, fieldX)
         t_end = time()
+        del result
         times[i] = t_end - t_start
+    gc.enable()
     t_ifft = np.median(times)
-    print('time ifft_as_arg: {}'.format(t_ifft))
+    print('time ifft_as_arg:\n' + _format_times(times))
     return t_fft, t_ifft
 
 
-def bench_like_cpp_return(o, nb_time_execute=20):
+def bench_like_cpp_return(obj, nb_exec=20):
 
-    fieldX = np.ones(o.get_shapeX_loc(), dtype=float, order='C')
-    fieldK = np.empty(o.get_shapeK_loc(), dtype=np.complex128, order='C')
+    fieldX = np.ones(obj.get_shapeX_loc(), dtype=float, order='C')
+    fieldK = np.empty(obj.get_shapeK_loc(), dtype=np.complex128, order='C')
 
-    times = np.empty([nb_time_execute])
-    for i in range(nb_time_execute):
+    times = np.empty([nb_exec])
+    gc.disable()
+    for i in range(nb_exec):
         t_start = time()
-        o.fft(fieldX)
+        result = obj.fft(fieldX)
         t_end = time()
+        del result
         times[i] = t_end - t_start
     t_fft = np.median(times)
-    print('time return_fft:  {}'.format(t_fft))
+    print('time return_fft:\n' + _format_times(times))
 
-    for i in range(nb_time_execute):
+    for i in range(nb_exec):
         t_start = time()
-        o.ifft(fieldK)
+        result = obj.ifft(fieldK)
         t_end = time()
+        del result
         times[i] = t_end - t_start
+    gc.enable()
     t_ifft = np.median(times)
-    print('time return_ifft: {}'.format(t_ifft))
+    print('time return_ifft:\n' + _format_times(times))
     return t_fft, t_ifft
 
 
@@ -92,12 +106,13 @@ def pourc(t_slow, t_fast):
     return 100. * (t_slow - t_fast) / t_fast
 
 
-def compare_benchs(o, nb_time_execute=20):
+def compare_benchs(o, nb_exec=20):
 
     t_start = time()
-    results_cpp = o.run_benchs(nb_time_execute)
-    t_fft_as_arg, t_ifft_as_arg = bench_like_cpp_as_arg(o, nb_time_execute)
-    t_fft_return, t_ifft_return = bench_like_cpp_return(o, nb_time_execute)
+    o.run_benchs(1)
+    results_cpp = o.run_benchs(nb_exec)
+    t_fft_as_arg, t_ifft_as_arg = bench_like_cpp_as_arg(o, nb_exec)
+    t_fft_return, t_ifft_return = bench_like_cpp_return(o, nb_exec)
     t_end = time()
 
     if rank != 0:
@@ -128,7 +143,7 @@ def compare_benchs(o, nb_time_execute=20):
 
 
 def bench_all(dim='2d', n0=1024*2, n1=None, n2=None, path_dir=path_results,
-              skip_patterns=None):
+              skip_patterns=None, nb_exec=None):
 
     if n1 is None:
         n1 = n0
@@ -145,16 +160,27 @@ def bench_all(dim='2d', n0=1024*2, n1=None, n2=None, path_dir=path_results,
     else:
         raise ValueError("dim has to be in ['2d', '3d']")
 
+    if nb_exec is None:
+        if dim == '2d':
+            nb_exec = 50
+        else:
+            nb_exec = 20
+
     def run(FFT):
         if FFT is None:
             return
-        if 'fft3d' in FFT.__name__.lower():
-            o = FFT(n0, n1, n2)
-        else:
-            o = FFT(n0, n1)
-        o.run_tests()
-        # o.run_benchs()
-        return compare_benchs(o, nb_time_execute=50)
+        try:
+            if 'fft3d' in FFT.__name__.lower():
+                obj = FFT(n0, n1, n2)
+            else:
+                obj = FFT(n0, n1)
+        except ValueError:
+            print('ValueError during initialization for class ' +
+                  FFT.__name__.lower())
+            return
+
+        obj.run_tests()
+        return compare_benchs(obj, nb_exec=nb_exec)
 
     t_as_str = time_as_str()
 
@@ -172,7 +198,9 @@ def bench_all(dim='2d', n0=1024*2, n1=None, n2=None, path_dir=path_results,
 
     results_classes = []
     for key, FFT in sorted(classes.items()):
-        results_classes.append(run(FFT))
+        result = run(FFT)
+        if result is not None:
+            results_classes.append(result)
 
     if rank > 0:
         return
@@ -201,7 +229,7 @@ def bench_all(dim='2d', n0=1024*2, n1=None, n2=None, path_dir=path_results,
         results['n2'] = n2
 
     with open(path, 'w') as f:
-        json.dump(results, f, sort_keys=True)
+        json.dump(results, f, indent=1, sort_keys=True)
         f.write('\n')
 
     print('results benchmarks saved in\n' + path)
@@ -265,16 +293,13 @@ def run():
                         version=__version__)
 
     parser.add_argument('-d', '--dim', default=None)
-
     parser.add_argument('-o', '--output_dir', default=path_results)
+    parser.add_argument('-n', '--nb_exec', type=int, default=None)
 
     try:
         args = parse_args_dim(parser)
     except MyValueError:
         return
 
-    if args.dim == '3d':
-        bench_all(args.dim, args.n0, args.n1, args.n2,
-                  path_dir=args.output_dir)
-    else:
-        bench_all(args.dim, args.n0, args.n1, path_dir=args.output_dir)
+    bench_all(args.dim, args.n0, args.n1, args.n2,
+              path_dir=args.output_dir, nb_exec=args.nb_exec)

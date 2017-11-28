@@ -51,6 +51,7 @@ cdef class ${class_name}:
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
+    # @cython.initializedcheck(False)
     cpdef fft_as_arg(self, DTYPEf_t[:, ::1] fieldX,
                      DTYPEc_t[:, ::1] fieldK):
         """Perform the fft and copy the result in the second argument."""
@@ -58,6 +59,7 @@ cdef class ${class_name}:
         
     @cython.boundscheck(False)
     @cython.wraparound(False)
+    # @cython.initializedcheck(False)
     cpdef ifft_as_arg(self, DTYPEc_t[:, ::1] fieldK,
                       DTYPEf_t[:, ::1] fieldX):
         """Perform the ifft and copy the result in the second argument."""
@@ -65,6 +67,7 @@ cdef class ${class_name}:
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
+    # @cython.initializedcheck(False)
     cpdef fft(self, DTYPEf_t[:, ::1] fieldX):
         """Perform the fft and returns the result."""
         cdef np.ndarray[DTYPEc_t, ndim=2] fieldK
@@ -74,6 +77,7 @@ cdef class ${class_name}:
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
+    # @cython.initializedcheck(False)
     cpdef ifft(self, DTYPEc_t[:, ::1] fieldK):
         """Perform the ifft and returns the result."""
         cdef np.ndarray[DTYPEf_t, ndim=2] fieldX
