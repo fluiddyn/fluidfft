@@ -33,9 +33,21 @@ with::
 Benchmarks on `LEGI <http://www.legi.grenoble-inp.fr>`_ clusters
 ----------------------------------------------------------------
 
+.. figure:: tmp/fig_legi_cluster8_3d.png
+   :scale: 80 %
+   :alt: Benchmarks 3d fft at LEGI on cluster8.
+
+   Speedup computed from the median of the elapsed times for 2d fft (1024x1024,
+   left: fft and right: ifft) at LEGI on cluster8 (2015, 12 nodes Xeon DELL
+   C6320, 20 cores per node).
+
+   The benchmark is not sufficiently accurate to measure the cost of calling
+   the functions from Python.
+
+
 .. figure:: tmp/fig_legi_cluster7_2d.png
    :scale: 80 %
-   :alt: Benchmarks at LEGI on cluster7.
+   :alt: Benchmarks 2d fft at LEGI on cluster7.
 
    Speedup computed from the median of the elapsed times for 2d fft (1024x1024,
    left: fft and right: ifft) at LEGI on cluster7 (2014, 16 nodes Xeon DELL
@@ -49,7 +61,7 @@ Benchmarks on `LEGI <http://www.legi.grenoble-inp.fr>`_ clusters
 
 .. figure:: tmp/fig_legi_cluster8_2d.png
    :scale: 80 %
-   :alt: Benchmarks at LEGI on cluster8.
+   :alt: Benchmarks 2d fft at LEGI on cluster8.
 
    Same as previous figure but for "cluster8" (2015, 12 nodes Xeon DELL C6320,
    20 cores per node).

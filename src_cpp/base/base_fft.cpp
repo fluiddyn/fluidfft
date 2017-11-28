@@ -13,7 +13,7 @@ typedef float myreal;
 myreal EPS = 1e-6;
 #else
 typedef double myreal;
-myreal EPS = 5e-14;
+myreal EPS = 5e-13;
 #endif
 
 myreal compute_time_in_second(struct timeval start_time,
@@ -57,8 +57,8 @@ void BaseFFT::_init()
   this->_init_parallel();
 
   if (this->are_parameters_bad())
-    if (rank == 0)
-      throw invalid_argument("Invalid arguments");
+    // if (rank == 0)
+    throw invalid_argument("Invalid arguments");
 
   if (rank == 0)
     {
@@ -135,35 +135,38 @@ int BaseFFT::test()
   
   mean_K_after = this->compute_mean_from_K(fieldK);
   energy_K_after = this->compute_energy_from_K(fieldK);
-  
-  if (!are_nearly_equal(energy_X_before, energy_K_before))
-    {
-      printf("fail: (energy_X_before - energy_K_before)/energy_X_before = %e > EPS\n",
-	     abs((energy_X_before - energy_K_before)/energy_X_before));
-            printf("      energy_X_before = %e\n", abs(energy_X_before));
-      OK = 0;
-    }
-  if (!are_nearly_equal(mean_X_before, mean_K_before))
-    {
-      printf("fail: (mean_X_before - mean_K_before)/mean_X_before = %e > EPS\n",
-	     abs((mean_X_before - mean_K_before)/mean_X_before));      
-      OK = 0;
-    }
 
-  if (!are_nearly_equal(energy_K_after, energy_K_before))
+  if (rank == 0)
     {
-      cout << "fail: energy_K_after - energy_K_before > EPS" << endl;
-      OK = 0;
-    }
-  
-  if (!are_nearly_equal(mean_K_after, mean_K_before))
-    {
-      cout << "fail: mean_K_after - mean_K_before > EPS" << endl;
-      OK = 0;
-    }
+      if (!are_nearly_equal(energy_X_before, energy_K_before))
+	{
+	  printf("fail: (energy_X_before - energy_K_before)/energy_X_before = %e > EPS\n",
+		 abs((energy_X_before - energy_K_before)/energy_X_before));
+	  printf("      energy_X_before = %e\n", abs(energy_X_before));
+	  OK = 0;
+	}
+      if (!are_nearly_equal(mean_X_before, mean_K_before))
+	{
+	  printf("fail: (mean_X_before - mean_K_before)/mean_X_before = %e > EPS\n",
+		 abs((mean_X_before - mean_K_before)/mean_X_before));      
+	  OK = 0;
+	}
 
-  if (OK and rank == 0)
-    cout << " OK!" << endl;
+      if (!are_nearly_equal(energy_K_after, energy_K_before))
+	{
+	  cout << "fail: energy_K_after - energy_K_before > EPS" << endl;
+	  OK = 0;
+	}
+  
+      if (!are_nearly_equal(mean_K_after, mean_K_before))
+	{
+	  cout << "fail: mean_K_after - mean_K_before > EPS" << endl;
+	  OK = 0;
+	}
+
+      if (OK)
+	cout << " OK!" << endl;
+    }
   
   free(fieldX);
   free(fieldK);
@@ -188,7 +191,8 @@ void BaseFFT::bench(int nb_time_execute, myreal* times)
   gettimeofday(&start_time, NULL);
   for (i=0; i<nb_time_execute; i++)
     {
-        fft(fieldX, fieldK);
+      fieldX[0] = i;
+      fft(fieldX, fieldK);
     }
   gettimeofday(&end_time, NULL);
 
@@ -205,7 +209,8 @@ void BaseFFT::bench(int nb_time_execute, myreal* times)
   gettimeofday(&start_time, NULL);
   for (i=0; i<nb_time_execute; i++)
     {
-        ifft(fieldK, fieldX);
+      fieldK[0] = i;
+      ifft(fieldK, fieldX);
     }
   gettimeofday(&end_time, NULL);
 
