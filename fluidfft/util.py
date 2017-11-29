@@ -36,14 +36,19 @@ def from_cython(func=None, name=None, module=None):
     Parameters
     ----------
     func : function, optional
-        A cython function with C API exported. Optional, since ``cdef``
-        functions cannot be imported into Python.
+        A cython function with C API exported. Optional, because ``cdef``
+        functions cannot be imported into Python. In that scenario, specify
+        name and module instead.
 
     name : str, optional
         Name of the cython function
 
-    module : str, optional
+    module : module, optional
         Module which contains the cython function
+
+    Returns
+    -------
+    PyCapsule or function
 
     """
     if use_pythran:
@@ -54,7 +59,6 @@ def from_cython(func=None, name=None, module=None):
             module = _inspect.getmodule(func)
 
         try:
-            print(name, module)
             return module.__pyx_capi__[name]
         except AttributeError:
             raise ValueError(
