@@ -166,7 +166,7 @@ myreal FFT2DWithFFTW2D::sum_wavenumbers(myreal* fieldK)
     for (i1=1; i1<nK1-1; i1++)
       sum_tot += fieldK[i1 + i0 * nK1];
 
-  return sum_tot;
+  return 2*sum_tot;
 }
 
 

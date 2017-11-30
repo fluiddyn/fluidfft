@@ -353,7 +353,8 @@ class OperatorsPseudoSpectral2D(object):
         nk0loc = self.shapeK_loc[0]
         nk1loc = self.shapeK_loc[1]
 
-        E_fft *= 2
+        # the copy is important: no *= !
+        E_fft = 2*E_fft
 
         if self.is_transposed:
             if self.rank == 0:

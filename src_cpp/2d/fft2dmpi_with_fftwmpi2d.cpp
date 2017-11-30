@@ -219,7 +219,7 @@ myreal FFT2DMPIWithFFTWMPI2D::sum_wavenumbers(myreal* fieldK)
 #else
   MPI_Allreduce(&sum_loc, &sum_tot, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 #endif
-  return sum_tot;
+  return 2*sum_tot;
 }
 
 

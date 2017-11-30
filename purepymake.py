@@ -474,8 +474,8 @@ def build_extensions(self):
     starts_forbiden = ['-axMIC_', '-diag-disable:']
 
     self.compiler.compiler_so = [
-        key for key in self.compiler.compiler_so 
-        if key not in to_be_removed and 
+        key for key in self.compiler.compiler_so
+        if key not in to_be_removed and
         all([not key.startswith(s) for s in starts_forbiden])]
 
     for ext in self.extensions:

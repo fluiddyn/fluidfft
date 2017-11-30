@@ -87,7 +87,9 @@ def make_testop_functions(name, cls):
 
             self.assertAlmostEqual(nrja, E_kh.sum()*op.deltakh)
 
-            op.sum_wavenumbers(energy_fft)
+            nrj_sw = op.sum_wavenumbers(energy_fft)
+            self.assertAlmostEqual(nrja, nrj_sw)
+
             op.produce_str_describing_grid()
             op.produce_str_describing_oper()
             op.produce_long_str_describing_oper()
