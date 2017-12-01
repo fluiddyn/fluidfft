@@ -7,6 +7,10 @@ from mako.template import Template
 
 here = os.path.abspath(os.path.dirname(__file__))
 
+path_fluidfft = os.path.abspath(os.path.join(here, '..', 'fluidfft'))
+path2d = os.path.join(path_fluidfft, 'fft2d')
+path3d = os.path.join(path_fluidfft, 'fft3d')
+
 
 def modification_date(filename):
     t = os.path.getmtime(filename)
@@ -20,10 +24,19 @@ template3d_pyx = Template(filename=join(here, 'template3d_mako.pyx'))
 template3d_pxd = Template(filename=join(here, 'template3d_mako.pxd'))
 
 
-def make_file(module_name, class_name):
+def get_path_files(module_name):
+    if module_name.startswith('fft2d'):
+        path_package = path2d
+    elif module_name.startswith('fft3d'):
+        path_package = path3d
 
-    name_pyx = join(here, module_name + '_cy.pyx')
-    name_pxd = join(here, module_name + '_pxd.pxd')
+    path_pyx = join(path_package, module_name + '.pyx')
+    path_pxd = join(path_package, module_name + '.pxd')
+
+    return path_pyx, path_pxd
+
+
+def make_file(module_name, class_name):
 
     if module_name.startswith('fft2d'):
         t_pyx = template2d_pyx
@@ -32,50 +45,67 @@ def make_file(module_name, class_name):
         t_pyx = template3d_pyx
         t_pxd = template3d_pxd
 
-    if not os.path.exists(name_pyx):
+    path_pyx, path_pxd = get_path_files(module_name)
+
+    if not os.path.exists(path_pyx):
         hastomake = True
     else:
-        if modification_date(name_pyx) < modification_date(t_pyx.filename):
+        if modification_date(path_pyx) < modification_date(t_pyx.filename):
             hastomake = True
         else:
             hastomake = False
 
     if hastomake:
-        with open(name_pyx, 'w') as f:
+        with open(path_pyx, 'w') as f:
             f.write(t_pyx.render(
                 module_name=module_name, class_name=class_name))
 
-    if not os.path.exists(name_pxd):
+    if not os.path.exists(path_pxd):
         hastomake = True
     else:
-        if modification_date(name_pxd) < modification_date(t_pxd.filename):
+        if modification_date(path_pxd) < modification_date(t_pxd.filename):
             hastomake = True
         else:
             hastomake = False
 
     if hastomake:
-        with open(name_pxd, 'w') as f:
+        with open(path_pxd, 'w') as f:
             f.write(t_pxd.render(
                 module_name=module_name, class_name=class_name))
 
 
-def make_pyx_files():
-    variables = (
-        ('fft2d_with_fftw1d', 'FFT2DWithFFTW1D'),
-        ('fft2d_with_fftw2d', 'FFT2DWithFFTW2D'),
-        ('fft2d_with_cufft', 'FFT2DWithCUFFT'),
-        ('fft2dmpi_with_fftw1d', 'FFT2DMPIWithFFTW1D'),
-        ('fft2dmpi_with_fftwmpi2d', 'FFT2DMPIWithFFTWMPI2D'),
-        ('fft3d_with_fftw3d', 'FFT3DWithFFTW3D'),
-        ('fft3dmpi_with_fftw1d', 'FFT3DMPIWithFFTW1D'),
-        ('fft3dmpi_with_fftwmpi3d', 'FFT3DMPIWithFFTWMPI3D'),
-        ('fft3dmpi_with_pfft', 'FFT3DMPIWithPFFT'),
-        ('fft3dmpi_with_p3dfft', 'FFT3DMPIWithP3DFFT'),
-        ('fft3d_with_cufft', 'FFT3DWithCUFFT'),
-    )
+variables = (
+    ('fft2d_with_fftw1d', 'FFT2DWithFFTW1D'),
+    ('fft2d_with_fftw2d', 'FFT2DWithFFTW2D'),
+    ('fft2d_with_cufft', 'FFT2DWithCUFFT'),
+    ('fft2dmpi_with_fftw1d', 'FFT2DMPIWithFFTW1D'),
+    ('fft2dmpi_with_fftwmpi2d', 'FFT2DMPIWithFFTWMPI2D'),
+    ('fft3d_with_fftw3d', 'FFT3DWithFFTW3D'),
+    ('fft3dmpi_with_fftw1d', 'FFT3DMPIWithFFTW1D'),
+    ('fft3dmpi_with_fftwmpi3d', 'FFT3DMPIWithFFTWMPI3D'),
+    ('fft3dmpi_with_pfft', 'FFT3DMPIWithPFFT'),
+    ('fft3dmpi_with_p3dfft', 'FFT3DMPIWithP3DFFT'),
+    ('fft3d_with_cufft', 'FFT3DWithCUFFT'),
+)
 
+
+def make_pyx_files():
     for module_name, class_name in variables:
         make_file(module_name, class_name)
+
+
+def _remove(path):
+    if os.path.exists(path):
+        os.remove(path)
+
+
+def clean_files():
+    for module_name, class_name in variables:
+        path_pyx, path_pxd = get_path_files(module_name)
+        _remove(path_pyx)
+        _remove(path_pxd)
+        path_cpp = os.path.splitext(path_pyx)[0] + '.cpp'
+        _remove(path_cpp)
 
 
 if __name__ == '__main__':
