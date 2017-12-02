@@ -79,7 +79,7 @@ cdef class ${class_name}:
         cdef dict capi
         capi = dict(
             ifft=PyCapsule_New(
-                <void *>self.ifft, 'PyArrayObject *(PyArrayObject *)', NULL),
+                <void *> &self.ifft, 'PyArrayObject *(PyArrayObject *)', NULL),
         )
         return capi
 
