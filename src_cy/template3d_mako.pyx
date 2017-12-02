@@ -1,4 +1,4 @@
-
+from cpython.pycapsule cimport PyCapsule_New
 include 'base.pyx'
 
 
@@ -24,6 +24,8 @@ cdef class ${class_name}:
     cdef mycppclass* thisptr
     cdef tuple _shapeK_loc, _shapeX_loc
 
+    cdef public dict __pyx_capi__
+
     IF MPI4PY:
         cdef public MPI.Comm comm
     cdef public int nb_proc, rank
@@ -39,6 +41,10 @@ cdef class ${class_name}:
     def __init__(self, int n0=2, int n1=2, int n2=4):
         self._shapeK_loc = self.get_shapeK_loc()
         self._shapeX_loc = self.get_shapeX_loc()
+
+        # dictionary to store C API
+        self.__pyx_capi__ = self.get_capi()
+
         # info on MPI
         self.nb_proc = nb_proc
         self.rank = rank
@@ -69,6 +75,14 @@ cdef class ${class_name}:
         if rank == 0:
             return arr
 
+    cpdef get_capi(self):
+        cdef dict capi
+        capi = dict(
+            ifft=PyCapsule_New(
+                <void *>self.ifft, 'PyArrayObject *(PyArrayObject *)', NULL),
+        )
+        return capi
+
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
@@ -98,6 +112,7 @@ cdef class ${class_name}:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
+    # cpdef DTYPEf_t[:, :, ::1] ifft(self, DTYPEc_t[:, :, ::1] fieldK):
     cpdef ifft(self, DTYPEc_t[:, :, ::1] fieldK):
         """Perform iFFT and return the result"""
         cdef np.ndarray[DTYPEf_t, ndim=3] fieldX

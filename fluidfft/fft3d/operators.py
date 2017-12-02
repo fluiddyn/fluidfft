@@ -12,6 +12,7 @@ from fluiddyn.util.easypyfft import FFTW3DReal2Complex
 
 from fluidfft import create_fft_object
 from fluidfft.fft2d.operators import _make_str_length
+from fluidfft.util import from_cython
 
 from .util_pythran import project_perpk3d
 
@@ -227,5 +228,6 @@ class OperatorsPseudoSpectral3D(object):
             vy_fft = fft3d(vy)
             vz_fft = fft3d(vz)
 
+        ifft3d = from_cython(self.ifft3d, 'ifft', self._op_fft)
         return _vgradv_from_v2(vx, vy, vz, vx_fft, vy_fft, vz_fft,
-                               self.Kx, self.Ky, self.Kz, self.ifft3d)
+                               self.Kx, self.Ky, self.Kz, ifft3d)

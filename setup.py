@@ -24,7 +24,7 @@ from numpy.distutils.system_info import get_info
 from src_cy.make_files_with_mako import make_pyx_files
 from purepymake import (
     Extension, make_extensions, monkeypatch_parallel_build,
-    make_pythran_extensions, can_import_pythran)
+    make_pythran_extensions, can_import_pythran, use_capi)
 
 try:
     from config import parse_config
@@ -211,9 +211,13 @@ ext_modules = make_extensions(
     lib_flags_dict=lib_flags_dict, lib_dirs_dict=lib_dirs_dict)
 
 if can_import_pythran:
-    ext_modules.extend(make_pythran_extensions(
-        ['fluidfft.fft2d.util_pythran',
-         'fluidfft.fft3d.util_pythran']))
+    ext_pythran = [
+         'fluidfft.fft2d.util_pythran',
+         'fluidfft.fft3d.util_pythran']
+    if use_capi:
+        ext_pythran.append('fluidfft.fft3d.dream_pythran')
+
+    ext_modules.extend(make_pythran_extensions(ext_pythran))
 
     # from purepymake import can_import_cython
     # if can_import_cython:

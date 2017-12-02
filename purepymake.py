@@ -53,6 +53,7 @@ config_vars = sysconfig.get_config_vars()
 _here = os.path.abspath(os.path.dirname(__file__))
 _d = run_path(os.path.join(_here, 'fluidfft', 'util.py'))
 can_import = _d['can_import']
+use_capi = _d['use_capi']
 
 can_import_cython = can_import('cython')
 can_import_mpi4py = can_import('mpi4py', '2.0.0')

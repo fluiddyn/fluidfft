@@ -24,9 +24,10 @@ def can_import(pkg_name, check_version=None):
 # FIXME: When the next version of Pythran is released
 # use_pythran = can_import('pythran', '0.8.4')
 use_pythran = can_import('pythran')
+use_capi = False
 
 
-def from_cython(func=None, name=None, module=None):
+def from_cython(func=None, name=None, parent=None):
     """Ensures compatibility to use cython function as an argument.
     When used with Pythran >= 0.8.4, returns this returns a PyCapsule.
     On all other cases, this returns the function itself.
@@ -38,35 +39,35 @@ def from_cython(func=None, name=None, module=None):
     func : function, optional
         A cython function with C API exported. Optional, because ``cdef``
         functions cannot be imported into Python. In that scenario, specify
-        name and module instead.
+        name and parent instead.
 
     name : str, optional
         Name of the cython function
 
-    module : module, optional
-        Module which contains the cython function
+    parent : parent, optional
+        Module or instance which contains the cython function
 
     Returns
     -------
     PyCapsule or function
 
     """
-    if use_pythran:
+    if use_pythran and use_capi:
         if name is None:
             name = func.__name__.split('.')[-1]
 
-        if module is None:
-            module = _inspect.getmodule(func)
+        if parent is None:
+            parent = _inspect.getmodule(func)
 
         try:
-            return module.__pyx_capi__[name]
+            return parent.__pyx_capi__[name]
         except AttributeError:
             raise ValueError(
-                ('{} is not a Cython module with __pyx_capi__'
-                 'attribute').format(module))
+                ('{} is not a Cython module or instance with __pyx_capi__'
+                 'attribute').format(parent))
         except KeyError:
             raise ValueError(
-                'No function {!r} found in __pyx_capi__ of the module'.format(
+                'No function {!r} found in __pyx_capi__ of the parent'.format(
                     name))
     else:
         return func
