@@ -1,6 +1,7 @@
 from cpython.pycapsule cimport PyCapsule_New
-include 'base.pyx'
 
+
+include 'base.pyx'
 
 from ${module_name} cimport (
     ${class_name} as mycppclass,
@@ -79,7 +80,7 @@ cdef class ${class_name}:
         cdef dict capi
         capi = dict(
             ifft=PyCapsule_New(
-                <void *> &self.ifft, 'PyArrayObject *(PyArrayObject *)', NULL),
+                <void *> self.ifft, 'PyArrayObject *(PyArrayObject *)', NULL),
         )
         return capi
 
@@ -109,11 +110,13 @@ cdef class ${class_name}:
         self.thisptr.fft(&fieldX[0, 0, 0], <mycomplex*> &fieldK[0, 0, 0])
         return fieldK
 
+    # cpdef DTYPEf_t[:, :, ::1] ifft(self, DTYPEc_t[:, :, ::1] fieldK):
+    # cpdef ifft(self, DTYPEc_t[:, :, ::1] fieldK):
+
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    # cpdef DTYPEf_t[:, :, ::1] ifft(self, DTYPEc_t[:, :, ::1] fieldK):
-    cpdef ifft(self, DTYPEc_t[:, :, ::1] fieldK):
+    cpdef np.ndarray[DTYPEf_t, ndim=3] ifft(self, np.ndarray[DTYPEc_t, ndim=3] fieldK):
         """Perform iFFT and return the result"""
         cdef np.ndarray[DTYPEf_t, ndim=3] fieldX
         fieldX = np.empty(self.get_shapeX_loc(), dtype=DTYPEf, order='C')

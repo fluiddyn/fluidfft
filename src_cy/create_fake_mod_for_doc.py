@@ -33,7 +33,9 @@ def get_doc(lines, indent='    '):
 
 strings_to_be_deleted = [
     ' DTYPEf_t[:, :, ::1] ', ' DTYPEc_t[:, :, ::1] ',
-    ' DTYPEf_t[:, ::1] ', ' DTYPEc_t[:, ::1] ', ' int ']
+    ' DTYPEf_t[:, ::1] ', ' DTYPEc_t[:, ::1] ', ' int ',
+    ' np.ndarray[DTYPEf_t, ndim=3] ', ' np.ndarray[DTYPEc_t, ndim=3] ',
+]
 
 
 def get_function_code(lines):
