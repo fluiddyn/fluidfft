@@ -2,7 +2,7 @@
 include 'base.pyx'
 
 
-from ${module_name}_pxd cimport (
+from ${module_name} cimport (
     ${class_name} as mycppclass,
     mycomplex)
 

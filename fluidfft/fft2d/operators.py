@@ -5,6 +5,7 @@ from builtins import range
 from past.builtins import basestring
 
 from math import pi
+import warnings
 
 import numpy as np
 
@@ -99,6 +100,16 @@ class OperatorsPseudoSpectral2D(object):
         self.nK0_loc = len(k0_adim)
         self.nK1_loc = len(k1_adim)
 
+        if self.nK0_loc == 0 or self.nK1_loc == 0:
+            warnings.warn(
+                'The shape for processor {} is {}. '.format(
+                    mpi.rank, self.shapeK_loc) +
+                'This means that it has no data to treat. '
+                'It is not efficient and many of the functions of '
+                "this operators won't work. Unless you know what you do, "
+                'change the fft class, the resolution or '
+                'the number of MPI processes.')
+
         if self.is_transposed:
             kx_adim = k0_adim
             ky_adim = k1_adim
@@ -106,7 +117,6 @@ class OperatorsPseudoSpectral2D(object):
             kx_adim = k1_adim
             ky_adim = k0_adim
 
-        # true only is not transposed...
         self.kx = self.deltakx * kx_adim
         self.ky = self.deltaky * ky_adim
 
@@ -167,7 +177,7 @@ class OperatorsPseudoSpectral2D(object):
         self.nky_seq = ny
         self.nky_spectra = ny//2 + 1
 
-        khmax = min(self.kx.max(), self.ky.max())
+        khmax = min(self.deltakx*self.nkx_seq, self.deltakx*self.nky_spectra)
         self.deltakh = max(self.deltakx, self.deltaky)
         self.nkh = int(khmax / self.deltakh)
         if self.nkh == 0:

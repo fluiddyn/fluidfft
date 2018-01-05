@@ -8,7 +8,7 @@ from math import pi
 import numpy as np
 
 from fluiddyn.util import mpi
-from fluiddyn.util.easypyfft import FFTW3DReal2Complex
+from fluiddyn.calcul.easypyfft import FFTW3DReal2Complex
 
 from fluidfft import create_fft_object
 from fluidfft.fft2d.operators import _make_str_length

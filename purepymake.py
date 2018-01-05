@@ -34,11 +34,11 @@ import sys
 import platform
 from time import sleep
 import os
+from runpy import run_path
 from datetime import datetime
 from distutils import sysconfig
 import subprocess
 from copy import copy
-import importlib
 import multiprocessing
 import warnings
 
@@ -50,19 +50,9 @@ import numpy as np
 
 config_vars = sysconfig.get_config_vars()
 
-
-def can_import(pkg_name, check_version=None):
-    try:
-        pkg = importlib.import_module(pkg_name)
-    except ImportError:
-        return False
-    else:
-        if check_version is not None:
-            if pkg.__version__ < check_version:
-                raise ValueError('Please upgrade to {} >= {}'.format(
-                    pkg_name, check_version))
-        return True
-
+_here = os.path.abspath(os.path.dirname(__file__))
+_d = run_path(os.path.join(_here, 'fluidfft', 'util.py'))
+can_import = _d['can_import']
 
 can_import_cython = can_import('cython')
 can_import_mpi4py = can_import('mpi4py', '2.0.0')

@@ -20,6 +20,15 @@ syntax: glob
 src_cy/fft*_cy.pyx
 src_cy/fft*_pxd.pxd
 
+fluidfft/fft2d/*.pyx
+fluidfft/fft2d/*.pxd
+fluidfft/fft2d/*.cpp
+
+fluidfft/fft3d/*.pyx
+fluidfft/fft3d/*.pxd
+fluidfft/fft3d/*.cpp
+
+
 */Results_bench/*
 
 *egg-info*

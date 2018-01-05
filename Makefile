@@ -20,8 +20,7 @@ cleancython:
 	rm -f src_cy/*_cy.cpp
 
 cleanmako:
-	rm -f src_cy/*_cy.pyx
-	rm -f src_cy/*_pxd.pxd
+	python -c "from src_cy.make_files_with_mako import clean_files as c; c()"
 
 cleanall: clean cleanso cleanmako cleancython
 

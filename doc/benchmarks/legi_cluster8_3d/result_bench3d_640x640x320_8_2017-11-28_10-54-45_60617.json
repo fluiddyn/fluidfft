@@ -1,0 +1,47 @@
+{
+ "benchmarks_classes": [
+  {
+   "name": "fft3dmpiwithfftw1d",
+   "t_fft_as_arg": 0.5139498710632324,
+   "t_fft_cpp": 0.5118521666666667,
+   "t_fft_return": 0.6906529664993286,
+   "t_ifft_as_arg": 0.8445485830307007,
+   "t_ifft_cpp": 0.6636024166666666,
+   "t_ifft_return": 0.8969547748565674
+  },
+  {
+   "name": "fft3dmpiwithfftwmpi3d",
+   "t_fft_as_arg": 0.40972745418548584,
+   "t_fft_cpp": 0.40418058333333334,
+   "t_fft_return": 0.4554314613342285,
+   "t_ifft_as_arg": 0.43806779384613037,
+   "t_ifft_cpp": 0.43994774999999997,
+   "t_ifft_return": 0.45768284797668457
+  },
+  {
+   "name": "fft3dmpiwithp3dfft",
+   "t_fft_as_arg": 0.5323760509490967,
+   "t_fft_cpp": 0.52476325,
+   "t_fft_return": 0.558264970779419,
+   "t_ifft_as_arg": 0.545610785484314,
+   "t_ifft_cpp": 0.5481827499999999,
+   "t_ifft_return": 0.5609712600708008
+  },
+  {
+   "name": "fft3dmpiwithpfft",
+   "t_fft_as_arg": 0.601111650466919,
+   "t_fft_cpp": 0.5987355833333333,
+   "t_fft_return": 0.7281718254089355,
+   "t_ifft_as_arg": 0.8059953451156616,
+   "t_ifft_cpp": 0.8081986666666667,
+   "t_ifft_return": 0.9534975290298462
+  }
+ ],
+ "hostname": "cl8n011",
+ "n0": 640,
+ "n1": 640,
+ "n2": 320,
+ "nb_proc": 8,
+ "pid": 60617,
+ "time_as_str": "2017-11-28_10-54-45"
+}

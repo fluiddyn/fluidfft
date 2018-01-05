@@ -71,6 +71,8 @@ run_path('src_cy/create_fake_mod_for_doc.py')
 
 src_cpp_dir = 'src_cpp'
 src_cy_dir = 'src_cy'
+src_cy_dir2d = 'fluidfft/fft2d'
+src_cy_dir3d = 'fluidfft/fft3d'
 src_base = 'src_cpp/base'
 src_cpp_3d = 'src_cpp/3d'
 src_cpp_2d = 'src_cpp/2d'
@@ -80,14 +82,16 @@ def create_ext(base_name):
 
     if base_name.startswith('fft2d'):
         dim = '2d'
+        src_cy_dir_dim = src_cy_dir2d
     elif base_name.startswith('fft3d'):
         dim = '3d'
+        src_cy_dir_dim = src_cy_dir3d
     else:
         raise ValueError()
 
     src_cpp_dim = os.path.join(src_cpp_dir, dim)
 
-    source_ends = ['_cy.pyx']
+    source_ends = ['.pyx']
     if base_name.endswith('cufft'):
         source_ends.append('.cu')
     else:
@@ -101,8 +105,8 @@ def create_ext(base_name):
 
     sources = []
     for name_file in source_files:
-        if name_file.endswith('_cy.pyx'):
-            path = os.path.join(src_cy_dir, name_file)
+        if name_file.endswith('.pyx'):
+            path = os.path.join(src_cy_dir_dim, name_file)
         else:
             path = os.path.join(src_cpp_dim, name_file)
         sources.append(path)
@@ -162,7 +166,7 @@ if config['p3dfft']['use']:
 ext_modules = []
 
 include_dirs = [
-    src_cy_dir, src_base, src_cpp_3d, src_cpp_2d,
+    src_cy_dir, src_cy_dir2d, src_cy_dir3d, src_base, src_cpp_3d, src_cpp_2d,
     'include', np.get_include()]
 
 try:
@@ -253,7 +257,7 @@ setup(
         'Programming Language :: C'],
     packages=find_packages(exclude=[
         'doc', 'include', 'scripts', 'src_cpp', 'src_cy']),
-    install_requires=['fluiddyn >= 0.1.6'],
+    install_requires=['fluiddyn >= 0.2.0'],
     # cmdclass={'build_ext': build_ext},
     ext_modules=ext_modules,
     entry_points={
