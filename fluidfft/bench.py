@@ -11,6 +11,7 @@ import json
 import socket
 import argparse
 import gc
+import sys
 
 from time import time
 # try:
@@ -130,6 +131,9 @@ def compare_benchs(o, nb_exec=20):
     print('total time bench for lib ' + name + ': {:4.2f} s'.format(
         t_end-t_start))
 
+    # may be necessary to force print order (Python, C++)
+    sys.stdout.flush()
+    
     results = {
         'name': name,
         't_fft_cpp': t_fft_cpp,
@@ -167,16 +171,20 @@ def bench_all(dim='2d', n0=1024*2, n1=None, n2=None, path_dir=path_results,
             nb_exec = 20
 
     def run(FFT):
+        cls_name = FFT.__name__.lower()
+        str_start = 'Starting benchmark for class ' + FFT.__name__
+        print('\n' + str_start + '\n' + len(str_start)*'=')
+        sys.stdout.flush()
         if FFT is None:
             return
         try:
-            if 'fft3d' in FFT.__name__.lower():
+            if 'fft3d' in cls_name:
                 obj = FFT(n0, n1, n2)
             else:
                 obj = FFT(n0, n1)
         except ValueError:
-            print('ValueError during initialization for class ' +
-                  FFT.__name__.lower())
+            print('ValueError during initialization for class ' + cls_name)
+            sys.stdout.flush()
             return
 
         obj.run_tests()
