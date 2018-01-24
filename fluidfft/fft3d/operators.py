@@ -13,7 +13,7 @@ from fluiddyn.calcul.easypyfft import FFTW3DReal2Complex
 from fluidfft import create_fft_object
 from fluidfft.fft2d.operators import _make_str_length
 
-from .util_pythran import project_perpk3d
+from .util_pythran import project_perpk3d, divfft_from_vecfft
 
 from .dream_pythran import _vgradv_from_v2
 
@@ -36,8 +36,9 @@ class OperatorsPseudoSpectral3D(object):
                 op_fft = create_fft_object(fft, nz, ny, nx)
             else:
                 raise ValueError(
-                    ("Cannot instantiate %s. Expected something like 'fftwpy'"
-                     " or 'fluidfft.fft3d.<method>' or 'fft3d.<method>'") % fft)
+                    "Cannot instantiate {}.".format(fft) +
+                    " Expected something like 'fftwpy'"
+                    " or 'fluidfft.fft3d.<method>' or 'fft3d.<method>'")
         elif isinstance(fft, type):
             op_fft = fft(nz, ny, nx)
         else:
@@ -172,6 +173,35 @@ class OperatorsPseudoSpectral3D(object):
     def project_perpk3d(self, vx_fft, vy_fft, vz_fft):
         project_perpk3d(vx_fft, vy_fft, vz_fft, self.Kx, self.Ky, self.Kz,
                         self.K_square_nozero)
+
+    def divfft_from_vecfft(self, vx_fft, vy_fft, vz_fft):
+        # float64[][][]
+        Kx = self.Kx
+        Ky = self.Ky
+        Kz = self.Kz
+
+        return divfft_from_vecfft(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz)
+
+    def div_vv_fft_from_v(self, vx, vy, vz):
+        # function(float64[][][]) -> complex128[][][]
+        fft3d = self.fft3d
+
+        vxvxfft = fft3d(vx*vx)
+        vyvyfft = fft3d(vy*vy)
+        vzvzfft = fft3d(vz*vz)
+
+        vxvyfft = vyvxfft = fft3d(vx*vy)
+        vxvzfft = vzvxfft = fft3d(vx*vz)
+        vyvzfft = vzvyfft = fft3d(vy*vz)
+
+        # float64[][][]
+        Kx = self.Kx
+        Ky = self.Ky
+        Kz = self.Kz
+
+        return (divfft_from_vecfft(vxvxfft, vyvxfft, vzvxfft, Kx, Ky, Kz),
+                divfft_from_vecfft(vxvyfft, vyvyfft, vzvyfft, Kx, Ky, Kz),
+                divfft_from_vecfft(vxvzfft, vyvzfft, vzvzfft, Kx, Ky, Kz))
 
     def vgradv_from_v(self, vx, vy, vz,
                       vx_fft=None, vy_fft=None, vz_fft=None):
