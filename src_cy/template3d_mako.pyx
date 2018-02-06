@@ -53,7 +53,7 @@ cdef class ${class_name}:
     def get_short_name(self):
         """Get a short name of the class"""
         return self.__class__.__name__.lower()
-        
+
     def get_local_size_X(self):
         """Get the local size in real space"""
         return self.thisptr.get_local_size_X()
@@ -72,23 +72,23 @@ cdef class ${class_name}:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    cpdef fft_as_arg(self, DTYPEf_t[:, :, ::1] fieldX,
-                     DTYPEc_t[:, :, ::1] fieldK):
+    cpdef fft_as_arg(self, view3df_t fieldX,
+                     view3dc_t fieldK):
         """Perform FFT and put result in second argument"""
         self.thisptr.fft(&fieldX[0, 0, 0], <mycomplex*> &fieldK[0, 0, 0])
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    cpdef ifft_as_arg(self, DTYPEc_t[:, :, ::1] fieldK,
-                      DTYPEf_t[:, :, ::1] fieldX):
+    cpdef ifft_as_arg(self, view3dc_t fieldK,
+                      view3df_t fieldX):
         """Perform iFFT and put result in second argument"""
         self.thisptr.ifft(<mycomplex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    cpdef fft(self, DTYPEf_t[:, :, ::1] fieldX):
+    cpdef fft(self, view3df_t fieldX):
         """Perform FFT and return the result"""
         cdef np.ndarray[DTYPEc_t, ndim=3] fieldK
         fieldK = np.empty(self.get_shapeK_loc(), dtype=DTYPEc, order='C')
@@ -98,7 +98,7 @@ cdef class ${class_name}:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    cpdef ifft(self, DTYPEc_t[:, :, ::1] fieldK):
+    cpdef ifft(self, view3dc_t fieldK):
         """Perform iFFT and return the result"""
         cdef np.ndarray[DTYPEf_t, ndim=3] fieldX
         fieldX = np.empty(self.get_shapeX_loc(), dtype=DTYPEf, order='C')
@@ -123,7 +123,7 @@ cdef class ${class_name}:
         self.thisptr.get_global_shape_X(&nX0, &nX1, &nX2)
         return nX0, nX1, nX2
 
-    def gather_Xspace(self, DTYPEf_t[:, :, ::1] ff_loc, root=None):
+    def gather_Xspace(self, view3df_t ff_loc, root=None):
         """Gather an array in real space for a parallel run."""
         cdef np.ndarray[DTYPEf_t, ndim=3] ff_seq
 
@@ -139,7 +139,7 @@ cdef class ${class_name}:
             raise ValueError('root should be an int')
         return ff_seq
 
-    def scatter_Xspace(self, DTYPEf_t[:, :, ::1] ff_seq,
+    def scatter_Xspace(self, view3df_t ff_seq,
                       root=None):
         """Scatter an array in real space for a parallel run."""
         cdef np.ndarray[DTYPEf_t, ndim=3] ff_loc
@@ -289,12 +289,12 @@ cdef class ${class_name}:
 
         return arr3d
 
-    def compute_energy_from_X(self, DTYPEf_t[:, :, ::1] fieldX):
+    def compute_energy_from_X(self, view3df_t fieldX):
         return <float> self.thisptr.compute_energy_from_X(&fieldX[0, 0, 0])
 
-    def compute_energy_from_K(self, DTYPEc_t[:, :, ::1] fieldK):
+    def compute_energy_from_K(self, view3dc_t fieldK):
         return <float> self.thisptr.compute_energy_from_K(
             <mycomplex*> &fieldK[0, 0, 0])
-    
+
 
 FFTclass = ${class_name}

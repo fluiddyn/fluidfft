@@ -32,8 +32,8 @@ def get_doc(lines, indent='    '):
     return doc
 
 strings_to_be_deleted = [
-    ' DTYPEf_t[:, :, ::1] ', ' DTYPEc_t[:, :, ::1] ',
-    ' DTYPEf_t[:, ::1] ', ' DTYPEc_t[:, ::1] ', ' int ']
+    ' int ', ' view3df_t ', ' view3dc_t ',
+    ' view2df_t ', ' view2dc_t ']
 
 
 def get_function_code(lines):
