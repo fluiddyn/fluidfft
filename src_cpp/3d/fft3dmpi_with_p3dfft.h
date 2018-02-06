@@ -7,7 +7,8 @@ class FFT3DMPIWithP3DFFT: public BaseFFT3DMPI
   FFT3DMPIWithP3DFFT(int N0, int N1, int N2);
   ~FFT3DMPIWithP3DFFT();
   void destroy();
-  
+
+  bool are_parameters_bad();
   virtual const char* get_classname();
 
   /* int get_local_size_X(); */

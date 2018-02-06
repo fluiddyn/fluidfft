@@ -300,3 +300,16 @@ void FFT3DMPIWithP3DFFT::ifft(mycomplex *fieldK, myreal *fieldX)
   Cp3dfft_btran_c2r(arrayK, arrayX, op_b);
   memcpy(fieldX, arrayX, nX0loc*nX1loc*nX2loc*sizeof(myreal)); 
 }
+
+bool FFT3DMPIWithP3DFFT::are_parameters_bad()
+{
+  calcul_nprocmesh(rank, nb_proc, nprocmesh);
+  if ((N0*N1)/nb_proc == 0 || N2<=1 || N1<nprocmesh[1] || N0<nprocmesh[0])
+    {
+      if (rank == 0)
+        cout << "bad parameters N0 or N1 or N2" << endl;
+      return 1;
+    }
+  return 0;
+}
+
