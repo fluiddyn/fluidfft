@@ -135,7 +135,7 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex* fieldK)
 {
   int i0, i1, i2;
   double energy_tmp = 0;
-  double energy_loc;
+  double energy_loc = 0;
   double energy;
   i0 = 0;
   energy_tmp=0.;
@@ -167,7 +167,7 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex* fieldK)
         for (i0=1; i0<nK0loc-1; i0++)
           energy_loc += (double) square_abs(fieldK[i0 + (i1 + i2*nK1loc)*nK0loc]);
   }
-  
+ 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
   return (myreal) energy;
@@ -304,7 +304,7 @@ void FFT3DMPIWithP3DFFT::ifft(mycomplex *fieldK, myreal *fieldX)
 bool FFT3DMPIWithP3DFFT::are_parameters_bad()
 {
   calcul_nprocmesh(rank, nb_proc, nprocmesh);
-  if ((N0*N1)/nb_proc == 0 || N2<=1 || N1<nprocmesh[1] || N0<nprocmesh[0])
+  if (N1<min(nprocmesh[1], nprocmesh[0]) || N0<nprocmesh[0] || N2 <nprocmesh[1])
     {
       if (rank == 0)
         cout << "bad parameters N0 or N1 or N2" << endl;
