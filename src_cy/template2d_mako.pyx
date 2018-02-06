@@ -7,7 +7,7 @@ from ${module_name} cimport (
     mycomplex)
 
 from fluiddyn.util import mpi
-
+    
 
 cdef class ${class_name}:
     """Class to perform Fast Fourier Transform in 2d."""
@@ -52,23 +52,23 @@ cdef class ${class_name}:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    cpdef fft_as_arg(self, DTYPEf_t[:, ::1] fieldX,
-                     DTYPEc_t[:, ::1] fieldK):
+    cpdef fft_as_arg(self, view2df_t fieldX,
+                     view2dc_t fieldK):
         """Perform the fft and copy the result in the second argument."""
         self.thisptr.fft(&fieldX[0, 0], <mycomplex*> &fieldK[0, 0])
         
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    cpdef ifft_as_arg(self, DTYPEc_t[:, ::1] fieldK,
-                      DTYPEf_t[:, ::1] fieldX):
+    cpdef ifft_as_arg(self, view2dc_t fieldK,
+                      view2df_t fieldX):
         """Perform the ifft and copy the result in the second argument."""
         self.thisptr.ifft(<mycomplex*> &fieldK[0, 0], &fieldX[0, 0])
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    cpdef fft(self, DTYPEf_t[:, ::1] fieldX):
+    cpdef fft(self, view2df_t fieldX):
         """Perform the fft and returns the result."""
         cdef np.ndarray[DTYPEc_t, ndim=2] fieldK
         fieldK = np.empty(self.get_shapeK_loc(), dtype=DTYPEc, order='C')
@@ -78,7 +78,7 @@ cdef class ${class_name}:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    cpdef ifft(self, DTYPEc_t[:, ::1] fieldK):
+    cpdef ifft(self, view2dc_t fieldK):
         """Perform the ifft and returns the result."""
         cdef np.ndarray[DTYPEf_t, ndim=2] fieldX
         fieldX = np.empty(self.get_shapeX_loc(), dtype=DTYPEf, order='C')
@@ -157,17 +157,17 @@ cdef class ${class_name}:
 
         return x0loc, x1loc
 
-    def compute_energy_from_X(self, DTYPEf_t[:, ::1] fieldX):
+    def compute_energy_from_X(self, view2df_t fieldX):
         return <float> self.thisptr.compute_energy_from_X(&fieldX[0, 0])
 
-    def compute_energy_from_K(self, DTYPEc_t[:, ::1] fieldK):
+    def compute_energy_from_K(self, view2dc_t fieldK):
         return <float> self.thisptr.compute_energy_from_K(
             <mycomplex*> &fieldK[0, 0])
 
-    def sum_wavenumbers(self, DTYPEf_t[:, ::1] fieldK):
+    def sum_wavenumbers(self, view2df_t fieldK):
         return <float> self.thisptr.sum_wavenumbers(&fieldK[0, 0])
 
-    def gather_Xspace(self, DTYPEf_t[:, ::1] ff_loc, root=None):
+    def gather_Xspace(self, view2df_t ff_loc, root=None):
         """Gather an array in real space for a parallel run."""
         cdef np.ndarray[DTYPEf_t, ndim=2] ff_seq
 
@@ -183,7 +183,7 @@ cdef class ${class_name}:
             raise ValueError('root should be an int')
         return ff_seq
 
-    def scatter_Xspace(self, DTYPEf_t[:, ::1] ff_seq, root=None):
+    def scatter_Xspace(self, view2df_t ff_seq, root=None):
         """Scatter an array in real space for a parallel run."""
         cdef np.ndarray[DTYPEf_t, ndim=2] ff_loc
 
