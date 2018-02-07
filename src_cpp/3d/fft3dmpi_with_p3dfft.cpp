@@ -67,9 +67,9 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   /* ky corresponds to dim 0 */
   /* kx corresponds to dim 1 */
   /* kz corresponds to dim 2 */
-  nKx = nx; // /2+1;
+  nKx = nx;
   nKy = ny;
-  nKz = nz;
+  nKz = nz/2+1;
 
   nK0 = nKz;
   nK1 = nKy;
@@ -79,14 +79,6 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   nKzloc = fsize[0];
   nKyloc = fsize[1];
   nKxloc = fsize[2];
-
- /* nKyloc = fsize[0];
-  nKxloc = fsize[1];
-  nKzloc = fsize[2];
-*/
-  nK0loc = nKyloc;
-  nK1loc = nKxloc;
-  nK2loc = nKzloc;
 
   nK0loc = nKzloc;
   nK1loc = nKyloc;
@@ -148,7 +140,7 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex* fieldK)
   else
     energy_loc = energy_tmp;
 
-  if (nK0loc != 1)
+  if (nK0loc > 1)
   {
   //  modes i1_seq iKx = last = nK1 - 1
     i0 = nK0loc - 1;
@@ -157,7 +149,7 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex* fieldK)
       for (i1=0; i1<nK1loc; i1++)
         energy_tmp += (double) square_abs(fieldK[i0 + (i1 + i2*nK1loc)*nK0loc]);
 
-    if (local_K0_start + nK0loc -1== nK0/2+1)
+    if (local_K0_start + nK0loc -1== nK0)
       energy_loc += energy_tmp/2.;
     else
       energy_loc += energy_tmp;
@@ -166,6 +158,12 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex* fieldK)
       for (i1=0; i1<nK1loc; i1++)
         for (i0=1; i0<nK0loc-1; i0++)
           energy_loc += (double) square_abs(fieldK[i0 + (i1 + i2*nK1loc)*nK0loc]);
+  }
+
+  // case nK1loc==0
+  if (min(nK0loc,nK2loc) == 0)
+  {
+    energy_loc = 0;
   }
  
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
@@ -304,11 +302,11 @@ void FFT3DMPIWithP3DFFT::ifft(mycomplex *fieldK, myreal *fieldX)
 bool FFT3DMPIWithP3DFFT::are_parameters_bad()
 {
   calcul_nprocmesh(rank, nb_proc, nprocmesh);
-  if (N1<min(nprocmesh[1], nprocmesh[0]) || N0<nprocmesh[0] || N2 <nprocmesh[1])
+  if (N2<=1 || N1< nprocmesh[1] || (N0*N1)/nb_proc == 0)
     {
       if (rank == 0)
         cout << "bad parameters N0 or N1 or N2" << endl;
-      return 1;
+        return 1;
     }
   return 0;
 }
