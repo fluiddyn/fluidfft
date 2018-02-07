@@ -8,11 +8,12 @@ pkgver=2.7.6
 # Directory in which the source git repository will be downloaded
 srcdir="${PWD}"
 # Directory to which the compiled p3dfft library will be installed
-pkgdir="/cfs/klemming/nobackup/${USER:0:1}/${USER}/opt/${pkgname}-${pkgver}"
+pkgdir="/cfs/klemming/nobackup/${USER:0:1}/${USER}/opt/pkg/${pkgname}-${pkgver}"
 
 # C and Fortran 90 MPI compilers
 export CC="mpiicc"
 export FC="mpiifort"
+export CFLAGS="-march=native -mtune=native"
 export LDFLAGS="-nofor-main"
 # CC="cc"
 # FC="ftn"
@@ -20,7 +21,7 @@ export LDFLAGS="-nofor-main"
 # FFTW
 # ----
 # fftwdir="/opt/fftw/3.3.4.0/haswell"
-fftwdir="/cfs/klemming/nobackup/${USER:0:1}/${USER}/opt/fftw-3.3.7"
+fftwdir="/cfs/klemming/nobackup/${USER:0:1}/${USER}/opt/pkg/fftw-3.3.7"
 
 # Should be no reason to change anything below
 # --------------------------------------------

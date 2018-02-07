@@ -8,7 +8,7 @@ pkgver=3.3.7
 # Directory in which the source tarball will be downloaded and extracted
 srcdir=$PWD
 # Directory to which the compiled FFTW library will be installed
-pkgdir="/cfs/klemming/nobackup/${USER:0:1}/${USER}/opt/${pkgname}-${pkgver}"
+pkgdir="/cfs/klemming/nobackup/${USER:0:1}/${USER}/opt/pkg/${pkgname}-${pkgver}"
 export MAKEFLAGS="-j$(nproc)"
 
 export CC="icc"
@@ -31,9 +31,6 @@ clean() {
   cd ${srcdir}/${pkgname}-${pkgver}-double
   make clean
 
-  cd ${srcdir}/${pkgname}-${pkgver}-long-double
-  make clean
-
   cd ${srcdir}/${pkgname}-${pkgver}-single
   make clean
 }
@@ -42,11 +39,11 @@ build() {
   cd ${srcdir}
 
   cp -a ${pkgname}-${pkgver} ${pkgname}-${pkgver}-double
-  cp -a ${pkgname}-${pkgver} ${pkgname}-${pkgver}-long-double
   cp -a ${pkgname}-${pkgver} ${pkgname}-${pkgver}-single
 
 
-  # use upstream default CFLAGS while keeping our -march/-mtune
+  CFLAGS+=" -march=native -mtune=native -gcc "
+  # do not use upstream default CFLAGS for -march/-mtune
   CFLAGS+=" -O3 -fomit-frame-pointer -malign-double -fstrict-aliasing -ffast-math"
 
   CONFIGURE="./configure F77=$F77 CC=$CC MPICC=$MPICC \
@@ -59,25 +56,17 @@ build() {
 
   # build double precision
   cd ${srcdir}/${pkgname}-${pkgver}-double
-  $CONFIGURE --enable-sse2 --enable-avx
-  make
-
-  # build & install long double precission
-  cd ${srcdir}/${pkgname}-${pkgver}-long-double
-  $CONFIGURE --enable-long-double
+  $CONFIGURE --enable-sse2 --enable-avx --enable-avx2 --enable-avx-128-fma
   make
 
   # build & install single precision
   cd ${srcdir}/${pkgname}-${pkgver}-single
-  $CONFIGURE --enable-float --enable-sse --enable-avx
+  $CONFIGURE --enable-float --enable-sse --enable-sse2 --enable-avx --enable-avx2 --enable-avx-128-fma
   make
 }
 
 check() {
   cd ${srcdir}/${pkgname}-${pkgver}-double
-  make check
-
-  cd ${srcdir}/${pkgname}-${pkgver}-long-double
   make check
 
   cd ${srcdir}/${pkgname}-${pkgver}-single
@@ -86,9 +75,6 @@ check() {
 
 package() {
   cd ${srcdir}/${pkgname}-${pkgver}-double
-  make install
-
-  cd ${srcdir}/${pkgname}-${pkgver}-long-double
   make install
 
   cd ${srcdir}/${pkgname}-${pkgver}-single
