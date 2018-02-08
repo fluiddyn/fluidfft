@@ -42,9 +42,8 @@ build() {
   cp -a ${pkgname}-${pkgver} ${pkgname}-${pkgver}-single
 
 
-  CFLAGS+=" -march=native -mtune=native -gcc "
   # do not use upstream default CFLAGS for -march/-mtune
-  CFLAGS+=" -O3 -fomit-frame-pointer -malign-double -fstrict-aliasing -ffast-math"
+  export CFLAGS="-O3 -fomit-frame-pointer -malign-double -fstrict-aliasing -ffast-math -xHost"
 
   CONFIGURE="./configure F77=$F77 CC=$CC MPICC=$MPICC \
 	         --prefix=${pkgdir} \
@@ -56,12 +55,12 @@ build() {
 
   # build double precision
   cd ${srcdir}/${pkgname}-${pkgver}-double
-  $CONFIGURE --enable-sse2 --enable-avx --enable-avx2 --enable-avx-128-fma
+  $CONFIGURE --enable-sse2 --enable-avx --enable-avx2
   make
 
   # build & install single precision
   cd ${srcdir}/${pkgname}-${pkgver}-single
-  $CONFIGURE --enable-float --enable-sse --enable-sse2 --enable-avx --enable-avx2 --enable-avx-128-fma
+  $CONFIGURE --enable-float --enable-sse --enable-sse2 --enable-avx --enable-avx2
   make
 }
 
@@ -74,6 +73,7 @@ check() {
 }
 
 package() {
+  set -e
   cd ${srcdir}/${pkgname}-${pkgver}-double
   make install
 

@@ -14,7 +14,7 @@ export MAKEFLAGS="-j$(nproc)"
 # C and Fortran 90 MPI compilers
 export CC=mpiicc
 export FC=mpiifort
-export CFLAGS="-march=native -mtune=native"
+export CFLAGS="-xHost"
 export LDFLAGS="-nofor-main"
 # CC="cc"
 # FC="ftn"
@@ -26,7 +26,7 @@ export LDFLAGS="-nofor-main"
 
 # You can use the same fftw directory that for p3dfft
 # fftwdir="/opt/fftw/3.3.4.0/haswell"
-fftwdir="/cfs/klemming/nobackup/${USER:0:1}/${USER}/opt/pkg/fftw-3.3.7"
+fftwdir="/cfs/klemming/nobackup/${USER:0:1}/${USER}/opt"
 
 # Alternatively, set fftwdir as an empty string and mention fftw include and
 # library directories seperately below
