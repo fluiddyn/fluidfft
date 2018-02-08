@@ -325,10 +325,10 @@ void FFT3DMPIWithFFTWMPI3D::get_seq_indices_first_K(int *i0, int *i1)
 
 bool FFT3DMPIWithFFTWMPI3D::are_parameters_bad()
 {
-  if ((N0*N1)/nb_proc == 0)
+  if (N0/nb_proc == 0)
     {
       if (rank == 0)
-        cout << "bad parameters N0 or N1 or N2" <<endl;
+        cout << "bad parameters N0 : nb_proc>N0 (not supported by fftwmpi)" <<endl;
         return 1;
     }
   return 0;
