@@ -28,13 +28,21 @@ libraries get prepended to ``LD_LIBRARY_PATH`` and should supersede equivalent
 GCC libraries, since we intent to use Intel compilers.
 
 Installing additional packages using Anaconda provided in Beskow can be
-troublesome. Install miniconda instead, setup a virtual environment and install
+troublesome. Install Miniconda instead, setup a virtual environment and install
 necessary python packages as described here:
 
-  .. toctree::
-     :maxdepth: 1
+.. code-block:: bash
 
-     froggy
+   wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+   bash Miniconda3-latest-Linux-x86_64.sh
+
+   conda install ipython
+   conda install numpy scipy matplotlib
+   conda install cython h5py
+   conda install -c conda-forge pyfftw
+
+   MPICC=cc pip install mpi4py -no-deps --no-binary mpi4py
+   pip install pythran colorlog
 
 Create the file `~/.pythranrc` with::
 

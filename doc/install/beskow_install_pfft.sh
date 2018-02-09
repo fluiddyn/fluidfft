@@ -51,6 +51,7 @@ download() {
 
 clean() {
   rm -rf ${srcdir}/${pkgname}-${pkgver}
+  rm -rf ${pkgdir}
 }
 
 build() {
@@ -72,9 +73,11 @@ build() {
 }
 
 package() {
+  set -e
   cd ${srcdir}/${pkgname}-${pkgver}
   make install
 
+  set +e
   cd ${pkgdir}/..
   stow -v $pkgname-$pkgver
 }

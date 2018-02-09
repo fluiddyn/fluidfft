@@ -22,6 +22,7 @@ gnu_install() {
   fi
 
   cd $pkgname
+  rm -rf ${pkgdir}
   ./bootstrap
   ./configure --prefix=${pkgdir} CC=gcc
   make

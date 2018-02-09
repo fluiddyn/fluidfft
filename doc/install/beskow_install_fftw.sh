@@ -28,6 +28,8 @@ download() {
 }
 
 clean() {
+  rm -rf ${pkgdir}
+
   cd ${srcdir}/${pkgname}-${pkgver}-double
   make clean
 
@@ -80,6 +82,7 @@ package() {
   cd ${srcdir}/${pkgname}-${pkgver}-single
   make install
 
+  set +e
   cd ${pkgdir}/..
   stow -v $pkgname-$pkgver
 }

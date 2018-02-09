@@ -1,0 +1,149 @@
+## Meant only for Beskow. Run:
+# make -f Makefile.beskow clean build test_bench.out
+# make -f Makefile.beskow test
+# make -f Makefile.beskow testmpi
+SINGLE_PREC:=no
+OMP:=no
+FFTW_OMP:=yes
+CUDA:=no
+PFFT:=yes
+P3DFFT:=yes
+
+LD:=CC
+CC:=CC
+FLAGS:= -g -O0 -Wall
+LDFLAGS:=
+LIBS:= -ldl -lm -lgfortran
+
+## If using preinstalled FFTW, `module load fftw`, switch off PFFT, P3DFFT and use the following 2 lines
+# LIB_DIR:=-L$(FFTW_DIR)
+# INC_DIR:=-I. -I../base -I$(INTEL_PATH)/compiler/include/ -I$(FFTW_INC)
+#
+## If using local installation for FFTW, use:
+LIB_DIR:=-L$(LUSTRE)/opt/lib
+INC_DIR:=-I. -I../base -I$(INTEL_PATH)/compiler/include/ -I$(LUSTRE)/opt/include
+
+SOURCES_CPP := $(wildcard base*.cpp)
+SOURCES_CPP += fft3d_with_fftw3d.cpp fft3dmpi_with_fftw1d.cpp fft3dmpi_with_fftwmpi3d.cpp test_bench.cpp
+
+
+ifeq "$(CUDA)" "yes"
+SOURCES_CU := $(wildcard *.cu)
+
+FLAGS+=-DCUDA
+FLAGS_CU:=-m64 -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30 -gencode arch=compute_32,code=sm_32 -gencode arch=compute_35,code=sm_35 -gencode arch=compute_50,code=sm_50 -gencode arch=compute_50,code=compute_50
+LD:=nvcc
+LIBS+=-lcufft -lmpi_cxx -lmpi -lmpi_f77 $(LDEV_PATH) #-laf
+INC_DIR_CU:=-I/usr/lib/openmpi/include -I/usr/lib/openmpi/include/openmpi -I$(CPATH)
+INC_DIR+=-I/opt/cuda/NVIDIA_CUDA-6.0_Samples/common/inc/
+endif
+
+ifeq "$(OMP)" "yes"
+  FLAGS+=-DOMP
+  ifeq "$(CUDA)" "yes"
+    FLAGS+= -fopenmp
+    LDFLAGS+=-Xcompiler -fopenmp
+  else
+    FLAGS+= -fopenmp
+    LDFLAGS+=-fopenmp
+  endif
+endif
+
+ifeq "$(SINGLE_PREC)" "yes"
+  FLAGS+=-DSINGLE_PREC
+  LIBS+= -lfftw3f -lfftw3f_mpi
+  ifeq "$(FFTW_OMP)" "yes"
+    LIBS+=-lfftw3f_omp
+  endif
+  FLAGS_CU+=-DSINGLE_PREC
+  ifeq "$(PFFT)" "yes"
+    LIBS+= -lpfftf
+  endif
+  ifeq "$(P3DFFT)" "yes"
+    LIBS+= -lp3dfft_sp
+  endif
+else
+  LIBS+= -lfftw3 -lfftw3_mpi
+  ifeq "$(FFTW_OMP)" "yes"
+    LIBS+=-lfftw3f_omp
+  endif
+  ifeq "$(PFFT)" "yes"
+    LIBS+= -lpfft
+  endif
+  ifeq "$(P3DFFT)" "yes"
+    LIBS+= -lp3dfft
+  endif
+endif
+
+ifeq "$(PFFT)" "yes"
+  FLAGS+= -DPFFT
+  SOURCES_CPP+=fft3dmpi_with_pfft.cpp
+endif
+
+ifeq "$(P3DFFT)" "yes"
+  FLAGS+= -DP3DFFT
+  SOURCES_CPP+=fft3dmpi_with_p3dfft.cpp
+endif
+
+# LDFLAGS:=#-fpermissive
+
+OBJECTS := $(SOURCES_CPP:.cpp=.o)
+ifeq "$(CUDA)" "yes"
+OBJECTS += $(SOURCES_CU:.cu=.o)
+endif
+
+empty :=
+space := $(empty) $(empty)
+
+SOURCES_CPP_BASE := $(wildcard ../base/*.cpp)
+OBJECTS_CPP_BASE := $(subst ../base/,,$(SOURCES_CPP_BASE))
+OBJECTS_CPP_BASE := $(OBJECTS_CPP_BASE:.cpp=.o)
+
+OBJECTS_BUILD = build/$(subst $(space),$(space)build/,$(OBJECTS_CPP_BASE) $(OBJECTS))
+
+
+# truc:
+# 	echo $(OBJECTS_CPP_BASE) $(OBJECTS):
+# 	echo
+# 	echo $(OBJECTS_BUILD)
+
+
+.PHONY: help all clean _build_dir
+
+all: build test_bench.out
+
+build:
+	mkdir -p build
+
+clean:
+	rm -rf build
+	rm -f *.out
+
+test_bench.out: $(OBJECTS) $(OBJECTS_CPP_BASE)
+	# link to build the executable $@
+	$(LD) $(LDFLAGS) $(OBJECTS_BUILD) $(LIBS) $(LIB_DIR) -o $@
+
+%.o: %.cu
+	# make $@ from $<
+	nvcc $(FLAGS_CU) $(INC_DIR) $(INC_DIR_CU) -c $< -o build/$@
+
+%.o: %.cpp
+	# make $@ from $<
+	$(CC) $(FLAGS) $(INC_DIR) -c $< -o build/$@
+
+%.o: %.cpp %.h
+	# make $@ from $<
+	$(CC) $(FLAGS) $(INC_DIR) -c $< -o build/$@
+
+%.o: ../base/%.cpp
+	# make $@ from $<
+	$(CC) $(FLAGS) $(INC_DIR) -c $< -o build/$@
+
+test:
+	aprun -n 1 ./test_bench.out --N0=64 --N1=32 --N2=16
+
+testmpi:
+	aprun -n 4 ./test_bench.out --N0=64 --N1=32 --N2=16
+	aprun -n 4 ./test_bench.out --N0=128 --N1=128 --N2=128
+	aprun -n 4 ./test_bench.out --N0=256 --N1=256 --N2=256
+	aprun -n 4 ./test_bench.out --N0=512 --N1=512 --N2=512

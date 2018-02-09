@@ -43,6 +43,7 @@ download() {
 
 clean() {
   rm -rf ${srcdir}/${pkgname}-${pkgver}
+  rm -rf ${pkgdir}
 }
 
 prepare() {
@@ -80,6 +81,7 @@ package() {
   ## If the above fails, use (with caution):
   make -i install
 
+  set +e
   cd ${pkgdir}/..
   stow -v $pkgname-$pkgver
 }

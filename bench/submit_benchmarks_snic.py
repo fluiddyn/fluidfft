@@ -8,16 +8,16 @@ import fluidfft
 # Parameters
 # ----------
 ## n0 = 2 ** 10; 'Triolith / Beskow'
-n0 = 1024; nb_cores = [2, 4, 8, 16, 32]; nodes = [2, 4, 8]
+n0 = 1024; nb_cores = [2, 4, 8, 16, 32]; nodes = [1, 2, 4, 8, 16, 32, 64, 128]
 
 ## n0 = 2**6 * 3**2 * 7; 'Kebnekaise'
 # n0 = 1008; nb_cores = [2, 4, 8, 12, 16, 21, 24, 28]; nodes = [2, 3, 4, 6]
 
-argv = dict(dim='2d', nh='{} -d 2'.format(n0), time='00:04:00')  # 2D benchmarks
-# argv = dict(dim='3d', nh='960 960 240', time='00:20:00')  # 3D benchmarks
+# argv = dict(dim='2d', nh=f'{n0} -d 2', time='00:04:00')  # 2D benchmarks
+argv = dict(dim='3d', nh=f'{n0} -d 3', time='00:20:00')  # 3D benchmarks
 # mode = 'intra'
-# mode = 'inter'
-mode = 'inter-intra'
+mode = 'inter'
+# mode = 'inter-intra'
 
 
 def init_cluster():
@@ -25,14 +25,16 @@ def init_cluster():
 
     cluster = Cluster()
     if cluster.name_cluster == 'beskow':
-        cluster.default_project = '2016-34-10'
+        cluster.default_project = '2017-12-20'
         interactive=False
     else:
-        cluster.default_project = 'SNIC2016-34-10'
+        cluster.default_project = 'SNIC2017-12-20'
         interactive=True
 
-    output_dir = os.path.abspath('{}/../doc/benchmarks/snic_{}_{}'.format(
-        os.path.split(fluidfft.__file__)[0], cluster.name_cluster, argv['dim']))
+    fluidfft_dir = os.path.dirname(fluidfft.__file__)
+    output_dir = os.path.abspath(
+        f"{fluidfft_dir}/../doc/benchmarks/"
+        f"snic_2018_{cluster.name_cluster}_{argv['dim']}")
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -47,8 +49,8 @@ def submit(cluster, interactive, nb_nodes, nb_cores_per_node=None):
 
     nb_mpi = nb_cores_per_node * nb_nodes
     cluster.submit_command(
-        'fluidfft-bench ' + argv['nh'] + ' -o ' + output_dir,
-        name_run='fft{}_{}'.format(argv['dim'], nb_mpi),
+        f"fluidfft-bench {argv['nh']} -o {output_dir} -n 20",
+        name_run=f"fft{argv['dim']}_{nb_mpi}",
         nb_nodes=nb_nodes,
         nb_cores_per_node=nb_cores_per_node,
         walltime=argv['time'],
