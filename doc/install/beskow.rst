@@ -8,9 +8,17 @@ cross-compilation in all three compilation environments (Prg-cray, Prg-intel
 and Prg-gnu). Here we have managed to install FluidFFT in Prg-intel
 environment.
 
+.. warning::
+
+   It is imperative to compile all the tools and FFT libraries in the compute
+   node. This is because as I write now (Feb 2018) Beskow uses different CPU
+   architectures in the login nodes / frontend (Sandy Bridge) compared to
+   compute nodes (Haskell). We know for sure this can affect FFTW compilation,
+   just to be sure, do everything on the compute node.
+
 Load necessary modules::
 
-   module load gcc
+   module load gcc/6.1.0
    module swap PrgEnv-cray PrgEnv-intel
    module swap intel intel/18.0.0.128
    module load mercurial
@@ -51,8 +59,13 @@ the local directory clean, if something goes wrong, and to manage versions.
 
 .. code-block:: bash
 
-   stow <directory>  # symlinks all files and directories to one level above
-   stow -D <directory>  # deletes all symlinks made before
+   stow -v <directory>  # symlinks all files and directories to one level above
+   stow -Dv <directory>  # deletes all symlinks made before
+
+.. warning::
+
+   Manual stow maybe required when run on the compute node due to Perl not
+   being able to access the home directory.
 
 Now let us proceed to build fftw3, p3dfft and pfft. For some reason, the cross-
 compilation wrappers do not work or fail to link when used with FFT libraries.

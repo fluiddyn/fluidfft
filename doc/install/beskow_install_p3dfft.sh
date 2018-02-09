@@ -13,7 +13,7 @@ pkgdir="/cfs/klemming/nobackup/${USER:0:1}/${USER}/opt/pkg/${pkgname}-${pkgver}"
 # C and Fortran 90 MPI compilers
 export CC="mpiicc"
 export FC="mpiifort"
-export CFLAGS="-march=native -mtune=native"
+export CFLAGS="-xHost"
 export LDFLAGS="-nofor-main"
 # CC="cc"
 # FC="ftn"
@@ -21,7 +21,8 @@ export LDFLAGS="-nofor-main"
 # FFTW
 # ----
 # fftwdir="/opt/fftw/3.3.4.0/haswell"
-fftwdir="/cfs/klemming/nobackup/${USER:0:1}/${USER}/opt/pkg/fftw-3.3.7"
+fftwdir="/cfs/klemming/nobackup/${USER:0:1}/${USER}/opt"
+autotoolsdir="$fftwdir"
 
 # Should be no reason to change anything below
 # --------------------------------------------
@@ -46,10 +47,10 @@ clean() {
 
 prepare() {
   cd ${srcdir}/${pkgname}-${pkgver}
-  # Assuming you had installed and stowed libtool into $HOME/.local
-  cat "$HOME/.local/share/aclocal/libtool.m4" \
-      "$HOME/.local/share/aclocal/ltoptions.m4" \
-      "$HOME/.local/share/aclocal/ltversion.m4" >> aclocal.m4
+  # Assuming you had installed and stowed libtool into $autotoolsdir
+  cat "${autotoolsdir}/share/aclocal/libtool.m4" \
+      "${autotoolsdir}/share/aclocal/ltoptions.m4" \
+      "${autotoolsdir}/share/aclocal/ltversion.m4" >> aclocal.m4
 
   echo 'AC_CONFIG_MACRO_DIRS([m4])' >> configure.ac
   sed -i '1s/^/ACLOCAL_AMFLAGS\ \=\ -I\ m4\n/' Makefile.am
@@ -73,6 +74,7 @@ build() {
 }
 
 package() {
+  set -e
   cd ${srcdir}/${pkgname}-${pkgver}
   # make install
   ## If the above fails, use (with caution):

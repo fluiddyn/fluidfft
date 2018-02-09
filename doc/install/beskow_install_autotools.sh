@@ -1,6 +1,7 @@
 #!/bin/bash
 
-pkgdir=$HOME/.local/opt
+# pkgdir=$HOME/.local/opt
+pkgdir="/cfs/klemming/nobackup/${USER:0:1}/${USER}/opt/pkg"
 srcdir=$PWD/autotools
 export MAKEFLAGS="-j$(nproc)"
 
@@ -52,9 +53,11 @@ package() {
     stow -v $pkgname
     rehash
     echo "End of installation: $pkgname"
+
     sleep 3
 
   done
+
 }
 
 # Execute
