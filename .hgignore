@@ -28,6 +28,7 @@ fluidfft/fft3d/*.pyx
 fluidfft/fft3d/*.pxd
 fluidfft/fft3d/*.cpp
 
+__pycache__
 
 */Results_bench/*
 
