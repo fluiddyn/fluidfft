@@ -1,0 +1,47 @@
+{
+ "benchmarks_classes": [
+  {
+   "name": "fft3dmpiwithfftw1d",
+   "t_fft_as_arg": 0.9574158191680908,
+   "t_fft_cpp": 0.9132281499999999,
+   "t_fft_return": 0.9587897062301636,
+   "t_ifft_as_arg": 0.8882890939712524,
+   "t_ifft_cpp": 0.8889283499999999,
+   "t_ifft_return": 0.8892648220062256
+  },
+  {
+   "name": "fft3dmpiwithfftwmpi3d",
+   "t_fft_as_arg": 1.1214507818222046,
+   "t_fft_cpp": 1.1091751,
+   "t_fft_return": 1.1367439031600952,
+   "t_ifft_as_arg": 1.2210993766784668,
+   "t_ifft_cpp": 1.2307902,
+   "t_ifft_return": 1.2119969129562378
+  },
+  {
+   "name": "fft3dmpiwithp3dfft",
+   "t_fft_as_arg": 1.2433092594146729,
+   "t_fft_cpp": 1.21396935,
+   "t_fft_return": 1.2764339447021484,
+   "t_ifft_as_arg": 1.3001741170883179,
+   "t_ifft_cpp": 1.3154502000000001,
+   "t_ifft_return": 1.3137868642807007
+  },
+  {
+   "name": "fft3dmpiwithpfft",
+   "t_fft_as_arg": 1.4079989194869995,
+   "t_fft_cpp": 1.39308995,
+   "t_fft_return": 1.3978759050369263,
+   "t_ifft_as_arg": 2.157811999320984,
+   "t_ifft_cpp": 2.1534163499999996,
+   "t_ifft_return": 2.155485510826111
+  }
+ ],
+ "hostname": "n1213.occigen",
+ "n0": 1152,
+ "n1": 1152,
+ "n2": 1152,
+ "nb_proc": 96,
+ "pid": 52313,
+ "time_as_str": "2018-01-22_13-25-44"
+}

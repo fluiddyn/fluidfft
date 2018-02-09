@@ -1,0 +1,38 @@
+{
+ "benchmarks_classes": [
+  {
+   "name": "fft3dmpiwithfftwmpi3d",
+   "t_fft_as_arg": 0.1318066120147705,
+   "t_fft_cpp": 0.13008709999999998,
+   "t_fft_return": 0.12947094440460205,
+   "t_ifft_as_arg": 0.14638984203338623,
+   "t_ifft_cpp": 0.15111619999999998,
+   "t_ifft_return": 0.13987970352172852
+  },
+  {
+   "name": "fft3dmpiwithp3dfft",
+   "t_fft_as_arg": 0.16623055934906006,
+   "t_fft_cpp": 0.16726585,
+   "t_fft_return": 0.16713762283325195,
+   "t_ifft_as_arg": 0.1806952953338623,
+   "t_ifft_cpp": 0.1788889,
+   "t_ifft_return": 0.2208319902420044
+  },
+  {
+   "name": "fft3dmpiwithpfft",
+   "t_fft_as_arg": 0.17766010761260986,
+   "t_fft_cpp": 0.1769088,
+   "t_fft_return": 0.17641687393188477,
+   "t_ifft_as_arg": 0.1984008550643921,
+   "t_ifft_cpp": 0.1984896,
+   "t_ifft_return": 0.19698989391326904
+  }
+ ],
+ "hostname": "n1170.occigen",
+ "n0": 1152,
+ "n1": 1152,
+ "n2": 1152,
+ "nb_proc": 1152,
+ "pid": 33316,
+ "time_as_str": "2018-02-09_11-04-45"
+}

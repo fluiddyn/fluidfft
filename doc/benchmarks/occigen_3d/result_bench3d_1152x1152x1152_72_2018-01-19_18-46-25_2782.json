@@ -1,0 +1,10 @@
+{
+ "benchmarks_classes": [],
+ "hostname": "n2217.occigen",
+ "n0": 1152,
+ "n1": 1152,
+ "n2": 1152,
+ "nb_proc": 72,
+ "pid": 2782,
+ "time_as_str": "2018-01-19_18-46-25"
+}
