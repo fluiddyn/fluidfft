@@ -17,17 +17,15 @@ FC=mpif90
 
 # FFTW
 # ----
-# FFTW == 3.3.4 requires patching, whereas 3.3.5 andlater versions should work
+# FFTW == 3.3.4 requires patching, whereas 3.3.5 and later versions should work
 # as it is. See: https://github.com/mpip/pfft#install
 
-# You can use the same fftw directory that for p3dfft
-fftwdir="${HOME}/.local/"
-# fftwdir="/usr/"
+# You can configure fftwdir by setting an environment variable outside the script
+fftwdir=${fftwdir-"${HOME}/.local/"}
 
-# Alternatively, set fftwdir as an empty string and mention fftw include and
-# library directories seperately below
-fftwinc=""
-fftwlib=""
+# Alternatively, set fftwdir as an empty string and set fftwinc and fftwlib
+fftwinc=${fftwinc-""}
+fftwlib=${fftwlib-""}
 
 # Should be no reason to change anything below
 # --------------------------------------------

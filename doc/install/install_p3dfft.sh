@@ -16,8 +16,8 @@ FC=mpif90
 
 # FFTW
 # ----
-fftwdir="${HOME}/.local/"
-# fftwdir="/usr/"
+# You can configure fftwdir by setting an environment variable outside the script
+fftwdir=${fftwdir-"${HOME}/.local/"}
 
 # Should be no reason to change anything below
 # --------------------------------------------
