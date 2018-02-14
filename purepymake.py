@@ -141,7 +141,7 @@ def has_to_build(output_file, input_files):
 
 
 if 'READTHEDOCS' in os.environ:
-    num_procs = 2
+    num_procs = 1
     print('On READTHEDOCS, num_procs =', num_procs)
 else:
     try:

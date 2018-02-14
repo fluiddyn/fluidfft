@@ -1,4 +1,13 @@
 
+0.2.2
+-----
+
+- Less bugs
+- Install on clusters
+- Better checks for bad input parameters
+- Operator div_vv_fft_from_v
+- FLUIDDYN_NUM_PROCS_BUILD to install on small computers
+
 0.2.1
 -----
 
