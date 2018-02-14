@@ -140,8 +140,21 @@ def has_to_build(output_file, input_files):
     return False
 
 
+if 'READTHEDOCS' in os.environ:
+    num_procs = 2
+    print('On READTHEDOCS, num_procs =', num_procs)
+else:
+    try:
+        num_procs = int(os.environ['FLUIDDYN_NUM_PROCS_BUILD'])
+    except KeyError:
+        try:
+            num_procs = os.cpu_count()
+        except AttributeError:
+            num_procs = multiprocessing.cpu_count()
+
+
 class CommandsRunner(object):
-    nb_proc = 4
+    """Run command in parallel (with processes)"""
 
     def __init__(self, commands):
         self.commands = commands
@@ -149,7 +162,7 @@ class CommandsRunner(object):
 
     def run(self):
         while len(self.commands) != 0:
-            if len(self._processes) < self.nb_proc:
+            if len(self._processes) < num_procs:
                 command = self.commands.pop()
                 self._launch_process(command)
 
@@ -177,6 +190,7 @@ class CommandsRunner(object):
 
 
 class FunctionsRunner(CommandsRunner):
+    """Run function calls in parallel (with multiprocessing)"""
     def _launch_process(self, command):
         func, args, kwargs = command
         print('launching command:\n'
@@ -195,9 +209,12 @@ class FunctionsRunner(CommandsRunner):
 
 
 def make_function_cpp_from_pyx(cpp_file, pyx_file,
-                               include_dirs=None,
-                               compiler_directives={},
-                               full_module_name=None, options={}):
+                               include_dirs=None, compiler_directives=None,
+                               full_module_name=None):
+
+    if compiler_directives is None:
+        compiler_directives = {}
+
     path_dir = os.path.split(cpp_file)[0]
     if not os.path.exists(path_dir):
         os.makedirs(path_dir)
@@ -278,8 +295,7 @@ def make_command_obj_from_cpp(obj_file, cpp_file, include_dirs=None,
 
 
 def make_command_ext_from_objs(
-        ext_file, obj_files, lib_flags=None, lib_dirs=None,
-        options=None):
+        ext_file, obj_files, lib_flags=None, lib_dirs=None):
 
     if not has_to_build(ext_file, obj_files):
         return
@@ -371,8 +387,7 @@ def make_extensions(extensions,
             cpp_file, pyx_file,
             full_module_name=full_module_name,
             include_dirs=include_dirs,
-            compiler_directives=compiler_directives,
-            options=options)
+            compiler_directives=compiler_directives)
         if command is not None:
             commands.append(command)
 
@@ -474,15 +489,7 @@ def build_extensions(self):
         except AttributeError:
             pass
 
-    try:
-        num_jobs = int(os.environ['FLUIDDYN_NUM_PROCS_BUILD'])
-    except KeyError:
-        try:
-            num_jobs = os.cpu_count()
-        except AttributeError:
-            num_jobs = multiprocessing.cpu_count()
-
-    pool = Pool(num_jobs)
+    pool = Pool(num_procs)
     pool.map(self.build_extension, self.extensions)
     try:
         pool.shutdown()
