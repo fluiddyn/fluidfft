@@ -66,13 +66,17 @@ class OperatorsPseudoSpectral3D(object):
         deltaky = 2*pi/Ly
         deltakz = 2*pi/Lz
 
-        self.ifft3d = op_fft.ifft
-        self.fft3d = op_fft.fft
+        self.ifft = self.ifft3d = op_fft.ifft
+        self.fft = self.fft3d = op_fft.fft
+
+        self.ifft_as_arg = op_fft.ifft_as_arg
+        self.fft_as_arg = op_fft.fft_as_arg
+
         self.sum_wavenumbers = op_fft.sum_wavenumbers
         self.compute_energy_from_X = op_fft.compute_energy_from_X
         self.compute_energy_from_K = op_fft.compute_energy_from_K
 
-        self.shapeK_loc = op_fft.get_shapeK_loc()
+        self.shapeK = self.shapeK_loc = op_fft.get_shapeK_loc()
         self.nk0, self.nk1, self.nk2 = self.shapeK_loc
 
         order = op_fft.get_dimX_K()
@@ -203,6 +207,16 @@ class OperatorsPseudoSpectral3D(object):
                 divfft_from_vecfft(vxvyfft, vyvyfft, vzvyfft, Kx, Ky, Kz),
                 divfft_from_vecfft(vxvzfft, vyvzfft, vzvzfft, Kx, Ky, Kz))
 
+    def div_vb_fft_from_vb(self, vx, vy, vz, b):
+        fft3d = self.fft3d
+
+        vxbfft = fft3d(vx*b)
+        vybfft = fft3d(vy*b)
+        vzbfft = fft3d(vz*b)
+
+        return divfft_from_vecfft(vxbfft, vybfft, vzbfft,
+                                  self.Kx, self.Ky, self.Kz)
+    
     def vgradv_from_v(self, vx, vy, vz,
                       vx_fft=None, vy_fft=None, vz_fft=None):
 
@@ -259,3 +273,6 @@ class OperatorsPseudoSpectral3D(object):
 
         return _vgradv_from_v2(vx, vy, vz, vx_fft, vy_fft, vz_fft,
                                self.Kx, self.Ky, self.Kz, self.ifft3d)
+
+    def rotzfft_from_vxvyfft(self, vx_fft, vy_fft):
+        return 1j * (self.Kx *  vy_fft - self.Ky * vx_fft)

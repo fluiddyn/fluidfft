@@ -56,9 +56,10 @@ def import_fft_class(method, raise_import_error=True):
 
     if method.startswith('fft2d.') or method.startswith('fft3d.'):
         method = 'fluidfft.' + method
-    else:
+
+    if not method.startswith('fluidfft.'):
         raise ValueError(
-            "not (method.startswith('fft2d.') or method.startswith('fft3d.'))")
+            "not method.startswith('fluidfft.')\nmethod = {}".format(method))
 
     try:
         mod = _import_module(method)
