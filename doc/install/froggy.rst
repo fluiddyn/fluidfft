@@ -1,5 +1,12 @@
-Installation on froggy (ciment, UGA)
-====================================
+Installation on the HPC cluster Froggy (Ciment, UGA)
+====================================================
+
+`Froggy is a local HPC cluster in Grenoble
+<https://ciment.ujf-grenoble.fr/wiki-pub/index.php/Hardware:Froggy>`_.
+
+.. warning::
+
+   Until now (2018-02), we have not been able to install fluidfft on Froggy!
 
 Today (2017-10-06), in standard froggy modules, the most recent gcc is version
 `4.8.2 <https://gcc.gnu.org/gcc-4.8/>`_ (2013) and the most recent python is

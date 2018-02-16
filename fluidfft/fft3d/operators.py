@@ -23,11 +23,17 @@ if mpi.nb_proc > 1:
 
 class OperatorsPseudoSpectral3D(object):
 
-    def __init__(self, nx, ny, nz, lx, ly, lz, fft='fft3d.with_fftw3d',
+    def __init__(self, nx, ny, nz, lx, ly, lz, fft=None,
                  coef_dealiasing=1.):
         self.nx = self.nx_seq = nx
         self.ny = self.ny_seq = ny
         self.nz = self.nz_seq = nz
+
+        if fft is None:
+            if mpi.nb_proc == 1:
+                fft = 'fft3d.with_fftw3d'
+            else:
+                fft = 'fft3d.mpi_with_fftw1d'
 
         if isinstance(fft, basestring):
             if fft.lower() == 'fftwpy':
@@ -105,6 +111,8 @@ class OperatorsPseudoSpectral3D(object):
         K1 = np.ascontiguousarray(K1)
         K2 = np.ascontiguousarray(K2)
 
+        assert K0.shape == self.shapeK_loc
+
         self.Kz = K0
         self.Ky = K1
         self.Kx = K2
@@ -158,14 +166,17 @@ class OperatorsPseudoSpectral3D(object):
             'Lx = ' + str_Lx + ' ; Ly = ' + str_Ly +
             ' ; Lz = ' + str_Lz + '\n')
 
-    def constant_arrayX(self, value=None, shape='LOC'):
-        """Return a constant array in real space."""
+    def _get_shapeX(self, shape='loc'):
         if shape.lower() == 'loc':
-            shapeX = self.shapeX_loc
+            return self.shapeX_loc
         elif shape.lower() == 'seq':
-            shapeX = self.shapeX_seq
+            return self.shapeX_seq
         else:
             raise ValueError('shape should be "loc" or "seq"')
+
+    def constant_arrayX(self, value=None, shape='loc'):
+        """Return a constant array in real space."""
+        shapeX = self._get_shapeX(shape)
         if value is None:
             field = np.empty(shapeX)
         elif value == 0:
@@ -173,6 +184,10 @@ class OperatorsPseudoSpectral3D(object):
         else:
             field = value*np.ones(shapeX)
         return field
+
+    def random_arrayX(self, shape='loc'):
+        shapeX = self._get_shapeX(shape)
+        return np.random.random(shapeX)
 
     def project_perpk3d(self, vx_fft, vy_fft, vz_fft):
         project_perpk3d(vx_fft, vy_fft, vz_fft, self.Kx, self.Ky, self.Kz,
@@ -216,7 +231,7 @@ class OperatorsPseudoSpectral3D(object):
 
         return divfft_from_vecfft(vxbfft, vybfft, vzbfft,
                                   self.Kx, self.Ky, self.Kz)
-    
+
     def vgradv_from_v(self, vx, vy, vz,
                       vx_fft=None, vy_fft=None, vz_fft=None):
 
@@ -275,4 +290,46 @@ class OperatorsPseudoSpectral3D(object):
                                self.Kx, self.Ky, self.Kz, self.ifft3d)
 
     def rotzfft_from_vxvyfft(self, vx_fft, vy_fft):
-        return 1j * (self.Kx *  vy_fft - self.Ky * vx_fft)
+        return 1j * (self.Kx * vy_fft - self.Ky * vx_fft)
+
+    def get_XYZ_loc(self):
+        """Compute the local 3d arrays with the x, y, and y values.
+
+        The implementation of this function is going to be complicated for some
+        classes... For example, for p3dfft, I (Pierre) don't understand how the
+        data is stored in the physical space (see `the tutorial on 3D MPI
+        decomposition
+        <http://fluidfft.readthedocs.io/en/latest/ipynb/executed/tuto_fft3d_mpi_domain_decomp.html>`_).
+
+        """
+
+        if mpi.nb_proc > 1:
+
+            all_shape_loc = np.empty((mpi.nb_proc, 3), dtype=int)
+            mpi.comm.Allgather(np.array(self.shapeX_loc), all_shape_loc)
+
+            if self.shapeX_seq[1:] != self.shapeX_loc[1:]:
+                # in this case, it it complicated...
+                raise NotImplementedError
+
+            else:
+                # 1d decomposition
+                x_loc = self.x_seq
+                y_loc = self.y_seq
+
+                # actually with 1d decomposition we need only this
+                all_shape0_loc = all_shape_loc[:, 0]
+                i0_seq_start = sum(all_shape0_loc[:mpi.rank])
+
+                z_loc = self.z_seq[
+                    i0_seq_start:i0_seq_start+self.shapeX_loc[0]]
+        else:
+            x_loc = self.x_seq
+            y_loc = self.y_seq
+            z_loc = self.z_seq
+
+        Y, Z, X = np.meshgrid(y_loc, z_loc, x_loc, copy=False)
+
+        assert X.shape == Y.shape == Z.shape == self.shapeX_loc
+
+        return X, Y, Z

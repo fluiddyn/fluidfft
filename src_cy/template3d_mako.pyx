@@ -198,6 +198,8 @@ cdef class ${class_name}:
 
         returns k0_adim_loc, k1_adim_loc, k2_adim_loc.
 
+        The indices correspond to the index of the dimension in spectral space.
+
         """
         cdef int nK0, nK1, nK2, nK0_loc, nK1_loc, nK2_loc
         cdef int d0, d1, d2, i0_start, i1_start

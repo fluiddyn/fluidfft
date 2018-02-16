@@ -1,11 +1,12 @@
-Installation on Beskow
-======================
+Installation on the HPC cluster Beskow
+======================================
 
-Beskow is a Cray machine running Intel processors. The procedure described
-below could arguably be one of the most complex methods due to the obsolete
-collection of modules and the use of wrappers which is designed to enable
-cross-compilation in all three compilation environments (Prg-cray, Prg-intel
-and Prg-gnu). Here we have managed to install FluidFFT in Prg-intel
+`Beskow is a Cray machine running Intel processors
+<https://www.pdc.kth.se/hpc-services/computing-systems>`_. The procedure
+described below could arguably be one of the most complex methods due to the
+obsolete collection of modules and the use of wrappers which is designed to
+enable cross-compilation in all three compilation environments (Prg-cray,
+Prg-intel and Prg-gnu). Here we have managed to install FluidFFT in Prg-intel
 environment.
 
 .. warning::

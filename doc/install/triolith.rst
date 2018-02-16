@@ -1,5 +1,8 @@
-Installation on Triolith
-========================
+Installation on the HPC cluster Triolith (NSC)
+==============================================
+
+`Triolith is a cluster of the Swedish National Infrastructure for Computing
+(SNIC) <https://www.nsc.liu.se/systems/triolith/>`.
 
 First install mercurial in python 2.
 

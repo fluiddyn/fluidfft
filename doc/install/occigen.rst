@@ -1,5 +1,7 @@
-Installation on occigen
-=======================
+Installation on the HPC cluster Occigen (GENCI-CINES)
+=====================================================
+
+`Occigen is a GENCI-CINES HCP cluster <https://www.top500.org/system/178465>`_.
 
 .. _occigen:
 
