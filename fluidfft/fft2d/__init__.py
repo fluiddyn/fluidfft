@@ -1,5 +1,5 @@
-"""2d Fast Fourier Transform classes
-====================================
+"""2d Fast Fourier Transform classes (:mod:`fluidfft.fft2d`)
+============================================================
 
 This package contains different extension modules with classes for performing
 Fast Fourier Transform with different methods and libraries. The number of
@@ -14,6 +14,13 @@ classes depend on how fluidfft has been compiled.
 - :class:`fluidfft.fft2d.mpi_with_fftwmpi2d.FFT2DMPIWithFFTW1D`
 
 - :class:`fluidfft.fft2d.mpi_with_fftwmpi2d.FFT2DMPIWithFFTWMPI2D`
+
+The subpackage provides a module to use the FFT classes in real codes:
+
+.. autosummary::
+   :toctree:
+
+   operators
 
 All classes are very similar and provide the same public functions. Since these
 classes are defined in Cython extensions that can not easily be compiled on the

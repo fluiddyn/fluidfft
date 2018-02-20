@@ -1,4 +1,11 @@
+"""Operators 3d (:mod:`fluidfft.fft3d.operators`)
+=================================================
 
+.. autoclass:: OperatorsPseudoSpectral3D
+   :members:
+   :undoc-members:
+
+"""
 from __future__ import print_function
 
 from past.builtins import basestring

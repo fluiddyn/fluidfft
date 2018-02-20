@@ -1,4 +1,11 @@
+"""Operators 2d (:mod:`fluidfft.fft2d.operators`)
+=================================================
 
+.. autoclass:: OperatorsPseudoSpectral2D
+   :members:
+   :undoc-members:
+
+"""
 from __future__ import print_function
 
 from builtins import range
