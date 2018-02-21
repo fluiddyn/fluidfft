@@ -61,7 +61,7 @@ class OperatorsPseudoSpectral3D(object):
     fft : str or FFT classes
 
       Name of module or string characterizing a method. It has to correspond to
-      a module of fluidfft. The first part “fluidfft.” of the module “path” can
+      a module of fluidfft. The first part "fluidfft." of the module "path" can
       be omitted.
 
     coef_dealiasing : float
