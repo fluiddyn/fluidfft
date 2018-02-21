@@ -1,20 +1,20 @@
-"""Simple Fast Fourier Transform for Python
-===========================================
+"""Efficient and easy Fast Fourier Transform for Python
+=======================================================
 
-This module provides two helper functions to import fft classes and
-create fft objects:
-
-.. autofunction:: import_fft_class
-
-.. autofunction:: create_fft_object
-
-The fft classes are in the two subpackages
+The fft and `operators` classes are in the two subpackages
 
 .. autosummary::
    :toctree:
 
    fft2d
    fft3d
+
+This root module provides two helper functions to import fft classes and create
+fft objects:
+
+.. autofunction:: import_fft_class
+
+.. autofunction:: create_fft_object
 
 """
 

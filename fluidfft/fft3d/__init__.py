@@ -1,23 +1,21 @@
 """3d Fast Fourier Transform classes (:mod:`fluidfft.fft3d`)
 ============================================================
 
-This package contains different extension modules with classes for performing
-Fast Fourier Transform with different methods and libraries. The number of
-classes depend on how fluidfft has been compiled.
+This package contains extension modules containing classes for performing Fast
+Fourier Transform with different methods and libraries. The number of classes
+depend on how fluidfft has been compiled. The 3d classes currently implemented
+are:
 
-- `fluidfft3d.with_fftw3d.FFT3DWithFFTW3D`
+- :class:`fluidfft3d.with_fftw3d.FFT3DWithFFTW3D`
+- :class:`fluidfft3d.with_cufft.FFT3DWithCUFFT`
+- :class:`fluidfft3d.mpi_with_fftwmpi3d.FFT3DMPIWithFFTWMPI3D`
+- :class:`fluidfft3d.mpi_with_fftwmpi3d.FFT3DMPIWithFFTW1D`
+- :class:`fluidfft3d.mpi_with_pfft.FFT3DMPIWithPFFT`
+- :class:`fluidfft3d.mpi_with_p3dfft.FFT3DMPIWithP3DFFT`
 
-- `fluidfft3d.with_cufft.FFT3DWithCUFFT`
-
-- `fluidfft3d.mpi_with_fftwmpi3d.FFT3DMPIWithFFTWMPI3D`
-
-- `fluidfft3d.mpi_with_fftwmpi3d.FFT3DMPIWithFFTW1D`
-
-- `fluidfft3d.mpi_with_pfft.FFT3DMPIWithPFFT`
-
-- `fluidfft3d.mpi_with_p3dfft.FFT3DMPIWithP3DFFT`
-
-The subpackage provides a module to use the FFT classes in real codes:
+To use the FFT classes in real codes, it is simpler and recommended to use the
+class :class:`fluidfft.fft3d.operators.OperatorsPseudoSpectral3D` defined in
+the package
 
 .. autosummary::
    :toctree:
@@ -53,10 +51,12 @@ methods_mpi = ['fft3d.mpi_with_' + method for method in methods_mpi]
 
 
 def get_classes_seq():
+    """Return all sequential 3d classes."""
     return {method: import_fft_class(method, raise_import_error=False)
             for method in methods_seq}
 
 
 def get_classes_mpi():
+    """Return all parallel 3d classes."""
     return {method: import_fft_class(method, raise_import_error=False)
             for method in methods_mpi}

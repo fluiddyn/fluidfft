@@ -7,8 +7,22 @@ from ${module_name} cimport (
     mycomplex)
 
 
-def compute_k_adim_seq(nk, d):
-    if d == 2:
+def compute_k_adim_seq(nk, axis):
+    """Compute the adimensional wavenumber for an axis. 
+
+    Parameters
+    ----------
+
+    nk : int
+
+      Global size in Fourier space for the axis.
+
+    axis : int
+
+      Index of the axis in real space (0 for z, 1 for y and 2 for x).
+
+    """
+    if axis == 2:
         return np.arange(nk)
     else:
         k_adim_max = nk//2
@@ -17,7 +31,25 @@ def compute_k_adim_seq(nk, d):
 
 
 cdef class ${class_name}:
-    """Perform fast Fourier transform in 3D.
+    """Perform Fast Fourier Transform in 3D.
+
+    Parameters
+    ----------
+
+    n0 : int
+
+      Global size over the first dimension in spatial space. This corresponds
+      to the z direction.
+
+    n1 : int
+
+      Global size over the second dimension in spatial space. This corresponds
+      to the y direction.
+
+    n2 : int
+
+      Global size over the second dimension in spatial space. This corresponds
+      to the x direction.
 
     """
     cdef int _has_to_destroy
@@ -51,19 +83,19 @@ cdef class ${class_name}:
         del self.thisptr
 
     def get_short_name(self):
-        """Get a short name of the class"""
+        """Get a short name of the class."""
         return self.__class__.__name__.lower()
 
     def get_local_size_X(self):
-        """Get the local size in real space"""
+        """Get the local size in real space."""
         return self.thisptr.get_local_size_X()
 
     def run_tests(self):
-        """Run simple tests from C++"""
+        """Run simple tests from C++."""
         return self.thisptr.test()
 
     def run_benchs(self, nb_time_execute=10):
-        """Run the C++ benchmarcks"""
+        """Run the C++ benchmarcks."""
         cdef DTYPEf_t[:] arr = np.empty([2], DTYPEf)
         self.thisptr.bench(nb_time_execute, &arr[0])
         if rank == 0:
@@ -74,7 +106,7 @@ cdef class ${class_name}:
     # @cython.initializedcheck(False)
     cpdef fft_as_arg(self, view3df_t fieldX,
                      view3dc_t fieldK):
-        """Perform FFT and put result in second argument"""
+        """Perform FFT and put result in second argument."""
         self.thisptr.fft(&fieldX[0, 0, 0], <mycomplex*> &fieldK[0, 0, 0])
 
     @cython.boundscheck(False)
@@ -82,14 +114,14 @@ cdef class ${class_name}:
     # @cython.initializedcheck(False)
     cpdef ifft_as_arg(self, view3dc_t fieldK,
                       view3df_t fieldX):
-        """Perform iFFT and put result in second argument"""
+        """Perform iFFT and put result in second argument."""
         self.thisptr.ifft(<mycomplex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
     cpdef fft(self, view3df_t fieldX):
-        """Perform FFT and return the result"""
+        """Perform FFT and return the result."""
         cdef np.ndarray[DTYPEc_t, ndim=3] fieldK
         fieldK = np.empty(self.get_shapeK_loc(), dtype=DTYPEc, order='C')
         self.thisptr.fft(&fieldX[0, 0, 0], <mycomplex*> &fieldK[0, 0, 0])
@@ -99,7 +131,7 @@ cdef class ${class_name}:
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
     cpdef ifft(self, view3dc_t fieldK):
-        """Perform iFFT and return the result"""
+        """Perform iFFT and return the result."""
         cdef np.ndarray[DTYPEf_t, ndim=3] fieldX
         fieldX = np.empty(self.get_shapeX_loc(), dtype=DTYPEf, order='C')
         self.thisptr.ifft(<mycomplex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
@@ -188,15 +220,26 @@ cdef class ${class_name}:
         return d0, d1, d2
 
     cpdef get_seq_indices_first_K(self):
-        """Get the "sequential" index of the first number in Fourier space."""
+        """Get the "sequential" indices of the first number in Fourier space."""
         cdef int i0, i1
         self.thisptr.get_seq_indices_first_K(&i0, &i1)
         return i0, i1
 
+    cpdef get_seq_indices_first_X(self):
+        """Get the "sequential" indices of the first number in real space."""
+        raise NotImplementedError
+
     cpdef get_k_adim_loc(self):
         """Get the non-dimensional wavenumbers stored locally.
 
-        returns k0_adim_loc, k1_adim_loc, k2_adim_loc.
+        Returns
+        -------
+
+        k0_adim_loc : np.ndarray
+
+        k1_adim_loc : np.ndarray
+
+        k2_adim_loc :  np.ndarray
 
         The indices correspond to the index of the dimension in spectral space.
 
@@ -222,7 +265,7 @@ cdef class ${class_name}:
         return k0_adim_loc, k1_adim_loc, k2_adim_loc
 
     def build_invariant_arrayX_from_2d_indices12X(self, o2d, arr2d):
-        """Build an array in real space invariant in the third dim"""
+        """Build an array in real space invariant in the third dim."""
         nX0, nX1, nX2 = self.get_shapeX_seq()
         nX0loc, nX1loc, nX2loc = self.get_shapeX_loc()
 
@@ -247,7 +290,7 @@ cdef class ${class_name}:
         return arr3d
 
     def build_invariant_arrayK_from_2d_indices12X(self, o2d, arr2d):
-        """Build an array in Fourier space invariant in the third dim"""
+        """Build an array in Fourier space invariant in the third dim."""
         nK0, nK1, nK2 = self.get_shapeK_seq()
         nK0loc, nK1loc, nK2loc = self.get_shapeK_loc()
 
@@ -292,11 +335,17 @@ cdef class ${class_name}:
         return arr3d
 
     def compute_energy_from_X(self, view3df_t fieldX):
+        """Compute the mean energy from a real space array."""
         return <float> self.thisptr.compute_energy_from_X(&fieldX[0, 0, 0])
 
     def compute_energy_from_K(self, view3dc_t fieldK):
+        """Compute the mean energy from a Fourier space array."""
         return <float> self.thisptr.compute_energy_from_K(
             <mycomplex*> &fieldK[0, 0, 0])
 
+    def sum_wavenumbers(self, view3df_t fieldK):
+        """Compute the sum over all wavenumbers."""
+        raise NotImplementedError
 
+        
 FFTclass = ${class_name}

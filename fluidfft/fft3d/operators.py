@@ -29,7 +29,44 @@ if mpi.nb_proc > 1:
 
 
 class OperatorsPseudoSpectral3D(object):
+    """Perform 2D FFT and operations on data.
 
+    Parameters
+    ----------
+
+    nx : int
+
+      Global dimension over the x-axis (third dimension for the real arrays).
+
+    ny : int
+
+      Global dimension over the y-axis (second dimension for the real arrays).
+
+    nz : int
+
+      Global dimension over the y-axis (first dimension for the real arrays).
+
+    lx : float
+
+      Length of the domain along the x-axis.
+
+    ly : float
+
+      Length of the domain along the y-axis.
+
+    lz : float
+
+      Length of the domain along the z-axis.
+
+    fft : str or FFT classes
+
+      Name of module or string characterizing a method. It has to correspond to
+      a module of fluidfft. The first part “fluidfft.” of the module “path” can
+      be omitted.
+
+    coef_dealiasing : float
+
+    """
     def __init__(self, nx, ny, nz, lx, ly, lz, fft=None,
                  coef_dealiasing=1.):
         self.nx = self.nx_seq = nx
@@ -149,10 +186,11 @@ class OperatorsPseudoSpectral3D(object):
         self.rank = mpi.rank
 
     def produce_str_describing_grid(self):
+        """Produce a short string describing the grid."""
         return '{}x{}x{}'.format(self.nx_seq, self.ny_seq, self.nz_seq)
 
     def produce_str_describing_oper(self):
-        """Produce a string describing the operator."""
+        """Produce a short string describing the operator."""
         str_Lx = _make_str_length(self.Lx)
         str_Ly = _make_str_length(self.Ly)
         str_Lz = _make_str_length(self.Lz)
@@ -193,14 +231,21 @@ class OperatorsPseudoSpectral3D(object):
         return field
 
     def random_arrayX(self, shape='loc'):
+        """Return a random array in real space."""
         shapeX = self._get_shapeX(shape)
         return np.random.random(shapeX)
 
     def project_perpk3d(self, vx_fft, vy_fft, vz_fft):
+        """Project (inplace) a vector perpendicular to the wavevector.
+
+        The resulting vector is divergence-free.
+
+        """
         project_perpk3d(vx_fft, vy_fft, vz_fft, self.Kx, self.Ky, self.Kz,
                         self.K_square_nozero)
 
     def divfft_from_vecfft(self, vx_fft, vy_fft, vz_fft):
+        """Return the divergence of a vector in spectral space."""
         # float64[][][]
         Kx = self.Kx
         Ky = self.Ky
@@ -209,6 +254,10 @@ class OperatorsPseudoSpectral3D(object):
         return divfft_from_vecfft(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz)
 
     def div_vv_fft_from_v(self, vx, vy, vz):
+        r"""Compute :math:`\nabla \cdot (\boldsymbol{v} \boldsymbol{v})` in
+        spectral space.
+
+        """
         # function(float64[][][]) -> complex128[][][]
         fft3d = self.fft3d
 
@@ -230,6 +279,9 @@ class OperatorsPseudoSpectral3D(object):
                 divfft_from_vecfft(vxvzfft, vyvzfft, vzvzfft, Kx, Ky, Kz))
 
     def div_vb_fft_from_vb(self, vx, vy, vz, b):
+        r"""Compute :math:`\nabla \cdot (\boldsymbol{v} b)` in spectral space.
+
+        """
         fft3d = self.fft3d
 
         vxbfft = fft3d(vx*b)
@@ -241,7 +293,10 @@ class OperatorsPseudoSpectral3D(object):
 
     def vgradv_from_v(self, vx, vy, vz,
                       vx_fft=None, vy_fft=None, vz_fft=None):
+        r"""Compute :math:`\boldsymbol{v} \cdot \nabla \boldsymbol{v}` in
+        real space.
 
+        """
         if vx_fft is None:
             # function(float64[][][]) -> complex128[][][]
             fft3d = self.fft3d
@@ -285,7 +340,10 @@ class OperatorsPseudoSpectral3D(object):
 
     def vgradv_from_v2(self, vx, vy, vz,
                        vx_fft=None, vy_fft=None, vz_fft=None):
+        r"""Compute :math:`\boldsymbol{v} \cdot \nabla \boldsymbol{v}` in
+        real space.
 
+        """
         if vx_fft is None:
             # function(float64[][][]) -> complex128[][][]
             fft3d = self.fft3d
@@ -297,16 +355,14 @@ class OperatorsPseudoSpectral3D(object):
                                self.Kx, self.Ky, self.Kz, self.ifft3d)
 
     def rotzfft_from_vxvyfft(self, vx_fft, vy_fft):
+        """Compute the z component of the curl in spectral space."""
         return 1j * (self.Kx * vy_fft - self.Ky * vx_fft)
 
     def get_XYZ_loc(self):
         """Compute the local 3d arrays with the x, y, and y values.
 
-        The implementation of this function is going to be complicated for some
-        classes... For example, for p3dfft, I (Pierre) don't understand how the
-        data is stored in the physical space (see `the tutorial on 3D MPI
-        decomposition
-        <http://fluidfft.readthedocs.io/en/latest/ipynb/executed/tuto_fft3d_mpi_domain_decomp.html>`_).
+        The implementation of this function is not easy for some classes...  We
+        need a not-implemented function :func:`get_seq_indices_first_X`...
 
         """
 

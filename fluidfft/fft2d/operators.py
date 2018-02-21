@@ -39,7 +39,36 @@ def _make_str_length(length):
 
 
 class OperatorsPseudoSpectral2D(object):
+    """Perform 2D FFT and operations on data.
 
+    Parameters
+    ----------
+
+    nx : int
+
+      Global dimension over the x-axis (second dimension for the real arrays).
+
+    ny : int
+
+      Global dimension over the y-axis (first dimension for the real arrays).
+
+    lx : float
+
+      Length of the domain along the x-axis.
+
+    ly : float
+
+      Length of the domain along the y-axis.
+
+    fft : str or FFT classes
+
+      Name of module or string characterizing a method. It has to correspond to
+      a module of fluidfft. The first part “fluidfft.” of the module “path” can
+      be omitted.
+
+    coef_dealiasing : float
+
+    """
     def __init__(self, nx, ny, lx, ly, fft='fft2d.with_fftw2d',
                  coef_dealiasing=1.):
 
@@ -222,13 +251,15 @@ class OperatorsPseudoSpectral2D(object):
         self.XX, self.YY = np.meshgrid(x_loc, y_loc)
 
     def sum_wavenumbers(self, field_fft):
+        """Compute the sum over all wavenumbers."""
         return self.opfft.sum_wavenumbers(np.ascontiguousarray(field_fft))
 
     def produce_str_describing_grid(self):
+        """Produce a short string describing the grid."""
         return '{}x{}'.format(self.nx_seq, self.ny_seq)
 
     def produce_str_describing_oper(self):
-        """Produce a string describing the operator."""
+        """Produce a short string describing the operator."""
         str_lx = _make_str_length(self.lx)
         str_ly = _make_str_length(self.ly)
         return ('{}x{}_S' + str_lx + 'x' + str_ly).format(
@@ -411,6 +442,11 @@ class OperatorsPseudoSpectral2D(object):
         return spectrum2D/deltakh
 
     def projection_perp(self, fx_fft, fy_fft):
+        """Project (inplace) a vector perpendicular to the wavevector.
+
+        The resulting vector is divergence-free.
+
+        """
         KX = self.KX
         KY = self.KY
         a = fx_fft - self.KX_over_K2*(KX*fx_fft+KY*fy_fft)
@@ -442,6 +478,7 @@ class OperatorsPseudoSpectral2D(object):
         return gradfft_from_fft(f_fft, self.KX, self.KY)
 
     def dealiasing_variable(self, f_fft):
+        """Dealiasing a variable."""
         dealiasing_variable(f_fft, self.where_dealiased,
                             self.nK0_loc, self.nK1_loc)
 

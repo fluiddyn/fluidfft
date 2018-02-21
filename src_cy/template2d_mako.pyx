@@ -10,7 +10,22 @@ from fluiddyn.util import mpi
     
 
 cdef class ${class_name}:
-    """Class to perform Fast Fourier Transform in 2d."""
+    """Perform Fast Fourier Transform in 2d.
+
+    Parameters
+    ----------
+
+    n0 : int
+
+      Global size over the first dimension in spatial space. This corresponds
+      to the y direction.
+
+    n1 : int
+
+      Global size over the second dimension in spatial space. This corresponds
+      to the x direction.
+
+    """
     cdef int _has_to_destroy
     cdef mycppclass* thisptr
     cdef tuple _shape_K_loc, _shape_X_loc
@@ -33,9 +48,11 @@ cdef class ${class_name}:
         del self.thisptr
 
     def get_short_name(self):
+        """Produce a short name of this object."""
         return self.__class__.__name__.lower()
         
     def get_local_size_X(self):
+        """Get the local size in the real space."""
         return self.thisptr.get_local_size_X()
     
     def run_tests(self):
@@ -121,12 +138,26 @@ cdef class ${class_name}:
         return bool(self.thisptr.get_is_transposed())
 
     def get_seq_indices_first_X(self):
+        """Get the "sequential" index of the first number in real space."""
         return <int> self.thisptr.get_local_X0_start(), 0
 
     def get_seq_indices_first_K(self):
+        """Get the "sequential" index of the first number in Fourier space."""
         return <int> self.thisptr.get_local_K0_start(), 0
 
     def get_k_adim_loc(self):
+        """Get the non-dimensional wavenumbers stored locally.
+
+        Returns
+        -------
+
+        k0_adim_loc : np.ndarray
+
+        k1_adim_loc : np.ndarray
+
+        The indices correspond to the index of the dimension in spectral space.
+        """
+        
         nyseq, nxseq = self.get_shapeX_seq()
 
         kyseq = np.array(list(range(nyseq//2 + 1)) +
@@ -141,12 +172,23 @@ cdef class ${class_name}:
         ik0_start, ik1_start = self.get_seq_indices_first_K()
         nk0loc, nk1loc = self.get_shapeK_loc()
 
-        k0loc = k0seq[ik0_start:ik0_start+nk0loc]
-        k1loc = k1seq[ik1_start:ik1_start+nk1loc]
+        k0_adim_loc = k0seq[ik0_start:ik0_start+nk0loc]
+        k1_adim_loc = k1seq[ik1_start:ik1_start+nk1loc]
 
-        return k0loc, k1loc
+        return k0_adim_loc, k1_adim_loc
 
     def get_x_adim_loc(self):
+        """Get the coordinates of the points stored locally.
+
+        Returns
+        -------
+
+        x0loc : np.ndarray
+
+        x1loc : np.ndarray
+
+        The indices correspond to the index of the dimension in real space.
+        """
         nyseq, nxseq = self.get_shapeX_seq()
 
         ix0_start, ix1_start = self.get_seq_indices_first_X()
@@ -158,13 +200,16 @@ cdef class ${class_name}:
         return x0loc, x1loc
 
     def compute_energy_from_X(self, view2df_t fieldX):
+        """Compute the mean energy from a real space array."""
         return <float> self.thisptr.compute_energy_from_X(&fieldX[0, 0])
 
     def compute_energy_from_K(self, view2dc_t fieldK):
+        """Compute the mean energy from a Fourier space array."""
         return <float> self.thisptr.compute_energy_from_K(
             <mycomplex*> &fieldK[0, 0])
 
     def sum_wavenumbers(self, view2df_t fieldK):
+        """Compute the sum over all wavenumbers."""
         return <float> self.thisptr.sum_wavenumbers(&fieldK[0, 0])
 
     def gather_Xspace(self, view2df_t ff_loc, root=None):
