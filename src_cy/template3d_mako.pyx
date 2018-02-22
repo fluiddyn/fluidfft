@@ -223,7 +223,7 @@ cdef class ${class_name}:
         """Get the "sequential" indices of the first number in Fourier space."""
         cdef int i0, i1
         self.thisptr.get_seq_indices_first_K(&i0, &i1)
-        return i0, i1
+        return i0, i1, 0
 
     cpdef get_seq_indices_first_X(self):
         """Get the "sequential" indices of the first number in real space."""
@@ -252,7 +252,7 @@ cdef class ${class_name}:
         nK0_loc, nK1_loc, nK2_loc = self.get_shapeK_loc()
 
         d0, d1, d2 = self.get_dimX_K()
-        i0_start, i1_start = self.get_seq_indices_first_K()
+        i0_start, i1_start, i2_start = self.get_seq_indices_first_K()
 
         k0_adim = compute_k_adim_seq(nK0, d0)
         k0_adim_loc = k0_adim[i0_start:i0_start+nK0_loc]
@@ -276,7 +276,8 @@ cdef class ${class_name}:
         if tuple(o2d.shapeX_seq) != tuple(o2d.shapeX_loc):
             raise ValueError('2d fft is with distributed memory...')
 
-        ind0seq_first, ind1seq_first = self.get_seq_indices_first_K()
+        ind0seq_first, ind1seq_first, ind2seq_first = \
+            self.get_seq_indices_first_K()
 
         if (nX1loc, nX2loc) == o2d.shapeX_loc:
             arr3d_loc_2dslice = arr2d

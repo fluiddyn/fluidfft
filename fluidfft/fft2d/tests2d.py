@@ -14,7 +14,7 @@ from fluidfft.fft2d.operators import OperatorsPseudoSpectral2D
 # to check that at least this class can be imported
 import fluidfft.fft2d.with_fftw1d
 
-n = 32
+n = 24
 
 rank = mpi.rank
 nb_proc = mpi.nb_proc
@@ -32,7 +32,7 @@ if nb_proc > 1:
 def make_test_function(cls):
 
     def test(self):
-        o = cls(n, n)
+        o = cls(n, 2*n)
         o.run_tests()
 
         a = np.random.random(o.get_local_size_X()).reshape(
@@ -78,14 +78,27 @@ def make_testop_functions(name, cls):
             # print('energy', nrja)
             energy_fft = 0.5 * abs(afft)**2
 
+            try:
+                nrj_versatile = op.sum_wavenumbers_versatile(energy_fft)
+            except NotImplementedError:
+                pass
+            else:
+                self.assertAlmostEqual(nrj_versatile, nrj)
+            
             E_kx, E_ky = op.compute_1dspectra(energy_fft)
-
             self.assertAlmostEqual(E_kx.sum()*op.deltakx,
                                    E_ky.sum()*op.deltaky)
 
             E_kh = op.compute_2dspectrum(energy_fft)
-
             self.assertAlmostEqual(nrja, E_kh.sum()*op.deltakh)
+
+            try:
+                E_ky_kx = op.compute_spectrum_kykx(energy_fft)
+            except NotImplementedError:
+                pass
+            else:
+                self.assertAlmostEqual(
+                    E_ky_kx.sum()*op.deltakx*op.deltaky, nrja)
 
             nrj_sw = op.sum_wavenumbers(energy_fft)
             self.assertAlmostEqual(nrja, nrj_sw)

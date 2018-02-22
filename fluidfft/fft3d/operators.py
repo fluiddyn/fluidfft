@@ -164,12 +164,12 @@ class OperatorsPseudoSpectral3D(object):
         self.K2 = K0**2 + K1**2 + K2**2
         self.K8 = self.K2**4
 
-        self.seq_index_firstK0, self.seq_index_firstK1 = \
-            op_fft.get_seq_indices_first_K()
+        self.seq_indices_first_K = op_fft.get_seq_indices_first_K()
+        # self.seq_indices_first_X = op_fft.get_seq_indices_first_X()
 
         self.K_square_nozero = self.K2.copy()
 
-        if self.seq_index_firstK0 == 0 and self.seq_index_firstK1 == 0:
+        if all(index == 0 for index in self.seq_indices_first_K):
             self.K_square_nozero[0, 0, 0] = 1e-14
 
         self.coef_dealiasing = coef_dealiasing
@@ -234,6 +234,16 @@ class OperatorsPseudoSpectral3D(object):
         """Return a random array in real space."""
         shapeX = self._get_shapeX(shape)
         return np.random.random(shapeX)
+
+    def sum_wavenumbers_versatile(self, field_fft):
+        """Compute the sum over all wavenumbers (versatile version).
+
+        This function should return the same result than
+        :func:`sum_wavenumbers`.
+
+        It is here mainly to check that the classes are well implemented.
+        """
+        raise NotImplementedError
 
     def project_perpk3d(self, vx_fft, vy_fft, vz_fft):
         """Project (inplace) a vector perpendicular to the wavevector.
@@ -366,7 +376,7 @@ class OperatorsPseudoSpectral3D(object):
 
         """
 
-        if mpi.nb_proc > 1:
+        if self.shapeX_seq != self.shapeX_loc:
 
             all_shape_loc = np.empty((mpi.nb_proc, 3), dtype=int)
             mpi.comm.Allgather(np.array(self.shapeX_loc), all_shape_loc)
@@ -396,3 +406,45 @@ class OperatorsPseudoSpectral3D(object):
         assert X.shape == Y.shape == Z.shape == self.shapeX_loc
 
         return X, Y, Z
+
+    def compute_1dspectra(self, energy_fft):
+        """Compute the 1D spectra.
+
+        NotImplemented!
+
+        Returns
+        -------
+
+        E_kx
+
+        E_ky
+
+        E_kz
+
+        """
+        raise NotImplementedError
+
+    def compute_3dspectrum(self, energy_fft):
+        """Compute the 3D spectrum.
+
+        NotImplemented!
+
+        """
+        raise NotImplementedError
+
+    def compute_spectra_2vars(self, energy_fft):
+        """Compute spectra vs 2 variables.
+
+        NotImplemented!
+
+        Returns
+        -------
+
+        E_kx_kyz
+
+        E_ky_kzx
+
+        E_kz_kxy
+
+        """
+        raise NotImplementedError

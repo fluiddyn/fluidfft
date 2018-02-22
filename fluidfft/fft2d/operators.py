@@ -114,6 +114,9 @@ class OperatorsPseudoSpectral2D(object):
         self.spectrum2D_from_fft = self.compute_2dspectrum
         self.spectra1D_from_fft = self.compute_1dspectra
 
+        self.seq_indices_first_K = opfft.get_seq_indices_first_K()
+        self.seq_indices_first_X = opfft.get_seq_indices_first_X()
+
         self.deltax = lx/nx
         self.deltay = ly/ny
         self.x_seq = self.x = self.deltax * np.arange(nx)
@@ -253,6 +256,16 @@ class OperatorsPseudoSpectral2D(object):
     def sum_wavenumbers(self, field_fft):
         """Compute the sum over all wavenumbers."""
         return self.opfft.sum_wavenumbers(np.ascontiguousarray(field_fft))
+
+    def sum_wavenumbers_versatile(self, field_fft):
+        """Compute the sum over all wavenumbers (versatile version).
+
+        This function should return the same result than
+        :func:`sum_wavenumbers`.
+
+        It is here mainly to check that the classes are well implemented.
+        """
+        raise NotImplementedError
 
     def produce_str_describing_grid(self):
         """Produce a short string describing the grid."""
@@ -394,7 +407,7 @@ class OperatorsPseudoSpectral2D(object):
         return E_kx, E_ky
 
     def compute_2dspectrum(self, E_fft):
-        """Compute the 2D spectra. Return a dictionary."""
+        """Compute the 2D spectrum."""
 
         KK = self.KK
 
@@ -440,6 +453,10 @@ class OperatorsPseudoSpectral2D(object):
         if not self.is_sequential:
             spectrum2D = self.comm.allreduce(spectrum2D, op=mpi.MPI.SUM)
         return spectrum2D/deltakh
+
+    def compute_spectrum_kykx(self, energy_fft):
+        """Compute a spectrum vs ky, kx. Return a dictionary."""
+        raise NotImplementedError
 
     def projection_perp(self, fx_fft, fy_fft):
         """Project (inplace) a vector perpendicular to the wavevector.

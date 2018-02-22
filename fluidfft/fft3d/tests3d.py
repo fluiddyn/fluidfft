@@ -40,14 +40,14 @@ def make_test_function(cls, sequential=False):
 def make_testop_functions(name, cls):
 
     tests = {}
-    shapes = {'even': (4, 4, 4)}
+    shapes = {'even': (4, 8, 12)}
     if nb_proc == 1:
-        shapes['odd'] = (5, 3, 3)
+        shapes['odd'] = (5, 3, 7)
 
     for key, (n0, n1, n2) in shapes.items():
 
         def test(self, n0=n0, n1=n1, n2=n2):
-            op = OperatorsPseudoSpectral3D(n0, n1, n2,
+            op = OperatorsPseudoSpectral3D(n2, n1, n0,
                                            3*pi, 1*pi, 2*pi, fft=cls)
             op_fft = op._op_fft
 
@@ -66,13 +66,37 @@ def make_testop_functions(name, cls):
             nrj = op.sum_wavenumbers(energy_fft)
             self.assertAlmostEqual(nrjafft, nrj)
 
-            # not implemented...
-            # E_kx, E_ky, E_kz = op.compute_1dspectra(energy_fft)
-            # self.assertAlmostEqual(E_kx.sum()*op.deltakx,
-            #                        E_ky.sum()*op.deltaky)
+            try:
+                nrj_versatile = op.sum_wavenumbers_versatile(energy_fft)
+            except NotImplementedError:
+                pass
+            else:
+                self.assertAlmostEqual(nrj_versatile, nrj)
 
-            # E_kh = op.compute_2dspectrum(energy_fft)
-            # self.assertAlmostEqual(nrja, E_kh.sum()*op.deltakh)
+            try:
+                E_kx, E_ky, E_kz = op.compute_1dspectra(energy_fft)
+            except NotImplementedError:
+                pass
+            else:
+                self.assertAlmostEqual(E_kx.sum()*op.deltakx,
+                                       E_ky.sum()*op.deltaky)
+
+            try:
+                E_k = op.compute_3dspectrum(energy_fft)
+            except NotImplementedError:
+                pass
+            else:
+                self.assertAlmostEqual(nrja, E_k.sum()*op.deltak)
+
+            try:
+                E_kx_kyz, E_ky_kzx, E_kz_kxy = op.compute_spectra_2vars(
+                    energy_fft)
+            except NotImplementedError:
+                pass
+            else:
+                self.assertAlmostEqual(E_kx_kyz.sum()*op.deltakx,
+                                       E_ky_kzx.sum()*op.deltaky)
+                self.assertAlmostEqual(E_kz_kxy.sum()*op.deltakz, nrja)
 
             op.produce_str_describing_grid()
             op.produce_str_describing_oper()
@@ -82,8 +106,19 @@ def make_testop_functions(name, cls):
             op.constant_arrayX(value=0.)
 
             op.project_perpk3d(afft, afft, afft)
+            op.divfft_from_vecfft(afft, afft, afft)
             op.vgradv_from_v(a, a, a)
             op.vgradv_from_v2(a, a, a)
+            op.div_vv_fft_from_v(a, a, a)
+            op.div_vb_fft_from_vb(a, a, a, a)
+            try:
+                X, Y, Z = op.get_XYZ_loc()
+            except NotImplementedError:
+                pass
+            else: 
+                self.assertEqual(X.shape, op.shapeX_loc)
+                self.assertEqual(Y.shape, op.shapeX_loc)
+                self.assertEqual(Z.shape, op.shapeX_loc)
 
         tests[key] = test
 
