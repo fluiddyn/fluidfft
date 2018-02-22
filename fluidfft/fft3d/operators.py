@@ -20,7 +20,8 @@ from fluiddyn.calcul.easypyfft import FFTW3DReal2Complex
 from fluidfft import create_fft_object
 from fluidfft.fft2d.operators import _make_str_length
 
-from .util_pythran import project_perpk3d, divfft_from_vecfft
+from .util_pythran import (
+    project_perpk3d, divfft_from_vecfft, rotfft_from_vecfft, vector_product)
 
 from .dream_pythran import _vgradv_from_v2
 
@@ -185,6 +186,8 @@ class OperatorsPseudoSpectral3D(object):
 
         self.rank = mpi.rank
 
+        self.tmp_fields_fft = tuple(self.constant_arrayK() for n in range(6))
+
     def produce_str_describing_grid(self):
         """Produce a short string describing the grid."""
         return '{}x{}x{}'.format(self.nx_seq, self.ny_seq, self.nz_seq)
@@ -219,6 +222,14 @@ class OperatorsPseudoSpectral3D(object):
         else:
             raise ValueError('shape should be "loc" or "seq"')
 
+    def _get_shapeK(self, shape='loc'):
+        if shape.lower() == 'loc':
+            return self.shapeK_loc
+        elif shape.lower() == 'seq':
+            return self.shapeK_seq
+        else:
+            raise ValueError('shape should be "loc" or "seq"')
+
     def constant_arrayX(self, value=None, shape='loc'):
         """Return a constant array in real space."""
         shapeX = self._get_shapeX(shape)
@@ -228,6 +239,17 @@ class OperatorsPseudoSpectral3D(object):
             field = np.zeros(shapeX)
         else:
             field = value*np.ones(shapeX)
+        return field
+
+    def constant_arrayK(self, value=None, shape='loc'):
+        """Return a constant array in real space."""
+        shapeK = self._get_shapeK(shape)
+        if value is None:
+            field = np.empty(shapeK, dtype=np.complex128)
+        elif value == 0:
+            field = np.zeros(shapeK, dtype=np.complex128)
+        else:
+            field = value*np.ones(shapeK, dtype=np.complex128)
         return field
 
     def random_arrayX(self, shape='loc'):
@@ -263,21 +285,48 @@ class OperatorsPseudoSpectral3D(object):
 
         return divfft_from_vecfft(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz)
 
+    def rotfft_from_vecfft(self, vx_fft, vy_fft, vz_fft):
+        """Return the curl of a vector in spectral space."""
+        # float64[][][]
+        Kx = self.Kx
+        Ky = self.Ky
+        Kz = self.Kz
+
+        return rotfft_from_vecfft(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz)
+    
     def div_vv_fft_from_v(self, vx, vy, vz):
         r"""Compute :math:`\nabla \cdot (\boldsymbol{v} \boldsymbol{v})` in
         spectral space.
 
         """
         # function(float64[][][]) -> complex128[][][]
-        fft3d = self.fft3d
+        # fft3d = self.fft3d
 
-        vxvxfft = fft3d(vx*vx)
-        vyvyfft = fft3d(vy*vy)
-        vzvzfft = fft3d(vz*vz)
+        # vxvxfft = fft3d(vx*vx)
+        # vyvyfft = fft3d(vy*vy)
+        # vzvzfft = fft3d(vz*vz)
 
-        vxvyfft = vyvxfft = fft3d(vx*vy)
-        vxvzfft = vzvxfft = fft3d(vx*vz)
-        vyvzfft = vzvyfft = fft3d(vy*vz)
+        # vxvyfft = vyvxfft = fft3d(vx*vy)
+        # vxvzfft = vzvxfft = fft3d(vx*vz)
+        # vyvzfft = vzvyfft = fft3d(vy*vz)
+
+        vxvxfft = self.tmp_fields_fft[0]
+        vyvyfft = self.tmp_fields_fft[1]
+        vzvzfft = self.tmp_fields_fft[2]
+
+        vxvyfft = vyvxfft = self.tmp_fields_fft[3]
+        vxvzfft = vzvxfft = self.tmp_fields_fft[4]
+        vyvzfft = vzvyfft = self.tmp_fields_fft[5]
+
+        fft_as_arg = self.fft_as_arg
+
+        fft_as_arg(vx*vx, vxvxfft)
+        fft_as_arg(vy*vy, vyvyfft)
+        fft_as_arg(vz*vz, vzvzfft)
+
+        fft_as_arg(vx*vy, vxvyfft)
+        fft_as_arg(vx*vz, vxvzfft)
+        fft_as_arg(vy*vz, vyvzfft)
 
         # float64[][][]
         Kx = self.Kx
