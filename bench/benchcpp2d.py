@@ -5,16 +5,12 @@ from fluiddyn.util import mpi
 
 from fluidfft.fft2d import get_classes_seq, get_classes_mpi
 
-
 rank = mpi.rank
 nb_proc = mpi.nb_proc
 
 print_old = print
 
-
-def print(*args, **kwargs):
-    if mpi.rank == 0:
-        print_old(*args, **kwargs)
+print = mpi.printby0
 
 
 if __name__ == '__main__':

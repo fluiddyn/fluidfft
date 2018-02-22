@@ -10,10 +10,7 @@ nb_proc = mpi.nb_proc
 
 print_old = print
 
-
-def print(*args, **kwargs):
-    if mpi.rank == 0:
-        print_old(*args, **kwargs)
+print = mpi.printby0
 
 
 if __name__ == '__main__':
@@ -25,6 +22,7 @@ if __name__ == '__main__':
             return
         o = FFT(n, n, n)
         o.run_tests()
+        o.run_benchs()
         o.run_benchs()
 
     if nb_proc == 1 and rank == 0:

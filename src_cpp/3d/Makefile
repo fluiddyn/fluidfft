@@ -1,12 +1,12 @@
 SINGLE_PREC:=no
 OMP:=no
 CUDA:=no
-PFFT:=yes
-P3DFFT:=yes
+PFFT:=no
+P3DFFT:=no
 
 LD:=mpic++
 CC:=mpic++
-FLAGS:= -g -O0 -Wall
+FLAGS:= -g -O3 -Wall
 LDFLAGS:=
 LIBS:= -ldl -lhwloc -lm -lgfortran
 
