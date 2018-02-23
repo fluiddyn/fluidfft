@@ -34,9 +34,7 @@ def make_test_function(cls):
     def test(self):
         o = cls(n, 2*n)
         o.run_tests()
-
-        a = np.random.random(o.get_local_size_X()).reshape(
-            o.get_shapeX_loc())
+        a = np.random.rand(*o.get_shapeX_loc())
         afft = o.fft(a)
         a = o.ifft(afft)
         afft = o.fft(a)
@@ -44,7 +42,8 @@ def make_test_function(cls):
         EX = o.compute_energy_from_X(a)
         EK = o.compute_energy_from_K(afft)
 
-        self.assertTrue(EX == EK and EX != 0.)
+        self.assertTrue(EX != 0.)
+        self.assertAlmostEqual(EX, EK)
 
         k0, k1 = o.get_k_adim_loc()
 
@@ -73,7 +72,7 @@ def make_testop_functions(name, cls):
 
             nrja = op.compute_energy_from_X(a)
             nrjafft = op.compute_energy_from_K(afft)
-            self.assertEqual(nrja, nrjafft)
+            self.assertAlmostEqual(nrja, nrjafft)
 
             # print('energy', nrja)
             energy_fft = 0.5 * abs(afft)**2
@@ -151,6 +150,8 @@ if rank == 0:
             'ImportError for all sequential classes. Nothing is working!')
 
     for name, cls in classes_seq.items():
+        if 'pyfftw' in name:
+            continue
         complete_class(name, cls)
 
 if nb_proc > 1:

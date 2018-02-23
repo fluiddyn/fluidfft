@@ -31,13 +31,8 @@ path_results = '/tmp/fluidfft_bench'
 rank = mpi.rank
 nb_proc = mpi.nb_proc
 
-
 print_old = print
-
-
-def print(*args, **kwargs):
-    if mpi.rank == 0:
-        print_old(*args, **kwargs)
+print = mpi.printby0
 
 
 def _format_times(times):
