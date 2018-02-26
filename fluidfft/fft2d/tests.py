@@ -66,8 +66,12 @@ def make_testop_functions(name, cls):
             op = OperatorsPseudoSpectral2D(n0, n1, 3*pi, 1., fft=cls)
             a = np.random.random(op.opfft.get_local_size_X()).reshape(
                 op.opfft.get_shapeX_loc())
+            a0 = a.copy()
             afft = op.fft(a)
+            self.assertTrue(np.allclose(a, a0))
+            afft0 = afft.copy()
             a = op.ifft(afft)
+            self.assertTrue(np.allclose(afft, afft0))
             afft = op.fft(a)
 
             nrja = op.compute_energy_from_X(a)
@@ -151,6 +155,8 @@ if rank == 0:
 
     for name, cls in classes_seq.items():
         if 'pyfftw' in name:
+            # without this, we get a segfault when all the unittests are run
+            # (and not is only this unittest is run!)
             continue
         complete_class(name, cls)
 

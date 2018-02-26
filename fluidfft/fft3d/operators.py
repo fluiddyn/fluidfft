@@ -123,6 +123,12 @@ class OperatorsPseudoSpectral3D(object):
         self.ifft_as_arg = op_fft.ifft_as_arg
         self.fft_as_arg = op_fft.fft_as_arg
 
+        try:
+            # faster version which destroy the input
+            self.ifft_as_arg_destroy = op_fft.ifft_as_arg_destroy
+        except AttributeError:
+            self.ifft_as_arg_destroy = self.ifft_as_arg
+
         self.sum_wavenumbers = op_fft.sum_wavenumbers
         self.compute_energy_from_X = op_fft.compute_energy_from_X
         self.compute_energy_from_K = op_fft.compute_energy_from_K
@@ -210,7 +216,8 @@ class OperatorsPseudoSpectral3D(object):
 
         return (
             'type fft: ' + self.type_fft + '\n' +
-            'nx = {0:6d} ; ny = {1:6d}\n'.format(self.nx_seq, self.ny_seq) +
+            'nx = {0:6d} ; ny = {1:6d} ; nz = {1:6d}\n'.format(
+                self.nx_seq, self.ny_seq, self.nz_seq) +
             'Lx = ' + str_Lx + ' ; Ly = ' + str_Ly +
             ' ; Lz = ' + str_Lz + '\n')
 
