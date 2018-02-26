@@ -262,13 +262,10 @@ void FFT3DWithFFTW3D::fft(myreal *fieldX, mycomplex *fieldK)
   int ii;
   // cout << "FFT3DWithFFTW3D::fft" << endl;
 
-  /*use memcpy(void * destination, void * source, size_t bytes); */
-  memcpy(arrayX, fieldX, nX0*nX1*nX2*sizeof(myreal));
-  
 #ifdef SINGLE_PREC
-  fftwf_execute(plan_r2c);
+  fftwf_execute_dft_r2c(plan_r2c, fieldX, reinterpret_cast<mycomplex_fftw*>(arrayK));
 #else
-  fftw_execute(plan_r2c);
+  fftw_execute_dft_r2c(plan_r2c, fieldX, reinterpret_cast<mycomplex_fftw*>(arrayK));
 #endif
   
   for (ii=0; ii<nK0*nK1*nK2; ii++)
@@ -281,9 +278,8 @@ void FFT3DWithFFTW3D::ifft(mycomplex *fieldK, myreal *fieldX)
   // cout << "FFT3DWithFFTW3D::ifft" << endl;
   memcpy(arrayK, fieldK, nK0*nK1*nK2*sizeof(mycomplex));
 #ifdef SINGLE_PREC
-  fftwf_execute(plan_c2r);
+  fftwf_execute_dft_c2r(plan_c2r, reinterpret_cast<mycomplex_fftw*>(arrayK), fieldX);
 #else
-  fftw_execute(plan_c2r);
+  fftw_execute_dft_c2r(plan_c2r, reinterpret_cast<mycomplex_fftw*>(arrayK), fieldX);
 #endif
-  memcpy(fieldX, arrayX, nX0*nX1*nX2*sizeof(myreal));
 }
