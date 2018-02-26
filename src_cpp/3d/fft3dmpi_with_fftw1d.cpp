@@ -277,9 +277,9 @@ void FFT3DMPIWithFFTW1D::fft(myreal *fieldX, mycomplex *fieldK)
   int ii;
   // cout << "FFT3DMPIWithFFTW1D::fft" << endl;
   /*use memcpy(void * destination, void * source, size_t bytes); */
-  memcpy(arrayX, fieldX, nX0loc*nX1*nX2*sizeof(myreal));
+ // memcpy(arrayX, fieldX, nX0loc*nX1*nX2*sizeof(myreal));
 
-  fftw_execute(plan_r2c);
+  fftw_execute_dft_r2c(plan_r2c, fieldX, reinterpret_cast<mycomplex_fftw*>(arrayK_pR));
   fftw_execute(plan_c2c1_fwd);
 
   MPI_Alltoall(arrayK_pR, 1, MPI_type_block2,
@@ -309,8 +309,7 @@ void FFT3DMPIWithFFTW1D::ifft(mycomplex *fieldK, myreal *fieldX)
     arrayK_pR[N1*nX0loc*nKx + ii] = 0.;
 
   fftw_execute(plan_c2c1_bwd);
-  fftw_execute(plan_c2r);
-  memcpy(fieldX,arrayX, nX0loc*nX1*nX2*sizeof(myreal));
+  fftw_execute_dft_c2r(plan_c2r, reinterpret_cast<mycomplex_fftw*>(arrayK_pR), fieldX);
 }
 
 
