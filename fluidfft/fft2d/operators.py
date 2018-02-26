@@ -69,13 +69,19 @@ class OperatorsPseudoSpectral2D(object):
     coef_dealiasing : float
 
     """
-    def __init__(self, nx, ny, lx, ly, fft='fft2d.with_fftw2d',
+    def __init__(self, nx, ny, lx, ly, fft=None,
                  coef_dealiasing=1.):
 
         self.nx_seq = self.nx = nx = int(nx)
         self.ny_seq = self.ny = ny = int(ny)
         self.lx = lx = float(lx)
         self.ly = ly = float(ly)
+
+        if fft is None:
+            if mpi.nb_proc == 1:
+                fft = 'fft2d.with_pyfftw'
+            else:
+                fft = 'fft2d.mpi_with_fftw2d'
 
         if isinstance(fft, basestring):
             if fft.lower() == 'sequential':
@@ -349,7 +355,7 @@ class OperatorsPseudoSpectral2D(object):
                self.nx_seq % 2 == 0 and self.shapeK_seq[0] == self.nkxE:
                 E_kx_loc[-1] = E_kx_loc[-1]/2
 
-            E_kx = np.empty(self.nkxE)
+            E_kx = np.zeros(self.nkxE)
             counts = self.comm.allgather(self.nkx_loc)
             self.comm.Allgatherv(sendbuf=[E_kx_loc, MPI.DOUBLE],
                                  recvbuf=[E_kx, (counts, None), MPI.DOUBLE])

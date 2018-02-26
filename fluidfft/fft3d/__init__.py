@@ -43,7 +43,7 @@ try:
 except ImportError:
     pass
 
-methods_seq = ['fftw3d']
+methods_seq = ['fftw3d', 'pyfftw']
 methods_seq = ['fft3d.with_' + method for method in methods_seq]
 
 methods_mpi = ['fftw1d', 'fftwmpi3d', 'p3dfft', 'pfft']

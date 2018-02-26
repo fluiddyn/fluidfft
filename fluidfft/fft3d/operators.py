@@ -76,7 +76,7 @@ class OperatorsPseudoSpectral3D(object):
 
         if fft is None:
             if mpi.nb_proc == 1:
-                fft = 'fft3d.with_fftw3d'
+                fft = 'fft3d.with_pyfftw'
             else:
                 fft = 'fft3d.mpi_with_fftw1d'
 
@@ -156,7 +156,7 @@ class OperatorsPseudoSpectral3D(object):
         K1 = np.ascontiguousarray(K1)
         K2 = np.ascontiguousarray(K2)
 
-        assert K0.shape == self.shapeK_loc
+        assert K0.shape == self.shapeK_loc, print(K0.shape, self.shapeK_loc)
 
         self.Kz = K0
         self.Ky = K1

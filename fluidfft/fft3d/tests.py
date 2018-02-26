@@ -60,7 +60,7 @@ def make_testop_functions(name, cls):
 
             nrja = op.compute_energy_from_X(a)
             nrjafft = op.compute_energy_from_K(afft)
-            self.assertEqual(nrja, nrjafft)
+            self.assertAlmostEqual(nrja, nrjafft)
 
             energy_fft = 0.5 * abs(afft)**2
             nrj = op.sum_wavenumbers(energy_fft)
