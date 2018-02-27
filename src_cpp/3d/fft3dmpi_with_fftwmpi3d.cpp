@@ -307,6 +307,24 @@ void FFT3DMPIWithFFTWMPI3D::ifft(mycomplex *fieldK, myreal *fieldX)
         fieldX[i2 + (i1 + i0*nX1)*nX2] = arrayX[i2 + (i1 + i0*nX1)*nX2_pad];
 }
 
+void FFT3DMPIWithFFTWMPI3D::ifft_destroy(mycomplex *fieldK, myreal *fieldX)
+{
+  int i0, i1, i2;
+  // todo: we are allowed to destroy the input here! No copy!
+  memcpy(arrayK, fieldK, alloc_local*sizeof(mycomplex));
+#ifdef SINGLE_PREC
+  fftwf_execute(plan_c2r);
+#else
+  fftw_execute(plan_c2r);
+#endif
+
+  for (i0=0; i0<nX0loc; i0++)
+    for (i1=0; i1<nX1; i1++)
+      for (i2=0; i2<nX2; i2++)
+        fieldX[i2 + (i1 + i0*nX1)*nX2] = arrayX[i2 + (i1 + i0*nX1)*nX2_pad];
+}
+
+
 
 void FFT3DMPIWithFFTWMPI3D::get_dimX_K(int *d0, int *d1, int *d2)
 {

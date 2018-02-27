@@ -281,3 +281,12 @@ void FFT3DWithFFTW3D::ifft(mycomplex *fieldK, myreal *fieldX)
   fftw_execute_dft_c2r(plan_c2r, reinterpret_cast<mycomplex_fftw*>(arrayK), fieldX);
 #endif
 }
+
+void FFT3DWithFFTW3D::ifft_destroy(mycomplex *fieldK, myreal *fieldX)
+{
+#ifdef SINGLE_PREC
+  fftwf_execute_dft_c2r(plan_c2r, reinterpret_cast<mycomplex_fftw*>(fieldK), fieldX);
+#else
+  fftw_execute_dft_c2r(plan_c2r, reinterpret_cast<mycomplex_fftw*>(fieldK), fieldX);
+#endif
+}

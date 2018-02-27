@@ -309,6 +309,16 @@ void FFT3DMPIWithP3DFFT::ifft(mycomplex *fieldK, myreal *fieldX)
   memcpy(fieldX, arrayX, nX0loc*nX1loc*nX2loc*sizeof(myreal)); 
 }
 
+void FFT3DMPIWithP3DFFT::ifft_destroy(mycomplex *fieldK, myreal *fieldX)
+{
+  unsigned char op_b[]="tff";
+  // todo: we are allowed to destroy the input here! No copy!
+  memcpy(arrayK, fieldK, nK0loc*nK1loc*nK2loc*sizeof(mycomplex));
+  Cp3dfft_btran_c2r(arrayK, arrayX, op_b);
+  memcpy(fieldX, arrayX, nX0loc*nX1loc*nX2loc*sizeof(myreal)); 
+}
+
+
 bool FFT3DMPIWithP3DFFT::are_parameters_bad()
 {
   calcul_nprocmesh(rank, nb_proc, nprocmesh);

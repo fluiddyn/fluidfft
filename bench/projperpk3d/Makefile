@@ -1,7 +1,5 @@
 
-proj_setup=proj_setup.cpython-36m-x86_64-linux-gnu.so
-
-all: proj_default.so proj_native.so proj_omp.so $(proj_setup) proj1_default.so proj2_default.so
+all: proj_default.so proj_native.so proj_omp.so proj1_default.so proj2_default.so
 
 proj_default.so: proj.py
 	pythran -v proj.py -o proj_default.so
@@ -18,15 +16,15 @@ proj_native.so: proj.py
 proj_omp.so: proj.py
 	pythran -v proj.py -march=native -fopenmp -o proj_omp.so
 
-$(proj_setup): proj.py setup.py
-	python setup.py build_ext --inplace
-
-clean:
+clean: cleanfortran
 	rm -f *.so
+
+cleanfortran:
+	rm -f bench_proj_fortran.out
 
 code = 'func(arr_c, arr_c, arr_c, arr, arr, arr, arr)'
 
-perf: perfpython perfpythran perffft
+perf: perfpython perfnative
 
 perfnative:
 	python -m perf timeit -s \
@@ -44,10 +42,6 @@ perfdefault2:
 	python -m perf timeit -s \
 	  'from bench import proj2_default as func, arr_c, arr' $(code)
 
-perfsetup:
-	python -m perf timeit -s \
-	  'from bench import proj_setup as func, arr_c, arr' $(code)
-
 perfomp:
 	python -m perf timeit -s \
 	  'from bench import proj_omp as func, arr_c, arr' $(code)
@@ -55,10 +49,12 @@ perfomp:
 	  'from bench import proj_omp as func, arr_c, arr' $(code) \
 	  --inherit-environ=OMP_NUM_THREADS
 
-perffft:
-	python -m perf timeit -s \
-	  'from bench import proj_fft as func, arr_c, arr' $(code)
-
 perfpython:
 	python -m perf timeit -s \
 	  'from bench import proj_py as func, arr_c, arr' $(code)
+
+perffortran: bench_proj_fortran.out
+	./bench_proj_fortran.out
+
+bench_proj_fortran.out: bench_proj_fortran.f90
+	gfortran bench_proj_fortran.f90 -O3 -o bench_proj_fortran.out

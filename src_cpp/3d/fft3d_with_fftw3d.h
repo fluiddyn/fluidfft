@@ -12,6 +12,7 @@ class FFT3DWithFFTW3D: public BaseFFT3D
 
   void fft(myreal *fieldX, mycomplex *fieldK);
   void ifft(mycomplex *fieldK, myreal *fieldX);
+  void ifft_destroy(mycomplex *fieldK, myreal *fieldX);
   
   myreal compute_energy_from_K(mycomplex* fieldK);
   myreal compute_mean_from_K(mycomplex* fieldK);

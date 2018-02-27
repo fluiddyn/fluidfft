@@ -11,9 +11,9 @@
 def project_perpk3d(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, inv_K_square_nozero):
     tmp = (Kx * vx_fft + Ky * vy_fft + Kz * vz_fft) * inv_K_square_nozero
 
-    return (vx_fft - Kx * tmp,
-            vy_fft - Ky * tmp,
-            vz_fft - Kz * tmp)
+    vx_fft -= Kx * tmp
+    vy_fft -= Ky * tmp
+    vz_fft -= Kz * tmp
 
 
 # pythran export divfft_from_vecfft(

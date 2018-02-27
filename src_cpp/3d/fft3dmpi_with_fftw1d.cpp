@@ -311,6 +311,25 @@ void FFT3DMPIWithFFTW1D::ifft(mycomplex *fieldK, myreal *fieldX)
   fftw_execute_dft_c2r(plan_c2r, reinterpret_cast<mycomplex_fftw*>(arrayK_pR), fieldX);
 }
 
+void FFT3DMPIWithFFTW1D::ifft_destroy(mycomplex *fieldK, myreal *fieldX)
+{
+  int ii;
+  // todo: we are allowed to destroy the input here! No copy!
+  memcpy(arrayK_pC, fieldK, nKxloc*nKy*nKz*sizeof(mycomplex));
+  fftw_execute(plan_c2c_bwd);
+
+  MPI_Alltoall(arrayK_pC, 1, MPI_type_block,
+	       arrayK_pR, 1, MPI_type_block2,
+	       MPI_COMM_WORLD);
+  
+  /*These modes (nx/2+1=N1/2+1) have to be settled to zero*/
+  for (ii = 0; ii < N1*nX0loc; ++ii) 
+    arrayK_pR[N1*nX0loc*nKx + ii] = 0.;
+
+  fftw_execute(plan_c2c1_bwd);
+  fftw_execute_dft_c2r(plan_c2r, reinterpret_cast<mycomplex_fftw*>(arrayK_pR), fieldX);
+}
+
 
 void FFT3DMPIWithFFTW1D::get_dimX_K(int *d0, int *d1, int *d2)
 {

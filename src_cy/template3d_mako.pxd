@@ -28,6 +28,7 @@ cdef extern from "${module_name}.h":
 
         void fft(double* fieldX, mycomplex* fieldK)
         void ifft(mycomplex* fieldK, double* fieldX)
+        void ifft_destroy(mycomplex* fieldK, double* fieldX)
 
         double sum_wavenumbers_double(double* fieldK)
         void sum_wavenumbers_complex(mycomplex* fieldK, mycomplex* result)

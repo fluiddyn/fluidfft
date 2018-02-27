@@ -3,13 +3,9 @@ import numpy as np
 
 from proj_native import proj as proj_native
 from proj_default import proj as proj_default
-from proj1_default import proj as proj1_default
-from proj2_default import proj as proj2_default
 from proj_omp import proj as proj_omp
 
 from proj import proj as proj_py
-
-from proj_setup import proj as proj_setup
 
 from fluidfft.fft3d.util_pythran import project_perpk3d as proj_fft
 

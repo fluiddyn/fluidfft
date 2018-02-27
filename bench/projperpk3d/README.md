@@ -48,4 +48,5 @@ dtherm ida arat pln pts
 
 ## No effect of -DUSE_BOOST_SIMD
 
-## Slow compared to Fortran (not demonstrated here)
+
+## Slow compared to Fortran (Mean Time = 19.320 ms)

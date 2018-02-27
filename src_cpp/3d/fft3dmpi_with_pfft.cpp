@@ -401,6 +401,18 @@ void FFT3DMPIWithPFFT::ifft(mycomplex *fieldK, myreal *fieldX)
   memcpy(fieldX, arrayX, nX0loc*nX1loc*nX2*sizeof(myreal));
 }
 
+ void FFT3DMPIWithPFFT::ifft_destroy(mycomplex *fieldK, myreal *fieldX)
+{
+  // todo: we are allowed to destroy the input here! No copy!
+  memcpy(arrayK, fieldK, nK0loc*nK1loc*nK2*sizeof(mycomplex));
+#ifdef SINGLE_PREC
+  pfftf_execute(plan_c2r);
+#else
+  pfft_execute(plan_c2r);
+#endif
+  memcpy(fieldX, arrayX, nX0loc*nX1loc*nX2*sizeof(myreal));
+}
+
 
 void FFT3DMPIWithPFFT::get_dimX_K(int *d0, int *d1, int *d2)
 {

@@ -107,6 +107,10 @@ cdef class ${class_name}:
     cpdef fft_as_arg(self, view3df_t fieldX,
                      view3dc_t fieldK):
         """Perform FFT and put result in second argument."""
+
+        # if not (is_byte_aligned(fieldX) and is_byte_aligned(fieldK)):
+        #     raise ValueError('Requires aligned array.')
+        
         self.thisptr.fft(&fieldX[0, 0, 0], <mycomplex*> &fieldK[0, 0, 0])
 
     @cython.boundscheck(False)
@@ -116,6 +120,15 @@ cdef class ${class_name}:
                       view3df_t fieldX):
         """Perform iFFT and put result in second argument."""
         self.thisptr.ifft(<mycomplex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
+
+    @cython.boundscheck(False)
+    @cython.wraparound(False)
+    # @cython.initializedcheck(False)
+    cpdef ifft_as_arg_destroy(self, view3dc_t fieldK,
+                              view3df_t fieldX):
+        """Perform iFFT and put result in second argument."""
+        self.thisptr.ifft_destroy(
+            <mycomplex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
