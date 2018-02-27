@@ -54,8 +54,12 @@ def make_testop_functions(name, cls):
             a = np.random.random(
                 op_fft.get_local_size_X()).reshape(
                     op_fft.get_shapeX_loc())
+            a0 = a.copy()
             afft = op.fft3d(a)
+            self.assertTrue(np.allclose(a, a0))
+            afft0 = afft.copy()
             a = op.ifft3d(afft)
+            self.assertTrue(np.allclose(afft, afft0))
             afft = op.fft3d(a)
 
             nrja = op.compute_energy_from_X(a)

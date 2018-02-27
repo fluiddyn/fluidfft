@@ -123,6 +123,12 @@ class OperatorsPseudoSpectral3D(object):
         self.ifft_as_arg = op_fft.ifft_as_arg
         self.fft_as_arg = op_fft.fft_as_arg
 
+        try:
+            # faster version which destroy the input
+            self.ifft_as_arg_destroy = op_fft.ifft_as_arg_destroy
+        except AttributeError:
+            self.ifft_as_arg_destroy = self.ifft_as_arg
+
         self.sum_wavenumbers = op_fft.sum_wavenumbers
         self.compute_energy_from_X = op_fft.compute_energy_from_X
         self.compute_energy_from_K = op_fft.compute_energy_from_K
@@ -168,10 +174,12 @@ class OperatorsPseudoSpectral3D(object):
         self.seq_indices_first_K = op_fft.get_seq_indices_first_K()
         # self.seq_indices_first_X = op_fft.get_seq_indices_first_X()
 
-        self.K_square_nozero = self.K2.copy()
+        K_square_nozero = self.K2.copy()
 
         if all(index == 0 for index in self.seq_indices_first_K):
-            self.K_square_nozero[0, 0, 0] = 1e-14
+            K_square_nozero[0, 0, 0] = 1e-14
+
+        self.inv_K_square_nozero = 1./K_square_nozero
 
         self.coef_dealiasing = coef_dealiasing
 
@@ -210,7 +218,8 @@ class OperatorsPseudoSpectral3D(object):
 
         return (
             'type fft: ' + self.type_fft + '\n' +
-            'nx = {0:6d} ; ny = {1:6d}\n'.format(self.nx_seq, self.ny_seq) +
+            'nx = {0:6d} ; ny = {1:6d} ; nz = {1:6d}\n'.format(
+                self.nx_seq, self.ny_seq, self.nz_seq) +
             'Lx = ' + str_Lx + ' ; Ly = ' + str_Ly +
             ' ; Lz = ' + str_Lz + '\n')
 
@@ -274,7 +283,7 @@ class OperatorsPseudoSpectral3D(object):
 
         """
         project_perpk3d(vx_fft, vy_fft, vz_fft, self.Kx, self.Ky, self.Kz,
-                        self.K_square_nozero)
+                        self.inv_K_square_nozero)
 
     def divfft_from_vecfft(self, vx_fft, vy_fft, vz_fft):
         """Return the divergence of a vector in spectral space."""

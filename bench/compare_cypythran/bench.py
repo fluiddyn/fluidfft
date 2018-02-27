@@ -1,63 +1,87 @@
 """
-In ipython:
+In ipython
+----------
 
-run bench.py
+Python 3.6.4 | packaged by conda-forge | (default, Dec 23 2017, 16:31:06) 
+Type 'copyright', 'credits' or 'license' for more information
+IPython 6.2.1 -- An enhanced Interactive Python. Type '?' for help.
 
-# then (copy past the 4 lines):
+In [1]: run bench.py
 
-%timeit gradfft_from_fft_py(f_fft, KX, KY)         # python
-%timeit gradfft_from_fft(f_fft, KX, KY)            # pythran
-# cython with @cython.boundscheck(False) @cython.wraparound(False)
-%timeit gradfft_from_fft_nocheck_cy(f_fft, KX, KY)
-# cython without @cython.boundscheck(False) @cython.wraparound(False)
-%timeit gradfft_from_fft_check_cy(f_fft, KX, KY)
+In [2]: %timeit grad_omp(f_fft, KX, KY)
+9.15 ms ± 70 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
 
-which gives
+In [3]: %timeit grad_simd(f_fft, KX, KY)
+8.91 ms ± 250 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
 
-10 loops, best of 3: 17 ms per loop
-100 loops, best of 3: 14.8 ms per loop
-100 loops, best of 3: 9.52 ms per loop
-100 loops, best of 3: 15 ms per loop
+In [4]: %timeit grad_py(f_fft, KX, KY)
+15.3 ms ± 54.2 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
 
-With perf::
+In [5]: %timeit grad_pythran(f_fft, KX, KY)
+8.75 ms ± 28.9 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+
+In [6]: %timeit grad_cy_nocheck(f_fft, KX, KY)
+8.89 ms ± 257 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+
+With perf
+---------
+
+Compile::
+
+  make
+
+Launch benchmarking::
 
   make perf
 
 which gives:
 
 # python
-python -m perf timeit -s 'from bench import gradfft_from_fft_py as g, f_fft, KX, KY' 'g(f_fft, KX, KY)'
+python -m perf timeit -s \
+  'from bench import grad_py as g, f_fft, KX, KY' 'g(f_fft, KX, KY)'
 .....................
-Mean +- std dev: 17.1 ms +- 0.4 ms
-# pythran
-python -m perf timeit -s 'from bench import gradfft_from_fft as g, f_fft, KX, KY' 'g(f_fft, KX, KY)'
-.....................
-Mean +- std dev: 15.0 ms +- 0.7 ms
+Mean +- std dev: 15.0 ms +- 0.3 ms
 # cython with @cython.boundscheck(False) @cython.wraparound(False)
-python -m perf timeit -s 'from bench import gradfft_from_fft_nocheck_cy as g, f_fft, KX, KY' 'g(f_fft, KX, KY)'
+python -m perf timeit -s \
+  'from bench import grad_cy_nocheck as g, f_fft, KX, KY' 'g(f_fft, KX, KY)'
 .....................
-Mean +- std dev: 9.46 ms +- 0.37 ms
-# cython without @cython.boundscheck(False) @cython.wraparound(False)
-python -m perf timeit -s 'from bench import gradfft_from_fft_check_cy as g, f_fft, KX, KY' 'g(f_fft, KX, KY)'
+Mean +- std dev: 8.76 ms +- 0.32 ms
+# pythran
+python -m perf timeit -s \
+  'from bench import grad_pythran as g, f_fft, KX, KY' 'g(f_fft, KX, KY)'
 .....................
-Mean +- std dev: 15.0 ms +- 0.8 ms
+Mean +- std dev: 8.69 ms +- 0.20 ms
+# SIMD
+python -m perf timeit -s \
+  'from bench import grad_simd as g, f_fft, KX, KY' 'g(f_fft, KX, KY)'
+.....................
+Mean +- std dev: 8.91 ms +- 0.53 ms
+# OpenMP
+python -m perf timeit -s \
+  'from bench import grad_omp as g, f_fft, KX, KY' 'g(f_fft, KX, KY)'
+.....................
+Mean +- std dev: 9.12 ms +- 0.33 ms
 
 """
 from runpy import run_path
 
 import numpy as np
 
-import grad_pythran
-from grad_pythran import gradfft_from_fft
+import grad_pythran as mod_pythran
+
+from grad_pythran import gradfft_from_fft as grad_pythran
+
+from grad_simd import gradfft_from_fft as grad_simd
+from grad_omp import gradfft_from_fft as grad_omp
 
 from grad_cy import (
-    gradfft_from_fft_nocheck as gradfft_from_fft_nocheck_cy,
-    gradfft_from_fft_check as gradfft_from_fft_check_cy)
+    gradfft_from_fft_nocheck as grad_cy_nocheck,
+    gradfft_from_fft_check as grad_cy_check)
 
 d = run_path('grad_pythran.py')
-gradfft_from_fft_py = d['gradfft_from_fft']
+grad_py = d['gradfft_from_fft']
 
-assert hasattr(grad_pythran, '__pythran__')
+assert hasattr(mod_pythran, '__pythran__')
 
 n = 1000
 shape = n, n
@@ -69,7 +93,9 @@ KY = np.ones(shape, dtype=np.float64)
 
 if __name__ == '__main__':
 
-    gradfft_from_fft_py(f_fft, KX, KY)
-    gradfft_from_fft(f_fft, KX, KY)
-    gradfft_from_fft_nocheck_cy(f_fft, KX, KY)
-    gradfft_from_fft_check_cy(f_fft, KX, KY)
+    grad_py(f_fft, KX, KY)
+    grad_cy_nocheck(f_fft, KX, KY)
+    grad_cy_check(f_fft, KX, KY)
+    grad_pythran(f_fft, KX, KY)
+    grad_simd(f_fft, KX, KY)
+    grad_omp(f_fft, KX, KY)

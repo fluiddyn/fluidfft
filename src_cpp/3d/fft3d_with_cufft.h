@@ -34,7 +34,6 @@ class FFT3DWithCUFFT: public BaseFFT3D
   myreal sum_wavenumbers_double(myreal* fieldK);
 
  private:
-  myreal coef_norm;
 
   int mem_size;//equivalent à la taille de arrayK?
   int mem_sizer;//equivalent à la taille de arrayK?

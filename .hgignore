@@ -65,6 +65,8 @@ bench/OAR_*
 bench/launcher_*
 bench/SLURM*
 
+bench/compare_projperpk3d/proj.cpp
+
 doc/ipynb/.ipynb_checkpoints
 doc/ipynb/executed/.ipynb_checkpoints
 doc/ipynb/**.rst

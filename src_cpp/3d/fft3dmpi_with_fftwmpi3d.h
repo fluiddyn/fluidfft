@@ -25,7 +25,6 @@ class FFT3DMPIWithFFTWMPI3D: public BaseFFT3DMPI
   
  private:
   int nX1_pad;
-  myreal coef_norm;
   myreal *arrayX;
   mycomplex *arrayK;
   myfftw_plan plan_r2c, plan_c2r;

@@ -27,7 +27,6 @@ class FFT2DMPIWithFFTWMPI2D: public BaseFFT2DMPI
 
  private:
   int nX1_pad;
-  myreal coef_norm;
   myfftw_plan plan_r2c, plan_c2r;
   myreal *arrayX;
   mycomplex *arrayK;

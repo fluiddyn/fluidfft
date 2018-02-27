@@ -1,14 +1,10 @@
 
-
-# pythran export project_perpk3d(
-#     float64[][][], float64[][][], float64[][][],
-#     float64[][][], float64[][][], float64[][][], float64[][][])
-
-# pythran export project_perpk3d(
+# pythran export proj(
 #     complex128[][][], complex128[][][], complex128[][][],
 #     float64[][][], float64[][][], float64[][][], float64[][][])
 
-def project_perpk3d(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, inv_K_square_nozero):
+
+def proj(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, inv_K_square_nozero):
     tmp = (Kx * vx_fft + Ky * vy_fft + Kz * vz_fft) * inv_K_square_nozero
 
     return (vx_fft - Kx * tmp,

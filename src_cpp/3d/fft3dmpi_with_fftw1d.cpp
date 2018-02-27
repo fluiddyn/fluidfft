@@ -47,7 +47,6 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2):
   nK1loc = N1;
   nK2 = N0;
   nK2loc = N0;
-//  coef_norm = N0*N1*N2;
 
   local_X0_start = rank * nX0loc;
   local_K0_start = rank * nK0loc;
@@ -289,7 +288,7 @@ void FFT3DMPIWithFFTW1D::fft(myreal *fieldX, mycomplex *fieldK)
   fftw_execute(plan_c2c_fwd);
 
   for (ii=0; ii<nKxloc*nKy*nKz; ii++)
-    fieldK[ii]  = arrayK_pC[ii]/coef_norm;
+    fieldK[ii]  = arrayK_pC[ii]*inv_coef_norm;
 }
 
 

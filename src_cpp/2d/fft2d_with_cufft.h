@@ -32,7 +32,6 @@ class FFT2DWithCUFFT: public BaseFFT2D
 
  private:
   int nX1loc, nK1loc, nXxloc, nXyloc, nXx, nXy, nKyloc;
-  myreal coef_norm;
 
   int mem_size;//equivalent à la taille de arrayK?
   int mem_sizer;//equivalent à la taille de arrayK?

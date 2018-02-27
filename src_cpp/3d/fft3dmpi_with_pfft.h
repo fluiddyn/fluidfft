@@ -25,7 +25,6 @@ class FFT3DMPIWithPFFT: public BaseFFT3DMPI
   virtual void get_seq_indices_first_K(int*, int*);
 
  private:
-  myreal coef_norm;
 #ifdef SINGLE_PREC
   pfftf_plan plan_r2c, plan_c2r;
 #else
