@@ -9,12 +9,13 @@ double precision, allocatable :: vx_fft(:,:,:,:), vy_fft(:,:,:,:), vz_fft(:,:,:,
 double precision, allocatable :: Kx(:,:,:), Ky(:,:,:), Kz(:,:,:)
 double precision, allocatable :: inv_K_square_nozero(:,:,:)
 double precision, allocatable :: res(:,:,:,:,:)
-real :: start, finish
+real :: start, finish, cumtime
 integer :: i
 
 allocate(vx_fft(2, N2, N1, N0), vy_fft(2, N2, N1, N0), vz_fft(2, N2, N1, N0))
 allocate(Kx(N2, N1, N0), Ky(N2, N1, N0), Kz(N2, N1, N0))
 allocate(inv_K_square_nozero(N2, N1, N0),res(2, 3, N2, N1, N0))
+
 call random_number(vx_fft)
 call random_number(vy_fft)
 call random_number(vz_fft)
@@ -23,15 +24,16 @@ call random_number(Ky)
 call random_number(Kz)
 call random_number(inv_K_square_nozero)
 
-
+cumtime = 0
 
 print*, "This program make some calculations."
-call cpu_time(start)
 do i = 1, N
+ call cpu_time(start)
  call proj(res, vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, inv_K_square_nozero, N0, N1, N2)
+ call cpu_time(finish)
+ cumtime = cumtime + finish - start
 enddo
-call cpu_time(finish)
-print '("Time = ",f6.3," seconds.")',finish-start
+print '("Mean Time = ",f6.3," ms")',1000*cumtime/N
 
 
 
@@ -54,9 +56,11 @@ subroutine proj(res, vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, inv_K_square_nozero, N0
    double precision, intent(out) :: res(2, 3, N2, N1, N0)
 
 !  Locals
-   double precision :: tmp(2, N2, N1, N0)
+   double precision, allocatable :: tmp(:, :, :, :)
    integer:: i, j, k
 
+
+   allocate(tmp(2, N2, N1, N0))
    call calc_tmp(tmp, vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, inv_K_square_nozero, N0, N1, N2)
    do k = 1, N0
     do j = 1, N1
@@ -67,7 +71,7 @@ subroutine proj(res, vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, inv_K_square_nozero, N0
      enddo
     enddo
    enddo
-
+   deallocate(tmp)
 
  contains
    subroutine calc_tmp(tmp, vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, inv_K_square_nozero, N0, N1, N2)
