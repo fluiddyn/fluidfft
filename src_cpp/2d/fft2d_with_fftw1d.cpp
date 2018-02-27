@@ -42,8 +42,6 @@ FFT2DWithFFTW1D::FFT2DWithFFTW1D(int argN0, int argN1):
   nK0loc = nK0;
   nK1 = nKy;
 
-  coef_norm = N0*N1;
-
   flags = FFTW_MEASURE;
 /*    flags = FFTW_ESTIMATE;*/
 /*    flags = FFTW_PATIENT;*/
@@ -189,7 +187,7 @@ myreal FFT2DWithFFTW1D::compute_energy_from_X(myreal* fieldX)
   for (ii=0; ii<nX0loc * nX1; ii++)
     energy += pow(fieldX[ii], 2);
 
-  return energy / 2 /coef_norm;
+  return energy / 2 * inv_coef_norm;
 }
 
 myreal FFT2DWithFFTW1D::compute_energy_from_K(mycomplex* fieldK)
@@ -243,7 +241,7 @@ myreal FFT2DWithFFTW1D::compute_mean_from_X(myreal* fieldX)
   for (ii=0; ii<nX0loc*nX1; ii++)
     mean += fieldX[ii];
 
-  return mean / coef_norm;
+  return mean * inv_coef_norm;
 }
 myreal FFT2DWithFFTW1D::compute_mean_from_K(mycomplex* fieldK)
 {
@@ -272,7 +270,7 @@ void FFT2DWithFFTW1D::fft(myreal *fieldX, mycomplex *fieldK)
 #endif
 
   for (ii=0; ii<nKxloc*nKy; ii++)
-    fieldK[ii]  = arrayK_pC[ii]/coef_norm;
+    fieldK[ii]  = arrayK_pC[ii] * inv_coef_norm;
   
 }
 void FFT2DWithFFTW1D::ifft(mycomplex *fieldK, myreal *fieldX)

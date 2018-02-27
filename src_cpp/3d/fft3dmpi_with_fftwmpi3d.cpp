@@ -78,8 +78,6 @@ FFT3DMPIWithFFTWMPI3D::FFT3DMPIWithFFTWMPI3D(int argN0, int argN1, int argN2):
   nK1loc = nK1;
   nK2loc = nK2;
 
-  coef_norm = N0*N1*N2;
-
   flags = FFTW_MEASURE;
 /*    flags = FFTW_ESTIMATE;*/
 /*    flags = FFTW_PATIENT;*/
@@ -289,7 +287,7 @@ void FFT3DMPIWithFFTWMPI3D::fft(myreal *fieldX, mycomplex *fieldK)
     for (i1=0; i1<nK1; i1++)
       for (i2=0; i2<nK2; i2++)
 	fieldK[i2 + (i1 + i0*nK1)*nK2]  =
-	  arrayK[i2 + (i1 + i0*nK1)*nK2]/coef_norm;
+	  arrayK[i2 + (i1 + i0*nK1)*nK2]*inv_coef_norm;
 }
 
 void FFT3DMPIWithFFTWMPI3D::ifft(mycomplex *fieldK, myreal *fieldX)

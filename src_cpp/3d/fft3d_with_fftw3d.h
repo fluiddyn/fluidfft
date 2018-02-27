@@ -21,7 +21,6 @@ class FFT3DWithFFTW3D: public BaseFFT3D
   myreal sum_wavenumbers_double(myreal* fieldK);
   
  private:
-  myreal coef_norm;
   myreal *arrayX;
 
   myfftw_plan plan_r2c, plan_c2r;

@@ -22,7 +22,6 @@ class FFT2DMPIWithFFTW1D: public BaseFFT2DMPI
   myreal compute_mean_from_K(mycomplex* fieldK);
 
  private:
-  myreal coef_norm;
   fftw_plan plan_r2c, plan_c2c_fwd, plan_c2r, plan_c2c_bwd;
   myreal *arrayX;
   mycomplex *arrayK_pR, *arrayK_pC;

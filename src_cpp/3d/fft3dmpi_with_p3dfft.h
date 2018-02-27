@@ -25,7 +25,6 @@ class FFT3DMPIWithP3DFFT: public BaseFFT3DMPI
   myreal sum_wavenumbers_double(myreal* fieldK);
   
  private:
-  myreal coef_norm;
   myreal *arrayX;
   myreal *arrayK;
   ptrdiff_t alloc_local;

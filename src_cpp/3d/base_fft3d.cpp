@@ -18,7 +18,9 @@ void BaseFFT3D::_init()
   BaseFFT::_init();
   if (rank == 0)
     cout << "N0 = " << N0 << " ; N1 = " << N1 << " ; N2 = " << N2 << endl;
-  coef_norm = N0 * N1 * N2;
+  inv_coef_norm = 1./N0;
+  inv_coef_norm = inv_coef_norm/N1;
+  inv_coef_norm = inv_coef_norm/N2;  
 }
 
 

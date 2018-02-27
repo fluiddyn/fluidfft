@@ -26,6 +26,8 @@ class BaseFFT2D: virtual public BaseFFT
 
   char is_transposed;
   ptrdiff_t local_X0_start, local_K0_start;
+
+  myreal inv_coef_norm;
 };
 
 #endif

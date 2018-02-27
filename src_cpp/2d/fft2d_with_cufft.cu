@@ -61,8 +61,6 @@ FFT2DWithCUFFT::FFT2DWithCUFFT(int argN0, int argN1):
   nK1 = nKx;
   nK1loc = nK1;
   
-  coef_norm = N0*N1;
-
 
   mem_sizer = sizeof(myreal) * N0 * N1 ;//taille de arrayX
   int new_size = nK0 * nK1 ;
@@ -241,7 +239,7 @@ void FFT2DWithCUFFT::fft(myreal *fieldX, mycomplex *fieldK)
 
   
   // Launch the Vector Norm CUDA Kernel
-  myreal norm = 1./coef_norm;
+  myreal norm = inv_coef_norm;
   //  printf("CUDA kernel launch with %d blocks of %d threads\n", blocksPerGrid, threadsPerBlock);
   int threadsPerBlock = 256;
   int blocksPerGrid =(nK0 * nK1 + threadsPerBlock - 1) / threadsPerBlock;

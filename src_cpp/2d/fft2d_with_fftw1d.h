@@ -19,7 +19,6 @@ class FFT2DWithFFTW1D: public BaseFFT2D
   myreal compute_mean_from_X(myreal* fieldX);
 
  private:
-  myreal coef_norm;
   myreal *arrayX;
   mycomplex *arrayK_pR, *arrayK_pC;
   myfftw_plan plan_r2c, plan_c2c_fwd, plan_c2r, plan_c2c_bwd;

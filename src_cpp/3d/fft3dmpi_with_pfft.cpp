@@ -134,8 +134,6 @@ FFT3DMPIWithPFFT::FFT3DMPIWithPFFT(int argN0, int argN1, int argN2):
 
   if (local_o_start[0] != 0)
     cout << "Warning: local_o_start[0] != 0" << endl;
-  
-  coef_norm = N0*N1*N2;
 
   flags = PFFT_MEASURE;
 /*    flags = PFFT_ESTIMATE;*/
@@ -387,7 +385,7 @@ void FFT3DMPIWithPFFT::fft(myreal *fieldX, mycomplex *fieldK)
     for (i1=0; i1<nK1loc; i1++)
       for (i2=0; i2<nK2; i2++)
 	fieldK[i2 + (i1 + i0*nK1loc)*nK2]  =
-	  arrayK[i2 + (i1 + i0*nK1loc)*nK2]/coef_norm;
+	  arrayK[i2 + (i1 + i0*nK1loc)*nK2]*inv_coef_norm;
 }
 
 

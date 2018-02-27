@@ -12,6 +12,8 @@ BaseFFT2D::BaseFFT2D(int argN0, int argN1)
   is_transposed = 0;
   local_X0_start = 0;
   local_K0_start = 0;
+  inv_coef_norm = 1./N0;
+  inv_coef_norm = inv_coef_norm/N1;
 }
 
 

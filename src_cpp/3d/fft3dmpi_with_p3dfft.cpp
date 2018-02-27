@@ -92,8 +92,6 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   // Warning: order as in X space!
   local_K0_start = fstart[0];
   local_K1_start = fstart[1];
-  
-  coef_norm = N0*N1*N2;
 
   gettimeofday(&end_time, NULL);
 
@@ -292,14 +290,13 @@ void FFT3DMPIWithP3DFFT::fft(myreal *fieldX, mycomplex *fieldK)
   int i0;
   unsigned char op_f[]="fft";
   //cout << "FFT3DMPIWithP3DFFT::fft" << endl;
-  myreal coef_normdiv = 1./coef_norm;
 
   memcpy(arrayX, fieldX, nX0loc*nX1loc*nX2loc*sizeof(myreal));
   Cp3dfft_ftran_r2c(arrayX, arrayK, op_f);
   memcpy(fieldK, arrayK, nK0loc*nK1loc*nK2loc*sizeof(mycomplex));
 
   for (i0=0; i0<nK0loc*nK1loc*nK2loc; i0++)
-    fieldK[i0] *= coef_normdiv;
+    fieldK[i0] *= inv_coef_norm;
 }
 
 void FFT3DMPIWithP3DFFT::ifft(mycomplex *fieldK, myreal *fieldX)

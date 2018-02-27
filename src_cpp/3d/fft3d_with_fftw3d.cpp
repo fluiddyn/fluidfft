@@ -41,8 +41,6 @@ FFT3DWithFFTW3D::FFT3DWithFFTW3D(int argN0, int argN1, int argN2):
   nK2 = nKx;
   nK2loc = nK2;
   
-  coef_norm = N0*N1*N2;
-
   flags = FFTW_MEASURE;
 /*    flags = FFTW_ESTIMATE;*/
 /*    flags = FFTW_PATIENT;*/
@@ -269,7 +267,7 @@ void FFT3DWithFFTW3D::fft(myreal *fieldX, mycomplex *fieldK)
 #endif
   
   for (ii=0; ii<nK0*nK1*nK2; ii++)
-    fieldK[ii]  = arrayK[ii]/coef_norm;
+    fieldK[ii]  = arrayK[ii]*inv_coef_norm;
 }
 
 

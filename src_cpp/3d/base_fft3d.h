@@ -32,8 +32,8 @@ class BaseFFT3D: virtual public BaseFFT
   int nXx, nXy, nXz;
   int nXxloc, nXyloc, nXzloc;
   int nX1loc, nX2loc, nX3loc;
-  myreal coef_norm;
-  
+  myreal inv_coef_norm;
+
 };
 
 #endif

@@ -36,8 +36,6 @@ FFT2DMPIWithFFTW1D::FFT2DMPIWithFFTW1D(int argN0, int argN1):
   nK0loc = nK0/nb_proc;
   nK1 = N0;
 
-  coef_norm = N0*N1;
-
   local_X0_start = rank * nX0loc;
   local_K0_start = rank * nK0loc;
 
@@ -173,7 +171,7 @@ myreal FFT2DMPIWithFFTW1D::compute_energy_from_X(myreal* fieldX)
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return energy / 2 /coef_norm;
+  return energy / 2 * inv_coef_norm;
 }
 
 
@@ -246,7 +244,7 @@ myreal FFT2DMPIWithFFTW1D::compute_mean_from_X(myreal* fieldX)
 
   MPI_Allreduce(&local_mean, &mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return mean / coef_norm;
+  return mean * inv_coef_norm;
 }
 
 
@@ -278,7 +276,7 @@ void FFT2DMPIWithFFTW1D::fft(myreal *fieldX, mycomplex *fieldK)
   fftw_execute(plan_c2c_fwd);
 
   for (ii=0; ii<nKxloc*nKy; ii++)
-    fieldK[ii]  = arrayK_pC[ii]/coef_norm;
+    fieldK[ii]  = arrayK_pC[ii] * inv_coef_norm;
 }
 
 

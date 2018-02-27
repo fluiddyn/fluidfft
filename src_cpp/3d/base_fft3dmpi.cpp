@@ -61,7 +61,7 @@ myreal BaseFFT3DMPI::compute_mean_from_X(myreal* fieldX)
 
   MPI_Allreduce(&local_mean, &mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return mean / coef_norm;
+  return mean * inv_coef_norm;
 }
 
 
@@ -86,7 +86,5 @@ myreal BaseFFT3DMPI::compute_energy_from_X(myreal* fieldX)
     energy_loc += (double) pow(fieldX[ii], 2);
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
-  return (myreal) energy / 2 /coef_norm;
+  return (myreal) energy / 2 * inv_coef_norm;
 }
-
-
