@@ -1,4 +1,6 @@
 
+import numpy as np
+
 
 # pythran export project_perpk3d(
 #     float64[][][], float64[][][], float64[][][],
@@ -9,11 +11,29 @@
 #     float64[][][], float64[][][], float64[][][], float64[][][])
 
 def project_perpk3d(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, inv_K_square_nozero):
-    tmp = (Kx * vx_fft + Ky * vy_fft + Kz * vz_fft) * inv_K_square_nozero
+    # tmp = (Kx * vx_fft + Ky * vy_fft + Kz * vz_fft) * inv_K_square_nozero
 
-    vx_fft -= Kx * tmp
-    vy_fft -= Ky * tmp
-    vz_fft -= Kz * tmp
+    # vx_fft -= Kx * tmp
+    # vy_fft -= Ky * tmp
+    # vz_fft -= Kz * tmp
+
+    n0, n1, n2 = vx_fft.shape
+
+    for i0 in range(n0):
+        for i1 in range(n1):
+            for i2 in range(n2):
+                kx = Kx[i0, i1, i2]
+                ky = Ky[i0, i1, i2]
+                kz = Kz[i0, i1, i2]
+
+                tmp = (kx * vx_fft[i0, i1, i2] +
+                       ky * vy_fft[i0, i1, i2] +
+                       kz * vz_fft[i0, i1, i2]) * \
+                    inv_K_square_nozero[i0, i1, i2]
+
+                vx_fft[i0, i1, i2] -= kx * tmp
+                vy_fft[i0, i1, i2] -= ky * tmp
+                vz_fft[i0, i1, i2] -= kz * tmp
 
 
 # pythran export divfft_from_vecfft(
@@ -29,11 +49,33 @@ def divfft_from_vecfft(vx_fft, vy_fft, vz_fft, kx, ky, kz):
 #     complex128[][][], complex128[][][], complex128[][][],
 #     float64[][][], float64[][][], float64[][][])
 
-def rotfft_from_vecfft(vx_fft, vy_fft, vz_fft, kx, ky, kz):
+def rotfft_from_vecfft(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz):
     """Compute the curl of a vector (in spectral space)"""
-    return (1j * (ky * vz_fft + kz * vy_fft),
-            1j * (kz * vx_fft + kx * vz_fft),
-            1j * (kx * vy_fft + ky * vx_fft))
+    # return (1j * (Ky * vz_fft - Kz * vy_fft),
+    #         1j * (Kz * vx_fft - Kx * vz_fft),
+    #         1j * (Kx * vy_fft - Ky * vx_fft))
+
+    rotxfft = np.empty_like(vx_fft)
+    rotyfft = np.empty_like(vx_fft)
+    rotzfft = np.empty_like(vx_fft)
+
+    n0, n1, n2 = vx_fft.shape
+
+    for i0 in range(n0):
+        for i1 in range(n1):
+            for i2 in range(n2):
+                kx = Kx[i0, i1, i2]
+                ky = Ky[i0, i1, i2]
+                kz = Kz[i0, i1, i2]
+                vx = vx_fft[i0, i1, i2]
+                vy = vy_fft[i0, i1, i2]
+                vz = vz_fft[i0, i1, i2]
+
+                rotxfft[i0, i1, i2] = 1j * (ky * vz - kz * vy)
+                rotyfft[i0, i1, i2] = 1j * (kz * vx - kx * vz)
+                rotzfft[i0, i1, i2] = 1j * (kx * vy - ky * vx)
+
+    return rotxfft, rotyfft, rotzfft
 
 
 # pythran export vector_product(
@@ -41,6 +83,25 @@ def rotfft_from_vecfft(vx_fft, vy_fft, vz_fft, kx, ky, kz):
 #     float64[][][], float64[][][], float64[][][])
 
 def vector_product(ax, ay, az, bx, by, bz):
-    return (ay * bz - az * by,
-            az * bx - ax * bz,
-            ax * by - ay * bx)
+    """Compute the vector product.
+
+    Warning: the arrays bx, by, bz are overwritten.
+
+    """
+    n0, n1, n2 = ax.shape
+
+    for i0 in range(n0):
+        for i1 in range(n1):
+            for i2 in range(n2):
+                elem_ax = ax[i0, i1, i2]
+                elem_ay = ay[i0, i1, i2]
+                elem_az = az[i0, i1, i2]
+                elem_bx = bx[i0, i1, i2]
+                elem_by = by[i0, i1, i2]
+                elem_bz = bz[i0, i1, i2]
+
+                bx[i0, i1, i2] = elem_ay * elem_bz - elem_az * elem_by
+                by[i0, i1, i2] = elem_az * elem_bx - elem_ax * elem_bz
+                bz[i0, i1, i2] = elem_ax * elem_by - elem_ay * elem_bx
+
+    return bx, by, bz

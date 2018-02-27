@@ -16,32 +16,33 @@ clean: cleanfortran
 cleanfortran:
 	rm -f bench_proj_fortran.out
 
-code = 'func(arr_c, arr_c, arr_c, arr, arr, arr, arr)'
+code = 'func(c0, c1, c2, a0, a1, a2, a3)'
+end=as func, c0, c1, c2, a0, a1, a2, a3
 
 perf: perfpython perfnative
 
 perfnative:
 	python -m perf timeit -s \
-	  'from bench import proj_native as func, arr_c, arr' $(code)
+	  'from bench import proj_native $(end)' $(code)
 
 perfdefault:
 	python -m perf timeit -s \
-	  'from bench import proj_default as func, arr_c, arr' $(code)
+	  'from bench import proj_default $(end)' $(code)
 
 perffft:
 	python -m perf timeit -s \
-	  'from bench import proj_fft as func, arr_c, arr' $(code)
+	  'from bench import proj_fft $(end)' $(code)
 
 perfomp:
 	python -m perf timeit -s \
-	  'from bench import proj_omp as func, arr_c, arr' $(code)
+	  'from bench import proj_omp $(end)' $(code)
 	OMP_NUM_THREADS=1 python -m perf timeit -s \
-	  'from bench import proj_omp as func, arr_c, arr' $(code) \
+	  'from bench import proj_omp $(end)' $(code) \
 	  --inherit-environ=OMP_NUM_THREADS
 
 perfpython:
 	python -m perf timeit -s \
-	  'from bench import proj_py as func, arr_c, arr' $(code)
+	  'from bench import proj_py $(end)' $(code)
 
 perffortran: bench_proj_fortran.out
 	./bench_proj_fortran.out
