@@ -174,10 +174,12 @@ class OperatorsPseudoSpectral3D(object):
         self.seq_indices_first_K = op_fft.get_seq_indices_first_K()
         # self.seq_indices_first_X = op_fft.get_seq_indices_first_X()
 
-        self.K_square_nozero = self.K2.copy()
+        K_square_nozero = self.K2.copy()
 
         if all(index == 0 for index in self.seq_indices_first_K):
-            self.K_square_nozero[0, 0, 0] = 1e-14
+            K_square_nozero[0, 0, 0] = 1e-14
+
+        self.inv_K_square_nozero = 1./K_square_nozero
 
         self.coef_dealiasing = coef_dealiasing
 
@@ -281,7 +283,7 @@ class OperatorsPseudoSpectral3D(object):
 
         """
         project_perpk3d(vx_fft, vy_fft, vz_fft, self.Kx, self.Ky, self.Kz,
-                        self.K_square_nozero)
+                        self.inv_K_square_nozero)
 
     def divfft_from_vecfft(self, vx_fft, vy_fft, vz_fft):
         """Return the divergence of a vector in spectral space."""
