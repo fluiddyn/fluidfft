@@ -5,6 +5,8 @@ complex_hook = True
 
 """
 
+import numpy as np
+
 
 # pythran export dealiasing_variable(complex128[][], uint8[][], int, int)
 
@@ -46,8 +48,22 @@ def vecfft_from_divfft(div_fft, KX_over_K2, KY_over_K2):
 
 def gradfft_from_fft(f_fft, KX, KY):
     """Return the gradient of f_fft in spectral space."""
-    px_f_fft = 1j * KX * f_fft
-    py_f_fft = 1j * KY * f_fft
+    # px_f_fft = 1j * KX * f_fft
+    # py_f_fft = 1j * KY * f_fft
+    # return px_f_fft, py_f_fft
+
+    # very small speedup with this version...
+    px_f_fft = np.empty_like(f_fft)
+    py_f_fft = np.empty_like(f_fft)
+
+    n0, n1 = f_fft.shape
+
+    for i0 in range(n0):
+        for i1 in range(n1):
+            field = f_fft[i0, i1]
+            px_f_fft[i0, i1] = 1j * KX[i0, i1] * field
+            py_f_fft[i0, i1] = 1j * KY[i0, i1] * field
+
     return px_f_fft, py_f_fft
 
 

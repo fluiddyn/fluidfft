@@ -348,18 +348,18 @@ class OperatorsPseudoSpectral3D(object):
     #             divfft_from_vecfft(vxvyfft, vyvyfft, vzvyfft, Kx, Ky, Kz),
     #             divfft_from_vecfft(vxvzfft, vyvzfft, vzvzfft, Kx, Ky, Kz))
 
-    # def div_vb_fft_from_vb(self, vx, vy, vz, b):
-    #     r"""Compute :math:`\nabla \cdot (\boldsymbol{v} b)` in spectral space.
+    def div_vb_fft_from_vb(self, vx, vy, vz, b):
+        r"""Compute :math:`\nabla \cdot (\boldsymbol{v} b)` in spectral space.
 
-    #     """
-    #     fft3d = self.fft3d
+        """
+        fft3d = self.fft3d
 
-    #     vxbfft = fft3d(vx*b)
-    #     vybfft = fft3d(vy*b)
-    #     vzbfft = fft3d(vz*b)
+        vxbfft = fft3d(vx*b)
+        vybfft = fft3d(vy*b)
+        vzbfft = fft3d(vz*b)
 
-    #     return divfft_from_vecfft(vxbfft, vybfft, vzbfft,
-    #                               self.Kx, self.Ky, self.Kz)
+        return divfft_from_vecfft(vxbfft, vybfft, vzbfft,
+                                  self.Kx, self.Ky, self.Kz)
 
     # def vgradv_from_v(self, vx, vy, vz,
     #                   vx_fft=None, vy_fft=None, vz_fft=None):
