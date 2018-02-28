@@ -105,16 +105,18 @@ def make_testop_functions(name, cls):
             op.produce_str_describing_grid()
             op.produce_str_describing_oper()
             op.produce_long_str_describing_oper()
-            op.constant_arrayX(value=None, shape='loc')
-            op.constant_arrayX(value=None, shape='seq')
-            op.constant_arrayX(value=0.)
+            op.create_arrayX(value=None, shape='loc')
+            op.create_arrayX(value=None, shape='seq')
+            op.create_arrayX(value=0.)
 
             op.project_perpk3d(afft, afft, afft)
             op.divfft_from_vecfft(afft, afft, afft)
-            op.vgradv_from_v(a, a, a)
-            op.vgradv_from_v2(a, a, a)
-            op.div_vv_fft_from_v(a, a, a)
-            op.div_vb_fft_from_vb(a, a, a, a)
+
+            # depreciated...
+            # op.vgradv_from_v(a, a, a)
+            # op.vgradv_from_v2(a, a, a)
+            # op.div_vv_fft_from_v(a, a, a)
+            # op.div_vb_fft_from_vb(a, a, a, a)
             try:
                 X, Y, Z = op.get_XYZ_loc()
             except NotImplementedError:

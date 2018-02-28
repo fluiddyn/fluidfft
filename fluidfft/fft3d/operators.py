@@ -14,6 +14,8 @@ from math import pi
 
 import numpy as np
 
+from pyfftw import empty_aligned, byte_align
+
 from fluiddyn.util import mpi
 from fluiddyn.calcul.easypyfft import FFTW3DReal2Complex
 
@@ -194,7 +196,7 @@ class OperatorsPseudoSpectral3D(object):
 
         self.rank = mpi.rank
 
-        self.tmp_fields_fft = tuple(self.constant_arrayK() for n in range(6))
+        # self.tmp_fields_fft = tuple(self.create_arrayK() for n in range(6))
 
     def produce_str_describing_grid(self):
         """Produce a short string describing the grid."""
@@ -239,32 +241,32 @@ class OperatorsPseudoSpectral3D(object):
         else:
             raise ValueError('shape should be "loc" or "seq"')
 
-    def constant_arrayX(self, value=None, shape='loc'):
+    def create_arrayX(self, value=None, shape='loc'):
         """Return a constant array in real space."""
         shapeX = self._get_shapeX(shape)
-        if value is None:
-            field = np.empty(shapeX)
-        elif value == 0:
-            field = np.zeros(shapeX)
-        else:
-            field = value*np.ones(shapeX)
+        field = empty_aligned(shapeX)
+        if value is not None:
+            field.fill(value)
         return field
 
-    def constant_arrayK(self, value=None, shape='loc'):
+    def create_arrayK(self, value=None, shape='loc'):
         """Return a constant array in real space."""
         shapeK = self._get_shapeK(shape)
-        if value is None:
-            field = np.empty(shapeK, dtype=np.complex128)
-        elif value == 0:
-            field = np.zeros(shapeK, dtype=np.complex128)
-        else:
-            field = value*np.ones(shapeK, dtype=np.complex128)
+        field = empty_aligned(shapeK, dtype=np.complex128)
+        if value is not None:
+            field.fill(value)
         return field
 
-    def random_arrayX(self, shape='loc'):
+    def create_arrayX_random(self, shape='loc'):
         """Return a random array in real space."""
-        shapeX = self._get_shapeX(shape)
-        return np.random.random(shapeX)
+        shape = self._get_shapeX(shape)
+        return byte_align(np.random.random(shape))
+
+    def create_arrayK_random(self, shape='loc'):
+        """Return a random array in real space."""
+        shape = self._get_shapeK(shape)
+        return byte_align(np.random.random(shape) +
+                          1j * np.random.random(shape))
 
     def sum_wavenumbers_versatile(self, field_fft):
         """Compute the sum over all wavenumbers (versatile version).
@@ -302,125 +304,125 @@ class OperatorsPseudoSpectral3D(object):
         Kz = self.Kz
 
         return rotfft_from_vecfft(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz)
-    
-    def div_vv_fft_from_v(self, vx, vy, vz):
-        r"""Compute :math:`\nabla \cdot (\boldsymbol{v} \boldsymbol{v})` in
-        spectral space.
 
-        """
-        # function(float64[][][]) -> complex128[][][]
-        # fft3d = self.fft3d
+    # def div_vv_fft_from_v(self, vx, vy, vz):
+    #     r"""Compute :math:`\nabla \cdot (\boldsymbol{v} \boldsymbol{v})` in
+    #     spectral space.
 
-        # vxvxfft = fft3d(vx*vx)
-        # vyvyfft = fft3d(vy*vy)
-        # vzvzfft = fft3d(vz*vz)
+    #     """
+    #     # function(float64[][][]) -> complex128[][][]
+    #     # fft3d = self.fft3d
 
-        # vxvyfft = vyvxfft = fft3d(vx*vy)
-        # vxvzfft = vzvxfft = fft3d(vx*vz)
-        # vyvzfft = vzvyfft = fft3d(vy*vz)
+    #     # vxvxfft = fft3d(vx*vx)
+    #     # vyvyfft = fft3d(vy*vy)
+    #     # vzvzfft = fft3d(vz*vz)
 
-        vxvxfft = self.tmp_fields_fft[0]
-        vyvyfft = self.tmp_fields_fft[1]
-        vzvzfft = self.tmp_fields_fft[2]
+    #     # vxvyfft = vyvxfft = fft3d(vx*vy)
+    #     # vxvzfft = vzvxfft = fft3d(vx*vz)
+    #     # vyvzfft = vzvyfft = fft3d(vy*vz)
 
-        vxvyfft = vyvxfft = self.tmp_fields_fft[3]
-        vxvzfft = vzvxfft = self.tmp_fields_fft[4]
-        vyvzfft = vzvyfft = self.tmp_fields_fft[5]
+    #     vxvxfft = self.tmp_fields_fft[0]
+    #     vyvyfft = self.tmp_fields_fft[1]
+    #     vzvzfft = self.tmp_fields_fft[2]
 
-        fft_as_arg = self.fft_as_arg
+    #     vxvyfft = vyvxfft = self.tmp_fields_fft[3]
+    #     vxvzfft = vzvxfft = self.tmp_fields_fft[4]
+    #     vyvzfft = vzvyfft = self.tmp_fields_fft[5]
 
-        fft_as_arg(vx*vx, vxvxfft)
-        fft_as_arg(vy*vy, vyvyfft)
-        fft_as_arg(vz*vz, vzvzfft)
+    #     fft_as_arg = self.fft_as_arg
 
-        fft_as_arg(vx*vy, vxvyfft)
-        fft_as_arg(vx*vz, vxvzfft)
-        fft_as_arg(vy*vz, vyvzfft)
+    #     fft_as_arg(vx*vx, vxvxfft)
+    #     fft_as_arg(vy*vy, vyvyfft)
+    #     fft_as_arg(vz*vz, vzvzfft)
 
-        # float64[][][]
-        Kx = self.Kx
-        Ky = self.Ky
-        Kz = self.Kz
+    #     fft_as_arg(vx*vy, vxvyfft)
+    #     fft_as_arg(vx*vz, vxvzfft)
+    #     fft_as_arg(vy*vz, vyvzfft)
 
-        return (divfft_from_vecfft(vxvxfft, vyvxfft, vzvxfft, Kx, Ky, Kz),
-                divfft_from_vecfft(vxvyfft, vyvyfft, vzvyfft, Kx, Ky, Kz),
-                divfft_from_vecfft(vxvzfft, vyvzfft, vzvzfft, Kx, Ky, Kz))
+    #     # float64[][][]
+    #     Kx = self.Kx
+    #     Ky = self.Ky
+    #     Kz = self.Kz
 
-    def div_vb_fft_from_vb(self, vx, vy, vz, b):
-        r"""Compute :math:`\nabla \cdot (\boldsymbol{v} b)` in spectral space.
+    #     return (divfft_from_vecfft(vxvxfft, vyvxfft, vzvxfft, Kx, Ky, Kz),
+    #             divfft_from_vecfft(vxvyfft, vyvyfft, vzvyfft, Kx, Ky, Kz),
+    #             divfft_from_vecfft(vxvzfft, vyvzfft, vzvzfft, Kx, Ky, Kz))
 
-        """
-        fft3d = self.fft3d
+    # def div_vb_fft_from_vb(self, vx, vy, vz, b):
+    #     r"""Compute :math:`\nabla \cdot (\boldsymbol{v} b)` in spectral space.
 
-        vxbfft = fft3d(vx*b)
-        vybfft = fft3d(vy*b)
-        vzbfft = fft3d(vz*b)
+    #     """
+    #     fft3d = self.fft3d
 
-        return divfft_from_vecfft(vxbfft, vybfft, vzbfft,
-                                  self.Kx, self.Ky, self.Kz)
+    #     vxbfft = fft3d(vx*b)
+    #     vybfft = fft3d(vy*b)
+    #     vzbfft = fft3d(vz*b)
 
-    def vgradv_from_v(self, vx, vy, vz,
-                      vx_fft=None, vy_fft=None, vz_fft=None):
-        r"""Compute :math:`\boldsymbol{v} \cdot \nabla \boldsymbol{v}` in
-        real space.
+    #     return divfft_from_vecfft(vxbfft, vybfft, vzbfft,
+    #                               self.Kx, self.Ky, self.Kz)
 
-        """
-        if vx_fft is None:
-            # function(float64[][][]) -> complex128[][][]
-            fft3d = self.fft3d
-            vx_fft = fft3d(vx)
-            vy_fft = fft3d(vy)
-            vz_fft = fft3d(vz)
+    # def vgradv_from_v(self, vx, vy, vz,
+    #                   vx_fft=None, vy_fft=None, vz_fft=None):
+    #     r"""Compute :math:`\boldsymbol{v} \cdot \nabla \boldsymbol{v}` in
+    #     real space.
 
-        # function(complex128[][][]) -> float64[][][]
-        ifft3d = self.ifft3d
+    #     """
+    #     if vx_fft is None:
+    #         # function(float64[][][]) -> complex128[][][]
+    #         fft3d = self.fft3d
+    #         vx_fft = fft3d(vx)
+    #         vy_fft = fft3d(vy)
+    #         vz_fft = fft3d(vz)
 
-        # float64[][][]
-        Kx = self.Kx
-        Ky = self.Ky
-        Kz = self.Kz
+    #     # function(complex128[][][]) -> float64[][][]
+    #     ifft3d = self.ifft3d
 
-        px_vx_fft = 1j * Kx * vx_fft
-        py_vx_fft = 1j * Ky * vx_fft
-        pz_vx_fft = 1j * Kz * vx_fft
+    #     # float64[][][]
+    #     Kx = self.Kx
+    #     Ky = self.Ky
+    #     Kz = self.Kz
 
-        px_vy_fft = 1j * Kx * vy_fft
-        py_vy_fft = 1j * Ky * vy_fft
-        pz_vy_fft = 1j * Kz * vy_fft
+    #     px_vx_fft = 1j * Kx * vx_fft
+    #     py_vx_fft = 1j * Ky * vx_fft
+    #     pz_vx_fft = 1j * Kz * vx_fft
 
-        px_vz_fft = 1j * Kx * vz_fft
-        py_vz_fft = 1j * Ky * vz_fft
-        pz_vz_fft = 1j * Kz * vz_fft
+    #     px_vy_fft = 1j * Kx * vy_fft
+    #     py_vy_fft = 1j * Ky * vy_fft
+    #     pz_vy_fft = 1j * Kz * vy_fft
 
-        vgradvx = (vx * ifft3d(px_vx_fft) +
-                   vy * ifft3d(py_vx_fft) +
-                   vz * ifft3d(pz_vx_fft))
+    #     px_vz_fft = 1j * Kx * vz_fft
+    #     py_vz_fft = 1j * Ky * vz_fft
+    #     pz_vz_fft = 1j * Kz * vz_fft
 
-        vgradvy = (vx * ifft3d(px_vy_fft) +
-                   vy * ifft3d(py_vy_fft) +
-                   vz * ifft3d(pz_vy_fft))
+    #     vgradvx = (vx * ifft3d(px_vx_fft) +
+    #                vy * ifft3d(py_vx_fft) +
+    #                vz * ifft3d(pz_vx_fft))
 
-        vgradvz = (vx * ifft3d(px_vz_fft) +
-                   vy * ifft3d(py_vz_fft) +
-                   vz * ifft3d(pz_vz_fft))
+    #     vgradvy = (vx * ifft3d(px_vy_fft) +
+    #                vy * ifft3d(py_vy_fft) +
+    #                vz * ifft3d(pz_vy_fft))
 
-        return vgradvx, vgradvy, vgradvz
+    #     vgradvz = (vx * ifft3d(px_vz_fft) +
+    #                vy * ifft3d(py_vz_fft) +
+    #                vz * ifft3d(pz_vz_fft))
 
-    def vgradv_from_v2(self, vx, vy, vz,
-                       vx_fft=None, vy_fft=None, vz_fft=None):
-        r"""Compute :math:`\boldsymbol{v} \cdot \nabla \boldsymbol{v}` in
-        real space.
+    #     return vgradvx, vgradvy, vgradvz
 
-        """
-        if vx_fft is None:
-            # function(float64[][][]) -> complex128[][][]
-            fft3d = self.fft3d
-            vx_fft = fft3d(vx)
-            vy_fft = fft3d(vy)
-            vz_fft = fft3d(vz)
+    # def vgradv_from_v2(self, vx, vy, vz,
+    #                    vx_fft=None, vy_fft=None, vz_fft=None):
+    #     r"""Compute :math:`\boldsymbol{v} \cdot \nabla \boldsymbol{v}` in
+    #     real space.
 
-        return _vgradv_from_v2(vx, vy, vz, vx_fft, vy_fft, vz_fft,
-                               self.Kx, self.Ky, self.Kz, self.ifft3d)
+    #     """
+    #     if vx_fft is None:
+    #         # function(float64[][][]) -> complex128[][][]
+    #         fft3d = self.fft3d
+    #         vx_fft = fft3d(vx)
+    #         vy_fft = fft3d(vy)
+    #         vz_fft = fft3d(vz)
+
+    #     return _vgradv_from_v2(vx, vy, vz, vx_fft, vy_fft, vz_fft,
+    #                            self.Kx, self.Ky, self.Kz, self.ifft3d)
 
     def rotzfft_from_vxvyfft(self, vx_fft, vy_fft):
         """Compute the z component of the curl in spectral space."""

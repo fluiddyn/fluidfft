@@ -28,7 +28,7 @@ cdef class ${class_name}:
     """
     cdef int _has_to_destroy
     cdef mycppclass* thisptr
-    cdef tuple _shape_K_loc, _shape_X_loc
+    cdef tuple _shapeK_loc, _shapeX_loc
 
     def __cinit__(self, int n0=2, int n1=2):
         self._has_to_destroy = 1
@@ -39,8 +39,8 @@ cdef class ${class_name}:
             raise
             
     def __init__(self, int n0=2, int n1=2):
-        self._shape_K_loc = self.get_shapeK_loc()
-        self._shape_X_loc = self.get_shapeX_loc()
+        self._shapeK_loc = self.get_shapeK_loc()
+        self._shapeX_loc = self.get_shapeX_loc()
 
     def __dealloc__(self):
         if self._has_to_destroy:
@@ -243,6 +243,19 @@ cdef class ${class_name}:
         else:
             raise ValueError('root should be an int')
         return ff_loc
-    
+
+    def create_arrayX(self, value=None):
+        """Return a constant array in real space."""
+        field = empty_aligned(self._shapeX_loc)
+        if value is not None:
+            field.fill(value)
+        return field
+
+    def create_arrayK(self, value=None):
+        """Return a constant array in real space."""
+        field = empty_aligned(self._shapeK_loc, dtype=np.complex128)
+        if value is not None:
+            field.fill(value)
+        return field
 
 FFTclass = ${class_name}

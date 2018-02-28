@@ -44,8 +44,8 @@ def _format_times(times):
 
 def bench_like_cpp_as_arg(obj, nb_exec=20):
 
-    fieldX = np.ones(obj.get_shapeX_loc(), dtype=float, order='C')
-    fieldK = np.empty(obj.get_shapeK_loc(), dtype=np.complex128, order='C')
+    fieldX = obj.create_arrayX(1)
+    fieldK = obj.create_arrayK()
 
     times = np.empty([nb_exec])
     gc.disable()
@@ -72,8 +72,8 @@ def bench_like_cpp_as_arg(obj, nb_exec=20):
 
 def bench_like_cpp_return(obj, nb_exec=20):
 
-    fieldX = np.ones(obj.get_shapeX_loc(), dtype=float, order='C')
-    fieldK = np.empty(obj.get_shapeK_loc(), dtype=np.complex128, order='C')
+    fieldX = obj.create_arrayX(1)
+    fieldK = obj.create_arrayK()
 
     times = np.empty([nb_exec])
     gc.disable()

@@ -361,5 +361,18 @@ cdef class ${class_name}:
         """Compute the sum over all wavenumbers."""
         raise NotImplementedError
 
-        
+    def create_arrayX(self, value=None):
+        """Return a constant array in real space."""
+        field = empty_aligned(self._shapeX_loc)
+        if value is not None:
+            field.fill(value)
+        return field
+
+    def create_arrayK(self, value=None):
+        """Return a constant array in real space."""
+        field = empty_aligned(self._shapeK_loc, dtype=np.complex128)
+        if value is not None:
+            field.fill(value)
+        return field
+
 FFTclass = ${class_name}

@@ -16,6 +16,8 @@ import warnings
 
 import numpy as np
 
+from pyfftw import empty_aligned, byte_align
+
 from fluiddyn.util import mpi
 
 from fluidfft import create_fft_object
@@ -505,6 +507,48 @@ class OperatorsPseudoSpectral2D(object):
         dealiasing_variable(f_fft, self.where_dealiased,
                             self.nK0_loc, self.nK1_loc)
 
+    def _get_shapeX(self, shape='loc'):
+        if shape.lower() == 'loc':
+            return self.shapeX_loc
+        elif shape.lower() == 'seq':
+            return self.shapeX_seq
+        else:
+            raise ValueError('shape should be "loc" or "seq"')
+
+    def _get_shapeK(self, shape='loc'):
+        if shape.lower() == 'loc':
+            return self.shapeK_loc
+        elif shape.lower() == 'seq':
+            return self.shapeK_seq
+        else:
+            raise ValueError('shape should be "loc" or "seq"')
+
+    def create_arrayX(self, value=None, shape='loc'):
+        """Return a constant array in real space."""
+        shapeX = self._get_shapeX(shape)
+        field = empty_aligned(shapeX)
+        if value is not None:
+            field.fill(value)
+        return field
+
+    def create_arrayK(self, value=None, shape='loc'):
+        """Return a constant array in real space."""
+        shapeK = self._get_shapeK(shape)
+        field = empty_aligned(shapeK, dtype=np.complex128)
+        if value is not None:
+            field.fill(value)
+        return field
+
+    def create_arrayX_random(self, shape='loc'):
+        """Return a random array in real space."""
+        shape = self._get_shapeX(shape)
+        return byte_align(np.random.random(shape))
+
+    def create_arrayK_random(self, shape='loc'):
+        """Return a random array in real space."""
+        shape = self._get_shapeK(shape)
+        return byte_align(np.random.random(shape) +
+                          1j * np.random.random(shape))
 
 if __name__ == '__main__':
     self = OperatorsPseudoSpectral2D(5, 3, 2*pi, 1*pi)
