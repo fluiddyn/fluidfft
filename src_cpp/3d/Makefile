@@ -1,6 +1,6 @@
 SINGLE_PREC:=no
 OMP:=no
-CUDA:=no
+CUDA:=yes
 PFFT:=no
 P3DFFT:=no
 
@@ -28,7 +28,7 @@ FLAGS_CU:=-m64 -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code
 LD:=nvcc
 LIBS+=-lcufft -lmpi_cxx -lmpi -lmpi_f77 $(LDEV_PATH) #-laf
 INC_DIR_CU:=-I/usr/lib/openmpi/include -I/usr/lib/openmpi/include/openmpi -I$(CPATH)
-INC_DIR+=-I/opt/cuda/NVIDIA_CUDA-6.0_Samples/common/inc/
+# INC_DIR+=-I/opt/cuda/NVIDIA_CUDA-6.0_Samples/common/inc/
 endif
 
 ifeq "$(OMP)" "yes"

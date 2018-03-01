@@ -137,10 +137,11 @@ myreal FFT2DWithCUFFT::compute_energy_from_K(mycomplex* fieldK)
   // modes i1_seq = iKx = last = nK1 - 1
   i1 = nK1 - 1;
   for (i0=0; i0<nK0; i0++)
-    energy += (double) pow(abs(fieldK[i1 + i0*nK1]), 2);//we must divide by 2 ==> after
-
+    // we must divide by 2 ==> after
+    energy += (double) pow(abs(fieldK[i1 + i0*nK1]), 2);
   if (nK1%2 != 0)
-    energy *= 0.5;//divide by 2!!!
+    // divide by 2!!!
+    energy *= 0.5;
 
   // other modes
   for (i0=0; i0<nK0; i0++)
@@ -150,7 +151,8 @@ myreal FFT2DWithCUFFT::compute_energy_from_K(mycomplex* fieldK)
   // modes i1_seq = iKx = 0
   i1 = 0;
   for (i0=0; i0<nK0; i0++)
-    energy0 += (double) pow(abs(fieldK[i0*nK1]), 2);//we must divide by 2 ==> after
+    //we must divide by 2 ==> after
+    energy0 += (double) pow(abs(fieldK[i0*nK1]), 2);
 
   energy += energy0*0.5;
 
@@ -187,7 +189,7 @@ myreal FFT2DWithCUFFT::sum_wavenumbers(myreal* fieldK)
   sum_tot += 0.5 * sum0;
 
   //cout << "sumK=" << sum<<  endl;
-  return (myreal) sum_tot;
+  return (myreal) 2*sum_tot;
 }
 
 
@@ -222,13 +224,10 @@ myreal FFT2DWithCUFFT::compute_mean_from_K(mycomplex* fieldK)
 
 void FFT2DWithCUFFT::fft(myreal *fieldX, mycomplex *fieldK)
 {
-  
-  
   // cout << "FFT2DWithCUFFT::fft" << endl;
   // Copy host memory to device
   checkCudaErrors(cudaMemcpy(datar, fieldX, mem_sizer, cudaMemcpyHostToDevice));
 
-  
   // Transform signal and kernel
   //printf("Transforming signal cufftExecD2Z\n");
 #ifdef SINGLE_PREC
@@ -237,29 +236,23 @@ void FFT2DWithCUFFT::fft(myreal *fieldX, mycomplex *fieldK)
   checkCudaErrors(cufftExecD2Z(plan, (cufftDoubleReal *)datar, (cufftDoubleComplex *)data));
 #endif
 
-  
   // Launch the Vector Norm CUDA Kernel
   myreal norm = inv_coef_norm;
   //  printf("CUDA kernel launch with %d blocks of %d threads\n", blocksPerGrid, threadsPerBlock);
   int threadsPerBlock = 256;
   int blocksPerGrid =(nK0 * nK1 + threadsPerBlock - 1) / threadsPerBlock;
   vectorNorm<<<blocksPerGrid, threadsPerBlock>>>(norm, data, nK0 * nK1 );
-  
 
   // Copy host device to memory
   checkCudaErrors(cudaMemcpy(fieldK, data, mem_size, cudaMemcpyDeviceToHost));
-
-
 }
 
 
 void FFT2DWithCUFFT::ifft(mycomplex *fieldK, myreal *fieldX)
 {
-
   //cout << "FFT2DWithCUFFT::ifft" << endl;
   // Copy host memory to device
   checkCudaErrors(cudaMemcpy(data, fieldK, mem_size, cudaMemcpyHostToDevice));
-
 
   // FFT on DEVICE
 #ifdef SINGLE_PREC
@@ -267,10 +260,8 @@ void FFT2DWithCUFFT::ifft(mycomplex *fieldK, myreal *fieldX)
 #else
   checkCudaErrors(cufftExecZ2D(plan1, (cufftDoubleComplex *)data, (cufftDoubleReal *)datar));
 #endif
-
   
   // Copy host device to memory
   checkCudaErrors(cudaMemcpy(fieldX, datar, mem_sizer, cudaMemcpyDeviceToHost));
-
 }
 

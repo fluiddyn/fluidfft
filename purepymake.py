@@ -64,6 +64,9 @@ if can_import_cython:
         default_options as cython_default_options, \
         compile_single as cython_compile
 
+if can_import_mpi4py:
+    mpicxx_compile_words = subprocess.check_output(
+        ['mpicxx', '-showme:compile']).decode().split()
 
 try:
     from concurrent.futures import ThreadPoolExecutor as Pool
@@ -240,6 +243,7 @@ def make_function_cpp_from_pyx(cpp_file, pyx_file,
 
 def make_command_obj_from_cpp(obj_file, cpp_file, include_dirs=None,
                               options=None):
+
     path_dir = os.path.split(obj_file)[0]
     if not os.path.exists(path_dir):
         os.makedirs(path_dir)
@@ -275,8 +279,14 @@ def make_command_obj_from_cpp(obj_file, cpp_file, include_dirs=None,
     command = [w for w in command.split()
                if w not in ['-g', '-DNDEBUG', '-Wstrict-prototypes']]
 
-    if can_import_mpi4py and not cpp_file.endswith('.cu'):
-        command[0] = os.getenv('MPICXX', 'mpicxx')
+    if can_import_mpi4py:
+        if cpp_file.endswith('.cu'):
+            for word in set(mpicxx_compile_words).difference(command):
+                if word == '-pthread':
+                    continue
+                command.append(word)
+        else:
+            command[0] = os.getenv('MPICXX', 'mpicxx')
 
     includepy = conf_vars['INCLUDEPY']
     includedir = os.path.split(includepy)[0]
@@ -376,7 +386,11 @@ def make_extensions(extensions,
     # cythonize .pyx files if needed
     commands = []
     for pyx_file in files['pyx']:
-        cpp_file = os.path.splitext(pyx_file)[0] + '.cpp'
+        if 'cufft' in pyx_file:
+            cpp_ext = '.cu'
+        else:
+            cpp_ext = '.cpp'
+        cpp_file = os.path.splitext(pyx_file)[0] + cpp_ext
 
         full_module_name = None
         for ext in extensions:

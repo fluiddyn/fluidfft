@@ -284,11 +284,9 @@ void FFT3DWithCUFFT::fft(myreal *fieldX, mycomplex *fieldK)
 
 void FFT3DWithCUFFT::ifft(mycomplex *fieldK, myreal *fieldX)
 {
-
   //cout << "FFT3DWithCUFFT::ifft" << endl;
   // Copy host memory to device
   checkCudaErrors(cudaMemcpy(data, fieldK, mem_size, cudaMemcpyHostToDevice));
-
 
   // FFT on DEVICE
 #ifdef SINGLE_PREC
@@ -297,10 +295,25 @@ void FFT3DWithCUFFT::ifft(mycomplex *fieldK, myreal *fieldX)
   checkCudaErrors(cufftExecZ2D(plan1, (cufftDoubleComplex *)data, (cufftDoubleReal *)datar));
 #endif
 
-  
   // Copy host device to memory
   checkCudaErrors(cudaMemcpy(fieldX, datar, mem_sizer, cudaMemcpyDeviceToHost));
+}
 
+void FFT3DWithCUFFT::ifft_destroy(mycomplex *fieldK, myreal *fieldX)
+{
+  //cout << "FFT3DWithCUFFT::ifft" << endl;
+  // Copy host memory to device
+  checkCudaErrors(cudaMemcpy(data, fieldK, mem_size, cudaMemcpyHostToDevice));
+
+  // FFT on DEVICE
+#ifdef SINGLE_PREC
+  checkCudaErrors(cufftExecC2R(plan1, (cufftComplex *)data, (cufftReal *)datar));
+#else
+  checkCudaErrors(cufftExecZ2D(plan1, (cufftDoubleComplex *)data, (cufftDoubleReal *)datar));
+#endif
+
+  // Copy host device to memory
+  checkCudaErrors(cudaMemcpy(fieldX, datar, mem_sizer, cudaMemcpyDeviceToHost));
 }
 
 

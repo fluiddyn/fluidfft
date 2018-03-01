@@ -3,8 +3,10 @@
 #include <cuda_runtime.h>
 #include <cufft.h>
 #include <base_fft2d.h>
-#include <helper_functions.h>
-#include <helper_cuda.h>
+// #include <helper_functions.h>
+// #include <helper_cuda.h>
+
+#define checkCudaErrors(x) x
 
 #ifdef SINGLE_PREC
   typedef float2 dcomplex;

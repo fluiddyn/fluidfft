@@ -128,7 +128,7 @@ def create_ext(base_name):
     elif 'p3dfft' in base_name:
         libraries.append('p3dfft')
     elif 'cufft' in base_name:
-        libraries.append(['cufft', 'mpi_cxx'])
+        libraries.extend(['cufft', 'mpi_cxx'])
 
     return Extension(
         name='fluidfft.fft' + dim + '.' + base_name,

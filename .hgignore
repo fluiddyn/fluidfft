@@ -23,10 +23,12 @@ src_cy/fft*_pxd.pxd
 fluidfft/fft2d/*.pyx
 fluidfft/fft2d/*.pxd
 fluidfft/fft2d/*.cpp
+fluidfft/fft2d/*.cu
 
 fluidfft/fft3d/*.pyx
 fluidfft/fft3d/*.pxd
 fluidfft/fft3d/*.cpp
+fluidfft/fft3d/*.cu
 
 __pycache__
 
