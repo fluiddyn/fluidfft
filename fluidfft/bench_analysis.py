@@ -1,4 +1,7 @@
+"""Load and plot benchmarks (:mod:`fluidfft.bench_analysis`)
+============================================================
 
+"""
 from glob import glob
 import json
 from copy import copy

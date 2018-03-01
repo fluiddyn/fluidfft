@@ -68,8 +68,8 @@ More
    :target: https://pypi.org/project/fluidfft/
    :alt: Latest version
 
-.. |coverage| image:: https://codecov.io/gh/fluiddyn/fluidfft/graph/badge.svg
-   :target: https://codecov.io/gh/fluiddyn/fluidfft
+.. |coverage| image:: https://codecov.io/bb/fluiddyn/fluidfft/branch/default/graph/badge.svg
+   :target: https://codecov.io/bb/fluiddyn/fluidfft
    :alt: Code coverage
 
 .. |travis| image:: https://travis-ci.org/fluiddyn/fluidfft.svg?branch=master

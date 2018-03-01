@@ -1,13 +1,23 @@
 """Efficient and easy Fast Fourier Transform for Python
 =======================================================
 
-The fft and `operators` classes are in the two subpackages
+The fft and related `operators` classes are in the two subpackages
 
 .. autosummary::
    :toctree:
 
    fft2d
    fft3d
+
+The fft classes are benchmarked are performed using ``fluidfft-bench`` and
+``fluidfft-bench-analysis`` commands. These commands are implemented in the
+following modules
+
+.. autosummary::
+   :toctree:
+
+   bench
+   bench_analysis
 
 This root module provides two helper functions to import fft classes and create
 fft objects:
