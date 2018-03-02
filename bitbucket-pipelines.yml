@@ -13,12 +13,20 @@ pipelines:
           caches:
             - pip
           script:
+            - cp site.cfg.default site.cfg
             - pip install -U tox --user
-            - tox -e py36-pythran,codecov -vv
+            - tox -e py36,codecov -vv
+      - step:
+          image: fluiddyn/python3-stable
+          caches:
+            - pip
+          script:
+            - pip install -U tox --user
+            - tox -e py36-pythran-mpi,codecov -vv
       - step:
           image: fluiddyn/python2-stable
           caches:
             - pip
           script:
             - pip install -U tox --user
-            - tox -e py27-pythran,codecov -vv
+            - tox -e py27-pythran-mpi,codecov -vv
