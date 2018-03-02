@@ -291,9 +291,7 @@ void FFT3DMPIWithP3DFFT::fft(myreal *fieldX, mycomplex *fieldK)
   unsigned char op_f[]="fft";
   //cout << "FFT3DMPIWithP3DFFT::fft" << endl;
 
-  memcpy(arrayX, fieldX, nX0loc*nX1loc*nX2loc*sizeof(myreal));
-  Cp3dfft_ftran_r2c(arrayX, arrayK, op_f);
-  memcpy(fieldK, arrayK, nK0loc*nK1loc*nK2loc*sizeof(mycomplex));
+  Cp3dfft_ftran_r2c(reinterpret_cast<myreal*>(fieldX), reinterpret_cast<myreal*>(fieldK), op_f);
 
   for (i0=0; i0<nK0loc*nK1loc*nK2loc; i0++)
     fieldK[i0] *= inv_coef_norm;
@@ -304,18 +302,13 @@ void FFT3DMPIWithP3DFFT::ifft(mycomplex *fieldK, myreal *fieldX)
   unsigned char op_b[]="tff";
   //cout << "FFT3DMPIWithP3DFFT::ifft" << endl;
 
-  memcpy(arrayK, fieldK, nK0loc*nK1loc*nK2loc*sizeof(mycomplex));
-  Cp3dfft_btran_c2r(arrayK, arrayX, op_b);
-  memcpy(fieldX, arrayX, nX0loc*nX1loc*nX2loc*sizeof(myreal)); 
+  Cp3dfft_btran_c2r(reinterpret_cast<myreal*>(fieldK), reinterpret_cast<myreal*>(fieldX), op_b);
 }
 
 void FFT3DMPIWithP3DFFT::ifft_destroy(mycomplex *fieldK, myreal *fieldX)
 {
   unsigned char op_b[]="tff";
-  // todo: we are allowed to destroy the input here! No copy!
-  memcpy(arrayK, fieldK, nK0loc*nK1loc*nK2loc*sizeof(mycomplex));
-  Cp3dfft_btran_c2r(arrayK, arrayX, op_b);
-  memcpy(fieldX, arrayX, nX0loc*nX1loc*nX2loc*sizeof(myreal)); 
+  Cp3dfft_btran_c2r(reinterpret_cast<myreal*>(fieldK), reinterpret_cast<myreal*>(fieldX), op_b);
 }
 
 
