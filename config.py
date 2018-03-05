@@ -20,7 +20,8 @@ def get_default_config():
     config = ConfigParser()
 
     use = {k: 'False' for k in sections_libs}
-    use['fftw3'] = 'True'
+    # by default we built nothing and we just use pyfftw!
+    # use['fftw3'] = 'True'
 
     for section in sections_libs:
         config.add_section(section)

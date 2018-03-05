@@ -12,7 +12,7 @@ from fluidfft.fft2d import get_classes_seq, get_classes_mpi
 from fluidfft.fft2d.operators import OperatorsPseudoSpectral2D
 
 # to check that at least this class can be imported
-import fluidfft.fft2d.with_fftw1d
+import fluidfft.fft2d.with_pyfftw
 
 n = 24
 

@@ -1,5 +1,5 @@
 
-all: proj_default.so proj_native.so proj_omp.so proj1_default.so proj2_default.so
+all: proj_default.so proj_native.so proj1_default.so proj2_default.so proj_omp.so
 
 proj_default.so: proj.py
 	pythran -v proj.py -o proj_default.so

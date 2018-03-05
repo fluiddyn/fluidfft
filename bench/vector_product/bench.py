@@ -3,19 +3,22 @@ import numpy as np
 
 from vectprod_native import vectprod as vectprod_native
 from vectprod_default import vectprod as vectprod_default
-from vectprod_omp import vectprod as vectprod_omp
 from vectprod import vectprod as vectprod_py
 
 from vectprod_native import vectprod_explicitloop as vectprod1_native
 from vectprod_default import vectprod_explicitloop as vectprod1_default
-from vectprod_omp import vectprod_explicitloop as vectprod1_omp
 from vectprod import vectprod_explicitloop as vectprod1_py
 
 from vectprod_native import vectprod_inplace as vectprod2_native
 from vectprod_default import vectprod_inplace as vectprod2_default
-from vectprod_omp import vectprod_inplace as vectprod2_omp
 from vectprod import vectprod_inplace as vectprod2_py
 
+try:
+    from vectprod_omp import vectprod as vectprod_omp
+    from vectprod_omp import vectprod_explicitloop as vectprod1_omp
+    from vectprod_omp import vectprod_inplace as vectprod2_omp
+except ImportError:
+    pass
 
 from fluidfft.fft3d.util_pythran import vector_product as vectprod_fft
 

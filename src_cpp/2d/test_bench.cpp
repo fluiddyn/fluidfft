@@ -49,20 +49,6 @@ int main(int argc, char **argv)
   
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &(nb_procs));
-  
-#ifndef SINGLE_PREC
-  FFT2DMPIWithFFTW1D s(N0, N1);
-  s.test();
-  s.bench(nt, times);
-  s.bench(nt, times);
-  s.destroy();
-#endif
-  FFT2DMPIWithFFTWMPI2D s2(N0, N1);
-  s2.test();
-  s2.bench(nt, times);
-  s2.bench(nt, times);
-  s2.destroy();
-
   if (nb_procs == 1)
     {
       FFT2DWithFFTW1D s1(N0, N1);
@@ -84,6 +70,23 @@ int main(int argc, char **argv)
        s5.bench(nt, times);
        s5.destroy();
 #endif
+    }
+  else
+    {
+  
+#ifndef SINGLE_PREC
+  FFT2DMPIWithFFTW1D s(N0, N1);
+  s.test();
+  s.bench(nt, times);
+  s.bench(nt, times);
+  s.destroy();
+#endif
+  FFT2DMPIWithFFTWMPI2D s2(N0, N1);
+  s2.test();
+  s2.bench(nt, times);
+  s2.bench(nt, times);
+  s2.destroy();
+
     }
   
   MPI_Finalize();

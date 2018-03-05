@@ -5,8 +5,12 @@ from proj_native import proj as proj_native
 from proj_default import proj as proj_default
 from proj1_default import proj as proj1_default
 from proj2_default import proj as proj2_default
-from proj_omp import proj as proj_omp
 
+try:
+    from proj_omp import proj as proj_omp
+except ImportError:
+    pass
+    
 from proj import proj as proj_py
 
 n0 = n1 = n2 = 128

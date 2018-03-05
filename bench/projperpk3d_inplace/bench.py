@@ -3,8 +3,11 @@ import numpy as np
 
 from proj_native import proj as proj_native
 from proj_default import proj as proj_default
-from proj_omp import proj as proj_omp
-
+try:
+    from proj_omp import proj as proj_omp
+except ImportError:
+    pass
+    
 from proj import proj as proj_py
 
 from fluidfft.fft3d.util_pythran import project_perpk3d as proj_fft
