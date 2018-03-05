@@ -269,7 +269,6 @@ def make_command_obj_from_cpp(obj_file, cpp_file, include_dirs=None,
     if cpp_file.endswith('.cu'):
         command = (
             'nvcc -m64 '
-            '-gencode arch=compute_20,code=sm_20 '
             '-gencode arch=compute_30,code=sm_30 '
             '-gencode arch=compute_32,code=sm_32 '
             '-gencode arch=compute_35,code=sm_35 '

@@ -428,7 +428,7 @@ class OperatorsPseudoSpectral2D(object):
         if self.is_transposed:
             if self.rank == 0:
                 E_fft[0, :] /= 2
-            if self.rank == self.nb_proc - 1 and \
+            if (self.is_sequential or self.rank == self.nb_proc - 1) and \
                self.nx_seq % 2 == 0 and \
                self.shapeK_seq[0] == self.nkxE:
                 E_fft[-1, :] /= 2
@@ -464,7 +464,90 @@ class OperatorsPseudoSpectral2D(object):
 
     def compute_spectrum_kykx(self, energy_fft):
         """Compute a spectrum vs ky, kx. Return a dictionary."""
-        raise NotImplementedError
+        if not self.is_transposed:
+            # Memory is not shared
+            # In this case, self.dim_ky == 0 and self.dim_kx == 1
+            # note : only the kx >= 0 and ky>=0 are in the spectral variables
+            E_kykxtmp = 2.*energy_fft/(self.deltakx*self.deltaky)
+        else:
+            # Memory is not shared
+            # In this case, self.dim_ky == 1 and self.dim_kx == 0
+            # note : only the kx >= 0 are in the spectral variables
+            E_kykxtmp = 2.*np.transpose(energy_fft)/(self.deltakx*self.deltaky)
+        # print(self.seq_indices_first_K)
+        if self.is_sequential:
+            #
+            # computation of E_kykx
+            E_kykxtmp[:, 0] = E_kykxtmp[:, 0]/2
+
+            if (self.nx_seq % 2 == 0 and
+               self.shapeK_seq[self.dim_kx] == self.nkxE):
+                E_kykxtmp[:, -1] = E_kykxtmp[:, -1]/2
+            E_kykx = np.zeros([self.nkyE, self.nkxE])
+            E_kykx[:self.nkyE, :self.nkxE] = E_kykxtmp[:self.nkyE, :self.nkxE]
+            E_kykx[1:self.nkyE2, :] += E_kykxtmp[self.nkyE:self.nky_seq,
+                                                 :][::-1]
+        elif self.is_transposed:
+            # computation of E_kykx
+            raise NotImplementedError
+            # actually in development
+            print(E_kykxtmp)
+            E_kykx_loc = E_kykxtmp
+            if self.rank == 0:
+                E_kykx_loc[:, 0] = E_kykx_loc[:, 0]/2
+
+            if self.rank == self.nb_proc - 1 and \
+               self.nx_seq % 2 == 0 and self.shapeK_seq[0] == self.nkxE:
+                E_kykx_loc[:, -1] = E_kykx_loc[:, -1]/2
+            print(self.nkxE, self.nkyE)
+
+            E_kykx = np.zeros([self.nkyE, self.nkxE])
+            nky_start = self.seq_indices_first_K[0]
+            ny0 = min(nky_start, self.nkyE-1)
+            ny1 = min(nky_start+self.nky_loc, self.nkyE)
+            nyy = max(ny1-ny0, 0)
+            ny0a = max(nky_start, self.nkyE)
+            ny1a = nky_start+self.nky_loc
+            nyya = max(ny1a-ny0a, 0)
+            if nky_start < self.nkyE:
+                E_kykx[nky_start:min(nky_start+self.nky_loc, self.nkyE),
+                       :self.nkxE] = E_kykx_loc[:nyy, :self.nkxE]
+            E_kykx[ny0a:ny1a,
+                   :self.nkxE] = E_kykx_loc[nyy:nyy+nyya, :]
+
+            E_kykx = self.comm.allreduce(E_kykx, op=MPI.SUM)
+            E_kykx = E_kykx[:self.nkyE, :self.nkxE]
+
+        elif not self.is_transposed:
+            # Memory is shared along ky
+            # In this case, self.dim_ky == 0 and self.dim_ky == 1
+            # note that only the kx>=0 are in the spectral variables
+            # to obtain the spectrum as a function of kx
+            # we sum over all ky
+            # the 2 is here because there are only the kx>=0
+
+            raise NotImplementedError
+
+            # E_kx = 2.*energy_fft.sum(self.dim_ky)/self.deltakx
+            # E_kx[0] = E_kx[0]/2
+            # E_kx = self.comm.allreduce(E_kx, op=MPI.SUM)
+            # E_kx = E_kx[:self.nkxE]
+            # # computation of E_ky
+            # E_ky_tmp = energy_fft[:, 0].copy()
+            # E_ky_tmp += 2*energy_fft[:, 1:].sum(1)
+            # E_ky_tmp = np.ascontiguousarray(E_ky_tmp)
+            # # print(self.rank, 'E_ky_tmp', E_ky_tmp, E_ky_tmp.shape)
+            # E_ky_long = np.empty(self.nky_seq)
+            # counts = self.comm.allgather(self.nky_loc)
+            # self.comm.Allgatherv(sendbuf=[E_ky_tmp, MPI.DOUBLE],
+            #                      recvbuf=[E_ky_long, (counts, None),
+            #                               MPI.DOUBLE])
+            # nkyE = self.nkyE
+            # E_ky = E_ky_long[0:nkyE]
+            # E_ky[1:nkyE] = E_ky[1:nkyE] + E_ky_long[self.nky_seq:nkyE:-1]
+            # E_ky = E_ky/self.deltaky
+
+        return E_kykx
 
     def projection_perp(self, fx_fft, fy_fft):
         """Project (inplace) a vector perpendicular to the wavevector.
@@ -549,6 +632,7 @@ class OperatorsPseudoSpectral2D(object):
         shape = self._get_shapeK(shape)
         return byte_align(np.random.random(shape) +
                           1j * np.random.random(shape))
+
 
 if __name__ == '__main__':
     self = OperatorsPseudoSpectral2D(5, 3, 2*pi, 1*pi)

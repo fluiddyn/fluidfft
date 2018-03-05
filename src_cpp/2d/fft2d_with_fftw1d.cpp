@@ -32,7 +32,7 @@ FFT2DWithFFTW1D::FFT2DWithFFTW1D(int argN0, int argN1):
   nX0loc = nX0;
   nXyloc = nX0loc;
 
-  nKx = nx/2;
+  nKx = nx/2+1;
   nKxloc = nKx;
   nKy = ny;
 
@@ -48,7 +48,7 @@ FFT2DWithFFTW1D::FFT2DWithFFTW1D(int argN0, int argN1):
 #ifdef SINGLE_PREC
   arrayX    = (myreal*) fftwf_malloc(sizeof(myreal)*nX0loc * nX1);
   arrayK_pR = (mycomplex*) fftwf_malloc(sizeof(mycomplex) *
-                                          nX0loc * (nKx+1));
+                                          nX0loc * nKx);
   arrayK_pC = (mycomplex*) fftwf_malloc(sizeof(mycomplex) * nKxloc * N0);
 
   gettimeofday(&start_time, NULL);
@@ -60,13 +60,13 @@ FFT2DWithFFTW1D::FFT2DWithFFTW1D(int argN0, int argN1):
       arrayX, NULL,
       istride, N1,
       arrayK_pR, NULL,
-      ostride, nKx+1,
+      ostride, nKx,
       flags);
     
   plan_c2r = fftwf_plan_many_dft_c2r(
       1, &N1, howmany,
       arrayK_pR, NULL,
-      istride, nKx+1,
+      istride, nKx,
       arrayX, NULL,
       ostride, N1,
       flags);
@@ -92,7 +92,7 @@ FFT2DWithFFTW1D::FFT2DWithFFTW1D(int argN0, int argN1):
 #else
   arrayX    = (myreal*) fftw_malloc(sizeof(myreal)*nX0loc * nX1);
   arrayK_pR = (mycomplex*) fftw_malloc(sizeof(mycomplex) *
-                                          nX0loc * (nKx+1));
+                                          nX0loc * nKx);
   arrayK_pC = (mycomplex*) fftw_malloc(sizeof(mycomplex) * nKxloc * N0);
 
   gettimeofday(&start_time, NULL);
@@ -104,13 +104,13 @@ FFT2DWithFFTW1D::FFT2DWithFFTW1D(int argN0, int argN1):
       arrayX, NULL,
       istride, N1,
       reinterpret_cast<mycomplex_fftw*>(arrayK_pR), NULL,
-      ostride, nKx+1,
+      ostride, nKx,
       flags);
     
   plan_c2r = fftw_plan_many_dft_c2r(
       1, &N1, howmany,
       reinterpret_cast<mycomplex_fftw*>(arrayK_pR), NULL,
-      istride, nKx+1,
+      istride, nKx,
       arrayX, NULL,
       ostride, N1,
       flags);
@@ -143,8 +143,6 @@ FFT2DWithFFTW1D::FFT2DWithFFTW1D(int argN0, int argN1):
     printf("Initialization (%s) done in %f s\n",
 	   this->get_classname(), total_usecs);
 
-  for (iX0=0; iX0<nX0loc; iX0++)
-    arrayK_pR[iX0*(nKx+1)+nKx] = 0.;
 
 }
 
@@ -203,8 +201,19 @@ myreal FFT2DWithFFTW1D::compute_energy_from_K(mycomplex* fieldK)
   
   energy = energy_tmp/2;
 
+  // modes i0 = iKx = last = nK0-1
+  i0 = nK0loc - 1;
+  energy_tmp = 0;
+  for (i1=0; i1<nK1; i1++)
+    energy_tmp += pow(abs(fieldK[i1 + i0 * nK1]), 2);
+
+  if (N1%2 == 0)
+    energy += energy_tmp/2;
+  else
+    energy += energy_tmp;
+
   // other modes
-  for (i0=1; i0<nK0loc; i0++)
+  for (i0=1; i0<nK0loc-1; i0++)
     for (i1=0; i1<nK1; i1++)
       energy += pow(abs(fieldK[i1 + i0*nK1]), 2);
 
@@ -224,8 +233,20 @@ myreal FFT2DWithFFTW1D::sum_wavenumbers(myreal* fieldK)
   
   sum = sum_tmp/2;
 
+  // modes i0 = iKx = last = nK0-1
+  i0 = nK0loc - 1;
+  sum_tmp = 0;
+  for (i1=0; i1<nK1; i1++)
+    sum_tmp += fieldK[i1 + i0 * nK1];
+
+  if (N1%2 == 0)
+    sum += sum_tmp/2;
+  else
+    sum += sum_tmp;
+
   // other modes
-  for (i0=1; i0<nK0loc; i0++)
+
+  for (i0=1; i0<nK0loc-1; i0++)
     for (i1=0; i1<nK1; i1++)
       sum += fieldK[i1 + i0*nK1];
 
@@ -262,7 +283,7 @@ void FFT2DWithFFTW1D::fft(myreal *fieldX, mycomplex *fieldK)
   /*    second step: transpose...*/
   for (ii = 0; ii < nX0; ++ii)
     for (jj = 0; jj < nKx; ++jj)
-      arrayK_pC[jj*nX0+ii] = arrayK_pR[ii*(nKx+1)+jj];
+      arrayK_pC[jj*nX0+ii] = arrayK_pR[ii*nKx+jj];
 #ifdef SINGLE_PREC
   fftwf_execute(plan_c2c_fwd);
 #else
@@ -271,7 +292,7 @@ void FFT2DWithFFTW1D::fft(myreal *fieldX, mycomplex *fieldK)
 
   for (ii=0; ii<nKxloc*nKy; ii++)
     fieldK[ii]  = arrayK_pC[ii] * inv_coef_norm;
-  
+ 
 }
 void FFT2DWithFFTW1D::ifft(mycomplex *fieldK, myreal *fieldX)
 {
@@ -286,11 +307,8 @@ void FFT2DWithFFTW1D::ifft(mycomplex *fieldK, myreal *fieldX)
   /* second step: transpose...*/
   for (ii = 0; ii < nKx; ++ii)
     for (jj = 0; jj < nX0; ++jj)
-      arrayK_pR[jj*(nKx+1)+ii] = arrayK_pC[ii*nX0+jj];
+      arrayK_pR[jj*nKx+ii] = arrayK_pC[ii*nX0+jj];
   
-  /*These modes (nx/2+1=N1/2+1) have to be settled to zero*/
-  for (ii = 0; ii < nX0loc; ++ii) 
-    arrayK_pR[ii*(nKx+1) + nKx] = 0.;
 #ifdef SINGLE_PREC
   fftwf_execute(plan_c2r);
 #else

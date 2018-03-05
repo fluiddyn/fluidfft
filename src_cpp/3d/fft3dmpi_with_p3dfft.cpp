@@ -47,9 +47,6 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   conf = 2;
   Cp3dfft_get_dims(fstart, fend, fsize, conf);
 
-  arrayX = (myreal *) malloc(sizeof(myreal) * isize[0]*isize[1]*isize[2]);
-  arrayK = (myreal *) malloc(sizeof(myreal) * fsize[0]*fsize[1]*fsize[2]*2);
-
   /* in physical space: */
   /* z corresponds to dim 0 */
   /* y corresponds to dim 1 */
@@ -106,9 +103,7 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
 void FFT3DMPIWithP3DFFT::destroy(void)
 {
 //   cout << "Object is being destroyed" << endl;
-//   Cp3dfft_clean();
-   free(arrayX);
-   free(arrayK);
+   //Cp3dfft_clean();
 }
 
 
