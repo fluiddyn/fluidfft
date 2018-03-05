@@ -155,6 +155,9 @@ else:
         except AttributeError:
             num_procs = multiprocessing.cpu_count()
 
+if not PARALLEL_COMPILE:
+    num_procs = 1
+
 
 class CommandsRunner(object):
     """Run command in parallel (with processes)"""
@@ -181,15 +184,35 @@ class CommandsRunner(object):
         process = subprocess.Popen(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         process.command = ' '.join(command)
+        process.stderr_log = b''
         self._processes.append(process)
 
     def _check_processes(self):
         for process in copy(self._processes):
+            process.stderr_log += process.stderr.readline()
+            if len(process.stderr_log) > 0:
+                process.stderr_log += process.stderr.read()
             if process.poll() is not None:
                 self._processes.remove(process)
                 if process.returncode != 0:
+                    process.stderr_log += process.stderr.read()
                     out, err = process.communicate()
-                    raise CompilationError(process.command, out, err)
+
+                    lines_err = process.stderr_log.split(b'\n')
+                    if len(lines_err) > 40:
+                        log_err = b'\n'.join(lines_err[:40])
+                        file_name = ('/tmp/fluidfft_build_error_log_' +
+                                     'pid{}'.format(process.pid))
+
+                        with open(file_name, 'w') as f:
+                            f.write(process.stderr_log.decode())
+                        log_err += b'\n[...]\n\nend of error log in ' + \
+                                   file_name.encode()
+                    else:
+                        log_err = process.stderr_log
+
+                    raise CompilationError(
+                        process.command, out, log_err)
 
 
 class FunctionsRunner(CommandsRunner):
