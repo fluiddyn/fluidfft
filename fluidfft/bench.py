@@ -45,7 +45,7 @@ def _format_times(times):
 def bench_like_cpp_as_arg(obj, nb_exec=20):
 
     fieldX = obj.create_arrayX(1)
-    fieldK = obj.create_arrayK()
+    fieldK = obj.create_arrayK(1)
 
     times = np.empty([nb_exec])
     gc.disable()
@@ -73,7 +73,7 @@ def bench_like_cpp_as_arg(obj, nb_exec=20):
 def bench_like_cpp_return(obj, nb_exec=20):
 
     fieldX = obj.create_arrayX(1)
-    fieldK = obj.create_arrayK()
+    fieldK = obj.create_arrayK(1)
 
     times = np.empty([nb_exec])
     gc.disable()
