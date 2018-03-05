@@ -1,5 +1,5 @@
 [fftw3]
-use = True
+use = False
 dir = 
 include_dir = 
 library_dir = 

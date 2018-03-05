@@ -48,6 +48,8 @@ from setuptools import Extension as SetuptoolsExtension
 
 import numpy as np
 
+DEBUG = False
+
 config_vars = sysconfig.get_config_vars()
 
 _here = os.path.abspath(os.path.dirname(__file__))
@@ -65,6 +67,7 @@ if can_import_cython:
         compile_single as cython_compile
 
 if can_import_mpi4py:
+    # does not work with mpich2 (used by default by anaconda)
     mpicxx_compile_words = subprocess.check_output(
         ['mpicxx', '-showme:compile']).decode().split()
 
@@ -75,6 +78,9 @@ except ImportError:
     #  pip install futures  # to use concurrent.futures Python 2.7 backport
     from multiprocessing.pool import ThreadPool as Pool
     PARALLEL_COMPILE = True
+
+if DEBUG:
+    PARALLEL_COMPILE = False
 
 short_version = '.'.join([str(i) for i in sys.version_info[:2]])
 
@@ -189,21 +195,20 @@ class CommandsRunner(object):
 
     def _check_processes(self):
         for process in copy(self._processes):
-            process.stderr_log += process.stderr.readline()
-            if len(process.stderr_log) > 0:
+            # hack (if num_procs == 1) to avoid bug (Python)
+            # https://stackoverflow.com/questions/11937028/poll-method-of-subprocess-popen-returning-none-for-long-process
+            if num_procs == 1:
                 process.stderr_log += process.stderr.read()
             if process.poll() is not None:
                 self._processes.remove(process)
                 if process.returncode != 0:
-                    process.stderr_log += process.stderr.read()
                     out, err = process.communicate()
-
+                    process.stderr_log += err
                     lines_err = process.stderr_log.split(b'\n')
                     if len(lines_err) > 40:
                         log_err = b'\n'.join(lines_err[:40])
                         file_name = ('/tmp/fluidfft_build_error_log_' +
                                      'pid{}'.format(process.pid))
-
                         with open(file_name, 'w') as f:
                             f.write(process.stderr_log.decode())
                         log_err += b'\n[...]\n\nend of error log in ' + \
