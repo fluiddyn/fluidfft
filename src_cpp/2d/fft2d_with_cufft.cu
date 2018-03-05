@@ -139,7 +139,7 @@ myreal FFT2DWithCUFFT::compute_energy_from_K(mycomplex* fieldK)
   for (i0=0; i0<nK0; i0++)
     // we must divide by 2 ==> after
     energy += (double) pow(abs(fieldK[i1 + i0*nK1]), 2);
-  if (nK1%2 != 0)
+  if (N1%2 == 0)
     // divide by 2!!!
     energy *= 0.5;
 
@@ -172,8 +172,8 @@ myreal FFT2DWithCUFFT::sum_wavenumbers(myreal* fieldK)
   for (i0=0; i0<nK0; i0++)
     //we must divide by 2 ==> after
     sum_tot += (double) fieldK[i1 + i0*nK1];
-  
-  sum_tot *= 0.5; //divide by 2!!!
+  if (N1%2 == 0)  
+    sum_tot *= 0.5; //divide by 2!!!
 
   // other modes
   for (i0=0; i0<nK0; i0++)
