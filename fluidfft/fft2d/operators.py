@@ -485,8 +485,8 @@ class OperatorsPseudoSpectral2D(object):
                 E_kykxtmp[:, -1] = E_kykxtmp[:, -1]/2
             E_kykx = np.zeros([self.nkyE, self.nkxE])
             E_kykx[:self.nkyE, :self.nkxE] = E_kykxtmp[:self.nkyE, :self.nkxE]
-            E_kykx[1:self.nkyE2, :] += E_kykxtmp[self.nkyE:self.nky_seq,
-                                                 :][::-1]
+            E_kykx[1:self.nkyE2, :] += \
+                E_kykxtmp[self.nkyE:self.nky_seq, :][::-1]
         elif self.is_transposed:
             # computation of E_kykx
             E_kykx_loc = E_kykxtmp
@@ -500,9 +500,11 @@ class OperatorsPseudoSpectral2D(object):
 
             E_kykx = np.zeros([self.nkyE, self.nkxE])
             nkx_start = self.seq_indices_first_K[0]
-            E_kykx[:, nkx_start:self.nkx_loc+nkx_start] = E_kykx_loc[:self.nkyE, :self.nkx_loc]
+            E_kykx[:, nkx_start:self.nkx_loc+nkx_start] = \
+                E_kykx_loc[:self.nkyE, :self.nkx_loc]
 
-            E_kykx[1:self.nkyE2, nkx_start:self.nkx_loc+nkx_start] += E_kykx_loc[self.nkyE:self.nky_seq, :self.nkx_loc][::-1]
+            E_kykx[1:self.nkyE2, nkx_start:self.nkx_loc+nkx_start] += \
+                E_kykx_loc[self.nkyE:self.nky_seq, :self.nkx_loc][::-1]
             E_kykx = self.comm.allreduce(E_kykx, op=MPI.SUM)
 
         elif not self.is_transposed:
