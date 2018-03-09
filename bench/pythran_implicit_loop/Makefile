@@ -1,49 +1,67 @@
 
 name=mymod
 
-setup=import numpy as np; a = np.ones([1000, 1000], dtype=np.complex128);
-# setup=import numpy as np; a = np.ones([1000, 1000]);
+all: $(name)_default.so $(name)_native.so $(name)_simd.so
 
-compile:
+$(name)_default.so: $(name).py
 	pythran -v $(name).py -o $(name)_default.so
+
+$(name)_native.so: $(name).py
 	pythran -v $(name).py -march=native -o $(name)_native.so
-	pythran -v $(name).py -march=native -fopenmp -o $(name)_native_omp.so
-	pythran -v $(name).py -fopenmp -o $(name)_omp.so
+
+$(name)_simd.so: $(name).py
 	pythran -v $(name).py -march=native -DUSE_BOOST_SIMD -o $(name)_simd.so
+
+$(name)_omp.so: $(name).py
+	pythran -v $(name).py -fopenmp -o $(name)_omp.so
 
 clean:
 	rm -f *.so
 
-perf: perf_numpy perf_pythran perf_native perf_native_omp perf_omp perf_simd
+perf2d: perfdefault2d perfsimd2d
+perf3d: perfdefault3d perfsimd3d
 
-perf_numpy:
-	## numpy
-	python -m perf timeit -s '$(setup) from $(name) import myfunc' 'myfunc(a)'
+code='func(arr)'
 
-perf_pythran:
-	## default
-	python -m perf timeit -s '$(setup) from $(name)_default import myfunc' 'myfunc(a)'
+perfpython2d: all
+	## numpy 2d (no loop)
+	python -m perf timeit -s \
+	  'from bench import myfunc_py as func, f2d as arr' $(code)
 
-perf_native:
-	## native
-	python -m perf timeit -s '$(setup) from $(name)_native import myfunc' 'myfunc(a)'
+perfdefault2d: all
+	## default 2d (no loop)
+	python -m perf timeit -s \
+	  'from bench import myfunc_default as func, f2d as arr' $(code)
+	# default 2d (explicit loops)
+	python -m perf timeit -s \
+	  'from bench import myfunc_loops2d_default as func, f2d as arr' $(code)
 
-perf_omp:
-	## openmp
-	python -m perf timeit -s '$(setup) from $(name)_omp import myfunc' 'myfunc(a)'
-	OMP_NUM_THREADS=1 python -m perf timeit -s '$(setup) from $(name)_omp import myfunc' 'myfunc(a)' --inherit-environ=OMP_NUM_THREADS
+perfsimd2d: all
+	# simd 2d (no loop)
+	python -m perf timeit -s \
+	  'from bench import myfunc_simd as func, f2d as arr' $(code)
+	# simd 2d (explicit loops)
+	python -m perf timeit -s \
+	  'from bench import myfunc_loops2d_simd as func, f2d as arr' $(code)
 
-time_omp:
-	time python -c '$(setup) from $(name)_omp import myfunc as f; [1 for i in range(1000) if f(a)[0, 0]]'
-	OMP_NUM_THREADS=1 time python -c '$(setup) from $(name)_omp import myfunc as f; [1 for i in range(1000) if f(a)[0, 0]]'
 
-time_native:
-	time python -c '$(setup) from $(name)_native import myfunc as f; [1 for i in range(1000) if f(a)[0, 0]]'
+perfpython3d: all
+	## numpy 3d (no loop)
+	python -m perf timeit -s \
+	  'from bench import myfunc_py as func, f3d as arr' $(code)
 
-perf_native_omp:
-	## native_openmp
-	python -m perf timeit -s '$(setup) from $(name)_native_omp import myfunc' 'myfunc(a)'
+perfdefault3d: all
+	# default 3d (no loop)
+	python -m perf timeit -s \
+	  'from bench import myfunc_default as func, f3d as arr' $(code)
+	# default 3d (explicit loops)
+	python -m perf timeit -s \
+	  'from bench import myfunc_loops3d_default as func, f3d as arr' $(code)
 
-perf_simd:
-	## simd
-	python -m perf timeit -s '$(setup) from $(name)_simd import myfunc' 'myfunc(a)'
+perfsimd3d: all
+	# simd 3d (no loop)
+	python -m perf timeit -s \
+	  'from bench import myfunc_simd as func, f3d as arr' $(code)
+	# simd 3d (explicit loops)
+	python -m perf timeit -s \
+	  'from bench import myfunc_loops3d_simd as func, f3d as arr' $(code)

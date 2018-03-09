@@ -12,6 +12,23 @@ def vectprod(ax, ay, az, bx, by, bz):
             ax * by - ay * bx)
 
 
+# pythran export vectprod_inplace_noloop(
+#     float64[][][], float64[][][], float64[][][],
+#     float64[][][], float64[][][], float64[][][])
+
+def vectprod_inplace_noloop(ax, ay, az, bx, by, bz):
+    # without loop, we need copies!
+    tmpx = bx.copy()
+    tmpy = by.copy()
+    tmpz = bz.copy()
+
+    bx[:] = ay * tmpz - az * tmpy
+    by[:] = az * tmpx - ax * tmpz
+    bz[:] = ax * tmpy - ay * tmpx
+
+    return bx, by, bz
+
+
 # pythran export vectprod_explicitloop(
 #     float64[][][], float64[][][], float64[][][],
 #     float64[][][], float64[][][], float64[][][])
