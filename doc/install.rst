@@ -6,7 +6,7 @@ Dependencies
 
 - Python 2.7 or >= 3.4
 
-- a C++11 compiler (for example GCC 4.9)
+- a C++11 compiler (for example GCC 4.9 or clang)
 
 - Numpy
 
@@ -61,6 +61,19 @@ Dependencies
 
         [pythran]
         complex_hook = True
+
+  .. warning::
+
+     The compilation of C++ files produced by Pythran can be long and can
+     consume a lot of memory. If you encounter any problems, you can try to use
+     clang (for example with ``conda install clangdev``) and to enable its use
+     in the file `~/.pythranrc` with:
+
+     .. code:: bash
+
+        [compiler]
+        CXX=clang++
+        CC=clang
 
 - mpi4py (optional, only for mpi runs),
   
