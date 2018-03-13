@@ -5,7 +5,7 @@ python:
   - 2.7
 
 env:
-  - TOXENV=py,codecov-travis OMPI_CC=/usr/bin/gcc-4.9 OMPI_CXX=/usr/bin/g++-4.9
+  - TOXENV=py-mpi,codecov-travis OMPI_CC=/usr/bin/gcc-4.9 OMPI_CXX=/usr/bin/g++-4.9
   - TOXENV=py-pythran-mpi,codecov-travis OMPI_CC=/usr/bin/gcc-4.9 OMPI_CXX=/usr/bin/g++-4.9
   - TOXENV=py-pythran-mpi,codecov-travis OMPI_CC=/usr/bin/gcc-6 OMPI_CXX=/usr/bin/g++-6
 
@@ -15,12 +15,12 @@ matrix:
       env:
         - OMPI_CC=/usr/bin/gcc-4.9
         - OMPI_CXX=/usr/bin/g++-4.9
-        - TOXENV=py,codecov-travis
+        - TOXENV=py-mpi,codecov-travis
     - python: 3.4
       env:
         - OMPI_CC=/usr/bin/gcc-4.9
         - OMPI_CXX=/usr/bin/g++-4.9
-        - TOXENV=py,codecov-travis
+        - TOXENV=py-mpi,codecov-travis
 
 before_cache:
   - |
