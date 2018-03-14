@@ -59,8 +59,9 @@ before_script:
       mkdir -p $HOME/.config/matplotlib
       echo 'backend      : agg' > $HOME/.config/matplotlib/matplotlibrc
       cp $TRAVIS_BUILD_DIR/site.cfg.files/site.cfg.travis $HOME/.fluidfft-site.cfg
+
 script:
-    - tox -vv
+    - travis_wait 30 tox -vv
 
 after_failure:
     - cat $TRAVIS_BUILD_DIR/.tox/log/*.log
