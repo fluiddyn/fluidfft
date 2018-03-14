@@ -132,7 +132,7 @@ void FFT3DMPIWithFFTWMPI3D::destroy(void)
   fftwf_destroy_plan(plan_c2r);
   fftwf_free(arrayX);
   fftwf_free(arrayK);
-  fftwf_mpi_cleanup();
+  // fftwf_mpi_cleanup();
 #ifdef OMP
   fftwf_cleanup_threads();
 #endif
@@ -141,7 +141,7 @@ void FFT3DMPIWithFFTWMPI3D::destroy(void)
   fftw_destroy_plan(plan_c2r);
   fftw_free(arrayX);
   fftw_free(arrayK);
-  fftw_mpi_cleanup();
+  // fftw_mpi_cleanup();
 #ifdef OMP
   fftw_cleanup_threads();
 #endif

@@ -154,10 +154,10 @@ if rank == 0:
             'ImportError for all sequential classes. Nothing is working!')
 
     for name, cls in classes_seq.items():
-        if 'pyfftw' in name:
-            # without this, we get a segfault when all the unittests are run
-            # (and not is only this unittest is run!)
-            continue
+        # if 'pyfftw' in name:
+        #     # without this, we get a segfault when all the unittests are run
+        #     # (and not is only this unittest is run!)
+        #     continue
         complete_class(name, cls)
 
 if nb_proc > 1:
