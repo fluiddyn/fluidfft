@@ -166,9 +166,25 @@ class OperatorsPseudoSpectral3D(object):
 
         assert K0.shape == self.shapeK_loc, print(K0.shape, self.shapeK_loc)
 
-        self.Kz = K0
-        self.Ky = K1
-        self.Kx = K2
+        if order == (0, 1, 2):
+            self.Kz = K0
+            self.Ky = K1
+            self.Kx = K2
+        elif order == (1, 0, 2):
+            self.Ky = K0
+            self.Kz = K1
+            self.Kx = K2
+        elif order == (2, 1, 0):
+            self.Kx = K0
+            self.Ky = K1
+            self.Kz = K2
+        elif order == (1, 2, 0):
+            self.Ky = K0
+            self.Kx = K1
+            self.Kz = K2
+        else:
+            print('order =', order)
+            raise NotImplementedError
 
         self.K2 = K0**2 + K1**2 + K2**2
         self.K8 = self.K2**4
