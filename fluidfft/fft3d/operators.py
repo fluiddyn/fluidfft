@@ -190,6 +190,9 @@ class OperatorsPseudoSpectral3D(object):
         self.K8 = self.K2**4
 
         self.seq_indices_first_K = op_fft.get_seq_indices_first_K()
+
+        # get_seq_indices_first_X is not yet implemented while it is very
+        # important!
         # self.seq_indices_first_X = op_fft.get_seq_indices_first_X()
 
         K_square_nozero = self.K2.copy()
@@ -291,6 +294,15 @@ class OperatorsPseudoSpectral3D(object):
         :func:`sum_wavenumbers`.
 
         It is here mainly to check that the classes are well implemented.
+
+        .. warning::
+
+           Not implemented!
+
+        .. todo::
+
+           Implement the method :func:`sum_wavenumbers_versatile`.
+
         """
         raise NotImplementedError
 
@@ -447,8 +459,16 @@ class OperatorsPseudoSpectral3D(object):
     def get_XYZ_loc(self):
         """Compute the local 3d arrays with the x, y, and y values.
 
-        The implementation of this function is not easy for some classes...  We
-        need a not-implemented function :func:`get_seq_indices_first_X`...
+        .. warning::
+
+           Not fully implemented (for the case ``self.shapeX_seq[1:] !=
+           self.shapeX_loc[1:]``)!
+
+        .. todo::
+
+           Fully implement the method :func:`get_XYZ_loc`.  We need a
+           not-implemented method :func:`get_seq_indices_first_X` in the C++
+           classes...
 
         """
 
@@ -486,7 +506,13 @@ class OperatorsPseudoSpectral3D(object):
     def compute_1dspectra(self, energy_fft):
         """Compute the 1D spectra.
 
-        NotImplemented!
+        .. warning::
+
+           Not implemented!
+
+        .. todo::
+
+           Implement the method :func:`compute_1dspectrum`.
 
         Returns
         -------
@@ -503,7 +529,13 @@ class OperatorsPseudoSpectral3D(object):
     def compute_3dspectrum(self, energy_fft):
         """Compute the 3D spectrum.
 
-        NotImplemented!
+        .. warning::
+
+           Not implemented!
+
+        .. todo::
+
+           Implement the method :func:`compute_3dspectrum`.
 
         """
         raise NotImplementedError
@@ -511,7 +543,13 @@ class OperatorsPseudoSpectral3D(object):
     def compute_spectra_2vars(self, energy_fft):
         """Compute spectra vs 2 variables.
 
-        NotImplemented!
+        .. warning::
+
+           Not implemented!
+
+        .. todo::
+
+           Implement the method :func:`compute_spectra_2vars`.
 
         Returns
         -------
@@ -521,6 +559,40 @@ class OperatorsPseudoSpectral3D(object):
         E_ky_kzx
 
         E_kz_kxy
+
+        """
+        raise NotImplementedError
+
+    def get_cross_section(self, equation='x=0', to_process=0):
+        """Get a 2d cross section.
+
+        .. warning::
+
+           Not implemented!
+
+        .. todo::
+
+           Implement the method :func:`get_cross_section`.  We need a
+           not-implemented method :func:`get_seq_indices_first_X` in the C++
+           classes...
+
+           We first have to implement the very simple cases for which
+           ``equation`` is equal to:
+
+           - x = 2.
+           - y = 2.
+           - z = 2.
+           - ix = 10
+           - iy = 10
+           - iz = 10
+
+        Parameters
+        ----------
+
+        equation: str
+
+          Equation defining the cross-section. We should be able to use the
+          variables x, y, z, ix, iy and iz.
 
         """
         raise NotImplementedError

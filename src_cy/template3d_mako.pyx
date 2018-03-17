@@ -239,7 +239,18 @@ cdef class ${class_name}:
         return i0, i1, 0
 
     cpdef get_seq_indices_first_X(self):
-        """Get the "sequential" indices of the first number in real space."""
+        """Get the "sequential" indices of the first number in real space.
+
+        .. warning::
+
+           Not implemented!
+
+        .. todo::
+
+           Implement the method :func:`get_seq_indices_first_X`. The equivalent
+           methods have to be written in C++.
+
+        """
         raise NotImplementedError
 
     cpdef get_k_adim_loc(self):

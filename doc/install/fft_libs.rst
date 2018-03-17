@@ -91,7 +91,7 @@ Modify fftw.h ! https://github.com/FFTW/fftw3/issues/18
 
 .. todo::
 
-   How can I install it? Link? Advice?
+   How can I install Cuda? Link? Advice?
 
 Unsupported libraries
 =====================
