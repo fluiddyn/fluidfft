@@ -9,4 +9,4 @@ dependencies:
   - h5py
   - matplotlib
   - pandas
-  - fftw
+  - pyfftw

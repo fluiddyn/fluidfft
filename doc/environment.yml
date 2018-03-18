@@ -12,7 +12,8 @@ dependencies:
   - jupyter
   - matplotlib
   - pandas
-  - fftw
+  - pyfftw
   - mako
   - pip:
     - sphinx_rtd_theme
+    - hg+https://bitbucket.org/fluiddyn/fluiddyn#egg=fluiddyn
