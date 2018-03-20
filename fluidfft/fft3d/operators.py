@@ -191,9 +191,7 @@ class OperatorsPseudoSpectral3D(object):
 
         self.seq_indices_first_K = op_fft.get_seq_indices_first_K()
 
-        # get_seq_indices_first_X is not yet implemented while it is very
-        # important!
-        # self.seq_indices_first_X = op_fft.get_seq_indices_first_X()
+        self.seq_indices_first_X = op_fft.get_seq_indices_first_X()
 
         K_square_nozero = self.K2.copy()
 

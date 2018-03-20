@@ -339,6 +339,21 @@ void FFT3DMPIWithFFTW1D::get_dimX_K(int *d0, int *d1, int *d2)
 }
 
 
+void FFT3DMPIWithFFTW1D::get_seq_indices_first_K(int *i0, int *i1, int *i2)
+{
+  *i0 = local_K0_start;
+  *i1 = 0;
+  *i2 = 0;
+}
+
+void FFT3DMPIWithFFTW1D::get_seq_indices_first_X(int *i0, int *i1, int *i2)
+{
+  *i0 = local_X0_start;
+  *i1 = 0;
+  *i2 = 0;
+}
+
+
 bool FFT3DMPIWithFFTW1D::are_parameters_bad()
 {
   if ((N0/nb_proc == 0) || (N2/2/nb_proc == 0))

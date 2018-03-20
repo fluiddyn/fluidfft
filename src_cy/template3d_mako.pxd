@@ -18,7 +18,8 @@ cdef extern from "${module_name}.h":
         void get_global_shape_K(int*, int*, int*)
 
         void get_dimX_K(int*, int*, int*)
-        void get_seq_indices_first_K(int*, int*)
+        void get_seq_indices_first_X(int*, int*, int*)
+        void get_seq_indices_first_K(int*, int*, int*)
         
         ${class_name}(int, int, int) except +
 
