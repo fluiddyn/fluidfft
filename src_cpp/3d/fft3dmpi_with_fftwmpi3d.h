@@ -22,7 +22,8 @@ class FFT3DMPIWithFFTWMPI3D: public BaseFFT3DMPI
   void sum_wavenumbers_complex(mycomplex* fieldK, mycomplex* result);
 
   virtual void get_dimX_K(int*, int*, int*);
-  virtual void get_seq_indices_first_K(int*, int*);
+  virtual void get_seq_indices_first_X(int*, int*, int*);
+  virtual void get_seq_indices_first_K(int*, int*, int*);
   
  private:
   int nX1_pad;

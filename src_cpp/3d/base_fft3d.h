@@ -22,7 +22,8 @@ class BaseFFT3D: virtual public BaseFFT
   virtual void get_global_shape_K(int*, int*, int*);
 
   virtual void get_dimX_K(int*, int*, int*);
-  virtual void get_seq_indices_first_K(int*, int*);
+  virtual void get_seq_indices_first_K(int*, int*, int*);
+  virtual void get_seq_indices_first_X(int*, int*, int*);
 
   virtual myreal compute_mean_from_X(myreal* fieldX);
   

@@ -307,6 +307,21 @@ void FFT3DMPIWithP3DFFT::ifft_destroy(mycomplex *fieldK, myreal *fieldX)
 }
 
 
+void FFT3DMPIWithP3DFFT::get_seq_indices_first_K(int *i0, int *i1, int *i2)
+{
+  *i0 = local_K0_start-1;
+  *i1 = local_K1_start-1;
+  *i2 = 0;
+}
+
+void FFT3DMPIWithP3DFFT::get_seq_indices_first_X(int *i0, int *i1, int *i2)
+{
+  *i0 = local_X0_start-1;
+  *i1 = local_X1_start-1;
+  *i2 = 0;
+}
+
+
 bool FFT3DMPIWithP3DFFT::are_parameters_bad()
 {
   calcul_nprocmesh(rank, nb_proc, nprocmesh);

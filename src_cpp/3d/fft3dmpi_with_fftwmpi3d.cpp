@@ -333,10 +333,18 @@ void FFT3DMPIWithFFTWMPI3D::get_dimX_K(int *d0, int *d1, int *d2)
   *d2 = 2;
 }
 
-void FFT3DMPIWithFFTWMPI3D::get_seq_indices_first_K(int *i0, int *i1)
+void FFT3DMPIWithFFTWMPI3D::get_seq_indices_first_K(int *i0, int *i1, int *i2)
 {
   *i0 = local_K0_start;
   *i1 = 0;
+  *i2 = 0;
+}
+
+void FFT3DMPIWithFFTWMPI3D::get_seq_indices_first_X(int *i0, int *i1, int *i2)
+{
+  *i0 = local_X0_start;
+  *i1 = 0;
+  *i2 = 0;
 }
 
 bool FFT3DMPIWithFFTWMPI3D::are_parameters_bad()

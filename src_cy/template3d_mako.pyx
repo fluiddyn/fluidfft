@@ -234,24 +234,15 @@ cdef class ${class_name}:
 
     cpdef get_seq_indices_first_K(self):
         """Get the "sequential" indices of the first number in Fourier space."""
-        cdef int i0, i1
-        self.thisptr.get_seq_indices_first_K(&i0, &i1)
-        return i0, i1, 0
+        cdef int i0, i1, i2
+        self.thisptr.get_seq_indices_first_K(&i0, &i1, &i2)
+        return i0, i1, i2
 
     cpdef get_seq_indices_first_X(self):
-        """Get the "sequential" indices of the first number in real space.
-
-        .. warning::
-
-           Not implemented!
-
-        .. todo::
-
-           Implement the method :func:`get_seq_indices_first_X`. The equivalent
-           methods have to be written in C++.
-
-        """
-        raise NotImplementedError
+        """Get the "sequential" indices of the first number in real space."""
+        cdef int i0, i1, i2
+        self.thisptr.get_seq_indices_first_X(&i0, &i1, &i2)
+        return i0, i1, i2
 
     cpdef get_k_adim_loc(self):
         """Get the non-dimensional wavenumbers stored locally.
@@ -328,7 +319,7 @@ cdef class ${class_name}:
         if o2d.shapeX_seq != o2d.shapeX_loc:
             raise ValueError('2d fft is with distributed memory...')
 
-        ind0seq_first, ind1seq_first = self.get_seq_indices_first_K()
+        ind0seq_first, ind1seq_first, ind2seq_first = self.get_seq_indices_first_K()
         dimX_K = self.get_dimX_K()
 
         arr3d = np.zeros([nK0loc, nK1loc, nK2loc], dtype=np.complex128)

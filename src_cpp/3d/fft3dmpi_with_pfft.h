@@ -23,7 +23,8 @@ class FFT3DMPIWithPFFT: public BaseFFT3DMPI
   myreal sum_wavenumbers_double(myreal* fieldK);
 
   virtual void get_dimX_K(int*, int*, int*);
-  virtual void get_seq_indices_first_K(int*, int*);
+  virtual void get_seq_indices_first_X(int*, int*, int*);
+  virtual void get_seq_indices_first_K(int*, int*, int*);
 
  private:
 #ifdef SINGLE_PREC
