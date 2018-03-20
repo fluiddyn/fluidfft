@@ -9,7 +9,7 @@ CUDA:=no
 PFFT:=yes
 P3DFFT:=yes
 
-LD:=CC
+LD:=CC -dynamic
 CC:=CC
 FLAGS:= -g -O0 -Wall
 LDFLAGS:=
@@ -121,6 +121,7 @@ clean:
 
 test_bench.out: $(OBJECTS) $(OBJECTS_CPP_BASE)
 	# link to build the executable $@
+	export CRAYPE_LINK_TYPE=dynamic
 	$(LD) $(LDFLAGS) $(OBJECTS_BUILD) $(LIBS) $(LIB_DIR) -o $@
 
 %.o: %.cu
@@ -140,9 +141,11 @@ test_bench.out: $(OBJECTS) $(OBJECTS_CPP_BASE)
 	$(CC) $(FLAGS) $(INC_DIR) -c $< -o build/$@
 
 test:
+	export CRAY_ROOTFS=DSL
 	aprun -n 1 ./test_bench.out --N0=64 --N1=32 --N2=16
 
 testmpi:
+	export CRAY_ROOTFS=DSL
 	aprun -n 4 ./test_bench.out --N0=64 --N1=32 --N2=16
 	aprun -n 4 ./test_bench.out --N0=128 --N1=128 --N2=128
 	aprun -n 4 ./test_bench.out --N0=256 --N1=256 --N2=256

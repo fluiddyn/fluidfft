@@ -342,7 +342,7 @@ def make_command_ext_from_objs(
         os.makedirs(path_dir)
 
     cxx = config_vars['CXX']
-    ldshared = config_vars['LDSHARED']
+    ldshared = os.getenv('LDSHARED', config_vars['LDSHARED'])
 
     command = [w for w in ldshared.split()
                if w not in ['-g']]

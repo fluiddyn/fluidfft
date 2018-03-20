@@ -39,8 +39,10 @@ Dependencies
      libraries, this can lead to very bad issues (segmentation fault, only if
      numpy is imported before the class!). For security, we prefer to
      automatically disable the building of the fft classes using fftw3_mpi when
-     it is detected that numpy uses the MKL library where some fftw symbols are
-     defined.
+     it is detected that numpy uses the MKL library (viz. `mkl_intel_lp64`)
+     where some fftw symbols are defined. However, sometimes numpy is linked to
+     Intel's new `mkl_rt` library, and in such cases there should be no clash
+     with fftw.
 
 - Cython
 

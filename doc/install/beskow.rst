@@ -9,20 +9,13 @@ enable cross-compilation in all three compilation environments (Prg-cray,
 Prg-intel and Prg-gnu). Here we have managed to install FluidFFT in Prg-intel
 environment.
 
-.. warning::
-
-   It is imperative to compile all the tools and FFT libraries in the compute
-   node. This is because as I write now (Feb 2018) Beskow uses different CPU
-   architectures in the login nodes / frontend (Sandy Bridge) compared to
-   compute nodes (Haskell). We know for sure this can affect FFTW compilation,
-   just to be sure, do everything on the compute node.
-
 Load necessary modules::
 
    module load gcc/6.1.0
    module swap PrgEnv-cray PrgEnv-intel
    module swap intel intel/18.0.0.128
-   module load mercurial
+   module load mercurial 
+   module load cray-hdf5-parallel
 
 Ensure that ``gcc`` is loaded before ``intel``. This is important so that Intel
 libraries get prepended to ``LD_LIBRARY_PATH`` and should supersede equivalent
@@ -37,13 +30,30 @@ necessary python packages as described here:
    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
    bash Miniconda3-latest-Linux-x86_64.sh
 
+   module load craype-hugepages2M  # cray-hdf5-parallel
+
    conda install ipython
-   conda install numpy scipy matplotlib
-   conda install cython h5py
+   conda install numpy
+   conda install h5py
+   conda install scipy matplotlib
    conda install -c conda-forge pyfftw
 
-   MPICC=cc pip install mpi4py -no-deps --no-binary mpi4py
-   pip install pythran colorlog
+   pip install cython
+   export CRAYPE_LINK_TYPE=dynamic
+   module load craype-hugepages2M 
+   CC=cc MPICC=cc pip install mpi4py -v --no-deps --no-binary mpi4py
+   module rm craype-hugepages2M
+
+   pip install pythran colorlog nose
+
+Run a few tests::
+
+   salloc -A <project> -N 1 -t 10:00
+   export CRAY_ROOTFS=DSL
+   export OMP_NUM_THREADS=1
+   aprun -n 1 python -c 'import numpy; numpy.test()'
+   aprun -n 1 python -c 'import h5py; h5py.run_tests()'
+   aprun -n 2 python -m unittest fluiddyn.util.test.test_mpi
 
 Create the file `~/.pythranrc` with::
 
@@ -80,6 +90,15 @@ Now let us proceed to build fftw3, p3dfft and pfft. For some reason, the cross-
 compilation wrappers do not work or fail to link when used with FFT libraries.
 Therefore we explicitly use Intel compilers in the following steps:
 
+.. warning::
+
+   It is imperative to compile all the tools and FFT libraries in the compute
+   node. This is because as I write now (Feb 2018) Beskow uses different CPU
+   architectures in the login nodes / frontend (Sandy Bridge) compared to
+   compute nodes (Haskell). We know for sure this can affect FFTW compilation,
+   just to be sure, do everything on the compute node.
+
+
 For fftw3:
 
 .. literalinclude:: beskow_install_fftw.sh
@@ -112,10 +131,15 @@ mentioned above set like::
 
 Install FluidFFT with::
 
-   MPICXX=CC python setup.py develop
+   export CRAYPE_LINK_TYPE=dynamic
+   module load craype-hugepages2M 
+   MPICXX=CC LDSHARED="CC -shared" python setup.py develop
+   module rm craype-hugepages2M
 
 Test your installation by allocating a compute node as follows::
 
    salloc -A <project> -N 1 -t 05:00
+   export CRAY_ROOTFS=DSL
+   export OMP_NUM_THREADS=1
    aprun -n 1 python -m unittest discover
    aprun -n 2 python -m unittest discover
