@@ -7,7 +7,7 @@ from ${module_name} cimport (
     mycomplex)
 
 
-def compute_k_adim_seq(nk, axis):
+def compute_k_adim_seq(nk, axis, dim_first_fft=2):
     """Compute the adimensional wavenumber for an axis. 
 
     Parameters
@@ -22,7 +22,7 @@ def compute_k_adim_seq(nk, axis):
       Index of the axis in real space (0 for z, 1 for y and 2 for x).
 
     """
-    if axis == 2:
+    if axis == dim_first_fft:
         return np.arange(nk)
     else:
         k_adim_max = nk//2
@@ -55,6 +55,8 @@ cdef class ${class_name}:
     cdef int _has_to_destroy
     cdef mycppclass* thisptr
     cdef tuple _shapeK_loc, _shapeX_loc, _shapeK_seq, _shapeX_seq
+    cdef int dim_first_fft
+    cdef int _is_mpi_lib
 
     IF MPI4PY:
         cdef public MPI.Comm comm
@@ -77,8 +79,15 @@ cdef class ${class_name}:
         # info on MPI
         self.nb_proc = nb_proc
         self.rank = rank
-        if self.nb_proc > 1:
+        if nb_proc > 1:
             self.comm = comm
+
+        self.dim_first_fft = 2
+        name = self.get_short_name()
+        if name.endswith('p3dfft'):
+            self.dim_first_fft = 0
+
+        self._is_mpi_lib = self._shapeX_seq != self._shapeX_loc
 
     def __dealloc__(self):
         if self._has_to_destroy:
@@ -89,6 +98,13 @@ cdef class ${class_name}:
         """Get a short name of the class."""
         return self.__class__.__name__.lower()
 
+    def get_dim_first_fft(self):
+        """The dimension (real space) over which the first fft is taken.
+
+        It is usually 2 but it seems to be 0 for p3dfft (written in Fortran!).
+        """
+        return self.dim_first_fft
+    
     def get_local_size_X(self):
         """Get the local size in real space."""
         return self.thisptr.get_local_size_X()
@@ -186,7 +202,7 @@ cdef class ${class_name}:
         """
         cdef np.ndarray[DTYPEf_t, ndim=3] ff_seq
 
-        if self._shapeX_seq == self._shapeX_loc:
+        if not self._is_mpi_lib:
             return ff_loc
         
         if root is None:
@@ -205,6 +221,9 @@ cdef class ${class_name}:
                       root=None):
         """Scatter an array in real space for a parallel run."""
         cdef np.ndarray[DTYPEf_t, ndim=3] ff_loc
+
+        if not self._is_mpi_lib:
+            return ff_seq
 
         if root is None:
             ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
@@ -286,13 +305,13 @@ cdef class ${class_name}:
         d0, d1, d2 = self.get_dimX_K()
         i0_start, i1_start, i2_start = self.get_seq_indices_first_K()
 
-        k0_adim = compute_k_adim_seq(nK0, d0)
+        k0_adim = compute_k_adim_seq(nK0, d0, self.dim_first_fft)
         k0_adim_loc = k0_adim[i0_start:i0_start+nK0_loc]
 
-        k1_adim = compute_k_adim_seq(nK1, d1)
+        k1_adim = compute_k_adim_seq(nK1, d1, self.dim_first_fft)
         k1_adim_loc = k1_adim[i1_start:i1_start+nK1_loc]
 
-        k2_adim_loc = compute_k_adim_seq(nK2, d2)
+        k2_adim_loc = compute_k_adim_seq(nK2, d2, self.dim_first_fft)
 
         return k0_adim_loc, k1_adim_loc, k2_adim_loc
 
@@ -336,7 +355,8 @@ cdef class ${class_name}:
         if o2d.shapeX_seq != o2d.shapeX_loc:
             raise ValueError('2d fft is with distributed memory...')
 
-        ind0seq_first, ind1seq_first, ind2seq_first = self.get_seq_indices_first_K()
+        ind0seq_first, ind1seq_first, ind2seq_first = \
+            self.get_seq_indices_first_K()
         dimX_K = self.get_dimX_K()
 
         arr3d = np.zeros([nK0loc, nK1loc, nK2loc], dtype=np.complex128)

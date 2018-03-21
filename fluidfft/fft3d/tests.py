@@ -26,17 +26,6 @@ if nb_proc > 1:
                    if cls is not None}
 
 
-def make_test_function(cls, sequential=False):
-
-    def test(self):
-        if sequential and rank > 0:
-            return
-        o = cls(n, n, n)
-        o.run_tests()
-
-    return test
-
-
 def make_testop_functions(name, cls):
 
     tests = {}
@@ -48,8 +37,10 @@ def make_testop_functions(name, cls):
 
         def test(self, n0=n0, n1=n1, n2=n2):
             op = OperatorsPseudoSpectral3D(n2, n1, n0,
-                                           3*pi, 1*pi, 2*pi, fft=cls)
+                                           1200, 80, 4, fft=cls)
             op_fft = op._op_fft
+
+            op_fft.run_tests()
 
             a = np.random.random(
                 op_fft.get_local_size_X()).reshape(
@@ -150,18 +141,13 @@ class Tests3D(unittest.TestCase):
 
 def complete_class(name, cls):
 
-    # setattr(Tests3D, 'test_{}'.format(name), make_test_function(cls))
-
-    # setattr(Tests3D, 'test_{}_seq'.format(name),
-    #         make_test_function(cls, sequential=1))
-
     tests = make_testop_functions(name, cls)
 
     for key, test in tests.items():
         setattr(Tests3D, 'test_operator3d_{}_{}'.format(name, key), test)
 
 
-if rank == 0:
+if nb_proc == 1:
     if nb_proc == 1 and len(classes_seq) == 0:
         raise Exception(
             'ImportError for all sequential classes. Nothing is working!')

@@ -100,8 +100,16 @@ class OperatorsPseudoSpectral3D(object):
         self._op_fft = op_fft
         self.type_fft = op_fft.__class__.__module__
 
+        try:
+            self.dim_first_fft = op_fft.get_dim_first_fft()
+        except AttributeError:
+            self.dim_first_fft = 2
+
         self.shapeX_seq = op_fft.get_shapeX_seq()
         self.shapeX_loc = op_fft.get_shapeX_loc()
+
+        self._is_mpi_lib = self.shapeX_seq != self.shapeX_loc and \
+                           mpi.nb_proc > 1
 
         Lx = self.Lx = float(lx)
         Ly = self.Ly = float(ly)
@@ -136,6 +144,7 @@ class OperatorsPseudoSpectral3D(object):
         self.compute_energy_from_K = op_fft.compute_energy_from_K
 
         self.shapeK = self.shapeK_loc = op_fft.get_shapeK_loc()
+        self.shapeK_seq = op_fft.get_shapeK_seq()
         self.nk0, self.nk1, self.nk2 = self.shapeK_loc
 
         order = op_fft.get_dimX_K()
@@ -301,7 +310,60 @@ class OperatorsPseudoSpectral3D(object):
            Implement the method :func:`sum_wavenumbers_versatile`.
 
         """
-        raise NotImplementedError
+        spectrum3d_loc = self._compute_spectrum3d_loc(field_fft)
+        result = spectrum3d_loc.sum()
+
+        if self._is_mpi_lib:
+            result = mpi.comm.allreduce(result, op=mpi.MPI.SUM)
+
+        return result
+
+    def _compute_spectrum3d_loc(self, field_fft):
+        """"""
+
+        dimX_K = self._op_fft.get_dimX_K()
+        for dimK_first_fft in range(3):
+            if dimX_K[dimK_first_fft] == self.dim_first_fft:
+                break
+
+        nx_seq = self.shapeX_seq[self.dim_first_fft]
+        nk_seq = self.shapeK_seq[dimK_first_fft]
+        nk_loc = self.shapeK_loc[dimK_first_fft]
+        ik_start = self.seq_indices_first_K[dimK_first_fft]
+        ik_stop = ik_start + nk_loc
+
+        mpi.print_sorted('nz, ny, nx', (self.nz, self.ny, self.nx))
+
+        mpi.print_sorted('(nk_seq, nk_loc, ik_start, ik_stop, dimK_first_fft)',
+                         (nk_seq, nk_loc, ik_start, ik_stop, dimK_first_fft))
+
+        # the copy is important: no *= !
+        field_fft = 2*field_fft
+
+        if ik_start == 0:
+            print('rank', mpi.rank, '; divide first')
+            if dimK_first_fft == 2:
+                slice0 = np.s_[:, :, 0]
+            elif dimK_first_fft == 1:
+                slice0 = np.s_[:, 0, :]
+            elif dimK_first_fft == 0:
+                slice0 = np.s_[0, :, :]
+            else:
+                raise NotImplementedError
+            field_fft[slice0] /= 2
+        if ik_stop == nx_seq//2+1 and nx_seq % 2 == 0:
+            print('rank', mpi.rank, '; divide last')
+            if dimK_first_fft == 2:
+                slice_last = np.s_[:, :, -1]
+            elif dimK_first_fft == 1:
+                slice_last = np.s_[:, -1, :]
+            elif dimK_first_fft == 0:
+                slice_last = np.s_[-1, :, :]
+            else:
+                raise NotImplementedError
+            field_fft[slice_last] /= 2
+
+        return field_fft
 
     def project_perpk3d(self, vx_fft, vy_fft, vz_fft):
         """Project (inplace) a vector perpendicular to the wavevector.
@@ -473,10 +535,10 @@ class OperatorsPseudoSpectral3D(object):
             i0_seq_start, i1_seq_start, i2_seq_start = self.seq_indices_first_X
             if self.shapeX_seq[1:] != self.shapeX_loc[1:]:
                 # general solution
-                print('in get_XYZ_loc:',
-                      '(i0_seq_start, i1_seq_start, i2_seq_start):',
-                      (i0_seq_start, i1_seq_start, i2_seq_start),
-                      '; rank:', mpi.rank)
+                mpi.print_sorted(
+                    'in get_XYZ_loc:',
+                    '(i0_seq_start, i1_seq_start, i2_seq_start):',
+                    (i0_seq_start, i1_seq_start, i2_seq_start))
 
                 z_loc = self.z_seq[
                     i0_seq_start:i0_seq_start+self.shapeX_loc[0]]
@@ -484,6 +546,11 @@ class OperatorsPseudoSpectral3D(object):
                     i1_seq_start:i1_seq_start+self.shapeX_loc[1]]
                 x_loc = self.x_seq[
                     i2_seq_start:i2_seq_start+self.shapeX_loc[2]]
+
+                mpi.print_sorted('z_loc', z_loc)
+                mpi.print_sorted('y_loc', y_loc)
+                mpi.print_sorted('x_loc', x_loc)
+
             else:
                 # 1d decomposition
                 x_loc = self.x_seq

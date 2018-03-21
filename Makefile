@@ -28,7 +28,7 @@ tests:
 	python -m unittest discover
 
 tests_mpi:
-	mpirun -np 2 python -m unittest discover
+	mpirun -np 2 python -m unittest discover -v
 
 tests_mpi4:
 	mpirun -np 4 python -m unittest discover
