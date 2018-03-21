@@ -56,7 +56,7 @@ def make_test_function(cls):
 def make_testop_functions(name, cls):
 
     tests = {}
-    shapes = {'even': (8, 4)}
+    shapes = {'even': (24, 16)}
     if nb_proc == 1:
         shapes['odd'] = (11, 13)
 

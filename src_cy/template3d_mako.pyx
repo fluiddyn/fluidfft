@@ -54,7 +54,7 @@ cdef class ${class_name}:
     """
     cdef int _has_to_destroy
     cdef mycppclass* thisptr
-    cdef tuple _shapeK_loc, _shapeX_loc
+    cdef tuple _shapeK_loc, _shapeX_loc, _shapeK_seq, _shapeX_seq
 
     IF MPI4PY:
         cdef public MPI.Comm comm
@@ -71,6 +71,9 @@ cdef class ${class_name}:
     def __init__(self, int n0=2, int n1=2, int n2=4):
         self._shapeK_loc = self.get_shapeK_loc()
         self._shapeX_loc = self.get_shapeX_loc()
+        self._shapeK_seq = self.get_shapeK_seq()
+        self._shapeX_seq = self.get_shapeX_seq()
+
         # info on MPI
         self.nb_proc = nb_proc
         self.rank = rank
@@ -169,9 +172,23 @@ cdef class ${class_name}:
         return nX0, nX1, nX2
 
     def gather_Xspace(self, view3df_t ff_loc, root=None):
-        """Gather an array in real space for a parallel run."""
+        """Gather an array in real space for a parallel run.
+
+        .. warning::
+
+           Not fully implemented! This function is buggy for classes using 2d
+           decomposition.
+
+        .. todo::
+
+           Debug this function (see unittest).
+
+        """
         cdef np.ndarray[DTYPEf_t, ndim=3] ff_seq
 
+        if self._shapeX_seq == self._shapeX_loc:
+            return ff_loc
+        
         if root is None:
             ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
             comm.Allgather(ff_loc, ff_seq)

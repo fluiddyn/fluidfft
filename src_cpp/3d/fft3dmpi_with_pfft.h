@@ -41,8 +41,8 @@ class FFT3DMPIWithPFFT: public BaseFFT3DMPI
   ptrdiff_t local_ni[3], local_i_start[3];
   ptrdiff_t local_no[3], local_o_start[3];
 
-  ptrdiff_t local_K0_start, local_K1_start;
-  ptrdiff_t local_X0_start, local_X1_start;
+  ptrdiff_t local_K0_start, local_K1_start, local_K2_start;
+  ptrdiff_t local_X0_start, local_X1_start, local_X2_start;
   
   MPI_Comm comm_cart_2d;
   

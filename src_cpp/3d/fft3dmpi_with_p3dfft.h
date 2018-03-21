@@ -24,7 +24,8 @@ class FFT3DMPIWithP3DFFT: public BaseFFT3DMPI
   void sum_wavenumbers_complex(mycomplex* fieldK, mycomplex* result);
 
   myreal sum_wavenumbers_double(myreal* fieldK);
-  
+
+  virtual void get_dimX_K(int*, int*, int*);
   virtual void get_seq_indices_first_X(int*, int*, int*);
   virtual void get_seq_indices_first_K(int*, int*, int*);
 
@@ -38,8 +39,8 @@ class FFT3DMPIWithP3DFFT: public BaseFFT3DMPI
   ptrdiff_t local_ni[3], local_i_start[3];
   ptrdiff_t local_no[3], local_o_start[3];
 
-  ptrdiff_t local_K0_start, local_K1_start;
-  ptrdiff_t local_X0_start, local_X1_start;
+  ptrdiff_t local_K0_start, local_K1_start, local_K2_start;
+  ptrdiff_t local_X0_start, local_X1_start, local_X2_start;
   
 //  unsigned char op_f[3]="fft", op_b[3]="tff";
   

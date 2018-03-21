@@ -30,6 +30,9 @@ tests:
 tests_mpi:
 	mpirun -np 2 python -m unittest discover
 
+tests_mpi4:
+	mpirun -np 4 python -m unittest discover
+
 _tests_coverage:
 	mkdir -p .coverage
 	coverage run -p -m unittest discover

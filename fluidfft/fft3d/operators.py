@@ -190,7 +190,6 @@ class OperatorsPseudoSpectral3D(object):
         self.K8 = self.K2**4
 
         self.seq_indices_first_K = op_fft.get_seq_indices_first_K()
-
         self.seq_indices_first_X = op_fft.get_seq_indices_first_X()
 
         K_square_nozero = self.K2.copy()
@@ -471,23 +470,24 @@ class OperatorsPseudoSpectral3D(object):
         """
 
         if self.shapeX_seq != self.shapeX_loc:
-
-            all_shape_loc = np.empty((mpi.nb_proc, 3), dtype=int)
-            mpi.comm.Allgather(np.array(self.shapeX_loc), all_shape_loc)
-
+            i0_seq_start, i1_seq_start, i2_seq_start = self.seq_indices_first_X
             if self.shapeX_seq[1:] != self.shapeX_loc[1:]:
-                # in this case, it it complicated...
-                raise NotImplementedError
+                # general solution
+                print('in get_XYZ_loc:',
+                      '(i0_seq_start, i1_seq_start, i2_seq_start):',
+                      (i0_seq_start, i1_seq_start, i2_seq_start),
+                      '; rank:', mpi.rank)
 
+                z_loc = self.z_seq[
+                    i0_seq_start:i0_seq_start+self.shapeX_loc[0]]
+                y_loc = self.y_seq[
+                    i1_seq_start:i1_seq_start+self.shapeX_loc[1]]
+                x_loc = self.x_seq[
+                    i2_seq_start:i2_seq_start+self.shapeX_loc[2]]
             else:
                 # 1d decomposition
                 x_loc = self.x_seq
                 y_loc = self.y_seq
-
-                # actually with 1d decomposition we need only this
-                all_shape0_loc = all_shape_loc[:, 0]
-                i0_seq_start = sum(all_shape0_loc[:mpi.rank])
-
                 z_loc = self.z_seq[
                     i0_seq_start:i0_seq_start+self.shapeX_loc[0]]
         else:
@@ -561,36 +561,37 @@ class OperatorsPseudoSpectral3D(object):
         """
         raise NotImplementedError
 
-    def get_cross_section(self, equation='x=0', to_process=0):
-        """Get a 2d cross section.
+    # This one is actually not so useful!
+    # def get_cross_section(self, equation='x=0', to_process=0):
+    #     """Get a 2d cross section.
 
-        .. warning::
+    #     .. warning::
 
-           Not implemented!
+    #        Not implemented!
 
-        .. todo::
+    #     .. todo::
 
-           Implement the method :func:`get_cross_section`.  We need a
-           not-implemented method :func:`get_seq_indices_first_X` in the C++
-           classes...
+    #        Implement the method :func:`get_cross_section`.  We need a
+    #        not-implemented method :func:`get_seq_indices_first_X` in the C++
+    #        classes...
 
-           We first have to implement the very simple cases for which
-           ``equation`` is equal to:
+    #        We first have to implement the very simple cases for which
+    #        ``equation`` is equal to:
 
-           - x = 2.
-           - y = 2.
-           - z = 2.
-           - ix = 10
-           - iy = 10
-           - iz = 10
+    #        - x = 2.
+    #        - y = 2.
+    #        - z = 2.
+    #        - ix = 10
+    #        - iy = 10
+    #        - iz = 10
 
-        Parameters
-        ----------
+    #     Parameters
+    #     ----------
 
-        equation: str
+    #     equation: str
 
-          Equation defining the cross-section. We should be able to use the
-          variables x, y, z, ix, iy and iz.
+    #       Equation defining the cross-section. We should be able to use the
+    #       variables x, y, z, ix, iy and iz.
 
-        """
-        raise NotImplementedError
+    #     """
+    #     raise NotImplementedError

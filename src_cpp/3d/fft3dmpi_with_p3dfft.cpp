@@ -59,11 +59,11 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   nXzloc = nX2loc;
 
 
-  /* This 3D fft is transposed */
+  /* This 3D fft is NOT transposed */
   /* in Fourier space: */
-  /* ky corresponds to dim 0 */
-  /* kx corresponds to dim 1 */
-  /* kz corresponds to dim 2 */
+  /* kz corresponds to dim 0 */
+  /* ky corresponds to dim 1 */
+  /* kx corresponds to dim 2 */
   nKx = nx;
   nKy = ny;
   nKz = nz/2+1;
@@ -86,10 +86,12 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   MPI_Barrier(MPI_COMM_WORLD);
   local_X0_start = istart[0];
   local_X1_start = istart[1];
+  local_X2_start = istart[2];
   // Warning: order as in X space!
   local_K0_start = fstart[0];
   local_K1_start = fstart[1];
-
+  local_K2_start = fstart[2];
+  
   gettimeofday(&end_time, NULL);
 
   total_usecs = (end_time.tv_sec-start_time.tv_sec) +
@@ -142,7 +144,7 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex* fieldK)
       for (i1=0; i1<nK1loc; i1++)
         energy_tmp += (double) square_abs(fieldK[i0 + (i1 + i2*nK1loc)*nK0loc]);
 
-    if (local_K0_start + nK0loc -1== nK0)
+    if (local_K0_start + nK0loc -1 == nK0)
       energy_loc += energy_tmp/2.;
     else
       energy_loc += energy_tmp;
@@ -191,7 +193,7 @@ myreal FFT3DMPIWithP3DFFT::sum_wavenumbers_double(myreal* fieldK)
       for (i1=0; i1<nK1loc; i1++)
         sum_tmp += (double) fieldK[i0 + (i1 + i2*nK1loc)*nK0loc];
 
-    if (local_K0_start + nK0loc -1== nK0)
+    if (local_K0_start + nK0loc -1 == nK0)
       sum_loc += sum_tmp/2.;
     else
       sum_loc += sum_tmp;
@@ -242,7 +244,7 @@ void FFT3DMPIWithP3DFFT::sum_wavenumbers_complex(
       for (i1=0; i1<nK1loc; i1++)
         sum_tmp += fieldK[i0 + (i1 + i2*nK1loc)*nK0loc];
 
-    if (local_K0_start + nK0loc -1== nK0)
+    if (local_K0_start + nK0loc -1 == nK0)
       sum_loc += sum_tmp/2.;
     else
       sum_loc += sum_tmp;
@@ -306,19 +308,26 @@ void FFT3DMPIWithP3DFFT::ifft_destroy(mycomplex *fieldK, myreal *fieldX)
   Cp3dfft_btran_c2r(reinterpret_cast<myreal*>(fieldK), reinterpret_cast<myreal*>(fieldX), op_b);
 }
 
+void FFT3DMPIWithP3DFFT::get_dimX_K(int *d0, int *d1, int *d2)
+{
+  // As in sequential! Not transposed!
+  *d0 = 0;
+  *d1 = 1;
+  *d2 = 2;
+}
 
 void FFT3DMPIWithP3DFFT::get_seq_indices_first_K(int *i0, int *i1, int *i2)
 {
   *i0 = local_K0_start-1;
   *i1 = local_K1_start-1;
-  *i2 = 0;
+  *i2 = local_K2_start-1;
 }
 
 void FFT3DMPIWithP3DFFT::get_seq_indices_first_X(int *i0, int *i1, int *i2)
 {
   *i0 = local_X0_start-1;
   *i1 = local_X1_start-1;
-  *i2 = 0;
+  *i2 = local_X2_start-1;
 }
 
 

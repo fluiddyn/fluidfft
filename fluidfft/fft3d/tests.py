@@ -117,14 +117,27 @@ def make_testop_functions(name, cls):
             # op.vgradv_from_v2(a, a, a)
             # op.div_vv_fft_from_v(a, a, a)
             # op.div_vb_fft_from_vb(a, a, a, a)
-            try:
-                X, Y, Z = op.get_XYZ_loc()
-            except NotImplementedError:
-                pass
-            else: 
-                self.assertEqual(X.shape, op.shapeX_loc)
-                self.assertEqual(Y.shape, op.shapeX_loc)
-                self.assertEqual(Z.shape, op.shapeX_loc)
+
+            X, Y, Z = op.get_XYZ_loc()
+            self.assertEqual(X.shape, op.shapeX_loc)
+            self.assertEqual(Y.shape, op.shapeX_loc)
+            self.assertEqual(Z.shape, op.shapeX_loc)
+
+            if hasattr(op, 'gather_Xspace'):
+                X = np.ascontiguousarray(X)
+                Y = np.ascontiguousarray(Y)
+                Z = np.ascontiguousarray(Z)
+                X_seq = op.gather_Xspace(X)
+                Y_seq = op.gather_Xspace(Y)
+                Z_seq = op.gather_Xspace(Z)
+            else:
+                X_seq = X
+                Y_seq = Y
+                Z_seq = Z
+
+            self.assertTrue(np.allclose(X_seq[0, 0, :], op.x_seq))
+            self.assertTrue(np.allclose(Y_seq[0, :, 0], op.y_seq))
+            self.assertTrue(np.allclose(Z_seq[:, 0, 0], op.z_seq))
 
         tests[key] = test
 
