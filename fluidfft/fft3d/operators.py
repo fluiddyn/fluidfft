@@ -23,7 +23,8 @@ from fluidfft import create_fft_object
 from fluidfft.fft2d.operators import _make_str_length
 
 from .util_pythran import (
-    project_perpk3d, divfft_from_vecfft, rotfft_from_vecfft, vector_product)
+    project_perpk3d, divfft_from_vecfft, rotfft_from_vecfft, vector_product,
+    loop_spectra3d)
 
 from .dream_pythran import _vgradv_from_v2
 
@@ -123,9 +124,9 @@ class OperatorsPseudoSpectral3D(object):
         self.y_seq = self.deltay*np.arange(ny)
         self.z_seq = self.deltaz*np.arange(nz)
 
-        deltakx = 2*pi/Lx
-        deltaky = 2*pi/Ly
-        deltakz = 2*pi/Lz
+        self.deltakx = deltakx = 2*pi/Lx
+        self.deltaky = deltaky = 2*pi/Ly
+        self.deltakz = deltakz = 2*pi/Lz
 
         self.ifft = self.ifft3d = op_fft.ifft
         self.fft = self.fft3d = op_fft.fft
@@ -220,6 +221,23 @@ class OperatorsPseudoSpectral3D(object):
             self.scatter_Xspace = op_fft.scatter_Xspace
 
         self.rank = mpi.rank
+
+        # initialization spectra
+        self.nkx_spectra = nx//2 + 1
+        self.nky_spectra = ny//2 + 1
+        self.nkz_spectra = nz//2 + 1
+
+        self.kxmax_spectra = self.deltakx * self.nkx_spectra
+        self.kymax_spectra = self.deltaky * self.nky_spectra
+        self.kzmax_spectra = self.deltakz * self.nkz_spectra
+
+        self.deltak_spectra3d = max(
+            self.deltakx, self.deltaky, self.deltakz)
+        self.kmax_spectra3d = min(
+            self.kxmax_spectra, self.kymax_spectra, self.kzmax_spectra)
+        self.nk_spectra3d = max(
+            2, int(self.kmax_spectra3d/self.deltak_spectra3d))
+        self.k_spectra3d = self.deltak_spectra3d * np.arange(self.nk_spectra3d)
 
         # self.tmp_fields_fft = tuple(self.create_arrayK() for n in range(6))
 
@@ -332,10 +350,11 @@ class OperatorsPseudoSpectral3D(object):
         ik_start = self.seq_indices_first_K[dimK_first_fft]
         ik_stop = ik_start + nk_loc
 
+        mpi.print_sorted('dimK_first_fft', dimK_first_fft,
+                         '; self.dim_first_fft', self.dim_first_fft)
         mpi.print_sorted('nz, ny, nx', (self.nz, self.ny, self.nx))
-
-        mpi.print_sorted('(nk_seq, nk_loc, ik_start, ik_stop, dimK_first_fft)',
-                         (nk_seq, nk_loc, ik_start, ik_stop, dimK_first_fft))
+        mpi.print_sorted('(nk_seq, nk_loc, ik_start, ik_stop)',
+                         (nk_seq, nk_loc, ik_start, ik_stop))
 
         # the copy is important: no *= !
         field_fft = 2*field_fft
@@ -344,10 +363,10 @@ class OperatorsPseudoSpectral3D(object):
             print('rank', mpi.rank, '; divide first')
             if dimK_first_fft == 2:
                 slice0 = np.s_[:, :, 0]
-            elif dimK_first_fft == 1:
-                slice0 = np.s_[:, 0, :]
             elif dimK_first_fft == 0:
                 slice0 = np.s_[0, :, :]
+            elif dimK_first_fft == 1:
+                slice0 = np.s_[:, 0, :]
             else:
                 raise NotImplementedError
             field_fft[slice0] /= 2
@@ -355,10 +374,10 @@ class OperatorsPseudoSpectral3D(object):
             print('rank', mpi.rank, '; divide last')
             if dimK_first_fft == 2:
                 slice_last = np.s_[:, :, -1]
-            elif dimK_first_fft == 1:
-                slice_last = np.s_[:, -1, :]
             elif dimK_first_fft == 0:
                 slice_last = np.s_[-1, :, :]
+            elif dimK_first_fft == 1:
+                slice_last = np.s_[:, -1, :]
             else:
                 raise NotImplementedError
             field_fft[slice_last] /= 2
@@ -589,21 +608,23 @@ class OperatorsPseudoSpectral3D(object):
         E_kz
 
         """
+        nk0, nk1, nk2 = self.shapeK_loc
+        
         raise NotImplementedError
 
     def compute_3dspectrum(self, energy_fft):
         """Compute the 3D spectrum.
 
-        .. warning::
-
-           Not implemented!
-
-        .. todo::
-
-           Implement the method :func:`compute_3dspectrum`.
+        The corresponding wavenumber array is ``self.k_spectra3d``.
 
         """
-        raise NotImplementedError
+        K2 = self.K2
+        ks = self.k_spectra3d
+        spectrum_k0k1k2 = self._compute_spectrum3d_loc(energy_fft)
+        spectrum3d = loop_spectra3d(spectrum_k0k1k2, ks, K2)
+        if self._is_mpi_lib:
+            spectrum3d = mpi.comm.allreduce(spectrum3d, op=mpi.MPI.SUM)
+        return spectrum3d/self.deltak_spectra3d
 
     def compute_spectra_2vars(self, energy_fft):
         """Compute spectra vs 2 variables.

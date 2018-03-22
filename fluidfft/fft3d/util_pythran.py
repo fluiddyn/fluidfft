@@ -105,3 +105,27 @@ def vector_product(ax, ay, az, bx, by, bz):
                 bz[i0, i1, i2] = elem_ax * elem_by - elem_ay * elem_bx
 
     return bx, by, bz
+
+# pythran export loop_spectra3d(float64[][][], float64[], float64[][][])
+
+def loop_spectra3d(spectrum_k0k1k2, ks, K2):
+    """Compute the 3d spectrum."""
+    deltak = ks[1]
+    nk = len(ks)
+    spectrum3d = np.zeros([nk])
+    nk0, nk1, nk2 = spectrum_k0k1k2.shape
+    for ik0 in range(nk0):
+        for ik1 in range(nk1):
+            for ik2 in range(nk2):
+                value = spectrum_k0k1k2[ik0, ik1, ik2]
+                kappa = np.sqrt(K2[ik0, ik1, ik2])
+                ik = int(kappa/deltak)
+                if ik >= nk-1:
+                    ik = nk - 1
+                    spectrum3d[ik] += value
+                else:
+                    coef_share = (kappa - ks[ik])/deltak
+                    spectrum3d[ik] += (1-coef_share)*value
+                    spectrum3d[ik+1] += coef_share*value
+
+    return spectrum3d

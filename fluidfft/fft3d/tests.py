@@ -37,7 +37,7 @@ def make_testop_functions(name, cls):
 
         def test(self, n0=n0, n1=n1, n2=n2):
             op = OperatorsPseudoSpectral3D(n2, n1, n0,
-                                           1200, 80, 4, fft=cls)
+                                           12, 8, 4, fft=cls)
             op_fft = op._op_fft
 
             op_fft.run_tests()
@@ -81,7 +81,7 @@ def make_testop_functions(name, cls):
             except NotImplementedError:
                 pass
             else:
-                self.assertAlmostEqual(nrja, E_k.sum()*op.deltak)
+                self.assertAlmostEqual(nrja, E_k.sum()*op.deltak_spectra3d)
 
             try:
                 E_kx_kyz, E_ky_kzx, E_kz_kxy = op.compute_spectra_2vars(

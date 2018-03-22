@@ -12,7 +12,6 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   int istart[3],isize[3],iend[3];
   int fstart[3],fsize[3],fend[3];
 
-  
   this->_init();
 
   nz = N0;
@@ -42,7 +41,7 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   conf = 1;
   Cp3dfft_get_dims(istart, iend, isize, conf);
   /* Get dimensions for output array - complex numbers, Z-pencil shape.
-   *    *       Stride-1 dimension could be X or Z, depending on how the library 
+   *    *       Stride-1 dimension could be X or Z, depending on how the library
    *       *             was compiled (stride1 option) */
   conf = 2;
   Cp3dfft_get_dims(fstart, fend, fsize, conf);
@@ -57,7 +56,6 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   nXyloc = nX1loc;
   nX2loc = isize[2];
   nXzloc = nX2loc;
-
 
   /* This 3D fft is NOT transposed */
   /* in Fourier space: */
@@ -99,7 +97,7 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
 
   if (rank == 0)
     printf("Initialization (%s) done in %f s\n",
-	   this->get_classname(), total_usecs);
+           this->get_classname(), total_usecs);
 }
 
 void FFT3DMPIWithP3DFFT::destroy(void)
@@ -156,7 +154,7 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex* fieldK)
   }
 
   // case nK1loc==0
-  if (min(nK0loc,nK2loc) == 0)
+  if (min(nK0loc, nK2loc) == 0)
   {
     energy_loc = 0;
   }
