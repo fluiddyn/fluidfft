@@ -11,10 +11,6 @@ class FFT3DMPIWithP3DFFT: public BaseFFT3DMPI
   bool are_parameters_bad();
   virtual const char* get_classname();
 
-  /* int get_local_size_X(); */
-  /* int get_local_size_K(); */
-
-
   void fft(myreal *fieldX, mycomplex *fieldK);
   void ifft(mycomplex *fieldK, myreal *fieldX);
   void ifft_destroy(mycomplex *fieldK, myreal *fieldX);

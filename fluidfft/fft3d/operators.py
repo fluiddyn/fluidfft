@@ -161,6 +161,10 @@ class OperatorsPseudoSpectral3D(object):
             print('order =', order)
             raise NotImplementedError
 
+        for self.dimK_first_fft in range(3):
+            if order[self.dimK_first_fft] == self.dim_first_fft:
+                break
+
         k0_adim_loc, k1_adim_loc, k2_adim_loc = op_fft.get_k_adim_loc()
 
         self.k0 = self.deltaks[0] * k0_adim_loc
@@ -174,7 +178,7 @@ class OperatorsPseudoSpectral3D(object):
         K1 = np.ascontiguousarray(K1)
         K2 = np.ascontiguousarray(K2)
 
-        assert K0.shape == self.shapeK_loc, print(K0.shape, self.shapeK_loc)
+        assert K0.shape == self.shapeK_loc, (K0.shape, self.shapeK_loc)
 
         if order == (0, 1, 2):
             self.Kz = K0
@@ -319,14 +323,6 @@ class OperatorsPseudoSpectral3D(object):
 
         It is here mainly to check that the classes are well implemented.
 
-        .. warning::
-
-           Not implemented!
-
-        .. todo::
-
-           Implement the method :func:`sum_wavenumbers_versatile`.
-
         """
         spectrum3d_loc = self._compute_spectrum3d_loc(field_fft)
         result = spectrum3d_loc.sum()
@@ -339,10 +335,7 @@ class OperatorsPseudoSpectral3D(object):
     def _compute_spectrum3d_loc(self, field_fft):
         """"""
 
-        dimX_K = self._op_fft.get_dimX_K()
-        for dimK_first_fft in range(3):
-            if dimX_K[dimK_first_fft] == self.dim_first_fft:
-                break
+        dimK_first_fft = self.dimK_first_fft
 
         nx_seq = self.shapeX_seq[self.dim_first_fft]
         nk_seq = self.shapeK_seq[dimK_first_fft]
@@ -350,17 +343,10 @@ class OperatorsPseudoSpectral3D(object):
         ik_start = self.seq_indices_first_K[dimK_first_fft]
         ik_stop = ik_start + nk_loc
 
-        mpi.print_sorted('dimK_first_fft', dimK_first_fft,
-                         '; self.dim_first_fft', self.dim_first_fft)
-        mpi.print_sorted('nz, ny, nx', (self.nz, self.ny, self.nx))
-        mpi.print_sorted('(nk_seq, nk_loc, ik_start, ik_stop)',
-                         (nk_seq, nk_loc, ik_start, ik_stop))
-
         # the copy is important: no *= !
         field_fft = 2*field_fft
 
         if ik_start == 0:
-            print('rank', mpi.rank, '; divide first')
             if dimK_first_fft == 2:
                 slice0 = np.s_[:, :, 0]
             elif dimK_first_fft == 0:
@@ -371,7 +357,6 @@ class OperatorsPseudoSpectral3D(object):
                 raise NotImplementedError
             field_fft[slice0] /= 2
         if ik_stop == nx_seq//2+1 and nx_seq % 2 == 0:
-            print('rank', mpi.rank, '; divide last')
             if dimK_first_fft == 2:
                 slice_last = np.s_[:, :, -1]
             elif dimK_first_fft == 0:
@@ -411,49 +396,6 @@ class OperatorsPseudoSpectral3D(object):
 
         return rotfft_from_vecfft(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz)
 
-    # def div_vv_fft_from_v(self, vx, vy, vz):
-    #     r"""Compute :math:`\nabla \cdot (\boldsymbol{v} \boldsymbol{v})` in
-    #     spectral space.
-
-    #     """
-    #     # function(float64[][][]) -> complex128[][][]
-    #     # fft3d = self.fft3d
-
-    #     # vxvxfft = fft3d(vx*vx)
-    #     # vyvyfft = fft3d(vy*vy)
-    #     # vzvzfft = fft3d(vz*vz)
-
-    #     # vxvyfft = vyvxfft = fft3d(vx*vy)
-    #     # vxvzfft = vzvxfft = fft3d(vx*vz)
-    #     # vyvzfft = vzvyfft = fft3d(vy*vz)
-
-    #     vxvxfft = self.tmp_fields_fft[0]
-    #     vyvyfft = self.tmp_fields_fft[1]
-    #     vzvzfft = self.tmp_fields_fft[2]
-
-    #     vxvyfft = vyvxfft = self.tmp_fields_fft[3]
-    #     vxvzfft = vzvxfft = self.tmp_fields_fft[4]
-    #     vyvzfft = vzvyfft = self.tmp_fields_fft[5]
-
-    #     fft_as_arg = self.fft_as_arg
-
-    #     fft_as_arg(vx*vx, vxvxfft)
-    #     fft_as_arg(vy*vy, vyvyfft)
-    #     fft_as_arg(vz*vz, vzvzfft)
-
-    #     fft_as_arg(vx*vy, vxvyfft)
-    #     fft_as_arg(vx*vz, vxvzfft)
-    #     fft_as_arg(vy*vz, vyvzfft)
-
-    #     # float64[][][]
-    #     Kx = self.Kx
-    #     Ky = self.Ky
-    #     Kz = self.Kz
-
-    #     return (divfft_from_vecfft(vxvxfft, vyvxfft, vzvxfft, Kx, Ky, Kz),
-    #             divfft_from_vecfft(vxvyfft, vyvyfft, vzvyfft, Kx, Ky, Kz),
-    #             divfft_from_vecfft(vxvzfft, vyvzfft, vzvzfft, Kx, Ky, Kz))
-
     def div_vb_fft_from_vb(self, vx, vy, vz, b):
         r"""Compute :math:`\nabla \cdot (\boldsymbol{v} b)` in spectral space.
 
@@ -467,69 +409,6 @@ class OperatorsPseudoSpectral3D(object):
         return divfft_from_vecfft(vxbfft, vybfft, vzbfft,
                                   self.Kx, self.Ky, self.Kz)
 
-    # def vgradv_from_v(self, vx, vy, vz,
-    #                   vx_fft=None, vy_fft=None, vz_fft=None):
-    #     r"""Compute :math:`\boldsymbol{v} \cdot \nabla \boldsymbol{v}` in
-    #     real space.
-
-    #     """
-    #     if vx_fft is None:
-    #         # function(float64[][][]) -> complex128[][][]
-    #         fft3d = self.fft3d
-    #         vx_fft = fft3d(vx)
-    #         vy_fft = fft3d(vy)
-    #         vz_fft = fft3d(vz)
-
-    #     # function(complex128[][][]) -> float64[][][]
-    #     ifft3d = self.ifft3d
-
-    #     # float64[][][]
-    #     Kx = self.Kx
-    #     Ky = self.Ky
-    #     Kz = self.Kz
-
-    #     px_vx_fft = 1j * Kx * vx_fft
-    #     py_vx_fft = 1j * Ky * vx_fft
-    #     pz_vx_fft = 1j * Kz * vx_fft
-
-    #     px_vy_fft = 1j * Kx * vy_fft
-    #     py_vy_fft = 1j * Ky * vy_fft
-    #     pz_vy_fft = 1j * Kz * vy_fft
-
-    #     px_vz_fft = 1j * Kx * vz_fft
-    #     py_vz_fft = 1j * Ky * vz_fft
-    #     pz_vz_fft = 1j * Kz * vz_fft
-
-    #     vgradvx = (vx * ifft3d(px_vx_fft) +
-    #                vy * ifft3d(py_vx_fft) +
-    #                vz * ifft3d(pz_vx_fft))
-
-    #     vgradvy = (vx * ifft3d(px_vy_fft) +
-    #                vy * ifft3d(py_vy_fft) +
-    #                vz * ifft3d(pz_vy_fft))
-
-    #     vgradvz = (vx * ifft3d(px_vz_fft) +
-    #                vy * ifft3d(py_vz_fft) +
-    #                vz * ifft3d(pz_vz_fft))
-
-    #     return vgradvx, vgradvy, vgradvz
-
-    # def vgradv_from_v2(self, vx, vy, vz,
-    #                    vx_fft=None, vy_fft=None, vz_fft=None):
-    #     r"""Compute :math:`\boldsymbol{v} \cdot \nabla \boldsymbol{v}` in
-    #     real space.
-
-    #     """
-    #     if vx_fft is None:
-    #         # function(float64[][][]) -> complex128[][][]
-    #         fft3d = self.fft3d
-    #         vx_fft = fft3d(vx)
-    #         vy_fft = fft3d(vy)
-    #         vz_fft = fft3d(vz)
-
-    #     return _vgradv_from_v2(vx, vy, vz, vx_fft, vy_fft, vz_fft,
-    #                            self.Kx, self.Ky, self.Kz, self.ifft3d)
-
     def rotzfft_from_vxvyfft(self, vx_fft, vy_fft):
         """Compute the z component of the curl in spectral space."""
         return 1j * (self.Kx * vy_fft - self.Ky * vx_fft)
@@ -537,27 +416,16 @@ class OperatorsPseudoSpectral3D(object):
     def get_XYZ_loc(self):
         """Compute the local 3d arrays with the x, y, and y values.
 
-        .. warning::
-
-           Not fully implemented (for the case ``self.shapeX_seq[1:] !=
-           self.shapeX_loc[1:]``)!
-
-        .. todo::
-
-           Fully implement the method :func:`get_XYZ_loc`.  We need a
-           not-implemented method :func:`get_seq_indices_first_X` in the C++
-           classes...
-
         """
 
         if self.shapeX_seq != self.shapeX_loc:
             i0_seq_start, i1_seq_start, i2_seq_start = self.seq_indices_first_X
             if self.shapeX_seq[1:] != self.shapeX_loc[1:]:
                 # general solution
-                mpi.print_sorted(
-                    'in get_XYZ_loc:',
-                    '(i0_seq_start, i1_seq_start, i2_seq_start):',
-                    (i0_seq_start, i1_seq_start, i2_seq_start))
+                # mpi.print_sorted(
+                #     'in get_XYZ_loc:',
+                #     '(i0_seq_start, i1_seq_start, i2_seq_start):',
+                #     (i0_seq_start, i1_seq_start, i2_seq_start))
 
                 z_loc = self.z_seq[
                     i0_seq_start:i0_seq_start+self.shapeX_loc[0]]
@@ -566,9 +434,9 @@ class OperatorsPseudoSpectral3D(object):
                 x_loc = self.x_seq[
                     i2_seq_start:i2_seq_start+self.shapeX_loc[2]]
 
-                mpi.print_sorted('z_loc', z_loc)
-                mpi.print_sorted('y_loc', y_loc)
-                mpi.print_sorted('x_loc', x_loc)
+                # mpi.print_sorted('z_loc', z_loc)
+                # mpi.print_sorted('y_loc', y_loc)
+                # mpi.print_sorted('x_loc', x_loc)
 
             else:
                 # 1d decomposition

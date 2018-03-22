@@ -83,10 +83,6 @@ cdef class ${class_name}:
             self.comm = comm
 
         self.dim_first_fft = 2
-        name = self.get_short_name()
-        if name.endswith('p3dfft'):
-            self.dim_first_fft = 0
-
         self._is_mpi_lib = self._shapeX_seq != self._shapeX_loc
 
     def __dealloc__(self):
@@ -311,7 +307,8 @@ cdef class ${class_name}:
         k1_adim = compute_k_adim_seq(nK1, d1, self.dim_first_fft)
         k1_adim_loc = k1_adim[i1_start:i1_start+nK1_loc]
 
-        k2_adim_loc = compute_k_adim_seq(nK2, d2, self.dim_first_fft)
+        k2_adim = compute_k_adim_seq(nK2, d2, self.dim_first_fft)
+        k2_adim_loc = k2_adim[i2_start:i2_start+nK2_loc]
 
         return k0_adim_loc, k1_adim_loc, k2_adim_loc
 

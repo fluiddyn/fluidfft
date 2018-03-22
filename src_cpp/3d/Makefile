@@ -131,6 +131,6 @@ test:
 
 testmpi:
 	mpirun -np 4 ./test_bench.out --N0=64 --N1=32 --N2=16
-	mpirun -np 4 ./test_bench.out --N0=128 --N1=128 --N2=128
-	mpirun -np 4 ./test_bench.out --N0=256 --N1=256 --N2=256
-	mpirun -np 4 ./test_bench.out --N0=512 --N1=512 --N2=512
+	# mpirun -np 4 ./test_bench.out --N0=128 --N1=128 --N2=128
+	# mpirun -np 4 ./test_bench.out --N0=256 --N1=256 --N2=256
+	# mpirun -np 4 ./test_bench.out --N0=512 --N1=512 --N2=512
