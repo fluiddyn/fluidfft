@@ -194,9 +194,9 @@ class OperatorsPseudoSpectral2D(object):
         self.K2 = self.KX2 + self.KY2
         self.K4 = self.K2**2
         self.K8 = self.K4**2
-        self.KK = np.sqrt(self.K2)
+        self.K = np.sqrt(self.K2)
 
-        self.KK_not0 = self.KK.copy()
+        self.K_not0 = self.K.copy()
         self.K2_not0 = self.K2.copy()
         self.K4_not0 = self.K4.copy()
 
@@ -213,7 +213,7 @@ class OperatorsPseudoSpectral2D(object):
             self.scatter_Xspace = self.opfft.scatter_Xspace
 
         if mpi.rank == 0 or self.is_sequential:
-            self.KK_not0[0, 0] = 10.e-10
+            self.K_not0[0, 0] = 10.e-10
             self.K2_not0[0, 0] = 10.e-10
             self.K4_not0[0, 0] = 10.e-10
 
@@ -225,11 +225,11 @@ class OperatorsPseudoSpectral2D(object):
         self.nky_spectra = ny//2 + 1
 
         khmax = min(self.deltakx*self.nkx_seq, self.deltakx*self.nky_spectra)
-        self.deltakh = max(self.deltakx, self.deltaky)
-        self.nkh = int(khmax / self.deltakh)
+        self.deltak = max(self.deltakx, self.deltaky)
+        self.nkh = int(khmax / self.deltak)
         if self.nkh == 0:
             self.nkh = 1
-        self.kh_2dspectrum = self.deltakh*np.arange(self.nkh)
+        self.kh_2dspectrum = self.deltak*np.arange(self.nkh)
 
         # Initialisation dealiasing
         self.coef_dealiasing = coef_dealiasing
@@ -417,7 +417,7 @@ class OperatorsPseudoSpectral2D(object):
     def compute_2dspectrum(self, E_fft):
         """Compute the 2D spectrum."""
 
-        KK = self.KK
+        K = self.K
 
         nk0loc = self.shapeK_loc[0]
         nk1loc = self.shapeK_loc[1]
@@ -437,7 +437,7 @@ class OperatorsPseudoSpectral2D(object):
             if self.nx_seq % 2 == 0:
                 E_fft[:, -1] /= 2
 
-        deltakh = self.deltakh
+        deltak = self.deltak
 
         khE = self.khE
         nkh = self.nkhE
@@ -446,21 +446,21 @@ class OperatorsPseudoSpectral2D(object):
         for ik0 in range(nk0loc):
             for ik1 in range(nk1loc):
                 E0D = E_fft[ik0, ik1]
-                kappa0D = KK[ik0, ik1]
+                kappa0D = K[ik0, ik1]
 
-                ikh = int(kappa0D/deltakh)
+                ikh = int(kappa0D/deltak)
 
                 if ikh >= nkh-1:
                     ikh = nkh - 1
                     spectrum2D[ikh] += E0D
                 else:
-                    coef_share = (kappa0D - khE[ikh])/deltakh
+                    coef_share = (kappa0D - khE[ikh])/deltak
                     spectrum2D[ikh] += (1-coef_share)*E0D
                     spectrum2D[ikh+1] += coef_share*E0D
 
         if not self.is_sequential:
             spectrum2D = self.comm.allreduce(spectrum2D, op=mpi.MPI.SUM)
-        return spectrum2D/deltakh
+        return spectrum2D/deltak
 
     def compute_spectrum_kykx(self, energy_fft):
         """Compute a spectrum vs ky, kx. Return a dictionary."""
@@ -621,4 +621,4 @@ if __name__ == '__main__':
 
     E_kh = self.compute_2dspectrum(energy_fft)
 
-    print('energy E_kh     :', E_kh.sum()*self.deltakh)
+    print('energy E_kh     :', E_kh.sum()*self.deltak)

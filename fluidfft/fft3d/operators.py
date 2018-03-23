@@ -84,6 +84,8 @@ class OperatorsPseudoSpectral3D(object):
                 fft = 'fft3d.mpi_with_fftw1d'
 
         if isinstance(fft, basestring):
+            if fft.lower() == 'sequential':
+                fft = 'fft3d.with_pyfftw'
             if fft.lower() == 'fftwpy':
                 op_fft = FFTW3DReal2Complex(nx, ny, nz)
             elif any([fft.startswith(s) for s in ['fluidfft.', 'fft3d.']]):
@@ -235,7 +237,7 @@ class OperatorsPseudoSpectral3D(object):
         self.kymax_spectra = self.deltaky * self.nky_spectra
         self.kzmax_spectra = self.deltakz * self.nkz_spectra
 
-        self.deltak_spectra3d = max(
+        self.deltak = self.deltak_spectra3d = max(
             self.deltakx, self.deltaky, self.deltakz)
         self.kmax_spectra3d = min(
             self.kxmax_spectra, self.kymax_spectra, self.kzmax_spectra)
