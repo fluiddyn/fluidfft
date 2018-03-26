@@ -270,7 +270,7 @@ class OperatorsPseudoSpectral3D(object):
 
         return (
             'type fft: ' + self.type_fft + '\n' +
-            'nx = {0:6d} ; ny = {1:6d} ; nz = {1:6d}\n'.format(
+            'nx = {:6d} ; ny = {:6d} ; nz = {:6d}\n'.format(
                 self.nx_seq, self.ny_seq, self.nz_seq) +
             'Lx = ' + str_Lx + ' ; Ly = ' + str_Ly +
             ' ; Lz = ' + str_Lz + '\n')
