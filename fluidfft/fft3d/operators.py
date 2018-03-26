@@ -225,6 +225,7 @@ class OperatorsPseudoSpectral3D(object):
         if mpi.nb_proc > 1:
             self.gather_Xspace = op_fft.gather_Xspace
             self.scatter_Xspace = op_fft.scatter_Xspace
+            self.comm = mpi.comm
 
         self.rank = mpi.rank
 
@@ -466,7 +467,7 @@ class OperatorsPseudoSpectral3D(object):
 
         .. todo::
 
-           Implement the method :func:`compute_1dspectrum`.
+           Implement the method :func:`compute_1dspectra`.
 
         Returns
         -------

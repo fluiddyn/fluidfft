@@ -193,7 +193,7 @@ cdef class ${class_name}:
 
         .. todo::
 
-           Debug this function (see unittest).
+           Debug the method :func:`gather_Xspace` (see unittest).
 
         """
         cdef np.ndarray[DTYPEf_t, ndim=3] ff_seq
@@ -215,7 +215,18 @@ cdef class ${class_name}:
 
     def scatter_Xspace(self, view3df_t ff_seq,
                       root=None):
-        """Scatter an array in real space for a parallel run."""
+        """Scatter an array in real space for a parallel run.
+
+        .. warning::
+
+           Not fully implemented! This function is buggy for classes using 2d
+           decomposition.
+
+        .. todo::
+
+           Debug the method :func:`scatter_Xspace` (see unittest).
+
+        """
         cdef np.ndarray[DTYPEf_t, ndim=3] ff_loc
 
         if not self._is_mpi_lib:

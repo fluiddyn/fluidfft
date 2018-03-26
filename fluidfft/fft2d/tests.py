@@ -93,7 +93,7 @@ def make_testop_functions(name, cls):
                                    E_ky.sum()*op.deltaky)
 
             E_kh = op.compute_2dspectrum(energy_fft)
-            self.assertAlmostEqual(nrja, E_kh.sum()*op.deltakh)
+            self.assertAlmostEqual(nrja, E_kh.sum()*op.deltak)
 
             try:
                 E_ky_kx = op.compute_spectrum_kykx(energy_fft)
