@@ -461,28 +461,71 @@ class OperatorsPseudoSpectral3D(object):
     def compute_1dspectra(self, energy_fft):
         """Compute the 1D spectra.
 
-        .. warning::
-
-           Not implemented!
-
-        .. todo::
-
-           Implement the method :func:`compute_1dspectra`.
-
         Returns
         -------
 
-        E_kx
+        spectrum_kx
 
-        E_ky
+        spectrum_ky
 
-        E_kz
+        spectrum_kz
 
         """
         nk0, nk1, nk2 = self.shapeK_loc
-        
-        raise NotImplementedError
+        spectrum_k0k1k2 = self._compute_spectrum3d_loc(energy_fft)
+        dimX_K = self._op_fft.get_dimX_K()
 
+        if self._is_mpi_lib:
+            def compute_spectrum_ki(dimXi):
+                ni = self.shapeX_seq[dimXi]
+                nk_spectra = ni//2 + 1
+                dimK = dimX_K.index(dimXi)
+                dims_for_sum = tuple(dim for dim in range(3) if dim != dimK) 
+                spectrum_tmp_loc = spectrum_k0k1k2.sum(axis=dims_for_sum)
+                istart = self.seq_indices_first_K[dimK]
+                nk_loc = self.shapeK_loc[dimK]
+
+                if self.dimK_first_fft != dimK:                    
+                    spectrum_tmp_seq = np.zeros(ni)
+                    spectrum_tmp_seq[istart:istart+nk_loc] = spectrum_tmp_loc
+                    spectrum_ki = spectrum_tmp_seq[:nk_spectra]
+                    nk1 = (ni+1)//2
+                    spectrum_ki[1:nk1] += spectrum_tmp_seq[nk_spectra:][::-1]
+                else:
+                    spectrum_tmp_seq = np.zeros(nk_spectra)
+                    spectrum_tmp_seq[istart:istart+nk_loc] = spectrum_tmp_loc
+                    spectrum_ki = spectrum_tmp_seq
+
+                spectrum_ki = mpi.comm.allreduce(spectrum_ki, op=mpi.MPI.SUM)
+                    
+                return spectrum_ki
+
+            spectrum_kx = compute_spectrum_ki(dimXi=2)
+            spectrum_ky = compute_spectrum_ki(dimXi=1)
+            spectrum_kz = compute_spectrum_ki(dimXi=0)
+            
+        else:
+            def compute_spectrum_ki(dimXi):
+                ni = self.shapeX_seq[dimXi]
+                nk_spectra = ni//2 + 1
+                dimK = dimX_K.index(dimXi)
+                dims_for_sum = tuple(dim for dim in range(3) if dim != dimK) 
+                spectrum_tmp = spectrum_k0k1k2.sum(axis=dims_for_sum)
+                if self.dimK_first_fft != dimK:
+                    spectrum_ki = spectrum_tmp[:nk_spectra]
+                    nk1 = (ni+1)//2
+                    spectrum_ki[1:nk1] += spectrum_tmp[nk_spectra:][::-1]
+                else:
+                    spectrum_ki = spectrum_tmp
+                return spectrum_ki
+
+            spectrum_kx = compute_spectrum_ki(dimXi=2)
+            spectrum_ky = compute_spectrum_ki(dimXi=1)
+            spectrum_kz = compute_spectrum_ki(dimXi=0)
+
+        return (spectrum_kx/self.deltakx, spectrum_ky/self.deltaky,
+                spectrum_kz/self.deltakz)
+            
     def compute_3dspectrum(self, energy_fft):
         """Compute the 3D spectrum.
 

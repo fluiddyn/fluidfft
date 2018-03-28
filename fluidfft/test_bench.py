@@ -1,6 +1,7 @@
 
 import unittest
 import sys
+import getpass
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -13,7 +14,7 @@ from .bench import bench_all, run
 from . import bench_analysis
 
 
-path_tmp = '/tmp/fluidfft_test_bench'
+path_tmp = '/tmp/fluidfft_test_bench' + getpass.getuser()
 
 
 class TestsBench(unittest.TestCase):
