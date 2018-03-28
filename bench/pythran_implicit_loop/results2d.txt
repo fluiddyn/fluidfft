@@ -1,0 +1,58 @@
+
+Results obtained with Intel(R) Core(TM) i7-2620M CPU @ 2.70GHz
+
+.pythranrc file contains just
+
+[pythran]
+complex_hook = True
+
+and CXX and CC env variables.
+
+
+# With clang 5.0.0
+
+$ make perf2d 
+
+# default 2d (no loop)
+python -m perf timeit -s \
+  'from bench import myfunc_default as func, f2d as arr' 'func(arr)'
+Mean +- std dev: 10.9 ms +- 0.3 ms
+
+# default 2d (explicit loops)
+python -m perf timeit -s \
+  'from bench import myfunc_loops2d_default as func, f2d as arr' 'func(arr)'
+Mean +- std dev: 7.33 ms +- 0.35 ms
+
+# simd 2d (no loop)
+python -m perf timeit -s \
+  'from bench import myfunc_simd as func, f2d as arr' 'func(arr)'
+Mean +- std dev: 8.12 ms +- 0.14 ms
+
+# simd 2d (explicit loops)
+python -m perf timeit -s \
+  'from bench import myfunc_loops2d_simd as func, f2d as arr' 'func(arr)'
+Mean +- std dev: 9.63 ms +- 0.38 ms
+
+
+# With gcc 5.4.0
+
+$ make perf2d
+# default 2d (no loop)
+python -m perf timeit -s \
+  'from bench import myfunc_default as func, f2d as arr' 'func(arr)'
+Mean +- std dev: 14.8 ms +- 0.8 ms
+
+# default 2d (explicit loops)
+python -m perf timeit -s \
+  'from bench import myfunc_loops2d_default as func, f2d as arr' 'func(arr)'
+Mean +- std dev: 7.55 ms +- 1.05 ms
+
+# simd 2d (no loop)
+python -m perf timeit -s \
+  'from bench import myfunc_simd as func, f2d as arr' 'func(arr)'
+Mean +- std dev: 14.4 ms +- 0.2 ms
+
+# simd 2d (explicit loops)
+python -m perf timeit -s \
+  'from bench import myfunc_loops2d_simd as func, f2d as arr' 'func(arr)'
+Mean +- std dev: 7.28 ms +- 0.08 ms

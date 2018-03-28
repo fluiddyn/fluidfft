@@ -1,0 +1,57 @@
+
+Results obtained with Intel(R) Core(TM) i7-2620M CPU @ 2.70GHz
+
+.pythranrc file contains just
+
+[pythran]
+complex_hook = True
+
+and CXX and CC env variables.
+
+
+# With clang 5.0.0
+
+$ make perf3d 
+# default 3d (no loop)
+python -m perf timeit -s \
+  'from bench import myfunc_default as func, f3d as arr' 'func(arr)'
+Mean +- std dev: 25.1 ms +- 1.0 ms
+
+# default 3d (explicit loops)
+python -m perf timeit -s \
+  'from bench import myfunc_loops3d_default as func, f3d as arr' 'func(arr)'
+Mean +- std dev: 18.2 ms +- 1.1 ms
+
+# simd 3d (no loop)
+python -m perf timeit -s \
+  'from bench import myfunc_simd as func, f3d as arr' 'func(arr)'
+Mean +- std dev: 20.5 ms +- 1.1 ms
+
+# simd 3d (explicit loops)
+python -m perf timeit -s \
+  'from bench import myfunc_loops3d_simd as func, f3d as arr' 'func(arr)'
+Mean +- std dev: 23.0 ms +- 1.2 ms
+
+
+# With gcc 5.4.0
+
+$ make perf3d 
+# default 3d (no loop)
+python -m perf timeit -s \
+  'from bench import myfunc_default as func, f3d as arr' 'func(arr)'
+Mean +- std dev: 32.6 ms +- 2.1 ms
+
+# default 3d (explicit loops)
+python -m perf timeit -s \
+  'from bench import myfunc_loops3d_default as func, f3d as arr' 'func(arr)'
+Mean +- std dev: 17.7 ms +- 0.6 ms
+
+# simd 3d (no loop)
+python -m perf timeit -s \
+  'from bench import myfunc_simd as func, f3d as arr' 'func(arr)'
+Mean +- std dev: 31.7 ms +- 0.4 ms
+
+# simd 3d (explicit loops)
+python -m perf timeit -s \
+  'from bench import myfunc_loops3d_simd as func, f3d as arr' 'func(arr)'
+Mean +- std dev: 17.7 ms +- 0.8 ms
