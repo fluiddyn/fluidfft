@@ -1,0 +1,72 @@
+
+[pythran]
+complex_hook = False
+
+# complex128
+
+## With clang 5.0.0
+
+$ make perf2d  # complex
+
+### default 2d (no loop)
+Mean +- std dev: 21.3 ms +- 1.1 ms
+
+### default 2d (explicit loops)
+Mean +- std dev: 7.76 ms +- 0.57 ms
+
+### simd 2d (no loop)
+Mean +- std dev: 19.4 ms +- 1.3 ms
+
+### simd 2d (explicit loops)
+Mean +- std dev: 7.50 ms +- 0.09 ms
+
+## With gcc 5.4.0
+
+$ make perf2d  # complex
+
+### default 2d (no loop)
+Mean +- std dev: 23.7 ms +- 1.1 ms
+
+### default 2d (explicit loops)
+Mean +- std dev: 14.8 ms +- 1.6 ms
+
+### simd 2d (no loop)
+Mean +- std dev: 241 ms +- 5 ms
+
+### simd 2d (explicit loops)
+Mean +- std dev: 128 ms +- 14 ms
+
+
+# float64
+
+## With clang 5.0.0
+
+$ make perf2d   # float
+
+### default 2d (no loop)
+Mean +- std dev: 3.69 ms +- 0.06 ms
+
+### default 2d (explicit loops)
+Mean +- std dev: 3.68 ms +- 0.20 ms
+
+### simd 2d (no loop)
+Mean +- std dev: 3.75 ms +- 0.25 ms
+
+### simd 2d (explicit loops)
+Mean +- std dev: 3.67 ms +- 0.17 ms
+
+## With gcc 5.4.0
+
+$ make perf2d  # float
+
+### default 2d (no loop)
+Mean +- std dev: 7.29 ms +- 0.57 ms
+
+### default 2d (explicit loops)
+Mean +- std dev: 3.70 ms +- 0.22 ms
+
+### simd 2d (no loop)
+Mean +- std dev: 7.31 ms +- 0.45 ms
+
+### simd 2d (explicit loops)
+Mean +- std dev: 3.68 ms +- 0.13 ms

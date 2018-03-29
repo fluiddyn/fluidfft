@@ -9,50 +9,72 @@ complex_hook = True
 and CXX and CC env variables.
 
 
-# With clang 5.0.0
+# complex128
 
-$ make perf2d 
+## With clang 5.0.0
 
-# default 2d (no loop)
-python -m perf timeit -s \
-  'from bench import myfunc_default as func, f2d as arr' 'func(arr)'
+$ make perf2d   # complex
+
+### default 2d (no loop)
 Mean +- std dev: 10.9 ms +- 0.3 ms
 
-# default 2d (explicit loops)
-python -m perf timeit -s \
-  'from bench import myfunc_loops2d_default as func, f2d as arr' 'func(arr)'
+### default 2d (explicit loops)
 Mean +- std dev: 7.33 ms +- 0.35 ms
 
-# simd 2d (no loop)
-python -m perf timeit -s \
-  'from bench import myfunc_simd as func, f2d as arr' 'func(arr)'
+### simd 2d (no loop)
 Mean +- std dev: 8.12 ms +- 0.14 ms
 
-# simd 2d (explicit loops)
-python -m perf timeit -s \
-  'from bench import myfunc_loops2d_simd as func, f2d as arr' 'func(arr)'
+### simd 2d (explicit loops)
 Mean +- std dev: 9.63 ms +- 0.38 ms
 
 
-# With gcc 5.4.0
+## With gcc 5.4.0
 
-$ make perf2d
-# default 2d (no loop)
-python -m perf timeit -s \
-  'from bench import myfunc_default as func, f2d as arr' 'func(arr)'
+$ make perf2d   # complex
+### default 2d (no loop)
 Mean +- std dev: 14.8 ms +- 0.8 ms
 
-# default 2d (explicit loops)
-python -m perf timeit -s \
-  'from bench import myfunc_loops2d_default as func, f2d as arr' 'func(arr)'
+### default 2d (explicit loops)
 Mean +- std dev: 7.55 ms +- 1.05 ms
 
-# simd 2d (no loop)
-python -m perf timeit -s \
-  'from bench import myfunc_simd as func, f2d as arr' 'func(arr)'
+### simd 2d (no loop)
 Mean +- std dev: 14.4 ms +- 0.2 ms
 
-# simd 2d (explicit loops)
-python -m perf timeit -s \
-  'from bench import myfunc_loops2d_simd as func, f2d as arr' 'func(arr)'
+### simd 2d (explicit loops)
 Mean +- std dev: 7.28 ms +- 0.08 ms
+
+
+# float64
+
+## With clang 5.0.0
+
+make perf2d  # float64
+
+### default 2d (no loop)
+Mean +- std dev: 3.64 ms +- 0.09 ms
+
+### default 2d (explicit loops)
+Mean +- std dev: 3.60 ms +- 0.07 ms
+
+### simd 2d (no loop)
+Mean +- std dev: 3.74 ms +- 0.34 ms
+
+### simd 2d (explicit loops)
+Mean +- std dev: 3.59 ms +- 0.11 ms
+
+
+## With gcc 5.4.0
+
+make perf2d  # float64
+
+### default 2d (no loop)
+Mean +- std dev: 7.22 ms +- 0.35 ms
+
+### default 2d (explicit loops)
+Mean +- std dev: 3.71 ms +- 0.25 ms
+
+### simd 2d (no loop)
+Mean +- std dev: 7.35 ms +- 0.53 ms
+
+### simd 2d (explicit loops)
+Mean +- std dev: 3.64 ms +- 0.23 ms
