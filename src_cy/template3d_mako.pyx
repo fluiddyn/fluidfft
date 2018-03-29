@@ -185,25 +185,42 @@ cdef class ${class_name}:
 
     def gather_Xspace(self, view3df_t ff_loc, root=None):
         """Gather an array in real space for a parallel run.
-
-        .. warning::
-
-           Not fully implemented! This function is buggy for classes using 2d
-           decomposition.
-
-        .. todo::
-
-           Debug the method :func:`gather_Xspace` (see unittest).
-
         """
         cdef np.ndarray[DTYPEf_t, ndim=3] ff_seq
+        cdef np.ndarray[DTYPEf_t, ndim=3] ff_tmp
+        cdef int nX0_loc, nX1_loc, nX2_loc
+        cdef int i0_start, i1_start, i2_start, i
+        cdef int i0_startrank, i1_startrank, nX0_rank, nX1_rank
 
         if not self._is_mpi_lib:
             return ff_loc
-        
+
+        nX0_loc, nX1_loc, nX2_loc = self.get_shapeX_loc()
+        i0_start, i1_start, i2_start = self.get_seq_indices_first_X()
+
         if root is None:
             ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
-            comm.Allgather(ff_loc, ff_seq)
+            for i in range(self.nb_proc):
+                if (self.rank==i):
+                    nX0_rank = nX0_loc
+                    nX1_rank = nX1_loc
+                    i0_startrank = i0_start
+                    i1_startrank = i1_start
+                    ff_tmp = np.empty([nX0_loc, nX1_loc, nX2_loc], DTYPEf)
+                    ff_tmp = np.copy(ff_loc)
+                nX0_rank = comm.bcast(nX0_rank, root=i)
+                nX1_rank = comm.bcast(nX1_rank, root=i)
+                i0_startrank = comm.bcast(i0_startrank, root=i)
+                i1_startrank = comm.bcast(i1_startrank, root=i)
+                if (self.rank==i):
+                    ff_tmp = comm.bcast(ff_tmp, root=i)
+                    ff_seq[i0_startrank:i0_startrank+nX0_rank,
+                           i1_startrank:i1_startrank+nX1_rank, :] = ff_loc
+                else:
+                    ff_tmp = np.empty([nX0_rank, nX1_rank, nX2_loc], DTYPEf)
+                    ff_tmp = comm.bcast(ff_tmp, root=i)
+                    ff_seq[i0_startrank:i0_startrank+nX0_rank,
+                           i1_startrank:i1_startrank+nX1_rank, :] = ff_tmp
         elif isinstance(root, int):
             ff_seq = None
             if self.rank == root:
@@ -303,7 +320,7 @@ cdef class ${class_name}:
 
         """
         cdef int nK0, nK1, nK2, nK0_loc, nK1_loc, nK2_loc
-        cdef int d0, d1, d2, i0_start, i1_start
+        cdef int d0, d1, d2, i0_start, i1_start, i2_start
         cdef np.ndarray tmp, k0_adim_loc, k1_adim_loc, k2_adim_loc
 
         nK0, nK1, nK2 = self.get_shapeK_seq()
