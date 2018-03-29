@@ -356,7 +356,7 @@ void FFT3DMPIWithFFTW1D::get_seq_indices_first_X(int *i0, int *i1, int *i2)
 
 bool FFT3DMPIWithFFTW1D::are_parameters_bad()
 {
-  if ((N0/nb_proc == 0) || (N2/2/nb_proc == 0))
+  if ((N0/nb_proc == 0) || (N2/2/nb_proc == 0) || (N2/2/nb_proc != float(N2)/2/nb_proc))
     {
       if (rank == 0)
         cout << "bad parameters N0 or N2" << endl;
