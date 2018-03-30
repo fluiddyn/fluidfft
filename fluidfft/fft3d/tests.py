@@ -2,7 +2,6 @@
 from __future__ import print_function, division
 
 import unittest
-from math import pi
 
 import numpy as np
 
@@ -36,8 +35,13 @@ def make_testop_functions(name, cls):
     for key, (n0, n1, n2) in shapes.items():
 
         def test(self, n0=n0, n1=n1, n2=n2):
-            op = OperatorsPseudoSpectral3D(n2, n1, n0,
-                                           12, 8, 4, fft=cls)
+            try:
+                op = OperatorsPseudoSpectral3D(n2, n1, n0,
+                                               12, 8, 4, fft=cls)
+            except ValueError:
+                print('ValueError while instantiating OperatorsPseudoSpectral3D'
+                      ' for {}'.format(cls))
+                return
             op_fft = op._op_fft
 
             op_fft.run_tests()

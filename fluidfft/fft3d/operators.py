@@ -81,7 +81,7 @@ class OperatorsPseudoSpectral3D(object):
             if mpi.nb_proc == 1:
                 fft = 'fft3d.with_pyfftw'
             else:
-                fft = 'fft3d.mpi_with_fftw1d'
+                fft = 'fft3d.mpi_with_fftwmpi3d'
 
         if isinstance(fft, basestring):
             if fft.lower() == 'sequential':
