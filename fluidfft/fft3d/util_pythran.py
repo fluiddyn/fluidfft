@@ -112,7 +112,7 @@ def loop_spectra3d(spectrum_k0k1k2, ks, K2):
     """Compute the 3d spectrum."""
     deltak = ks[1]
     nk = len(ks)
-    spectrum3d = np.zeros([nk])
+    spectrum3d = np.zeros(nk)
     nk0, nk1, nk2 = spectrum_k0k1k2.shape
     for ik0 in range(nk0):
         for ik1 in range(nk1):
