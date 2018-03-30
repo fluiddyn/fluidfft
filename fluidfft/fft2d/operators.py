@@ -353,9 +353,10 @@ class OperatorsPseudoSpectral2D(object):
             if self.rank == 0:
                 E_kx_loc[0] = E_kx_loc[0]/2
 
-            if self.rank == self.nb_proc - 1 and \
-               self.nx_seq % 2 == 0 and self.shapeK_seq[0] == self.nkxE:
-                E_kx_loc[-1] = E_kx_loc[-1]/2
+            if self.shapeK_loc[0] != 1:
+                if self.rank == self.nb_proc - 1 and \
+                   self.nx_seq % 2 == 0 and self.shapeK_seq[0] == self.nkxE:
+                    E_kx_loc[-1] = E_kx_loc[-1]/2
 
             E_kx = np.zeros(self.nkxE)
             counts = self.comm.allgather(self.nkx_loc)
@@ -371,11 +372,12 @@ class OperatorsPseudoSpectral2D(object):
             else:
                 E_ky_tmp += 2*energy_fft[0, :]
 
-            if self.rank == self.nb_proc - 1 and \
-               self.nx_seq % 2 == 0 and self.shapeK_seq[0] == self.nkxE:
-                E_ky_tmp += energy_fft[-1, :]
-            else:
-                E_ky_tmp += 2*energy_fft[-1, :]
+            if self.shapeK_loc[0] != 1:
+                if self.rank == self.nb_proc - 1 and \
+                   self.nx_seq % 2 == 0 and self.shapeK_seq[0] == self.nkxE:
+                    E_ky_tmp += energy_fft[-1, :]
+                else:
+                    E_ky_tmp += 2*energy_fft[-1, :]
 
             nkyE = self.nkyE
             E_ky = E_ky_tmp[:nkyE]

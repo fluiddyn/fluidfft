@@ -149,27 +149,30 @@ myreal FFT2DMPIWithFFTWMPI2D::compute_energy_from_K(mycomplex* fieldK)
   for (i1=0; i1<nK1; i1++)
     energy_tmp += pow(abs(fieldK[i1]), 2);
   
-  if (local_K0_start == 0)  // i.e. if iKx == 0
+  //if iKx == 0 | nK0loc == 1 && iKx=last
+  if (rank == 0 | (rank == nb_proc -1 & nK0loc == 1))  // i.e. if iKx == 0
     energy_loc = energy_tmp/2;
   else
     energy_loc = energy_tmp;
 
-  // modes i0 = iKx = last = nK0loc - 1
-  i0 = nK0loc - 1;
-  energy_tmp = 0.;
-  i_tmp = i0 * nK1;
-  for (i1=0; i1<nK1; i1++)
-    energy_tmp += pow(abs(fieldK[i1 + i_tmp]), 2);
-
-  if (rank == nb_proc - 1)
-    energy_loc += energy_tmp/2;
-  else
-    energy_loc += energy_tmp;
-
-  // other modes
-  for (i0=1; i0<nK0loc-1; i0++)
+  if (nK0loc > 1)
+  {
+    // modes i0 = iKx = last = nK0loc - 1
+    i0 = nK0loc - 1;
+    energy_tmp = 0.;
+    i_tmp = i0 * nK1;
     for (i1=0; i1<nK1; i1++)
-      energy_loc += pow(abs(fieldK[i1 + i0*nK1]), 2);
+      energy_tmp += pow(abs(fieldK[i1 + i_tmp]), 2);
+    if (rank == nb_proc - 1)
+      energy_loc += energy_tmp/2;
+    else
+      energy_loc += energy_tmp;
+    // other modes
+    for (i0=1; i0<nK0loc-1; i0++)
+      for (i1=0; i1<nK1; i1++)
+        energy_loc += pow(abs(fieldK[i1 + i0*nK1]), 2);
+   }
+
 #ifdef SINGLE_PREC
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
 #else
@@ -191,27 +194,31 @@ myreal FFT2DMPIWithFFTWMPI2D::sum_wavenumbers(myreal* fieldK)
   for (i1=0; i1<nK1; i1++)
     sum_tmp += fieldK[i1];
   
-  if (local_K0_start == 0)  // i.e. if iKx == 0
+  //if (local_K0_start == 0)  // i.e. if iKx == 0
+  if (rank == 0 | (rank == nb_proc -1 & nK0loc == 1))  // i.e. if iKx == 0
     sum_loc = sum_tmp/2;
   else
     sum_loc = sum_tmp;
 
-  // modes i0 = iKx = last = nK0loc - 1
-  i0 = nK0loc - 1;
-  sum_tmp = 0.;
-  i_tmp = i0 * nK1;
-  for (i1=0; i1<nK1; i1++)
-    sum_tmp += fieldK[i1 + i_tmp];
-
-  if (rank == nb_proc - 1)
-    sum_loc += sum_tmp/2;
-  else
-    sum_loc += sum_tmp;
-
-  // other modes
-  for (i0=1; i0<nK0loc-1; i0++)
+  if (nK0loc > 1)
+  {
+    // modes i0 = iKx = last = nK0loc - 1
+    i0 = nK0loc - 1;
+    sum_tmp = 0.;
+    i_tmp = i0 * nK1;
     for (i1=0; i1<nK1; i1++)
-      sum_loc += fieldK[i1 + i0*nK1];
+      sum_tmp += fieldK[i1 + i_tmp];
+
+    if (rank == nb_proc - 1)
+      sum_loc += sum_tmp/2;
+    else
+      sum_loc += sum_tmp;
+
+    // other modes
+    for (i0=1; i0<nK0loc-1; i0++)
+      for (i1=0; i1<nK1; i1++)
+        sum_loc += fieldK[i1 + i0*nK1];
+  }
 #ifdef SINGLE_PREC
   MPI_Allreduce(&sum_loc, &sum_tot, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
 #else
