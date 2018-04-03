@@ -275,25 +275,25 @@ cdef class ${class_name}:
             if (i==root):
                 ff_loc = ff_seq[i0_start:i0_start+nX0_loc,
                                 i1_start:i1_start+nX1_loc, :]
-                elif (self.rank==i):
-                    nX0_rank = nX0_loc
-                    nX1_rank = nX1_loc
-                    i0_startrank = i0_start
-                    i1_startrank = i1_start
-                    comm.send(nX0_rank, dest=root)
-                    comm.send(nX1_rank, dest=root)
-                    comm.send(i0_startrank, dest=root)
-                    comm.send(i1_startrank, dest=root)
-                    ff_loc = comm.recv(source=root)
-                elif (self.rank==root):
-                    nX0_rank = comm.recv(source=i)
-                    nX1_rank = comm.recv(source=i)
-                    i0_startrank = comm.recv(source=i)
-                    i1_startrank = comm.recv(source=i)
-                    ff_tmp = np.empty([nX0_rank, nX1_rank, nX2_loc], DTYPEf)
-                    ff_tmp = ff_seq[i0_startrank:i0_startrank+nX0_rank,
-                                    i1_startrank:i1_startrank+nX1_rank, :]
-                    comm.send(ff_tmp, dest=i)
+            elif (self.rank==i):
+                nX0_rank = nX0_loc
+                nX1_rank = nX1_loc
+                i0_startrank = i0_start
+                i1_startrank = i1_start
+                comm.send(nX0_rank, dest=root)
+                comm.send(nX1_rank, dest=root)
+                comm.send(i0_startrank, dest=root)
+                comm.send(i1_startrank, dest=root)
+                ff_loc = comm.recv(source=root)
+            elif (self.rank==root):
+                nX0_rank = comm.recv(source=i)
+                nX1_rank = comm.recv(source=i)
+                i0_startrank = comm.recv(source=i)
+                i1_startrank = comm.recv(source=i)
+                ff_tmp = np.empty([nX0_rank, nX1_rank, nX2_loc], DTYPEf)
+                ff_tmp = ff_seq[i0_startrank:i0_startrank+nX0_rank,
+                                i1_startrank:i1_startrank+nX1_rank, :]
+                comm.send(ff_tmp, dest=i)
         return ff_loc
 
     cpdef get_shapeK_seq(self):
