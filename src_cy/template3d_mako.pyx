@@ -251,14 +251,8 @@ cdef class ${class_name}:
                       root=None):
         """Scatter an array in real space for a parallel run.
 
-        .. warning::
-
-           Not fully implemented! This function is buggy for classes using 2d
-           decomposition.
-
         .. todo::
-
-           Debug the method :func:`scatter_Xspace` (see unittest).
+           Write unittest for the method :func:`scatter_Xspace`
 
         """
         cdef np.ndarray[DTYPEf_t, ndim=3] ff_loc
@@ -274,10 +268,10 @@ cdef class ${class_name}:
 
         if root is None:
             root = 0
+        elif not isinstance(root, int):
+            raise ValueError('root should be an int')
         ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
-        ff_loc = ff_seq[i0_start:i0_start+nX0_loc,
-                        i1_start:i1_start+nX1_loc, :]
-        '''        for i in range(self.nb_proc):
+        for i in range(self.nb_proc):
             if (i==root):
                 ff_loc = ff_seq[i0_start:i0_start+nX0_loc,
                                 i1_start:i1_start+nX1_loc, :]
@@ -290,25 +284,16 @@ cdef class ${class_name}:
                     comm.send(nX1_rank, dest=root)
                     comm.send(i0_startrank, dest=root)
                     comm.send(i1_startrank, dest=root)
-                    comm.send(ff_loc, dest=root)
+                    ff_loc = comm.recv(source=root)
                 elif (self.rank==root):
                     nX0_rank = comm.recv(source=i)
                     nX1_rank = comm.recv(source=i)
                     i0_startrank = comm.recv(source=i)
                     i1_startrank = comm.recv(source=i)
                     ff_tmp = np.empty([nX0_rank, nX1_rank, nX2_loc], DTYPEf)
-                    ff_tmp = comm.recv(source=i)
-                    ff_seq[i0_startrank:i0_startrank+nX0_rank,
-                           i1_startrank:i1_startrank+nX1_rank, :] = ff_tmp
-            comm.Scatter(ff_seq, ff_loc, root=0)
-        elif isinstance(root, int):
-            ff_loc = None
-            if self.rank == root:
-                ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
-            comm.Scatter(ff_seq, ff_loc, root=root)
-        else:
-            raise ValueError('root should be an int')
-        '''
+                    ff_tmp = ff_seq[i0_startrank:i0_startrank+nX0_rank,
+                                    i1_startrank:i1_startrank+nX1_rank, :]
+                    comm.send(ff_tmp, dest=i)
         return ff_loc
 
     cpdef get_shapeK_seq(self):
