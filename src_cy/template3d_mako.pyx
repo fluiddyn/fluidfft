@@ -221,7 +221,7 @@ cdef class ${class_name}:
             if self.rank == root:
                 ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
             for i in range(self.nb_proc):
-                if i == root:
+                if i == root and self.rank == root:
                     ff_seq[i0_start:i0_start+nX0_loc,
                            i1_start:i1_start+nX1_loc, :] = ff_loc
                 elif self.rank == i:
@@ -243,6 +243,7 @@ cdef class ${class_name}:
                     ff_tmp = comm.recv(source=i)
                     ff_seq[i0_startrank:i0_startrank+nX0_rank,
                            i1_startrank:i1_startrank+nX1_rank, :] = ff_tmp
+                comm.barrier()
         else:
             raise ValueError('root should be an int')
         return ff_seq
@@ -270,7 +271,7 @@ cdef class ${class_name}:
 
         ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
         for i in range(self.nb_proc):
-            if i == root:
+            if i == root and self.rank == root:
                 ff_loc = ff_seq[i0_start:i0_start+nX0_loc,
                                 i1_start:i1_start+nX1_loc, :]
             elif self.rank == i:
@@ -292,6 +293,7 @@ cdef class ${class_name}:
                 ff_tmp = ff_seq[i0_startrank:i0_startrank+nX0_rank,
                                 i1_startrank:i1_startrank+nX1_rank, :]
                 comm.send(ff_tmp, dest=i)
+            comm.barrier()
         return ff_loc
 
     cpdef get_shapeK_seq(self):

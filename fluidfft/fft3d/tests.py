@@ -125,7 +125,6 @@ def make_testop_functions(name, cls):
 
             # currently, the following does not work so we return here
             # comment this return to test the gather and scatter functions
-            return
 
             X = np.ascontiguousarray(X)
             Y = np.ascontiguousarray(Y)
