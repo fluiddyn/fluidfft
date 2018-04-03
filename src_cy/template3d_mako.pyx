@@ -183,7 +183,7 @@ cdef class ${class_name}:
         self.thisptr.get_global_shape_X(&nX0, &nX1, &nX2)
         return nX0, nX1, nX2
 
-    def gather_Xspace(self, view3df_t ff_loc, root=None):
+    def gather_Xspace(self, ff_loc, root=0):
         """Gather an array in real space for a parallel run.
         """
         cdef np.ndarray[DTYPEf_t, ndim=3] ff_seq
@@ -201,7 +201,7 @@ cdef class ${class_name}:
         if root is None:
             ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
             for i in range(self.nb_proc):
-                if (self.rank==i):
+                if self.rank == i:
                     nX0_rank = nX0_loc
                     nX1_rank = nX1_loc
                     i0_startrank = i0_start
@@ -211,7 +211,7 @@ cdef class ${class_name}:
                 i0_startrank = comm.bcast(i0_startrank, root=i)
                 i1_startrank = comm.bcast(i1_startrank, root=i)
                 ff_tmp = np.empty([nX0_rank, nX1_rank, nX2_loc], DTYPEf)
-                if (self.rank==i):
+                if self.rank == i:
                     ff_tmp = np.copy(ff_loc)
                 ff_tmp = comm.bcast(ff_tmp, root=i)
                 ff_seq[i0_startrank:i0_startrank+nX0_rank,
@@ -221,10 +221,10 @@ cdef class ${class_name}:
             if self.rank == root:
                 ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
             for i in range(self.nb_proc):
-                if (i==root):
+                if i == root:
                     ff_seq[i0_start:i0_start+nX0_loc,
                            i1_start:i1_start+nX1_loc, :] = ff_loc
-                elif (self.rank==i):
+                elif self.rank == i:
                     nX0_rank = nX0_loc
                     nX1_rank = nX1_loc
                     i0_startrank = i0_start
@@ -234,7 +234,7 @@ cdef class ${class_name}:
                     comm.send(i0_startrank, dest=root)
                     comm.send(i1_startrank, dest=root)
                     comm.send(ff_loc, dest=root)
-                elif (self.rank==root):
+                elif self.rank == root:
                     nX0_rank = comm.recv(source=i)
                     nX1_rank = comm.recv(source=i)
                     i0_startrank = comm.recv(source=i)
@@ -247,8 +247,7 @@ cdef class ${class_name}:
             raise ValueError('root should be an int')
         return ff_seq
 
-    def scatter_Xspace(self, view3df_t ff_seq,
-                      root=None):
+    def scatter_Xspace(self, ff_seq, root=0):
         """Scatter an array in real space for a parallel run.
 
         .. todo::
@@ -263,19 +262,18 @@ cdef class ${class_name}:
         if not self._is_mpi_lib:
             return ff_seq
 
+        if not isinstance(root, int):
+            raise ValueError('root should be an int')
+        
         nX0_loc, nX1_loc, nX2_loc = self.get_shapeX_loc()
         i0_start, i1_start, i2_start = self.get_seq_indices_first_X()
 
-        if root is None:
-            root = 0
-        elif not isinstance(root, int):
-            raise ValueError('root should be an int')
         ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
         for i in range(self.nb_proc):
-            if (i==root):
+            if i == root:
                 ff_loc = ff_seq[i0_start:i0_start+nX0_loc,
                                 i1_start:i1_start+nX1_loc, :]
-            elif (self.rank==i):
+            elif self.rank == i:
                 nX0_rank = nX0_loc
                 nX1_rank = nX1_loc
                 i0_startrank = i0_start
@@ -285,7 +283,7 @@ cdef class ${class_name}:
                 comm.send(i0_startrank, dest=root)
                 comm.send(i1_startrank, dest=root)
                 ff_loc = comm.recv(source=root)
-            elif (self.rank==root):
+            elif self.rank == root:
                 nX0_rank = comm.recv(source=i)
                 nX1_rank = comm.recv(source=i)
                 i0_startrank = comm.recv(source=i)

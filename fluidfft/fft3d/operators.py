@@ -222,9 +222,11 @@ class OperatorsPseudoSpectral3D(object):
         CONDKZ = abs(self.Kz) > self.coef_dealiasing*self.k0.max()
         where_dealiased = np.logical_or(CONDKX, CONDKY, CONDKZ)
         self.where_dealiased = np.array(where_dealiased, dtype=np.uint8)
+
+        self.gather_Xspace = op_fft.gather_Xspace
+        self.scatter_Xspace = op_fft.scatter_Xspace
+
         if mpi.nb_proc > 1:
-            self.gather_Xspace = op_fft.gather_Xspace
-            self.scatter_Xspace = op_fft.scatter_Xspace
             self.comm = mpi.comm
 
         self.rank = mpi.rank

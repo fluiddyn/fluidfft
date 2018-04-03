@@ -51,6 +51,11 @@ make_pyx_files()
 
 config, lib_flags_dict, lib_dirs_dict = parse_config()
 
+# handle environ (variables) in config
+if 'environ' in config:
+    os.environ.update(config['environ'])
+
+
 # Get the long description from the relevant file
 with open('README.rst') as f:
     long_description = f.read()

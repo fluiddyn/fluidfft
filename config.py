@@ -12,7 +12,7 @@ except ImportError:  # python 2.7
     from ConfigParser import ConfigParser
 
 sections_libs = ['fftw3', 'fftw3_mpi', 'cufft', 'pfft', 'p3dfft']
-
+sections = sections_libs + ['environ']
 
 def get_default_config():
     """Generate default configuration."""
@@ -29,6 +29,8 @@ def get_default_config():
         config.set(section, 'dir', '')
         config.set(section, 'include_dir', '')
         config.set(section, 'library_dir', '')
+
+    config.add_section('environ')
 
     return config
 
@@ -73,25 +75,31 @@ def get_config():
 
     config_dict = {}
     for section in config.sections():
-        if section not in sections_libs:
-            raise ValueError('Unexpected library in site.cfg: {}'.format(section))
+        if section not in sections:
+            raise ValueError(
+                'Unexpected library in site.cfg: {}'.format(section))
 
         section_dict = {}
         for option in config.options(section):
             value = config.get(section, option)
-            if option == 'use':
-                value = value.lower()
-                if not (section == 'fftw3' and value in ('mkl', 'mkl_rt')):
-                    if value not in ['true', 'false']:
-                        raise ValueError('"use" should be "True" of "False".')
-                    value = value == 'true'
+            if section == 'environ':
+                option = option.upper()
             else:
-                value = os.path.expanduser(value)
-                value = os.path.expandvars(value)
+                if option == 'use':
+                    value = value.lower()
+                    if not (section == 'fftw3' and value in ('mkl', 'mkl_rt')):
+                        if value not in ['true', 'false']:
+                            raise ValueError(
+                                '"use" should be "True" of "False".')
+                        value = value == 'true'
+                else:
+                    value = os.path.expanduser(value)
+                    value = os.path.expandvars(value)
+
             section_dict[option] = value
 
         config_dict[section] = section_dict
-        if section_dict['use']:
+        if 'use' in section_dict and section_dict['use']:
             print(section + ': ')
             for k, v in section_dict.items():
                 k = '{}: '.format(k).rjust(25)

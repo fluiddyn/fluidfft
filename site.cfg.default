@@ -28,3 +28,5 @@ dir =
 include_dir = 
 library_dir = 
 
+[environ]
+

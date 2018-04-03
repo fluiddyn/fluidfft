@@ -295,8 +295,9 @@ def make_command_obj_from_cpp(obj_file, cpp_file, include_dirs=None,
     command = ' '.join([conf_vars[k] for k in keys])
 
     if cpp_file.endswith('.cu'):
+        NVCC = os.environ.get('NVCC', default='nvcc')
         command = (
-            'nvcc -m64 '
+            NVCC + ' -m64 '
             '-gencode arch=compute_30,code=sm_30 '
             '-gencode arch=compute_32,code=sm_32 '
             '-gencode arch=compute_35,code=sm_35 '
@@ -353,7 +354,8 @@ def make_command_ext_from_objs(
         command[0] = cxx.split()[0]
 
     if 'cufft' in ext_file:
-        command = 'nvcc -Xcompiler -pthread -shared'.split()
+        NVCC = os.environ.get('NVCC', default='nvcc')
+        command = (NVCC + ' -Xcompiler -pthread -shared').split()
 
     command += obj_files + ['-o', ext_file]
     if lib_dirs is not None:
