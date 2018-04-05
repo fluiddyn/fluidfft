@@ -40,8 +40,10 @@ cimport cpu
 from libc.stdint cimport intptr_t
 import warnings
 
-
-cdef int _simd_alignment = cpu.simd_alignment()
+# pa: we temporary don't use cpu.simd_alignment() because it leads to
+# segfaults on some machines (Occigen, Beskow, ...). Of course this
+# alignment can be wrong!
+cdef int _simd_alignment = 16  # cpu.simd_alignment()
 
 #: The optimum SIMD alignment in bytes, found by inspecting the CPU.
 simd_alignment = _simd_alignment
