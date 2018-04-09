@@ -2,19 +2,24 @@
 import os
 import numpy as np
 from fluiddyn.clusters.snic import ClusterSNIC as Cluster
-import fluidfft
 
 
 # Parameters
 # ----------
 ## n0 = 2 ** 10; 'Triolith / Beskow'
-n0 = 1024; nb_cores = [2, 4, 8, 16, 32]; nodes = [1, 2, 4, 8, 16, 32, 64, 128]
+n = (384, 1152, 1152); nb_cores = [2, 4, 8, 16, 32]; nodes = [1, 2, 4, 8, 16, 32, 64, 128]
 
 ## n0 = 2**6 * 3**2 * 7; 'Kebnekaise'
-# n0 = 1008; nb_cores = [2, 4, 8, 12, 16, 21, 24, 28]; nodes = [2, 3, 4, 6]
+# n = (1008,); nb_cores = [2, 4, 8, 12, 16, 21, 24, 28]; nodes = [2, 3, 4, 6]
 
-# argv = dict(dim='2d', nh=f'{n0} -d 2', time='00:04:00')  # 2D benchmarks
-argv = dict(dim='3d', nh=f'{n0} -d 3', time='00:20:00')  # 3D benchmarks
+
+def shape(join_with=' '):
+    n_as_str = [str(i) for i in n]
+    return join_with.join(n_as_str)
+
+
+# argv = dict(dim='2d', nh=f'{shape()} -d 2', time='00:04:00')  # 2D benchmarks
+argv = dict(dim='3d', nh=f'{shape()} -d 3', time='00:20:00')  # 3D benchmarks
 # mode = 'intra'
 mode = 'inter'
 # mode = 'inter-intra'
@@ -24,22 +29,26 @@ def init_cluster():
     global output_dir
 
     cluster = Cluster()
+    output_dir = os.path.abspath(
+        f"./../../fluidfft-bench-results/"
+        f"{cluster.name_cluster}_{shape('x')}")
+
+    cluster.max_walltime = '00:20:01'
     if cluster.name_cluster == 'beskow':
         cluster.default_project = '2017-12-20'
         interactive=False
+        cluster.commands_unsetting_env.insert(
+            0, f'aprun -n 1 fluidinfo -o {output_dir}')
     else:
         cluster.default_project = 'SNIC2017-12-20'
         interactive=True
+        cluster.commands_unsetting_env.insert(
+            0, f'fluidinfo -o {output_dir}')
 
-    fluidfft_dir = os.path.dirname(fluidfft.__file__)
-    output_dir = os.path.abspath(
-        f"{fluidfft_dir}/../doc/benchmarks/"
-        f"snic_2018_{cluster.name_cluster}_{argv['dim']}")
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
     print('Output directory: ', output_dir)
-    cluster.commands_unsetting_env.insert(0, 'fluidinfo -o ' + output_dir)
     return cluster, interactive
 
 

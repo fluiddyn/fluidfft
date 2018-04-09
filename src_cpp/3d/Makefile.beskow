@@ -1,5 +1,5 @@
 ## Meant only for Beskow. Run:
-# make -f Makefile.beskow clean build test_bench.out
+# make -f Makefile.beskow
 # make -f Makefile.beskow test
 # make -f Makefile.beskow testmpi
 SINGLE_PREC:=no
@@ -11,17 +11,24 @@ P3DFFT:=yes
 
 LD:=CC -dynamic
 CC:=CC
-FLAGS:= -g -O0 -Wall
+FLAGS:= -g -Ofast -Wall
 LDFLAGS:=
-LIBS:= -ldl -lm -lgfortran
+LIBS:= -ldl -lhwloc -lm -lgfortran
 
-## If using preinstalled FFTW, `module load fftw`, switch off PFFT, P3DFFT and use the following 2 lines
-# LIB_DIR:=-L$(FFTW_DIR)
-# INC_DIR:=-I. -I../base -I$(INTEL_PATH)/compiler/include/ -I$(FFTW_INC)
-#
-## If using local installation for FFTW, use:
-LIB_DIR:=-L$(LUSTRE)/opt/lib
-INC_DIR:=-I. -I../base -I$(INTEL_PATH)/compiler/include/ -I$(LUSTRE)/opt/include
+OUTPUT:=test_beskow.log
+
+LIB_DIR:=
+INC_DIR:=-I. -I../base -I$(INTEL_PATH)/compiler/include/ 
+## If using preinstalled FFTW,
+## `module load fftw`,
+## OR
+## `module load cray-fftw`,
+LIB_DIR+=-L$(FFTW_DIR)
+INC_DIR+=-I$(FFTW_INC)
+
+## If using local installation for FFTW, P3DFFT and PFFT use:
+LIB_DIR+=-L$(SNIC_NOBACKUP)/opt/lib
+INC_DIR+=-I$(SNIC_NOBACKUP)/opt/include
 
 SOURCES_CPP := $(wildcard base*.cpp)
 SOURCES_CPP += fft3d_with_fftw3d.cpp fft3dmpi_with_fftw1d.cpp fft3dmpi_with_fftwmpi3d.cpp test_bench.cpp
@@ -110,7 +117,7 @@ OBJECTS_BUILD = build/$(subst $(space),$(space)build/,$(OBJECTS_CPP_BASE) $(OBJE
 
 .PHONY: help all clean _build_dir
 
-all: build test_bench.out
+all: clean build test_bench.out
 
 build:
 	mkdir -p build
@@ -118,6 +125,7 @@ build:
 clean:
 	rm -rf build
 	rm -f *.out
+	rm -f make.log
 
 test_bench.out: $(OBJECTS) $(OBJECTS_CPP_BASE)
 	# link to build the executable $@
@@ -142,11 +150,11 @@ test_bench.out: $(OBJECTS) $(OBJECTS_CPP_BASE)
 
 test:
 	export CRAY_ROOTFS=DSL
-	aprun -n 1 ./test_bench.out --N0=64 --N1=32 --N2=16
+	aprun -n 1 ./test_bench.out --N0=64 --N1=32 --N2=16 >> $(OUTPUT) 2>&1
 
 testmpi:
 	export CRAY_ROOTFS=DSL
-	aprun -n 4 ./test_bench.out --N0=64 --N1=32 --N2=16
-	aprun -n 4 ./test_bench.out --N0=128 --N1=128 --N2=128
-	aprun -n 4 ./test_bench.out --N0=256 --N1=256 --N2=256
-	aprun -n 4 ./test_bench.out --N0=512 --N1=512 --N2=512
+	aprun -n 4 ./test_bench.out --N0=64 --N1=32 --N2=16 >> $(OUTPUT) 2>&1
+	aprun -n 4 ./test_bench.out --N0=128 --N1=128 --N2=128 >> $(OUTPUT) 2>&1
+	aprun -n 4 ./test_bench.out --N0=256 --N1=256 --N2=256 >> $(OUTPUT) 2>&1
+	aprun -n 4 ./test_bench.out --N0=512 --N1=512 --N2=512 >> $(OUTPUT) 2>&1

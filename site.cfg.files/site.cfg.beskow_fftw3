@@ -1,0 +1,33 @@
+[fftw3]
+use = True
+dir =
+include_dir = $FFTW_INC 
+library_dir = $FFTW_DIR
+
+[fftw3_mpi]
+use = True
+dir =
+include_dir = $FFTW_INC 
+library_dir = $FFTW_DIR
+
+[cufft]
+use = False
+dir = 
+include_dir = 
+library_dir = 
+
+[pfft]
+use = True
+dir = $SNIC_NOBACKUP/opt
+include_dir = 
+library_dir = 
+
+[p3dfft]
+use = True
+dir = $SNIC_NOBACKUP/opt
+include_dir = 
+library_dir = 
+
+[environ]
+MPICXX = CC
+LDSHARED = CC -shared
