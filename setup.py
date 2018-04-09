@@ -19,7 +19,7 @@ if on_tox is not None:
 Distribution(dict(setup_requires=setup_requires))
 
 import numpy as np
-from numpy.distutils.system_info import get_info
+from numpy.__config__ import get_info
 
 from src_cy.make_files_with_mako import make_pyx_files
 from purepymake import (
@@ -38,8 +38,8 @@ except ImportError:
 monkeypatch_parallel_build()
 
 try:
-    mkl_libs = get_info('mkl')['libraries']
-    use_mkl_intel = 'mkl_intel_lp64' in mkl_libs
+    blas_libs = get_info('blas_opt')['libraries']
+    use_mkl_intel = 'mkl_intel_lp64' in blas_libs or 'mkl_rt' in blas_libs
     # Note: No symbol clash occurs if 'mkl_rt' appears in numpy libraries
     #       instead.
     # P.S.: If 'mkl_rt' is detected, use FFTW libraries, not Intel's MKL/FFTW
