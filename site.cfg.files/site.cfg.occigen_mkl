@@ -7,7 +7,7 @@ include_dir = $MKLROOT/include/fftw
 library_dir = $MKLROOT/lib/intel64
 
 [fftw3_mpi]
-use = True
+use = False
 dir = 
 include_dir = 
 library_dir = 

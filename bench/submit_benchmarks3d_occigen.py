@@ -1,12 +1,18 @@
+#!/usr/bin/env python
 
 from fluiddyn.clusters.cines import Occigen as Cluster
 
 cluster = Cluster()
 
-for nb_nodes in [1, 2, 3, 4, 6, 8, 12, 16, 20]:
+# n0 = 384
+# n1 = n2 = 1152
+
+n0 = n1 = n2 = 1152
+
+for nb_nodes in [4, 6, 8, 16, 32, 64, 128, 256, 420]:
     cluster.submit_command(
-        'fluidfft-bench 1152 1152 384 -d 3 -o ~/fluidfft_bench -n 20',
-        name_run=f'fluidfft-bench1152x1152x384_{nb_nodes}',
+        f'fluidfft-bench {n0} {n1} {n2} -d 3 -o ~/fluidfft_bench -n 10',
+        name_run=f'fluidfft-bench{n0}x{n1}x{n2}_{nb_nodes:02d}',
         nb_nodes=nb_nodes,
         walltime='00:30:00',
         ask=False)
