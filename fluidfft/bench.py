@@ -214,7 +214,7 @@ def bench_all(dim='2d', n0=1024*2, n1=None, n2=None, path_dir=path_results,
     pid = os.getpid()
     nfile = (
         'result_bench' + dim + '_' + str_grid +
-        '_{}'.format(mpi.nb_proc) + '_' + t_as_str +
+        '_{:04d}'.format(mpi.nb_proc) + '_' + t_as_str +
         '_{}'.format(pid) + '.json')
 
     path = os.path.join(path_dir, nfile)
