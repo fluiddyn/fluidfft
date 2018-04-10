@@ -21,7 +21,7 @@ def _get_typeline_from_key(key):
     elif key.endswith('_cpp'):
         return '-'
     else:
-        return '-.'
+        return ':'
 
 def _get_color_from_lib(name):
     if name.endswith('fftw1d'):
@@ -157,12 +157,14 @@ def plot_scaling(path_dir, hostname, dim, n0, n1, n2=None, show=True):
     ax1.set_title('IFFT, best for {} procs: {}, {} ({:.2f} ms)'.format(
         nb_proc_min, name_min_ifft, key_min_ifft[2:], t_min_ifft*1000))
 
-    title = 'Fast Fourier Transform {} {}x{}'.format(dim, n0, n1)
+    title = 'Speedup Fast Fourier Transform {} {}x{}'.format(dim, n0, n1)
     if n2 is not None:
         title += 'x{}'.format(n2)
-    
+
+    title += ' (higher is faster)'
+
     fig.suptitle(title)
-    
+
     ax0.legend()
     ax1.legend()
 

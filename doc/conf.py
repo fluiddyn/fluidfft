@@ -15,6 +15,8 @@ import sys
 import os
 import subprocess
 from runpy import run_path
+import getpass
+from subprocess import call
 
 import matplotlib as mpl
 mpl.use('Agg')
@@ -29,11 +31,30 @@ from fluidfft.bench_analysis import plot_scaling
 here = os.path.dirname(__file__)
 tmp = os.path.join(here, 'tmp')
 
+path_tmp = os.path.join('/tmp', getpass.getuser())
+if not os.path.exists(path_tmp):
+    os.mkdir(path_tmp)
+
+repo_fluidfft_bench_results = \
+    'https://bitbucket.org/fluiddyn/fluidfft-bench-results'
+path_fluidfft_bench_results = os.path.join(path_tmp, 'fluidfft-bench-results')
+
+if os.path.exists(path_fluidfft_bench_results):
+    os.chdir(path_fluidfft_bench_results)
+    call(['hg', 'pull', '-u'])
+else:
+    os.chdir(path_tmp)
+    call(['hg', 'clone', repo_fluidfft_bench_results])
+
+os.chdir(here)
+
 
 def save_fig_scaling(dir_name, dim, n0, n1, n2=None):
-    path_dir = os.path.join(here, 'benchmarks', dir_name)
+    path_dir = os.path.join(path_fluidfft_bench_results, dir_name)
     path_fig = os.path.join(tmp, 'fig_' + dir_name + '.png')
 
+    print(path_dir)
+    
     fig = plot_scaling(path_dir, None, dim, n0, n1, n2, show=False)
     fig.savefig(path_fig)
 
@@ -45,9 +66,10 @@ if not os.path.exists(tmp):
 ipynb_to_rst()
 ipynb_to_rst('ipynb/executed', executed=True)
 
-save_fig_scaling('legi_cluster7_2d', '2d', 1024, 1024)
-save_fig_scaling('legi_cluster8_2d', '2d', 960, 960)
-save_fig_scaling('legi_cluster8_3d', '3d', 640, 640, 320)
+save_fig_scaling('legi_cluster8_320x640x640', '3d', 320, 640, 640)
+save_fig_scaling('occigen_384x1152x1152', '3d', 384, 1152, 1152)
+save_fig_scaling('beskow_384x1152x1152', '3d', 384, 1152, 1152)
+save_fig_scaling('occigen_1152x1152x1152', '3d', 1152, 1152, 1152)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
