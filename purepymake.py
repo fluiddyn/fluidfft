@@ -67,9 +67,19 @@ if can_import_cython:
         compile_single as cython_compile
 
 if can_import_mpi4py:
-    # does not work with mpich2 (used by default by anaconda)
-    mpicxx_compile_words = subprocess.check_output(
-        ['mpicxx', '-showme:compile']).decode().split()
+    mpicxx_compile_words = []
+    try:
+        # does not work with mpich2 (used by default by anaconda)
+        mpicxx_compile_words = subprocess.check_output(
+            ['mpicxx', '-showme:compile']).decode().split()
+    except subprocess.CalledProcessError:
+        try:
+            subprocess.call(['CC', '--version'])
+            mpicxx_compile_words = subprocess.check_output(
+                ['CC', '--cray-print-opts=all']).decode().split()
+        except subprocess.CalledProcessError:
+            warnings.warn('Unable to find MPI compile flags.'
+                          'Setting mpicxx_compile_words=[]')
 
 try:
     from concurrent.futures import ThreadPoolExecutor as Pool
@@ -314,7 +324,9 @@ def make_command_obj_from_cpp(obj_file, cpp_file, include_dirs=None,
                     continue
                 command.append(word)
         else:
-            command[0] = os.getenv('MPICXX', 'mpicxx')
+            mpicxx = os.getenv('MPICXX', 'mpicxx').split()
+            mpicxx.extend(command[1:])
+            command = mpicxx
 
     includepy = conf_vars['INCLUDEPY']
     includedir = os.path.split(includepy)[0]
@@ -485,15 +497,14 @@ def make_extensions(extensions,
     CommandsRunner(commands).run()
     return extensions_out
 
-# building with pythran
-
-try:
-    from pythran.dist import PythranExtension
-except ImportError:
-    pass
-
 
 def make_pythran_extensions(modules):
+    # building with pythran
+    try:
+        from pythran.dist import PythranExtension
+    except ImportError:
+        pass
+
     develop = sys.argv[-1] == 'develop'
     extensions = []
     for mod in modules:
