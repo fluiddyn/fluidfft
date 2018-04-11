@@ -36,7 +36,7 @@ Benchmarks on Occigen
 `Occigen is a GENCI-CINES HCP cluster <https://www.top500.org/system/178465>`_.
 
 .. figure:: tmp/fig_occigen_384x1152x1152.png
-   :figwidth: 90 %
+   :width: 100 %
    :alt: Benchmarks fig_occigen_384x1152x1152.png
 
    Speedup computed from the median of the elapsed times for 3d fft
@@ -51,11 +51,11 @@ of the numpy array (difference between the dashed and the dotted line,
 i.e. between the "as_arg" and the "return" Python methods).
 
 .. figure:: tmp/fig_occigen_1152x1152x1152.png
-   :figwidth: 90 %
+   :width: 100 %
    :alt: Benchmarks fig_occigen_1152x1152x1152.png
 
    Speedup computed from the median of the elapsed times for 3d fft
-   (1152x1152x1152, left: fft and right: ifft) on Occigen.
+   (1152x1152x1152) on Occigen.
 
 For this resolution, the fftw1d is also the fastest method when using only few
 cores and it can not be used for more that 192 cores. The faster library when
@@ -68,54 +68,41 @@ Benchmarks on Beskow
 <https://www.pdc.kth.se/hpc-services/computing-systems>`_.
 
 .. figure:: tmp/fig_beskow_384x1152x1152.png
-   :figwidth: 90 %
+   :width: 100 %
    :alt: Benchmarks fig_beskow_384x1152x1152.png
 
    Speedup computed from the median of the elapsed times for 3d fft
-   (384x1152x1152, left: fft and right: ifft) on Beskow.
+   (384x1152x1152) on Beskow.
+
 
 .. figure:: tmp/fig_beskow_1152x1152x1152.png
-   :figwidth: 90 %
+   :width: 100 %
    :alt: Benchmarks fig_beskow_1152x1152x1152.png
 
    Speedup computed from the median of the elapsed times for 3d fft
-   (1152x1152x1152, left: fft and right: ifft) on Beskow.
+   (1152x1152x1152) on Beskow.
+
 
 Benchmarks on a `LEGI <http://www.legi.grenoble-inp.fr>`_ cluster
 -----------------------------------------------------------------
 
-We run some benchmarking in Cluster8 (2015, 12 nodes Xeon DELL C6320, 20 cores
+We run some benchmarks on Cluster8 (2015, 12 nodes Xeon DELL C6320, 20 cores
 per node).
 
 .. figure:: tmp/fig_legi_cluster8_320x640x640.png
-   :figwidth: 90 %
+   :width: 100 %
    :alt: Benchmarks 3d fft at LEGI on cluster8.
 
    Speedup computed from the median of the elapsed times for 3d fft
-   (320x640x640, left: fft and right: ifft) at LEGI on cluster8.
+   (320x640x640) at LEGI on cluster8.
+
+.. figure:: tmp/fig_legi_cluster8_2160x2160.png
+   :width: 100 %
+   :alt: Benchmarks 2d fft at LEGI on cluster8.
+
+   Speedup computed from the median of the elapsed times for 2d fft
+   (2160x2160) at LEGI on cluster8.
 
 
-
-
-..
-   .. figure:: tmp/fig_legi_cluster7_2d.png
-      :figwidth: 90 %
-      :alt: Benchmarks 2d fft at LEGI on cluster7.
-
-      Speedup computed from the median of the elapsed times for 2d fft
-      (1024x1024, left: fft and right: ifft) at LEGI on cluster7 (2014, 16
-      nodes Xeon DELL C6220, 16 cores per node). We see that the scaling is not
-      far from linear for intra-node computation. In contrast, the speedup is
-      really bad for computations involving inter-node computation.
-
-      The benchmark is not sufficiently accurate to measure the cost of calling
-      the functions from Python. The method fft2dmpiwithfftw1d is slower and
-      seems less regular.
-
-..
-   .. figure:: tmp/fig_legi_cluster8_2d.png
-      :figwidth: 90 %
-      :alt: Benchmarks 2d fft at LEGI on cluster8.
-
-      Same as previous figure but for "cluster8" (2015, 12 nodes Xeon DELL C6320,
-      20 cores per node).
+We see that the scaling is not far from linear for intra-node computations. In
+contrast, the speedup is really bad for inter-node computations.

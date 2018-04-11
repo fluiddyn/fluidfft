@@ -168,6 +168,9 @@ def plot_scaling(path_dir, hostname, dim, n0, n1, n2=None, show=True):
     ax0.legend()
     ax1.legend()
 
+    fig.tight_layout(pad=1.08, h_pad=None, w_pad=None,
+                     rect=(0, 0, 0.99, 0.95))
+
     if show:
         plt.show()
     return fig

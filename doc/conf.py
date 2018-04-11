@@ -67,10 +67,12 @@ ipynb_to_rst()
 ipynb_to_rst('ipynb/executed', executed=True)
 
 save_fig_scaling('legi_cluster8_320x640x640', '3d', 320, 640, 640)
+save_fig_scaling('legi_cluster8_2160x2160', '2d', 2160, 2160)
 save_fig_scaling('occigen_384x1152x1152', '3d', 384, 1152, 1152)
 save_fig_scaling('beskow_384x1152x1152', '3d', 384, 1152, 1152)
 save_fig_scaling('occigen_1152x1152x1152', '3d', 1152, 1152, 1152)
 save_fig_scaling('beskow_1152x1152x1152', '3d', 1152, 1152, 1152)
+
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
