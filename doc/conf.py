@@ -54,7 +54,7 @@ def save_fig_scaling(dir_name, dim, n0, n1, n2=None):
     path_fig = os.path.join(tmp, 'fig_' + dir_name + '.png')
 
     print(path_dir)
-    
+
     fig = plot_scaling(path_dir, None, dim, n0, n1, n2, show=False)
     fig.savefig(path_fig)
 
@@ -70,6 +70,7 @@ save_fig_scaling('legi_cluster8_320x640x640', '3d', 320, 640, 640)
 save_fig_scaling('occigen_384x1152x1152', '3d', 384, 1152, 1152)
 save_fig_scaling('beskow_384x1152x1152', '3d', 384, 1152, 1152)
 save_fig_scaling('occigen_1152x1152x1152', '3d', 1152, 1152, 1152)
+save_fig_scaling('beskow_1152x1152x1152', '3d', 1152, 1152, 1152)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
