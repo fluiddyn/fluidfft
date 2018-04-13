@@ -6,27 +6,31 @@
 
 import numpy as np
 
-from fluidfft import byte_align
+# we need this try because this file is executed during the build when we don't
+# have fluiddyn
+try:
+    from fluidfft import byte_align
+except ImportError:
+    pass
+    
 
+def can_import(pkg_name, check_version=None):
+    """Checks if a package can be imported."""
+    from importlib import import_module
+
+    try:
+        pkg = import_module(pkg_name)
+    except ImportError:
+        return False
+    else:
+        if check_version is not None:
+            if pkg.__version__ < check_version:
+                raise ValueError('Please upgrade to {} >= {}'.format(
+                    pkg_name, check_version))
+        return True
 
 # pa: since this code is not tested and not yet used, I comment it to increase
 # the coverage.
-
-# def can_import(pkg_name, check_version=None):
-#     """Checks if a package can be imported."""
-#     from importlib import import_module
-
-#     try:
-#         pkg = import_module(pkg_name)
-#     except ImportError:
-#         return False
-#     else:
-#         if check_version is not None:
-#             if pkg.__version__ < check_version:
-#                 raise ValueError('Please upgrade to {} >= {}'.format(
-#                     pkg_name, check_version))
-#         return True
-
 
 # # FIXME: When the next version of Pythran is released
 # # use_pythran = can_import('pythran', '0.8.4')
