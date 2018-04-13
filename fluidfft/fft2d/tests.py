@@ -64,8 +64,10 @@ def make_testop_functions(name, cls):
 
         def test(self, n0=n0, n1=n1):
             op = OperatorsPseudoSpectral2D(n0, n1, 3*pi, 1., fft=cls)
-            a = np.random.random(op.opfft.get_local_size_X()).reshape(
-                op.opfft.get_shapeX_loc())
+            op.create_arrayX(value=1., shape='seq')
+            op.create_arrayK(value=1., shape='seq')
+
+            a = op.create_arrayX_random(max_val=2)
             a0 = a.copy()
             afft = op.fft(a)
             self.assertTrue(np.allclose(a, a0))
@@ -87,7 +89,7 @@ def make_testop_functions(name, cls):
                 pass
             else:
                 self.assertAlmostEqual(nrj_versatile, nrja)
-            
+
             E_kx, E_ky = op.compute_1dspectra(energy_fft)
             self.assertAlmostEqual(E_kx.sum()*op.deltakx,
                                    E_ky.sum()*op.deltaky)
@@ -129,6 +131,8 @@ def make_testop_functions(name, cls):
             op.gradfft_from_fft(afft)
             op.dealiasing_variable(afft)
 
+            op.create_arrayK_random(min_val=-1, max_val=1)
+
         tests[key] = test
 
     return tests
@@ -140,7 +144,8 @@ class Tests2D(unittest.TestCase):
 
 def complete_class(name, cls):
 
-    setattr(Tests2D, 'test_{}'.format(name), make_test_function(cls))
+    if cls is not None:
+        setattr(Tests2D, 'test_{}'.format(name), make_test_function(cls))
 
     tests = make_testop_functions(name, cls)
 
@@ -156,6 +161,9 @@ if rank == 0:
     for name, cls in classes_seq.items():
         complete_class(name, cls)
 
+    if nb_proc == 1:
+        complete_class('None', None)
+
 if nb_proc > 1:
     if len(classes_mpi) == 0:
         raise Exception(
@@ -163,6 +171,8 @@ if nb_proc > 1:
 
     for name, cls in classes_mpi.items():
         complete_class(name, cls)
+
+    complete_class('None', None)
 
 
 if __name__ == '__main__':

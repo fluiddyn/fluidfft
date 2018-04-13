@@ -30,13 +30,26 @@ fft objects:
 
 from __future__ import print_function
 
+from importlib import import_module as _import_module
+
 from fluiddyn.util.mpi import printby0
 
 from fluidfft._version import __version__
 
-from importlib import import_module as _import_module
+try:
+    from pyfftw import empty_aligned, byte_align
+except ImportError:
+    import numpy as np
 
-__all__ = ['__version__', 'import_fft_class', 'create_fft_object']
+    empty_aligned = np.empty
+
+    def byte_align(values):
+        """False byte_align function used when pyfftw can not be imported"""
+        return values
+
+
+__all__ = ['__version__', 'import_fft_class', 'create_fft_object',
+           'empty_aligned', 'byte_align']
 
 
 def import_fft_class(method, raise_import_error=True):

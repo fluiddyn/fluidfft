@@ -8,7 +8,7 @@ import numpy as np
 from fluiddyn.util import mpi
 
 from fluidfft.fft3d import get_classes_seq, get_classes_mpi
-from fluidfft.fft3d.operators import OperatorsPseudoSpectral3D
+from fluidfft.fft3d.operators import OperatorsPseudoSpectral3D, vector_product
 
 n = 8
 
@@ -108,23 +108,26 @@ def make_testop_functions(name, cls):
             op.create_arrayX(value=None, shape='loc')
             op.create_arrayX(value=None, shape='seq')
             op.create_arrayX(value=0.)
+            op.create_arrayK(value=1.)
+            op.create_arrayX_random(max_val=2)
+            op.create_arrayK_random(min_val=-1, max_val=1, shape='seq')
 
             op.project_perpk3d(afft, afft, afft)
             op.divfft_from_vecfft(afft, afft, afft)
+            op.rotfft_from_vecfft(afft, afft, afft)
+            op.rotzfft_from_vxvyfft(afft, afft)
 
             # depreciated...
             # op.vgradv_from_v(a, a, a)
             # op.vgradv_from_v2(a, a, a)
             # op.div_vv_fft_from_v(a, a, a)
-            # op.div_vb_fft_from_vb(a, a, a, a)
+            op.div_vb_fft_from_vb(a, a, a, a)
+            vector_product(a, a, a, a, a, a)
 
             X, Y, Z = op.get_XYZ_loc()
             self.assertEqual(X.shape, op.shapeX_loc)
             self.assertEqual(Y.shape, op.shapeX_loc)
             self.assertEqual(Z.shape, op.shapeX_loc)
-
-            # currently, the following does not work so we return here
-            # comment this return to test the gather and scatter functions
 
             X = np.ascontiguousarray(X)
             Y = np.ascontiguousarray(Y)
@@ -171,6 +174,9 @@ if nb_proc == 1:
 
     for name, cls in classes_seq.items():
         complete_class(name, cls)
+
+    complete_class('None', None)
+
 
 if nb_proc > 1:
     if len(classes_mpi) == 0:

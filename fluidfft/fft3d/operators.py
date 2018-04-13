@@ -8,25 +8,24 @@
 """
 from __future__ import print_function
 
-from past.builtins import basestring
-
 from math import pi
 
-import numpy as np
+from past.builtins import basestring
 
-from pyfftw import empty_aligned, byte_align
+import numpy as np
 
 from fluiddyn.util import mpi
 from fluiddyn.calcul.easypyfft import FFTW3DReal2Complex
 
-from fluidfft import create_fft_object
+from fluidfft import create_fft_object, empty_aligned
+from fluidfft.util import _rescale_random
 from fluidfft.fft2d.operators import _make_str_length
 
 from .util_pythran import (
     project_perpk3d, divfft_from_vecfft, rotfft_from_vecfft, vector_product,
     loop_spectra3d)
 
-from .dream_pythran import _vgradv_from_v2
+# from .dream_pythran import _vgradv_from_v2
 
 if mpi.nb_proc > 1:
     MPI = mpi.MPI
@@ -84,11 +83,9 @@ class OperatorsPseudoSpectral3D(object):
                 fft = 'fft3d.mpi_with_fftwmpi3d'
 
         if isinstance(fft, basestring):
-            if fft.lower() == 'sequential':
+            if fft.lower() in ('sequential', 'fftwpy'):
                 fft = 'fft3d.with_pyfftw'
-            if fft.lower() == 'fftwpy':
-                op_fft = FFTW3DReal2Complex(nx, ny, nz)
-            elif any([fft.startswith(s) for s in ['fluidfft.', 'fft3d.']]):
+            if any([fft.startswith(s) for s in ['fluidfft.', 'fft3d.']]):
                 op_fft = create_fft_object(fft, nz, ny, nx)
             else:
                 raise ValueError(
@@ -136,11 +133,11 @@ class OperatorsPseudoSpectral3D(object):
         self.ifft_as_arg = op_fft.ifft_as_arg
         self.fft_as_arg = op_fft.fft_as_arg
 
-        try:
-            # faster version which destroy the input
-            self.ifft_as_arg_destroy = op_fft.ifft_as_arg_destroy
-        except AttributeError:
-            self.ifft_as_arg_destroy = self.ifft_as_arg
+        # try:
+        # faster version which destroy the input
+        self.ifft_as_arg_destroy = op_fft.ifft_as_arg_destroy
+        # except AttributeError:
+        #     self.ifft_as_arg_destroy = self.ifft_as_arg
 
         self.sum_wavenumbers = op_fft.sum_wavenumbers
         self.compute_energy_from_X = op_fft.compute_energy_from_X
@@ -309,16 +306,18 @@ class OperatorsPseudoSpectral3D(object):
             field.fill(value)
         return field
 
-    def create_arrayX_random(self, shape='loc'):
+    def create_arrayX_random(self, shape='loc', min_val=None, max_val=None):
         """Return a random array in real space."""
         shape = self._get_shapeX(shape)
-        return byte_align(np.random.random(shape))
+        values = np.random.random(shape)
+        return _rescale_random(values, min_val, max_val)
 
-    def create_arrayK_random(self, shape='loc'):
+    def create_arrayK_random(self, shape='loc', min_val=None, max_val=None):
         """Return a random array in real space."""
         shape = self._get_shapeK(shape)
-        return byte_align(np.random.random(shape) +
-                          1j * np.random.random(shape))
+        values = (np.random.random(shape) +
+                  1j * np.random.random(shape))
+        return _rescale_random(values, min_val, max_val)
 
     def sum_wavenumbers_versatile(self, field_fft):
         """Compute the sum over all wavenumbers (versatile version).
@@ -343,7 +342,7 @@ class OperatorsPseudoSpectral3D(object):
         dimK_first_fft = self.dimK_first_fft
 
         nx_seq = self.shapeX_seq[self.dim_first_fft]
-        nk_seq = self.shapeK_seq[dimK_first_fft]
+        # nk_seq = self.shapeK_seq[dimK_first_fft]
         nk_loc = self.shapeK_loc[dimK_first_fft]
         ik_start = self.seq_indices_first_K[dimK_first_fft]
         ik_stop = ik_start + nk_loc
@@ -473,7 +472,7 @@ class OperatorsPseudoSpectral3D(object):
         spectrum_kz
 
         """
-        nk0, nk1, nk2 = self.shapeK_loc
+        # nk0, nk1, nk2 = self.shapeK_loc
         spectrum_k0k1k2 = self._compute_spectrum3d_loc(energy_fft)
         dimX_K = self._op_fft.get_dimX_K()
 
@@ -482,12 +481,12 @@ class OperatorsPseudoSpectral3D(object):
                 ni = self.shapeX_seq[dimXi]
                 nk_spectra = ni//2 + 1
                 dimK = dimX_K.index(dimXi)
-                dims_for_sum = tuple(dim for dim in range(3) if dim != dimK) 
+                dims_for_sum = tuple(dim for dim in range(3) if dim != dimK)
                 spectrum_tmp_loc = spectrum_k0k1k2.sum(axis=dims_for_sum)
                 istart = self.seq_indices_first_K[dimK]
                 nk_loc = self.shapeK_loc[dimK]
 
-                if self.dimK_first_fft != dimK:                    
+                if self.dimK_first_fft != dimK:
                     spectrum_tmp_seq = np.zeros(ni)
                     spectrum_tmp_seq[istart:istart+nk_loc] = spectrum_tmp_loc
                     spectrum_ki = spectrum_tmp_seq[:nk_spectra]
@@ -499,19 +498,19 @@ class OperatorsPseudoSpectral3D(object):
                     spectrum_ki = spectrum_tmp_seq
 
                 spectrum_ki = mpi.comm.allreduce(spectrum_ki, op=mpi.MPI.SUM)
-                    
+
                 return spectrum_ki
 
             spectrum_kx = compute_spectrum_ki(dimXi=2)
             spectrum_ky = compute_spectrum_ki(dimXi=1)
             spectrum_kz = compute_spectrum_ki(dimXi=0)
-            
+
         else:
             def compute_spectrum_ki(dimXi):
                 ni = self.shapeX_seq[dimXi]
                 nk_spectra = ni//2 + 1
                 dimK = dimX_K.index(dimXi)
-                dims_for_sum = tuple(dim for dim in range(3) if dim != dimK) 
+                dims_for_sum = tuple(dim for dim in range(3) if dim != dimK)
                 spectrum_tmp = spectrum_k0k1k2.sum(axis=dims_for_sum)
                 if self.dimK_first_fft != dimK:
                     spectrum_ki = spectrum_tmp[:nk_spectra]
@@ -527,7 +526,7 @@ class OperatorsPseudoSpectral3D(object):
 
         return (spectrum_kx/self.deltakx, spectrum_ky/self.deltaky,
                 spectrum_kz/self.deltakz)
-            
+
     def compute_3dspectrum(self, energy_fft):
         """Compute the 3D spectrum.
 

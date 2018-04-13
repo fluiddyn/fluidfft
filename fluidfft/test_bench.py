@@ -21,7 +21,7 @@ class TestsBench(unittest.TestCase):
 
     def test2d(self):
         with stdout_redirected():
-            args = 'fluidfft-bench 24 -d 2 -o'.split()
+            args = 'fluidfft-bench 24 24 -o'.split()
             args.append(path_tmp)
             sys.argv = args
             run()

@@ -9,18 +9,18 @@
 from __future__ import print_function
 
 from builtins import range
-from past.builtins import basestring
 
 from math import pi
 import warnings
 
-import numpy as np
+from past.builtins import basestring
 
-from pyfftw import empty_aligned, byte_align
+import numpy as np
 
 from fluiddyn.util import mpi
 
-from fluidfft import create_fft_object
+from fluidfft import create_fft_object, empty_aligned
+from fluidfft.util import _rescale_random
 
 from .util_pythran import (
     dealiasing_variable, vecfft_from_rotfft, vecfft_from_divfft,
@@ -36,8 +36,8 @@ def _make_str_length(length):
         return repr(int(l_over_pi)) + 'pi'
     elif round(length) == length:
         return '{}'.format(int(length))
-    else:
-        return '{:.3f}'.format(length).rstrip('0')
+
+    return '{:.3f}'.format(length).rstrip('0')
 
 
 class OperatorsPseudoSpectral2D(object):
@@ -83,7 +83,7 @@ class OperatorsPseudoSpectral2D(object):
             if mpi.nb_proc == 1:
                 fft = 'fft2d.with_pyfftw'
             else:
-                fft = 'fft2d.mpi_with_fftw2d'
+                fft = 'fft2d.mpi_with_fftwmpi2d'
 
         if isinstance(fft, basestring):
             if fft.lower() == 'sequential':
@@ -588,39 +588,42 @@ class OperatorsPseudoSpectral2D(object):
             field.fill(value)
         return field
 
-    def create_arrayX_random(self, shape='loc'):
+    def create_arrayX_random(self, shape='loc', min_val=None, max_val=None):
         """Return a random array in real space."""
         shape = self._get_shapeX(shape)
-        return byte_align(np.random.random(shape))
+        values = np.random.random(shape)
+        return _rescale_random(values, min_val, max_val)
 
-    def create_arrayK_random(self, shape='loc'):
+
+    def create_arrayK_random(self, shape='loc', min_val=None, max_val=None):
         """Return a random array in real space."""
         shape = self._get_shapeK(shape)
-        return byte_align(np.random.random(shape) +
-                          1j * np.random.random(shape))
+        values = (np.random.random(shape) +
+                  1j * np.random.random(shape))
+        return _rescale_random(values, min_val, max_val)
 
 
-if __name__ == '__main__':
-    self = OperatorsPseudoSpectral2D(5, 3, 2*pi, 1*pi)
+# if __name__ == '__main__':
+#     self = OperatorsPseudoSpectral2D(5, 3, 2*pi, 1*pi)
 
-    a = np.random.random(self.opfft.get_local_size_X()).reshape(
-        self.opfft.get_shapeX_loc())
-    afft = self.fft(a)
-    a = self.ifft(afft)
-    afft = self.fft(a)
+#     a = np.random.random(self.opfft.get_local_size_X()).reshape(
+#         self.opfft.get_shapeX_loc())
+#     afft = self.fft(a)
+#     a = self.ifft(afft)
+#     afft = self.fft(a)
 
-    print('energy spatial C:', self.compute_energy_from_X(a))
-    print('energy fft      :', self.compute_energy_from_K(afft))
+#     print('energy spatial C:', self.compute_energy_from_X(a))
+#     print('energy fft      :', self.compute_energy_from_K(afft))
 
-    print('energy spatial P:', (a**2).mean()/2)
+#     print('energy spatial P:', (a**2).mean()/2)
 
-    energy_fft = 0.5 * abs(afft)**2
+#     energy_fft = 0.5 * abs(afft)**2
 
-    E_kx, E_ky = self.compute_1dspectra(energy_fft)
+#     E_kx, E_ky = self.compute_1dspectra(energy_fft)
 
-    print('energy E_kx     ;', E_kx.sum()*self.deltakx)
-    print('energy E_ky     :', E_ky.sum()*self.deltaky)
+#     print('energy E_kx     ;', E_kx.sum()*self.deltakx)
+#     print('energy E_ky     :', E_ky.sum()*self.deltaky)
 
-    E_kh = self.compute_2dspectrum(energy_fft)
+#     E_kh = self.compute_2dspectrum(energy_fft)
 
-    print('energy E_kh     :', E_kh.sum()*self.deltak)
+#     print('energy E_kh     :', E_kh.sum()*self.deltak)
