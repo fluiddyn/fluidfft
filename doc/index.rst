@@ -46,8 +46,9 @@ User Guide
 
    overview
    install
-   bench
    tutorials
+   bench
+
 
 
 Modules Reference

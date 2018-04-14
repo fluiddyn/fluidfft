@@ -24,12 +24,24 @@ import matplotlib.pyplot as plt
 plt.ioff()
 
 from fluiddoc.ipynb_maker import ipynb_to_rst
+from fluiddyn.util import modification_date
+
 import fluidfft
 import fluidfft.bench_analysis
 from fluidfft.bench_analysis import plot_scaling
 
+
+
 here = os.path.dirname(__file__)
-tmp = os.path.join(here, 'tmp')
+here_tmp = os.path.join(here, 'tmp')
+html = os.path.join(here, '_build/html')
+
+if not os.path.exists(here_tmp):
+    os.mkdir(here_tmp)
+
+if not os.path.exists(html):
+    os.makedirs(html)
+
 
 path_tmp = os.path.join('/tmp', getpass.getuser())
 if not os.path.exists(path_tmp):
@@ -51,17 +63,14 @@ os.chdir(here)
 
 def save_fig_scaling(dir_name, dim, n0, n1, n2=None):
     path_dir = os.path.join(path_fluidfft_bench_results, dir_name)
-    path_fig = os.path.join(tmp, 'fig_' + dir_name + '.png')
+    path_fig = os.path.join(here_tmp, 'fig_' + dir_name + '.png')
 
-    print(path_dir)
+    if not os.path.exists(path_fig) or \
+       modification_date(path_dir) > modification_date(path_fig):
+        print('make fig', path_fig)
+        fig = plot_scaling(path_dir, None, dim, n0, n1, n2, show=False)
+        fig.savefig(path_fig)
 
-    fig = plot_scaling(path_dir, None, dim, n0, n1, n2, show=False)
-    fig.savefig(path_fig)
-
-
-tmp = os.path.join(os.path.dirname(__file__), 'tmp')
-if not os.path.exists(tmp):
-    os.mkdir(tmp)
 
 ipynb_to_rst()
 ipynb_to_rst('ipynb/executed', executed=True)

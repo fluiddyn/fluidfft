@@ -56,6 +56,7 @@ clean:
 	rm -rf $(IPYTHON_NOTEBOOKS_DIR)
 	rm -f $(IPYTHON_NOTEBOOKS_RST)
 	rm -f ipynb/executed/tuto_*.rst
+	rm -rf tmp
 
 cleanall: clean
 	rm -rf generated html.zip
