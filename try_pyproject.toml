@@ -4,5 +4,6 @@
 # Minimum requirements for the build system to execute.
 requires = [
     "setuptools", "wheel",
-    "numpy", "Cython",  # "Mako",  # -> Bug with pip 10?
+    "numpy", "Cython", 
+    "Mako",  # -> Will only work when Mako implements PEP 518
 ]
