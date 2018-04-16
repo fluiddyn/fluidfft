@@ -93,8 +93,8 @@ def create_fake_mod(dimension):
             functions_codes.append(get_function_code(lines_function_class[i:]))
 
     code = (
-        '\nclass FFT{dim}dFakeForDoc(object):\n'.format(dim=dimension) +
-        doc_class + '\n' + '\n\n'.join(functions_codes) + '\n')
+        'class FFT{dim}dFakeForDoc(object):\n'.format(dim=dimension) +
+        doc_class + '\n\n' + '\n\n'.join(functions_codes) + '\n')
 
     name = '../fluidfft/fft{dim}d/fake_mod_fft{dim}d_for_doc.py'.format(
         dim=dimension)

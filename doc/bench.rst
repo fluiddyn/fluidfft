@@ -42,6 +42,20 @@ Benchmarks on Occigen
    Speedup computed from the median of the elapsed times for 3d fft
    (384x1152x1152, left: fft and right: ifft) on Occigen.
 
+For every FFT classes available for the resolution and for the two tasks fft and
+ifft, three functions are used and compared (see the legends):
+
+- "fft_cpp" (continuous lines): benchmark of the C++ function from the C++
+  code. No memory allocation.
+
+- "fft_as_arg" (dashed lines): benchmark of a Python method ``fft_as_arg`` from
+  Python.  As for the C++ code, the second argument of this method is an array to
+  contain the result of the transform, so no memory allocation is needed.
+
+- "fft_return" (dotted lines): benchmark of a Python method ``fft`` from
+  Python. No array is provided to the function to contain the result so a numpy
+  array is created and then returned by the function.
+
 The fastest methods are fftw1d (which is limited to 96 cores) and p3dfft.
 
 The benchmark is not sufficiently accurate to measure the cost of calling the

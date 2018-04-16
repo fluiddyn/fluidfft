@@ -1,3 +1,5 @@
+.. _install:
+
 Installation and advice
 =======================
 
@@ -31,18 +33,15 @@ Dependencies
 
      In anaconda (or miniconda), Numpy installed with `conda install numpy` is
      built and linked with MKL (an Intel library).  This can be a real plus for
-     performance since MKL replaces fftw functions by (usually) faster ones but
-     it has a drawback for fft using the library fftw3_mpi (an implementation
-     of parallel fft using 1D decomposition by fftw).  MKL implements some fftw
-     functions but not all the functions defined in fftw3_mpi. Since the
-     libraries are loaded dynamically, if numpy is imported before the fftw_mpi
-     libraries, this can lead to very bad issues (segmentation fault, only if
-     numpy is imported before the class!). For security, we prefer to
-     automatically disable the building of the fft classes using fftw3_mpi when
-     it is detected that numpy uses the MKL library (viz. `mkl_intel_lp64`)
-     where some fftw symbols are defined. However, sometimes numpy is linked to
-     Intel's new `mkl_rt` library, and in such cases there should be no clash
-     with fftw.
+     performance since MKL replaces fftw functions by (usually) faster ones but it
+     has a drawback for fft using the library fftw3_mpi (an implementation of
+     parallel fft using 1D decomposition by fftw).  MKL implements some fftw
+     functions but not all the functions defined in fftw3_mpi. Since the libraries
+     are loaded dynamically, if numpy is imported before the fftw_mpi libraries,
+     this can lead to very bad issues (segmentation fault, only if numpy is
+     imported before the class!). For security, we prefer to automatically disable
+     the building of the fft classes using fftw3_mpi when it is detected that
+     numpy uses the MKL library where some fftw symbols are defined.
 
 - Cython
 
@@ -78,7 +77,10 @@ Dependencies
         CC=clang
 
 - mpi4py (optional, only for mpi runs),
-  
+
+- pyfftw: FluidFFT can of course use pyfftw and it is often a very fast solution
+  for undistributed FFT. However, pyfftw is just an optional dependency.
+
 - And of course FFT libraries!
 
   The libraries are used if they are installed so you shouldn't have any error
@@ -91,11 +93,26 @@ Dependencies
 
      install/fft_libs
 
+Environment variables
+---------------------
+
+FluidFFT builds its binaries in parallel. It speedups the build process a lot on
+most computers. However, it can be a very bad idea on computers with not enough
+memory. If you encounter problems, you can force the number of processes used
+during the build using the environment variable ``FLUIDDYN_NUM_PROCS_BUILD``::
+
+   export FLUIDDYN_NUM_PROCS_BUILD=2
+
+FluidFFT is also sensible to the environment variable ``FLUIDDYN_DEBUG``::
+
+   export FLUIDDYN_DEBUG=1
+
+
 Basic installation with pip
 ---------------------------
 
 If you are in a hurry and that you are not really concerned about performance,
-you can use pip::
+you can use pip directly without any configuration file::
 
   pip install fluidfft
 
@@ -103,7 +120,7 @@ or::
 
   pip install fluidfft --user
 
-You can also configure the installation of fluidfft by creating the file
+However, it better to configure the installation of FluidFFT by creating the file
 ``~/.fluidfft-site.cfg`` and modify it to fit your requirements before the
 installation with pip::
 
@@ -126,9 +143,9 @@ If you are new with Mercurial and Bitbucket, you can also read `this short
 tutorial
 <http://fluiddyn.readthedocs.org/en/latest/mercurial_bitbucket.html>`_.
 
-If you don't want to use Mercurial, you can also just manually download the
-package from `the Bitbucket page <https://bitbucket.org/fluiddyn/fluidfft>`_ or
-from `the PyPI page <https://pypi.python.org/pypi/fluidfft>`_.
+You can also just manually download the package from `the Bitbucket page
+<https://bitbucket.org/fluiddyn/fluidfft>`_ or from `the PyPI page
+<https://pypi.org/project/fluidfft/>`_.
 
 Configuration file
 ~~~~~~~~~~~~~~~~~~

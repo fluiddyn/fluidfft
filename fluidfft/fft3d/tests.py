@@ -16,39 +16,41 @@ rank = mpi.rank
 nb_proc = mpi.nb_proc
 
 classes_seq = get_classes_seq()
-classes_seq = {name: cls for name, cls in classes_seq.items()
-               if cls is not None}
+classes_seq = {name: cls for name, cls in classes_seq.items() if cls is not None}
 
 if nb_proc > 1:
     classes_mpi = get_classes_mpi()
-    classes_mpi = {name: cls for name, cls in classes_mpi.items()
-                   if cls is not None}
+    classes_mpi = {
+        name: cls for name, cls in classes_mpi.items() if cls is not None
+    }
 
 
 def make_testop_functions(name, cls):
 
     tests = {}
-    shapes = {'even': (4, 8, 12)}
+    shapes = {"even": (4, 8, 12)}
     if nb_proc == 1:
-        shapes['odd'] = (5, 3, 7)
+        shapes["odd"] = (5, 3, 7)
 
     for key, (n0, n1, n2) in shapes.items():
 
         def test(self, n0=n0, n1=n1, n2=n2):
             try:
-                op = OperatorsPseudoSpectral3D(n2, n1, n0,
-                                               12, 8, 4, fft=cls)
+                op = OperatorsPseudoSpectral3D(n2, n1, n0, 12, 8, 4, fft=cls)
             except ValueError:
-                print('ValueError while instantiating OperatorsPseudoSpectral3D'
-                      ' for {}'.format(cls))
+                print(
+                    "ValueError while instantiating OperatorsPseudoSpectral3D"
+                    " for {}".format(cls)
+                )
                 return
+
             op_fft = op._op_fft
 
             op_fft.run_tests()
 
-            a = np.random.random(
-                op_fft.get_local_size_X()).reshape(
-                    op_fft.get_shapeX_loc())
+            a = np.random.random(op_fft.get_local_size_X()).reshape(
+                op_fft.get_shapeX_loc()
+            )
             a0 = a.copy()
             afft = op.fft3d(a)
             self.assertTrue(np.allclose(a, a0))
@@ -61,7 +63,7 @@ def make_testop_functions(name, cls):
             nrjafft = op.compute_energy_from_K(afft)
             self.assertAlmostEqual(nrja, nrjafft)
 
-            energy_fft = 0.5 * abs(afft)**2
+            energy_fft = 0.5 * abs(afft) ** 2
             nrj = op.sum_wavenumbers(energy_fft)
             self.assertAlmostEqual(nrjafft, nrj)
 
@@ -77,9 +79,9 @@ def make_testop_functions(name, cls):
             except NotImplementedError:
                 pass
             else:
-                self.assertAlmostEqual(nrj, E_kx.sum()*op.deltakx)
-                self.assertAlmostEqual(nrj, E_ky.sum()*op.deltaky)
-                self.assertAlmostEqual(nrj, E_kz.sum()*op.deltakz)
+                self.assertAlmostEqual(nrj, E_kx.sum() * op.deltakx)
+                self.assertAlmostEqual(nrj, E_ky.sum() * op.deltaky)
+                self.assertAlmostEqual(nrj, E_kz.sum() * op.deltakz)
 
                 self.assertEqual(E_kx.shape[0], op.nkx_spectra)
                 self.assertEqual(E_ky.shape[0], op.nky_spectra)
@@ -90,27 +92,29 @@ def make_testop_functions(name, cls):
             except NotImplementedError:
                 pass
             else:
-                self.assertAlmostEqual(nrja, E_k.sum()*op.deltak_spectra3d)
+                self.assertAlmostEqual(nrja, E_k.sum() * op.deltak_spectra3d)
 
             try:
                 E_kx_kyz, E_ky_kzx, E_kz_kxy = op.compute_spectra_2vars(
-                    energy_fft)
+                    energy_fft
+                )
             except NotImplementedError:
                 pass
             else:
-                self.assertAlmostEqual(E_kx_kyz.sum()*op.deltakx,
-                                       E_ky_kzx.sum()*op.deltaky)
-                self.assertAlmostEqual(E_kz_kxy.sum()*op.deltakz, nrja)
+                self.assertAlmostEqual(
+                    E_kx_kyz.sum() * op.deltakx, E_ky_kzx.sum() * op.deltaky
+                )
+                self.assertAlmostEqual(E_kz_kxy.sum() * op.deltakz, nrja)
 
             op.produce_str_describing_grid()
             op.produce_str_describing_oper()
             op.produce_long_str_describing_oper()
-            op.create_arrayX(value=None, shape='loc')
-            op.create_arrayX(value=None, shape='seq')
+            op.create_arrayX(value=None, shape="loc")
+            op.create_arrayX(value=None, shape="seq")
             op.create_arrayX(value=0.)
             op.create_arrayK(value=1.)
             op.create_arrayX_random(max_val=2)
-            op.create_arrayK_random(min_val=-1, max_val=1, shape='seq')
+            op.create_arrayK_random(min_val=-1, max_val=1, shape="seq")
 
             op.project_perpk3d(afft, afft, afft)
             op.divfft_from_vecfft(afft, afft, afft)
@@ -164,28 +168,30 @@ def complete_class(name, cls):
     tests = make_testop_functions(name, cls)
 
     for key, test in tests.items():
-        setattr(Tests3D, 'test_operator3d_{}_{}'.format(name, key), test)
+        setattr(Tests3D, "test_operator3d_{}_{}".format(name, key), test)
 
 
 if nb_proc == 1:
     if nb_proc == 1 and len(classes_seq) == 0:
         raise Exception(
-            'ImportError for all sequential classes. Nothing is working!')
+            "ImportError for all sequential classes. Nothing is working!"
+        )
 
     for name, cls in classes_seq.items():
         complete_class(name, cls)
 
-    complete_class('None', None)
+    complete_class("None", None)
 
 
 if nb_proc > 1:
     if len(classes_mpi) == 0:
         raise Exception(
-            'ImportError for all mpi classes. Nothing is working in mpi!')
+            "ImportError for all mpi classes. Nothing is working in mpi!"
+        )
 
     for name, cls in classes_mpi.items():
         complete_class(name, cls)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

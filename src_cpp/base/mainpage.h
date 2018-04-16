@@ -16,8 +16,8 @@ libraries, in particular
 @li p3dfft
 @li cufft (fft library by CUDA running on GPU)
 
-These doxygen pages contain only the documentation of the C++ classes.
+These doxygen pages contain only the documentation of the C++ code.
 
-See also the main documentation http://fluidfft.readthedocs.io of the package.
+The main documentation of the package is here: http://fluidfft.readthedocs.io.
 
 */

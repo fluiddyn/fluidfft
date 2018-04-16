@@ -13,6 +13,7 @@ import numpy as np
 
 from fluiddyn.calcul.easypyfft import FFTW3DReal2Complex
 
+
 class FFT3DWithPYFFTW(FFTW3DReal2Complex):
 
     def __init__(self, n0, n1, n2):

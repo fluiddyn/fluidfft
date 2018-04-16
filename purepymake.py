@@ -48,7 +48,7 @@ from setuptools import Extension as SetuptoolsExtension
 
 import numpy as np
 
-DEBUG = False
+DEBUG = os.environ.get('FLUIDDYN_DEBUG', default=False)
 
 config_vars = sysconfig.get_config_vars()
 

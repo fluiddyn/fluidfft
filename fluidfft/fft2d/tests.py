@@ -20,19 +20,19 @@ rank = mpi.rank
 nb_proc = mpi.nb_proc
 
 classes_seq = get_classes_seq()
-classes_seq = {name: cls for name, cls in classes_seq.items()
-               if cls is not None}
+classes_seq = {name: cls for name, cls in classes_seq.items() if cls is not None}
 
 if nb_proc > 1:
     classes_mpi = get_classes_mpi()
-    classes_mpi = {name: cls for name, cls in classes_mpi.items()
-                   if cls is not None}
+    classes_mpi = {
+        name: cls for name, cls in classes_mpi.items() if cls is not None
+    }
 
 
 def make_test_function(cls):
 
     def test(self):
-        o = cls(n, 2*n)
+        o = cls(n, 2 * n)
         o.run_tests()
         a = np.random.rand(*o.get_shapeX_loc())
         afft = o.fft(a)
@@ -49,23 +49,24 @@ def make_test_function(cls):
 
         if o.get_shapeK_loc() != (k0.size, k1.size):
             print(o.get_shapeK_loc(), k0.size, k1.size)
-            raise Exception('o.get_shapeK_loc() != (k0.size, k1.size)')
+            raise Exception("o.get_shapeK_loc() != (k0.size, k1.size)")
+
     return test
 
 
 def make_testop_functions(name, cls):
 
     tests = {}
-    shapes = {'even': (24, 16)}
+    shapes = {"even": (24, 16)}
     if nb_proc == 1:
-        shapes['odd'] = (11, 13)
+        shapes["odd"] = (11, 13)
 
     for key, (n0, n1) in shapes.items():
 
         def test(self, n0=n0, n1=n1):
-            op = OperatorsPseudoSpectral2D(n0, n1, 3*pi, 1., fft=cls)
-            op.create_arrayX(value=1., shape='seq')
-            op.create_arrayK(value=1., shape='seq')
+            op = OperatorsPseudoSpectral2D(n0, n1, 3 * pi, 1., fft=cls)
+            op.create_arrayX(value=1., shape="seq")
+            op.create_arrayK(value=1., shape="seq")
 
             a = op.create_arrayX_random(max_val=2)
             a0 = a.copy()
@@ -81,7 +82,7 @@ def make_testop_functions(name, cls):
             self.assertAlmostEqual(nrja, nrjafft)
 
             # print('energy', nrja)
-            energy_fft = 0.5 * abs(afft)**2
+            energy_fft = 0.5 * abs(afft) ** 2
 
             try:
                 nrj_versatile = op.sum_wavenumbers_versatile(energy_fft)
@@ -91,11 +92,12 @@ def make_testop_functions(name, cls):
                 self.assertAlmostEqual(nrj_versatile, nrja)
 
             E_kx, E_ky = op.compute_1dspectra(energy_fft)
-            self.assertAlmostEqual(E_kx.sum()*op.deltakx,
-                                   E_ky.sum()*op.deltaky)
+            self.assertAlmostEqual(
+                E_kx.sum() * op.deltakx, E_ky.sum() * op.deltaky
+            )
 
             E_kh = op.compute_2dspectrum(energy_fft)
-            self.assertAlmostEqual(nrja, E_kh.sum()*op.deltak)
+            self.assertAlmostEqual(nrja, E_kh.sum() * op.deltak)
 
             try:
                 E_ky_kx = op.compute_spectrum_kykx(energy_fft)
@@ -103,7 +105,8 @@ def make_testop_functions(name, cls):
                 pass
             else:
                 self.assertAlmostEqual(
-                    E_ky_kx.sum()*op.deltakx*op.deltaky, nrja)
+                    E_ky_kx.sum() * op.deltakx * op.deltaky, nrja
+                )
 
             nrj_sw = op.sum_wavenumbers(energy_fft)
             self.assertAlmostEqual(nrja, nrj_sw)
@@ -145,35 +148,37 @@ class Tests2D(unittest.TestCase):
 def complete_class(name, cls):
 
     if cls is not None:
-        setattr(Tests2D, 'test_{}'.format(name), make_test_function(cls))
+        setattr(Tests2D, "test_{}".format(name), make_test_function(cls))
 
     tests = make_testop_functions(name, cls)
 
     for key, test in tests.items():
-        setattr(Tests2D, 'test_operator2d_{}_{}'.format(name, key), test)
+        setattr(Tests2D, "test_operator2d_{}_{}".format(name, key), test)
 
 
 if rank == 0:
     if nb_proc == 1 and len(classes_seq) == 0:
         raise Exception(
-            'ImportError for all sequential classes. Nothing is working!')
+            "ImportError for all sequential classes. Nothing is working!"
+        )
 
     for name, cls in classes_seq.items():
         complete_class(name, cls)
 
     if nb_proc == 1:
-        complete_class('None', None)
+        complete_class("None", None)
 
 if nb_proc > 1:
     if len(classes_mpi) == 0:
         raise Exception(
-            'ImportError for all mpi classes. Nothing is working in mpi!')
+            "ImportError for all mpi classes. Nothing is working in mpi!"
+        )
 
     for name, cls in classes_mpi.items():
         complete_class(name, cls)
 
-    complete_class('None', None)
+    complete_class("None", None)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

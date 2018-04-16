@@ -25,13 +25,15 @@ pyfftw). However, they suffer from drawbacks:
 
 - nearly nothing for parallel FFT with distributed memory (using mpi),
 
-- quite complicated even for the most simple and common cases. To understand
-  how to use them, a novice user has to read at least the FFTW documentation.
+- quite complicated even for the most simple and common cases. To understand how
+  to use them, a novice user has to read at least the `FFTW documentation
+  <http://www.fftw.org/fftw3_doc/>`_.
 
-- no benchmarks between libraries and between the Python solutions and
-  solutions based only on a compiled language (as C, C++ or Fortran).
+- no benchmarks between libraries and between the Python solutions and solutions
+  based only on a static language (as C, C++ or Fortran).
 
-- just the FFT, no linear operators...
+- just the FFT, no linear operators and utilities to deal with the data
+  distribution...
 
 The Python package FluidFFT fills this gap by providing C++ classes and their
 Python wrapper classes for performing simple and common tasks with different

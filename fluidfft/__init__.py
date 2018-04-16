@@ -9,9 +9,9 @@ The fft and related `operators` classes are in the two subpackages
    fft2d
    fft3d
 
-The fft classes are benchmarked are performed using ``fluidfft-bench`` and
-``fluidfft-bench-analysis`` commands. These commands are implemented in the
-following modules
+The two commands ``fluidfft-bench`` and ``fluidfft-bench-analysis`` can be used to
+benchmark the classes on particular cases and computers. These commands are
+implemented in the following modules
 
 .. autosummary::
    :toctree:
@@ -48,8 +48,13 @@ except ImportError:
         return values
 
 
-__all__ = ['__version__', 'import_fft_class', 'create_fft_object',
-           'empty_aligned', 'byte_align']
+__all__ = [
+    "__version__",
+    "import_fft_class",
+    "create_fft_object",
+    "empty_aligned",
+    "byte_align",
+]
 
 
 def import_fft_class(method, raise_import_error=True):
@@ -74,23 +79,25 @@ def import_fft_class(method, raise_import_error=True):
     The corresponding FFT class.
 
     """
-    if method == 'sequential':
-        method = 'fft2d.with_fftw2d'
+    if method == "sequential":
+        method = "fft2d.with_fftw2d"
 
-    if method.startswith('fft2d.') or method.startswith('fft3d.'):
-        method = 'fluidfft.' + method
+    if method.startswith("fft2d.") or method.startswith("fft3d."):
+        method = "fluidfft." + method
 
-    if not method.startswith('fluidfft.'):
+    if not method.startswith("fluidfft."):
         raise ValueError(
-            "not method.startswith('fluidfft.')\nmethod = {}".format(method))
+            "not method.startswith('fluidfft.')\nmethod = {}".format(method)
+        )
 
     try:
         mod = _import_module(method)
     except ImportError:
         if raise_import_error:
             raise ImportError(method)
+
         else:
-            printby0('ImportError:', method)
+            printby0("ImportError:", method)
             return None
 
     return mod.FFTclass
@@ -122,12 +129,14 @@ def create_fft_object(method, n0, n1, n2=None):
 
     str_module = cls.__module__
 
-    if n2 is None and str_module.startswith('fluidfft.fft3d.'):
-        raise ValueError('Arguments incompatible')
-    elif n2 is not None and str_module.startswith('fluidfft.fft2d.'):
-        raise ValueError('Arguments incompatible')
+    if n2 is None and str_module.startswith("fluidfft.fft3d."):
+        raise ValueError("Arguments incompatible")
+
+    elif n2 is not None and str_module.startswith("fluidfft.fft2d."):
+        raise ValueError("Arguments incompatible")
 
     if n2 is None:
         return cls(n0, n1)
+
     else:
         return cls(n0, n1, n2)

@@ -10,6 +10,7 @@ import numpy as np
 #     complex128[][][], complex128[][][], complex128[][][],
 #     float64[][][], float64[][][], float64[][][], float64[][][])
 
+
 def project_perpk3d(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, inv_K_square_nozero):
     # tmp = (Kx * vx_fft + Ky * vy_fft + Kz * vz_fft) * inv_K_square_nozero
 
@@ -26,10 +27,16 @@ def project_perpk3d(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, inv_K_square_nozero):
                 ky = Ky[i0, i1, i2]
                 kz = Kz[i0, i1, i2]
 
-                tmp = (kx * vx_fft[i0, i1, i2] +
-                       ky * vy_fft[i0, i1, i2] +
-                       kz * vz_fft[i0, i1, i2]) * \
-                    inv_K_square_nozero[i0, i1, i2]
+                tmp = (
+                    kx
+                    * vx_fft[i0, i1, i2]
+                    + ky
+                    * vy_fft[i0, i1, i2]
+                    + kz
+                    * vz_fft[i0, i1, i2]
+                ) * inv_K_square_nozero[
+                    i0, i1, i2
+                ]
 
                 vx_fft[i0, i1, i2] -= kx * tmp
                 vy_fft[i0, i1, i2] -= ky * tmp
@@ -40,6 +47,7 @@ def project_perpk3d(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, inv_K_square_nozero):
 #     complex128[][][], complex128[][][], complex128[][][],
 #     float64[][][], float64[][][], float64[][][])
 
+
 def divfft_from_vecfft(vx_fft, vy_fft, vz_fft, kx, ky, kz):
     """Compute the divergence of a vector (in spectral space)"""
     return 1j * (kx * vx_fft + ky * vy_fft + kz * vz_fft)
@@ -48,6 +56,7 @@ def divfft_from_vecfft(vx_fft, vy_fft, vz_fft, kx, ky, kz):
 # pythran export rotfft_from_vecfft(
 #     complex128[][][], complex128[][][], complex128[][][],
 #     float64[][][], float64[][][], float64[][][])
+
 
 def rotfft_from_vecfft(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz):
     """Compute the curl of a vector (in spectral space)"""
@@ -82,6 +91,7 @@ def rotfft_from_vecfft(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz):
 #     float64[][][], float64[][][], float64[][][],
 #     float64[][][], float64[][][], float64[][][])
 
+
 def vector_product(ax, ay, az, bx, by, bz):
     """Compute the vector product.
 
@@ -106,7 +116,9 @@ def vector_product(ax, ay, az, bx, by, bz):
 
     return bx, by, bz
 
+
 # pythran export loop_spectra3d(float64[][][], float64[], float64[][][])
+
 
 def loop_spectra3d(spectrum_k0k1k2, ks, K2):
     """Compute the 3d spectrum."""
@@ -119,13 +131,13 @@ def loop_spectra3d(spectrum_k0k1k2, ks, K2):
             for ik2 in range(nk2):
                 value = spectrum_k0k1k2[ik0, ik1, ik2]
                 kappa = np.sqrt(K2[ik0, ik1, ik2])
-                ik = int(kappa/deltak)
-                if ik >= nk-1:
+                ik = int(kappa / deltak)
+                if ik >= nk - 1:
                     ik = nk - 1
                     spectrum3d[ik] += value
                 else:
-                    coef_share = (kappa - ks[ik])/deltak
-                    spectrum3d[ik] += (1-coef_share)*value
-                    spectrum3d[ik+1] += coef_share*value
+                    coef_share = (kappa - ks[ik]) / deltak
+                    spectrum3d[ik] += (1 - coef_share) * value
+                    spectrum3d[ik + 1] += coef_share * value
 
     return spectrum3d

@@ -15,20 +15,26 @@ from past.builtins import basestring
 import numpy as np
 
 from fluiddyn.util import mpi
-from fluiddyn.calcul.easypyfft import FFTW3DReal2Complex
 
 from fluidfft import create_fft_object, empty_aligned
 from fluidfft.util import _rescale_random
 from fluidfft.fft2d.operators import _make_str_length
 
 from .util_pythran import (
-    project_perpk3d, divfft_from_vecfft, rotfft_from_vecfft, vector_product,
-    loop_spectra3d)
+    project_perpk3d,
+    divfft_from_vecfft,
+    rotfft_from_vecfft,
+    vector_product,
+    loop_spectra3d,
+)
 
 # from .dream_pythran import _vgradv_from_v2
 
 if mpi.nb_proc > 1:
     MPI = mpi.MPI
+
+
+__all__ = ["vector_product", "OperatorsPseudoSpectral3D"]
 
 
 class OperatorsPseudoSpectral3D(object):
@@ -70,28 +76,30 @@ class OperatorsPseudoSpectral3D(object):
     coef_dealiasing : float
 
     """
-    def __init__(self, nx, ny, nz, lx, ly, lz, fft=None,
-                 coef_dealiasing=1.):
+
+    def __init__(self, nx, ny, nz, lx, ly, lz, fft=None, coef_dealiasing=1.):
         self.nx = self.nx_seq = nx
         self.ny = self.ny_seq = ny
         self.nz = self.nz_seq = nz
 
         if fft is None:
             if mpi.nb_proc == 1:
-                fft = 'fft3d.with_pyfftw'
+                fft = "fft3d.with_pyfftw"
             else:
-                fft = 'fft3d.mpi_with_fftwmpi3d'
+                fft = "fft3d.mpi_with_fftwmpi3d"
 
         if isinstance(fft, basestring):
-            if fft.lower() in ('sequential', 'fftwpy'):
-                fft = 'fft3d.with_pyfftw'
-            if any([fft.startswith(s) for s in ['fluidfft.', 'fft3d.']]):
+            if fft.lower() in ("sequential", "fftwpy"):
+                fft = "fft3d.with_pyfftw"
+            if any([fft.startswith(s) for s in ["fluidfft.", "fft3d."]]):
                 op_fft = create_fft_object(fft, nz, ny, nx)
             else:
                 raise ValueError(
-                    "Cannot instantiate {}.".format(fft) +
-                    " Expected something like 'fftwpy'"
-                    " or 'fluidfft.fft3d.<method>' or 'fft3d.<method>'")
+                    "Cannot instantiate {}.".format(fft)
+                    + " Expected something like 'fftwpy'"
+                    " or 'fluidfft.fft3d.<method>' or 'fft3d.<method>'"
+                )
+
         elif isinstance(fft, type):
             op_fft = fft(nz, ny, nx)
         else:
@@ -108,8 +116,7 @@ class OperatorsPseudoSpectral3D(object):
         self.shapeX_seq = op_fft.get_shapeX_seq()
         self.shapeX_loc = op_fft.get_shapeX_loc()
 
-        self._is_mpi_lib = self.shapeX_seq != self.shapeX_loc and \
-                           mpi.nb_proc > 1
+        self._is_mpi_lib = self.shapeX_seq != self.shapeX_loc and mpi.nb_proc > 1
 
         Lx = self.Lx = float(lx)
         Ly = self.Ly = float(ly)
@@ -119,13 +126,13 @@ class OperatorsPseudoSpectral3D(object):
         self.deltay = Ly / ny
         self.deltaz = Lz / nz
 
-        self.x_seq = self.deltax*np.arange(nx)
-        self.y_seq = self.deltay*np.arange(ny)
-        self.z_seq = self.deltaz*np.arange(nz)
+        self.x_seq = self.deltax * np.arange(nx)
+        self.y_seq = self.deltay * np.arange(ny)
+        self.z_seq = self.deltaz * np.arange(nz)
 
-        self.deltakx = deltakx = 2*pi/Lx
-        self.deltaky = deltaky = 2*pi/Ly
-        self.deltakz = deltakz = 2*pi/Lz
+        self.deltakx = deltakx = 2 * pi / Lx
+        self.deltaky = deltaky = 2 * pi / Ly
+        self.deltakz = deltakz = 2 * pi / Lz
 
         self.ifft = self.ifft3d = op_fft.ifft
         self.fft = self.fft3d = op_fft.fft
@@ -157,7 +164,7 @@ class OperatorsPseudoSpectral3D(object):
         elif order == (1, 2, 0):
             self.deltaks = deltaky, deltakx, deltakz
         else:
-            print('order =', order)
+            print("order =", order)
             raise NotImplementedError
 
         for self.dimK_first_fft in range(3):
@@ -196,11 +203,11 @@ class OperatorsPseudoSpectral3D(object):
             self.Kx = K1
             self.Kz = K2
         else:
-            print('order =', order)
+            print("order =", order)
             raise NotImplementedError
 
-        self.K2 = K0**2 + K1**2 + K2**2
-        self.K8 = self.K2**4
+        self.K2 = K0 ** 2 + K1 ** 2 + K2 ** 2
+        self.K8 = self.K2 ** 4
 
         self.seq_indices_first_K = op_fft.get_seq_indices_first_K()
         self.seq_indices_first_X = op_fft.get_seq_indices_first_X()
@@ -210,13 +217,13 @@ class OperatorsPseudoSpectral3D(object):
         if all(index == 0 for index in self.seq_indices_first_K):
             K_square_nozero[0, 0, 0] = 1e-14
 
-        self.inv_K_square_nozero = 1./K_square_nozero
+        self.inv_K_square_nozero = 1. / K_square_nozero
 
         self.coef_dealiasing = coef_dealiasing
 
-        CONDKX = abs(self.Kx) > self.coef_dealiasing*self.k2.max()
-        CONDKY = abs(self.Ky) > self.coef_dealiasing*self.k1.max()
-        CONDKZ = abs(self.Kz) > self.coef_dealiasing*self.k0.max()
+        CONDKX = abs(self.Kx) > self.coef_dealiasing * self.k2.max()
+        CONDKY = abs(self.Ky) > self.coef_dealiasing * self.k1.max()
+        CONDKZ = abs(self.Kz) > self.coef_dealiasing * self.k0.max()
         where_dealiased = np.logical_or(CONDKX, CONDKY, CONDKZ)
         self.where_dealiased = np.array(where_dealiased, dtype=np.uint8)
 
@@ -229,27 +236,30 @@ class OperatorsPseudoSpectral3D(object):
         self.rank = mpi.rank
 
         # initialization spectra
-        self.nkx_spectra = nx//2 + 1
-        self.nky_spectra = ny//2 + 1
-        self.nkz_spectra = nz//2 + 1
+        self.nkx_spectra = nx // 2 + 1
+        self.nky_spectra = ny // 2 + 1
+        self.nkz_spectra = nz // 2 + 1
 
         self.kxmax_spectra = self.deltakx * self.nkx_spectra
         self.kymax_spectra = self.deltaky * self.nky_spectra
         self.kzmax_spectra = self.deltakz * self.nkz_spectra
 
         self.deltak = self.deltak_spectra3d = max(
-            self.deltakx, self.deltaky, self.deltakz)
+            self.deltakx, self.deltaky, self.deltakz
+        )
         self.kmax_spectra3d = min(
-            self.kxmax_spectra, self.kymax_spectra, self.kzmax_spectra)
+            self.kxmax_spectra, self.kymax_spectra, self.kzmax_spectra
+        )
         self.nk_spectra3d = max(
-            2, int(self.kmax_spectra3d/self.deltak_spectra3d))
+            2, int(self.kmax_spectra3d / self.deltak_spectra3d)
+        )
         self.k_spectra3d = self.deltak_spectra3d * np.arange(self.nk_spectra3d)
 
-        # self.tmp_fields_fft = tuple(self.create_arrayK() for n in range(6))
+    # self.tmp_fields_fft = tuple(self.create_arrayK() for n in range(6))
 
     def produce_str_describing_grid(self):
         """Produce a short string describing the grid."""
-        return '{}x{}x{}'.format(self.nx_seq, self.ny_seq, self.nz_seq)
+        return "{}x{}x{}".format(self.nx_seq, self.ny_seq, self.nz_seq)
 
     def produce_str_describing_oper(self):
         """Produce a short string describing the operator."""
@@ -257,8 +267,9 @@ class OperatorsPseudoSpectral3D(object):
         str_Ly = _make_str_length(self.Ly)
         str_Lz = _make_str_length(self.Lz)
 
-        return ('{}x{}x{}_V' + str_Lx + 'x' + str_Ly +
-                'x' + str_Lz).format(self.nx_seq, self.ny_seq, self.nz_seq)
+        return ("{}x{}x{}_V" + str_Lx + "x" + str_Ly + "x" + str_Lz).format(
+            self.nx_seq, self.ny_seq, self.nz_seq
+        )
 
     def produce_long_str_describing_oper(self):
         """Produce a string describing the operator."""
@@ -268,29 +279,42 @@ class OperatorsPseudoSpectral3D(object):
         str_Lz = _make_str_length(self.Lz)
 
         return (
-            'type fft: ' + self.type_fft + '\n' +
-            'nx = {:6d} ; ny = {:6d} ; nz = {:6d}\n'.format(
-                self.nx_seq, self.ny_seq, self.nz_seq) +
-            'Lx = ' + str_Lx + ' ; Ly = ' + str_Ly +
-            ' ; Lz = ' + str_Lz + '\n')
+            "type fft: "
+            + self.type_fft
+            + "\n"
+            + "nx = {:6d} ; ny = {:6d} ; nz = {:6d}\n".format(
+                self.nx_seq, self.ny_seq, self.nz_seq
+            )
+            + "Lx = "
+            + str_Lx
+            + " ; Ly = "
+            + str_Ly
+            + " ; Lz = "
+            + str_Lz
+            + "\n"
+        )
 
-    def _get_shapeX(self, shape='loc'):
-        if shape.lower() == 'loc':
+    def _get_shapeX(self, shape="loc"):
+        if shape.lower() == "loc":
             return self.shapeX_loc
-        elif shape.lower() == 'seq':
+
+        elif shape.lower() == "seq":
             return self.shapeX_seq
+
         else:
             raise ValueError('shape should be "loc" or "seq"')
 
-    def _get_shapeK(self, shape='loc'):
-        if shape.lower() == 'loc':
+    def _get_shapeK(self, shape="loc"):
+        if shape.lower() == "loc":
             return self.shapeK_loc
-        elif shape.lower() == 'seq':
+
+        elif shape.lower() == "seq":
             return self.shapeK_seq
+
         else:
             raise ValueError('shape should be "loc" or "seq"')
 
-    def create_arrayX(self, value=None, shape='loc'):
+    def create_arrayX(self, value=None, shape="loc"):
         """Return a constant array in real space."""
         shapeX = self._get_shapeX(shape)
         field = empty_aligned(shapeX)
@@ -298,7 +322,7 @@ class OperatorsPseudoSpectral3D(object):
             field.fill(value)
         return field
 
-    def create_arrayK(self, value=None, shape='loc'):
+    def create_arrayK(self, value=None, shape="loc"):
         """Return a constant array in real space."""
         shapeK = self._get_shapeK(shape)
         field = empty_aligned(shapeK, dtype=np.complex128)
@@ -306,17 +330,16 @@ class OperatorsPseudoSpectral3D(object):
             field.fill(value)
         return field
 
-    def create_arrayX_random(self, shape='loc', min_val=None, max_val=None):
+    def create_arrayX_random(self, shape="loc", min_val=None, max_val=None):
         """Return a random array in real space."""
         shape = self._get_shapeX(shape)
         values = np.random.random(shape)
         return _rescale_random(values, min_val, max_val)
 
-    def create_arrayK_random(self, shape='loc', min_val=None, max_val=None):
+    def create_arrayK_random(self, shape="loc", min_val=None, max_val=None):
         """Return a random array in real space."""
         shape = self._get_shapeK(shape)
-        values = (np.random.random(shape) +
-                  1j * np.random.random(shape))
+        values = (np.random.random(shape) + 1j * np.random.random(shape))
         return _rescale_random(values, min_val, max_val)
 
     def sum_wavenumbers_versatile(self, field_fft):
@@ -348,7 +371,7 @@ class OperatorsPseudoSpectral3D(object):
         ik_stop = ik_start + nk_loc
 
         # the copy is important: no *= !
-        field_fft = 2*field_fft
+        field_fft = 2 * field_fft
 
         if ik_start == 0:
             if dimK_first_fft == 2:
@@ -359,8 +382,9 @@ class OperatorsPseudoSpectral3D(object):
                 slice0 = np.s_[:, 0, :]
             else:
                 raise NotImplementedError
+
             field_fft[slice0] /= 2
-        if ik_stop == nx_seq//2+1 and nx_seq % 2 == 0:
+        if ik_stop == nx_seq // 2 + 1 and nx_seq % 2 == 0:
             if dimK_first_fft == 2:
                 slice_last = np.s_[:, :, -1]
             elif dimK_first_fft == 0:
@@ -369,6 +393,7 @@ class OperatorsPseudoSpectral3D(object):
                 slice_last = np.s_[:, -1, :]
             else:
                 raise NotImplementedError
+
             field_fft[slice_last] /= 2
 
         return field_fft
@@ -379,8 +404,15 @@ class OperatorsPseudoSpectral3D(object):
         The resulting vector is divergence-free.
 
         """
-        project_perpk3d(vx_fft, vy_fft, vz_fft, self.Kx, self.Ky, self.Kz,
-                        self.inv_K_square_nozero)
+        project_perpk3d(
+            vx_fft,
+            vy_fft,
+            vz_fft,
+            self.Kx,
+            self.Ky,
+            self.Kz,
+            self.inv_K_square_nozero,
+        )
 
     def divfft_from_vecfft(self, vx_fft, vy_fft, vz_fft):
         """Return the divergence of a vector in spectral space."""
@@ -406,12 +438,13 @@ class OperatorsPseudoSpectral3D(object):
         """
         fft3d = self.fft3d
 
-        vxbfft = fft3d(vx*b)
-        vybfft = fft3d(vy*b)
-        vzbfft = fft3d(vz*b)
+        vxbfft = fft3d(vx * b)
+        vybfft = fft3d(vy * b)
+        vzbfft = fft3d(vz * b)
 
-        return divfft_from_vecfft(vxbfft, vybfft, vzbfft,
-                                  self.Kx, self.Ky, self.Kz)
+        return divfft_from_vecfft(
+            vxbfft, vybfft, vzbfft, self.Kx, self.Ky, self.Kz
+        )
 
     def rotzfft_from_vxvyfft(self, vx_fft, vy_fft):
         """Compute the z component of the curl in spectral space."""
@@ -431,23 +464,19 @@ class OperatorsPseudoSpectral3D(object):
                 #     '(i0_seq_start, i1_seq_start, i2_seq_start):',
                 #     (i0_seq_start, i1_seq_start, i2_seq_start))
 
-                z_loc = self.z_seq[
-                    i0_seq_start:i0_seq_start+self.shapeX_loc[0]]
-                y_loc = self.y_seq[
-                    i1_seq_start:i1_seq_start+self.shapeX_loc[1]]
-                x_loc = self.x_seq[
-                    i2_seq_start:i2_seq_start+self.shapeX_loc[2]]
+                z_loc = self.z_seq[i0_seq_start:i0_seq_start + self.shapeX_loc[0]]
+                y_loc = self.y_seq[i1_seq_start:i1_seq_start + self.shapeX_loc[1]]
+                x_loc = self.x_seq[i2_seq_start:i2_seq_start + self.shapeX_loc[2]]
 
-                # mpi.print_sorted('z_loc', z_loc)
-                # mpi.print_sorted('y_loc', y_loc)
-                # mpi.print_sorted('x_loc', x_loc)
+            # mpi.print_sorted('z_loc', z_loc)
+            # mpi.print_sorted('y_loc', y_loc)
+            # mpi.print_sorted('x_loc', x_loc)
 
             else:
                 # 1d decomposition
                 x_loc = self.x_seq
                 y_loc = self.y_seq
-                z_loc = self.z_seq[
-                    i0_seq_start:i0_seq_start+self.shapeX_loc[0]]
+                z_loc = self.z_seq[i0_seq_start:i0_seq_start + self.shapeX_loc[0]]
         else:
             x_loc = self.x_seq
             y_loc = self.y_seq
@@ -477,9 +506,10 @@ class OperatorsPseudoSpectral3D(object):
         dimX_K = self._op_fft.get_dimX_K()
 
         if self._is_mpi_lib:
+
             def compute_spectrum_ki(dimXi):
                 ni = self.shapeX_seq[dimXi]
-                nk_spectra = ni//2 + 1
+                nk_spectra = ni // 2 + 1
                 dimK = dimX_K.index(dimXi)
                 dims_for_sum = tuple(dim for dim in range(3) if dim != dimK)
                 spectrum_tmp_loc = spectrum_k0k1k2.sum(axis=dims_for_sum)
@@ -488,13 +518,13 @@ class OperatorsPseudoSpectral3D(object):
 
                 if self.dimK_first_fft != dimK:
                     spectrum_tmp_seq = np.zeros(ni)
-                    spectrum_tmp_seq[istart:istart+nk_loc] = spectrum_tmp_loc
+                    spectrum_tmp_seq[istart:istart + nk_loc] = spectrum_tmp_loc
                     spectrum_ki = spectrum_tmp_seq[:nk_spectra]
-                    nk1 = (ni+1)//2
+                    nk1 = (ni + 1) // 2
                     spectrum_ki[1:nk1] += spectrum_tmp_seq[nk_spectra:][::-1]
                 else:
                     spectrum_tmp_seq = np.zeros(nk_spectra)
-                    spectrum_tmp_seq[istart:istart+nk_loc] = spectrum_tmp_loc
+                    spectrum_tmp_seq[istart:istart + nk_loc] = spectrum_tmp_loc
                     spectrum_ki = spectrum_tmp_seq
 
                 spectrum_ki = mpi.comm.allreduce(spectrum_ki, op=mpi.MPI.SUM)
@@ -506,15 +536,16 @@ class OperatorsPseudoSpectral3D(object):
             spectrum_kz = compute_spectrum_ki(dimXi=0)
 
         else:
+
             def compute_spectrum_ki(dimXi):
                 ni = self.shapeX_seq[dimXi]
-                nk_spectra = ni//2 + 1
+                nk_spectra = ni // 2 + 1
                 dimK = dimX_K.index(dimXi)
                 dims_for_sum = tuple(dim for dim in range(3) if dim != dimK)
                 spectrum_tmp = spectrum_k0k1k2.sum(axis=dims_for_sum)
                 if self.dimK_first_fft != dimK:
                     spectrum_ki = spectrum_tmp[:nk_spectra]
-                    nk1 = (ni+1)//2
+                    nk1 = (ni + 1) // 2
                     spectrum_ki[1:nk1] += spectrum_tmp[nk_spectra:][::-1]
                 else:
                     spectrum_ki = spectrum_tmp
@@ -524,8 +555,11 @@ class OperatorsPseudoSpectral3D(object):
             spectrum_ky = compute_spectrum_ki(dimXi=1)
             spectrum_kz = compute_spectrum_ki(dimXi=0)
 
-        return (spectrum_kx/self.deltakx, spectrum_ky/self.deltaky,
-                spectrum_kz/self.deltakz)
+        return (
+            spectrum_kx / self.deltakx,
+            spectrum_ky / self.deltaky,
+            spectrum_kz / self.deltakz,
+        )
 
     def compute_3dspectrum(self, energy_fft):
         """Compute the 3D spectrum.
@@ -539,7 +573,7 @@ class OperatorsPseudoSpectral3D(object):
         spectrum3d = loop_spectra3d(spectrum_k0k1k2, ks, K2)
         if self._is_mpi_lib:
             spectrum3d = mpi.comm.allreduce(spectrum3d, op=mpi.MPI.SUM)
-        return spectrum3d/self.deltak_spectra3d
+        return spectrum3d / self.deltak_spectra3d
 
     def compute_spectra_2vars(self, energy_fft):
         """Compute spectra vs 2 variables.
@@ -564,37 +598,38 @@ class OperatorsPseudoSpectral3D(object):
         """
         raise NotImplementedError
 
-    # This one is actually not so useful!
-    # def get_cross_section(self, equation='x=0', to_process=0):
-    #     """Get a 2d cross section.
 
-    #     .. warning::
+# This one is actually not so useful!
+# def get_cross_section(self, equation='x=0', to_process=0):
+#     """Get a 2d cross section.
 
-    #        Not implemented!
+#     .. warning::
 
-    #     .. todo::
+#        Not implemented!
 
-    #        Implement the method :func:`get_cross_section`.  We need a
-    #        not-implemented method :func:`get_seq_indices_first_X` in the C++
-    #        classes...
+#     .. todo::
 
-    #        We first have to implement the very simple cases for which
-    #        ``equation`` is equal to:
+#        Implement the method :func:`get_cross_section`.  We need a
+#        not-implemented method :func:`get_seq_indices_first_X` in the C++
+#        classes...
 
-    #        - x = 2.
-    #        - y = 2.
-    #        - z = 2.
-    #        - ix = 10
-    #        - iy = 10
-    #        - iz = 10
+#        We first have to implement the very simple cases for which
+#        ``equation`` is equal to:
 
-    #     Parameters
-    #     ----------
+#        - x = 2.
+#        - y = 2.
+#        - z = 2.
+#        - ix = 10
+#        - iy = 10
+#        - iz = 10
 
-    #     equation: str
+#     Parameters
+#     ----------
 
-    #       Equation defining the cross-section. We should be able to use the
-    #       variables x, y, z, ix, iy and iz.
+#     equation: str
 
-    #     """
-    #     raise NotImplementedError
+#       Equation defining the cross-section. We should be able to use the
+#       variables x, y, z, ix, iy and iz.
+
+#     """
+#     raise NotImplementedError
