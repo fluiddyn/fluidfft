@@ -34,28 +34,37 @@ FFT class:
 
 from .. import import_fft_class
 
-__all__ = ['FFT2dFakeForDoc', 'methods_seq', 'methods_mpi',
-           'get_classes_seq', 'get_classes_mpi']
+__all__ = [
+    "FFT2dFakeForDoc",
+    "methods_seq",
+    "methods_mpi",
+    "get_classes_seq",
+    "get_classes_mpi",
+]
 
 try:
     from .fake_mod_fft2d_for_doc import FFT2dFakeForDoc
 except ImportError:
     pass
 
-methods_seq = ['fftw1d', 'fftw2d', 'cufft', 'pyfftw']
-methods_seq = ['fft2d.with_' + method for method in methods_seq]
+methods_seq = ["fftw1d", "fftw2d", "cufft", "pyfftw"]
+methods_seq = ["fft2d.with_" + method for method in methods_seq]
 
-methods_mpi = ['fftwmpi2d', 'fftw1d']
-methods_mpi = ['fft2d.mpi_with_' + method for method in methods_mpi]
+methods_mpi = ["fftwmpi2d", "fftw1d"]
+methods_mpi = ["fft2d.mpi_with_" + method for method in methods_mpi]
 
 
 def get_classes_seq():
     """Return all sequential 2d classes."""
-    return {method: import_fft_class(method, raise_import_error=False)
-            for method in methods_seq}
+    return {
+        method: import_fft_class(method, raise_import_error=False)
+        for method in methods_seq
+    }
 
 
 def get_classes_mpi():
     """Return all parallel 2d classes."""
-    return {method: import_fft_class(method, raise_import_error=False)
-            for method in methods_mpi}
+    return {
+        method: import_fft_class(method, raise_import_error=False)
+        for method in methods_mpi
+    }

@@ -10,6 +10,7 @@ import numpy as np
 
 # pythran export dealiasing_variable(complex128[][], uint8[][], int, int)
 
+
 def dealiasing_variable(ff_fft, where, nK0loc, nK1loc):
     for iK0 in range(nK0loc):
         for iK1 in range(nK1loc):
@@ -26,6 +27,7 @@ def dealiasing_variable(ff_fft, where, nK0loc, nK1loc):
 
 # pythran export vecfft_from_rotfft(complex128[][], float64[][], float64[][])
 
+
 def vecfft_from_rotfft(rot_fft, KX_over_K2, KY_over_K2):
     """Return the velocity in spectral space computed from the rotational.
     """
@@ -36,6 +38,7 @@ def vecfft_from_rotfft(rot_fft, KX_over_K2, KY_over_K2):
 
 # pythran export vecfft_from_divfft(complex128[][], float64[][], float64[][])
 
+
 def vecfft_from_divfft(div_fft, KX_over_K2, KY_over_K2):
     """Return the velocity in spectral space computed from the divergence.
     """
@@ -45,6 +48,7 @@ def vecfft_from_divfft(div_fft, KX_over_K2, KY_over_K2):
 
 
 # pythran export gradfft_from_fft(complex128[][], float64[][], float64[][])
+
 
 def gradfft_from_fft(f_fft, KX, KY):
     """Return the gradient of f_fft in spectral space."""
@@ -70,8 +74,9 @@ def gradfft_from_fft(f_fft, KX, KY):
 # pythran export divfft_from_vecfft(
 #     complex128[][], complex128[][], float64[][], float64[][])
 
+
 def divfft_from_vecfft(vecx_fft, vecy_fft, KX, KY):
-    return 1j*(KX*vecx_fft + KY*vecy_fft)
+    return 1j * (KX * vecx_fft + KY * vecy_fft)
 
 
 # pythran export rotfft_from_vecfft(
@@ -79,11 +84,12 @@ def divfft_from_vecfft(vecx_fft, vecy_fft, KX, KY):
 
 
 def rotfft_from_vecfft(vecx_fft, vecy_fft, KX, KY):
-    return 1j*(KX*vecy_fft - KY*vecx_fft)
+    return 1j * (KX * vecy_fft - KY * vecx_fft)
 
 
 # pythran export myfunc(float64[][]):
 # pythran export myfunc(complex128[][]):
 
+
 def myfunc(a):
-    return (a**2 + a**3 + 2) / 5.
+    return (a ** 2 + a ** 3 + 2) / 5.

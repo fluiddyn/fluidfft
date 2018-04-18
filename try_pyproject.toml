@@ -1,0 +1,9 @@
+# Refer: PEP 508, 517, 518 specifications.
+# Requires pip>=10
+[build-system]
+# Minimum requirements for the build system to execute.
+requires = [
+    "setuptools", "wheel",
+    "numpy", "Cython", 
+    "Mako",  # -> Will only work when Mako implements PEP 518
+]

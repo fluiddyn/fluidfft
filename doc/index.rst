@@ -3,40 +3,66 @@
 FluidFFT documentation
 ======================
 
-This package provides C++ classes and their Python wrapper classes written in
-Cython useful to perform Fast Fourier Transform (FFT) with different libraries,
-in particular
+This package provides C++ classes and their Python wrapper classes useful to
+perform Fast Fourier Transform (FFT) with different libraries, in particular
 
 - `fftw3 <http://www.fftw.org/>`_ and `fftw3-mpi
   <http://www.fftw.org/fftw3_doc/Distributed_002dmemory-FFTW-with-MPI.html>`_
-  
+
 - `pfft <https://github.com/mpip/pfft>`_
 
 - `p3dfft <https://github.com/sdsc/p3dfft>`_
-    
+
 - `cufft <https://developer.nvidia.com/cufft>`_ (fft library by CUDA
   running on GPU)
 
 `pfft <https://github.com/mpip/pfft>`_ and `p3dfft
 <https://github.com/sdsc/p3dfft>`_ are specialized in computing FFT efficiently
-on several cores of big clusters. The data is split in pencils and can be
-distributed on several processes.
+on several cores of big clusters. The data is split in pencils and the
+computations can be distributed on several processes.
 
-Fluidfft provides classes to use in a transparent way all these libraries with
-an unified API. These classes are not limited to just performing Fourier
-transforms. They are also an elegant solution to efficiently perform operations
-on data in real and spectral spaces (gradient, divergence, rotational, sum over
-wavenumbers, computation of spectra, etc.) and easily deal with the data
-distribution (gather the data on one process, scatter the data to many
-processes) without having to know the internal organization of every FFT
-library.
+FluidFFT provides an unified API to use all these libraries. FluidFFT is not
+limited to just performing Fourier transforms. It is a complete development
+framework for codes using (distributed) FFT. A simple API allows the developers to
+easily perform operations on data in real and spectral spaces (gradient,
+divergence, rotational, sum over wavenumbers, computation of spectra, etc.) and
+deal with the data distribution (gather the data on one process and scatter the
+data to many processes) without having to consider the internal organization of
+every FFT library.
 
-Fluidfft hides the internal complication of (distributed) FFT libraries and
-allows the user to find (by benchmarking) and to choose the most efficient
-solution for a particular case. Fluidfft is therefore a very useful tool to
-write HPC applications using FFT, as for example pseudo-spectral simulation
-codes. In particular, fluidfft is used in the Computational Fluid Dynamics
-(CFD) framework `fluidsim <http://fluidsim.readthedocs.org>`_.
+FluidFFT has been created to be:
+
+- Easy to install (see :ref:`install`).
+
+- Easy to use, both for simple users and for developers (see
+  :ref:`tuto`). FluidFFT hides the internal complication of (distributed) FFT
+  libraries.
+
+- Robust (unittest coverage larger than 90 %).
+
+- Highly efficient.
+
+  The architecture of the code and the tools used (C++ classes, Cython wrapper and
+  `Pythran <https://github.com/serge-sans-paille/pythran>`_ computational
+  functions) leads to very good performances.
+
+  Moreover, Python developers can easily measure the performance cost of using
+  Python compared to coding in pure C++.  This cost has to be compared to the cost
+  of the FFT in pure C++, which of course strongly varies with the size of the
+  arrays.  From our experience with real cases, the "Python cost" goes from very
+  small (for small cases) to completely negligible (for medium and large cases).
+
+  A great advantage of FluidFFT is that it allows the user to find (see
+  :ref:`bench`) and to choose the most efficient solution for a particular
+  case.  Since the fastest library depends on the case and on the hardware, it
+  is really a useful feature for performance!
+
+FluidFFT is therefore a very useful tool to write HPC applications using FFT, as
+for example pseudo-spectral simulation codes.  For an example of how FluidFFT can
+be used in a real application, see `the code
+<https://bitbucket.org/fluiddyn/fluidsim>`_ of the `Computational Fluid Dynamics
+(CFD) framework FluidSim <http://fluidsim.readthedocs.org>`_.
+
 
 User Guide
 ----------
@@ -46,8 +72,9 @@ User Guide
 
    overview
    install
-   bench
    tutorials
+   bench
+
 
 
 Modules Reference
@@ -73,13 +100,17 @@ More
    :alt: Code coverage
 
 .. |travis| image:: https://travis-ci.org/fluiddyn/fluidfft.svg?branch=master
-    :target: https://travis-ci.org/fluiddyn/fluidfft
+   :target: https://travis-ci.org/fluiddyn/fluidfft
+
+.. |pipelines| image:: https://img.shields.io/bitbucket/pipelines/fluiddyn/fluidfft.svg
+   :target: https://bitbucket.org/fluiddyn/fluidfft/addon/pipelines/home#!/
 
 
 - `FluidFFT forge on Bitbucket <https://bitbucket.org/fluiddyn/fluidfft>`_
 - FluidFFT in PyPI |release|
 - Unittest coverage |coverage|
-- Continuous integration |travis|
+- Continuous integration with travis-ci.org |travis|
+- Continuous integration with Bitbucket Pipelines |pipelines|
 
 .. toctree::
    :maxdepth: 1

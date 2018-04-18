@@ -24,6 +24,9 @@ cleanmako:
 
 cleanall: clean cleanso cleanmako cleancython
 
+black:
+	black -l 82 fluidfft
+
 tests:
 	python -m unittest discover
 

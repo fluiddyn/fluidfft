@@ -1,5 +1,13 @@
+.. _tuto:
+
 Tutorials
 =========
+
+We show in these tutorials how to use the FFT classes. These classes are the basic
+components of FluidFFT.  Note however that for most users, it's going to be
+simpler to use directly the "operators" classes
+:class:`fluidfft.fft2d.operators.OperatorsPseudoSpectral2D` and
+:class:`fluidfft.fft3d.operators.OperatorsPseudoSpectral3D`.
 
 .. toctree::
    :maxdepth: 1

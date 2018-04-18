@@ -251,9 +251,6 @@ cdef class ${class_name}:
     def scatter_Xspace(self, ff_seq, root=0):
         """Scatter an array in real space for a parallel run.
 
-        .. todo::
-           Write unittest for the method :func:`scatter_Xspace`
-
         """
         cdef np.ndarray[DTYPEf_t, ndim=3] ff_loc
         cdef int nX0_loc, nX1_loc, nX2_loc
