@@ -81,7 +81,8 @@ def filter_by_shape(df, n0, n1):
     return df[df.columns.difference(["n0", "n1"])]
 
 
-def plot_scaling(path_dir, hostname, dim, n0, n1, n2=None, show=True):
+def plot_scaling(path_dir, hostname, dim, n0, n1, n2=None,
+                 show=True, for_latex=False):
 
     df = load_bench(path_dir, hostname, dim)
     df = filter_by_shape(df, n0, n1)
@@ -115,7 +116,10 @@ def plot_scaling(path_dir, hostname, dim, n0, n1, n2=None, show=True):
         i0, i1 = np.unravel_index(np.argmin(m), m.shape)
         mymin = m[i0, i1]
         ind = _get_short_name(df.index[i0])
-        key = df.columns[i1]
+        key = df.columns[i1][2:]
+        if for_latex:
+            key = key.replace('_', r'\_')
+            ind = ind.replace('_', r'\_')
         return mymin, ind, key
 
     t_min_fft, name_min_fft, key_min_fft = get_min(df_fft_nb_proc_min)
@@ -136,23 +140,29 @@ def plot_scaling(path_dir, hostname, dim, n0, n1, n2=None, show=True):
         for k in keys_fft:
             typeline = _get_typeline_from_key(k)
             speedup = t_min_fft / tmp[k] * nb_proc_min
+            k = k[2:]
+            if for_latex:
+                k = k.replace('_', r'\_')
             ax0.plot(
                 speedup.index,
                 speedup.values,
                 "x" + typeline,
                 color=color,
-                label="{}, {}".format(name, k[2:]),
+                label="{}, {}".format(name, k),
             )
 
         for k in keys_ifft:
             typeline = _get_typeline_from_key(k)
             speedup = t_min_ifft / tmp[k] * nb_proc_min
+            k = k[2:]
+            if for_latex:
+                k = k.replace('_', r'\_')
             ax1.plot(
                 speedup.index,
                 speedup.values,
                 "x" + typeline,
                 color=color,
-                label="{}, {}".format(name, k[2:]),
+                label="{}, {}".format(name, k),
             )
 
         for ax in [ax0, ax1]:
@@ -167,19 +177,26 @@ def plot_scaling(path_dir, hostname, dim, n0, n1, n2=None, show=True):
         ax.set_ylabel("speedup")
 
     ax0.set_title(
-        "FFT, best for {} procs: {}, {} ({:.2f} ms)".format(
-            nb_proc_min, name_min_fft, key_min_fft[2:], t_min_fft * 1000
+        "FFT, best for {} procs: {}, {} ({:.0f} ms)".format(
+            nb_proc_min, name_min_fft, key_min_fft, t_min_fft * 1000
         )
     )
     ax1.set_title(
-        "IFFT, best for {} procs: {}, {} ({:.2f} ms)".format(
-            nb_proc_min, name_min_ifft, key_min_ifft[2:], t_min_ifft * 1000
+        "IFFT, best for {} procs: {}, {} ({:.0f} ms)".format(
+            nb_proc_min, name_min_ifft, key_min_ifft, t_min_ifft * 1000
         )
     )
 
-    title = "Speedup Fast Fourier Transform {} {}x{}".format(dim, n0, n1)
+    if for_latex:
+        multiply_symbol = r'$\times$'
+    else:
+        multiply_symbol = 'x'
+        
+    title = "Speedup Fast Fourier Transform {} {}{}{}".format(
+        dim, n0, multiply_symbol, n1
+    )
     if n2 is not None:
-        title += "x{}".format(n2)
+        title += "{}{}".format(multiply_symbol, n2)
 
     title += " (higher is faster)"
 
