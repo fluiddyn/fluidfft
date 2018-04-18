@@ -221,9 +221,9 @@ class OperatorsPseudoSpectral3D(object):
 
         self.coef_dealiasing = coef_dealiasing
 
-        CONDKX = abs(self.Kx) > self.coef_dealiasing * self.k2.max()
-        CONDKY = abs(self.Ky) > self.coef_dealiasing * self.k1.max()
-        CONDKZ = abs(self.Kz) > self.coef_dealiasing * self.k0.max()
+        CONDKX = abs(self.Kx) >= self.coef_dealiasing * self.k2.max()
+        CONDKY = abs(self.Ky) >= self.coef_dealiasing * self.k1.max()
+        CONDKZ = abs(self.Kz) >= self.coef_dealiasing * self.k0.max()
         where_dealiased = np.logical_or(CONDKX, CONDKY, CONDKZ)
         self.where_dealiased = np.array(where_dealiased, dtype=np.uint8)
 
