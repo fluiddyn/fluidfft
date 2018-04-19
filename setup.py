@@ -229,9 +229,9 @@ if can_import_pythran:
 setup(
     name='fluidfft',
     version=__version__,
-    description=('Efficient and easy Fast Fourier Transform for Python.'),
+    description=('Efficient and easy Fast Fourier Transform (FFT) for Python.'),
     long_description=long_description,
-    keywords='Fast Fourier Transform, spectral code',
+    keywords='Fast Fourier Transform, FFT, spectral code',
     author='Pierre Augier',
     author_email='pierre.augier@legi.cnrs.fr',
     url='https://bitbucket.org/fluiddyn/fluidfft',
