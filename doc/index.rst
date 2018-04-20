@@ -73,6 +73,7 @@ User Guide
    overview
    install
    tutorials
+   examples
    bench
 
 
