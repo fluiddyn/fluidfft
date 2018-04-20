@@ -245,8 +245,8 @@ class OperatorsPseudoSpectral2D(object):
 
         # Initialisation dealiasing
         self.coef_dealiasing = coef_dealiasing
-        kx_max = self.deltakx * (nx // 2 + 1)
-        ky_max = self.deltaky * (ny // 2 + 1)
+        self.kxmax_dealiasing = kx_max = self.deltakx * (nx // 2 + 1)
+        self.kymax_dealiasing = ky_max = self.deltaky * (ny // 2 + 1)
         CONDKX = abs(self.KX) >= coef_dealiasing * kx_max
         CONDKY = abs(self.KY) >= coef_dealiasing * ky_max
         where_dealiased = np.logical_or(CONDKX, CONDKY)
