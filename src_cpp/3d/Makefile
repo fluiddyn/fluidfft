@@ -88,16 +88,25 @@ OBJECTS_CPP_BASE := $(OBJECTS_CPP_BASE:.cpp=.o)
 
 OBJECTS_BUILD = build/$(subst $(space),$(space)build/,$(OBJECTS_CPP_BASE) $(OBJECTS))
 
-
-# truc:
-# 	echo $(OBJECTS_CPP_BASE) $(OBJECTS):
-# 	echo
-# 	echo $(OBJECTS_BUILD)
+red="\033[0;31m"
+end="\033[0m"
 
 
 .PHONY: help all clean _build_dir
 
 all: build test_bench.out
+
+show_targets:
+	@echo -e $(red)$(SOURCES_CPP_BASE)$(end)
+	@echo $(OBJECTS_CPP_BASE)
+	@echo -e $(red)$(SOURCES_CPP)$(end)
+	@echo $(OBJECTS)
+	@echo -e $(red)include:$(end)
+	@echo $(INC_DIR)
+	@echo -e $(red)build:$(end)
+	@echo $(OBJECTS_BUILD)
+	@echo -e $(red)link:$(end)
+	@echo $(LDFLAGS) $(OBJECTS_BUILD) $(LIBS) $(LIB_DIR)
 
 build:
 	mkdir -p build

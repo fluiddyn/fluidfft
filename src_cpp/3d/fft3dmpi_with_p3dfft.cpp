@@ -336,7 +336,7 @@ bool FFT3DMPIWithP3DFFT::are_parameters_bad()
     {
       if (rank == 0)
         cout << "bad parameters N0 or N1 or N2" << endl;
-        return 1;
+      return 1;
     }
   return 0;
 }

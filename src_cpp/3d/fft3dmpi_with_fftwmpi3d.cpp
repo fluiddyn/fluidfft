@@ -353,7 +353,7 @@ bool FFT3DMPIWithFFTWMPI3D::are_parameters_bad()
     {
       if (rank == 0)
         cout << "bad parameters N0 : nb_proc>N0 (not supported by fftwmpi)" <<endl;
-        return 1;
+      return 1;
     }
   return 0;
 }
