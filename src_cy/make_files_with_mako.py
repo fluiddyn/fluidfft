@@ -3,13 +3,48 @@ import os
 from os.path import join
 from datetime import datetime
 
-from mako.template import Template
-
 here = os.path.abspath(os.path.dirname(__file__))
 
 path_fluidfft = os.path.abspath(os.path.join(here, '..', 'fluidfft'))
 path2d = os.path.join(path_fluidfft, 'fft2d')
 path3d = os.path.join(path_fluidfft, 'fft3d')
+
+try:
+    from mako.template import Template
+
+    use_mako = True
+except ImportError:
+    # Use Jinja2 to render Mako style templates
+    # See: http://jinja.pocoo.org/docs/2.10/switching/#mako
+    from jinja2 import Environment, FileSystemLoader
+
+    env = Environment(
+        "<%", "%>", "${", "}", "<%doc>", "</%doc>", "%", "##",
+        loader=FileSystemLoader(here),
+    )
+    print("Falling back to Jinja2 as the template library...")
+    use_mako = False
+
+
+def load_template(filename):
+    """Load template file using Mako or Jinja2.
+
+    Parameters
+    ----------
+
+    filename : str
+        Just the filename, without its path.
+
+    Returns
+    -------
+
+    mako.Template or jinja2.Template object
+
+    """
+    if use_mako:
+        return Template(filename=join(here, filename))
+    else:
+        return env.get_template(filename)
 
 
 def modification_date(filename):
@@ -17,11 +52,11 @@ def modification_date(filename):
     return datetime.fromtimestamp(t)
 
 
-template2d_pyx = Template(filename=join(here, 'template2d_mako.pyx'))
-template2d_pxd = Template(filename=join(here, 'template2d_mako.pxd'))
+template2d_pyx = load_template("template2d_mako.pyx")
+template2d_pxd = load_template("template2d_mako.pxd")
 
-template3d_pyx = Template(filename=join(here, 'template3d_mako.pyx'))
-template3d_pxd = Template(filename=join(here, 'template3d_mako.pxd'))
+template3d_pyx = load_template("template3d_mako.pyx")
+template3d_pxd = load_template("template3d_mako.pxd")
 
 
 def get_path_files(module_name):

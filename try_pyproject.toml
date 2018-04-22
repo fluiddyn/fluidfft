@@ -5,5 +5,8 @@
 requires = [
     "setuptools", "wheel",
     "numpy", "Cython", 
-    "Mako",  # -> Will only work when Mako implements PEP 518
+    # Will only work when Mako supplies wheels / pip supports
+    # installation from source
+    # "Mako",
+    "Jinja2"
 ]
