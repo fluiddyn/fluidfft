@@ -1,4 +1,3 @@
-# Strange things!
+- The version with explicit loops as fast (even slighly faster) as Fortran!
 
-
-## Slow compared to Fortran (Mean Time = ??)
+- The version without explicit loops is twice slower...

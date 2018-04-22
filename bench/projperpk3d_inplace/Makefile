@@ -34,8 +34,9 @@ perffft:
 	  'from bench import proj_fft $(end)' $(code)
 
 perfomp:
-	python -m perf timeit -s \
-	  'from bench import proj_omp $(end)' $(code)
+	OMP_NUM_THREADS=2 python -m perf timeit -s \
+	  'from bench import proj_omp $(end)' $(code) \
+	  --inherit-environ=OMP_NUM_THREADS
 	OMP_NUM_THREADS=1 python -m perf timeit -s \
 	  'from bench import proj_omp $(end)' $(code) \
 	  --inherit-environ=OMP_NUM_THREADS

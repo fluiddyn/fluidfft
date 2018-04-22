@@ -1,16 +1,26 @@
 
 import numpy as np
 
-from proj_native import proj as proj_native
-from proj_default import proj as proj_default
+# from proj_native import proj as proj_native
+# from proj_default import proj as proj_default
+
+# try:
+#     from proj_omp import proj as proj_omp
+# except ImportError:
+#     pass
+
+from proj_native import proj_loop as proj_native
+from proj_default import proj_loop as proj_default
+
+try:
+    from proj_omp import proj_loop as proj_omp
+except ImportError:
+    pass
+
+
 from proj1_default import proj as proj1_default
 from proj2_default import proj as proj2_default
 
-try:
-    from proj_omp import proj as proj_omp
-except ImportError:
-    pass
-    
 from proj import proj as proj_py
 
 n0 = n1 = n2 = 128

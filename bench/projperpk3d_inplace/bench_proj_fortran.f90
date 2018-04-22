@@ -2,7 +2,7 @@
 
 program benchmark_proj
   implicit none
-  integer, parameter :: N0=128, N1=128, N2=65, N=100
+  integer, parameter :: N0=128, N1=128, N2=64, N=100
   double precision, allocatable :: vx_fft(:,:,:,:), vy_fft(:,:,:,:), vz_fft(:,:,:,:)
   double precision, allocatable :: Kx(:,:,:), Ky(:,:,:), Kz(:,:,:)
   double precision, allocatable :: inv_K_square_nozero(:,:,:)
@@ -50,41 +50,22 @@ subroutine proj(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, inv_K_square_nozero, N0, N1,
   double precision, intent(in) :: inv_K_square_nozero(N2, N1, N0)
 
   ! Locals
-  double precision, allocatable :: tmp(:, :, :, :)
+  double precision :: tmp(2)
   integer:: i, j, k
 
-
-  allocate(tmp(2, N2, N1, N0))
-  call calc_tmp(tmp, vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, inv_K_square_nozero, N0, N1, N2)
   do k = 1, N0
      do j = 1, N1
         do i = 1, N2
-           vx_fft(1:2,i,j,k) = vx_fft(1:2,i,j,k) - Kx(i,j,k) * tmp(1:2,i,j,k)
-           vy_fft(1:2,i,j,k) = vy_fft(1:2,i,j,k) - Ky(i,j,k) * tmp(1:2,i,j,k)
-           vz_fft(1:2,i,j,k) = vz_fft(1:2,i,j,k) - Kz(i,j,k) * tmp(1:2,i,j,k)
+           tmp(1:2) = (Kx(i,j,k) * vx_fft(1:2,i,j,k) &
+                       + Ky(i,j,k) * vy_fft(1:2,i,j,k) &
+                       + Kz(i,j,k) * vz_fft(1:2,i,j,k) &
+                      ) * inv_K_square_nozero(i,j,k)
+
+           vx_fft(1:2,i,j,k) = vx_fft(1:2,i,j,k) - Kx(i,j,k) * tmp
+           vy_fft(1:2,i,j,k) = vy_fft(1:2,i,j,k) - Ky(i,j,k) * tmp
+           vz_fft(1:2,i,j,k) = vz_fft(1:2,i,j,k) - Kz(i,j,k) * tmp
         enddo
      enddo
   enddo
-  deallocate(tmp)
 
-contains
-  subroutine calc_tmp(tmp, vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, inv_K_square_nozero, N0, N1, N2)
-    integer, intent(in) :: N0, N1, N2
-    double precision, intent(in) :: vx_fft(2,N2, N1, N0), vy_fft(2,N2, N1, N0), vz_fft(2,N2, N1, N0)
-    double precision, intent(in) :: Kx(N2, N1, N0), Ky(N2, N1, N0), Kz(N2, N1, N0)
-    double precision, intent(in) :: inv_K_square_nozero(N2, N1, N0)
-    double precision, intent(out) :: tmp(2,N2, N1, N0)
-
-    integer:: i, j, k
-    do k = 1, N0
-       do j = 1, N1
-          do i = 1, N2
-             tmp(1:2, i,j,k) = (Kx(i,j,k) * vx_fft(1:2,i,j,k) + &
-                  Ky(i,j,k) * vy_fft(1:2,i,j,k) + &
-                  Kz(i,j,k) * vz_fft(1:2,i,j,k)) * inv_K_square_nozero(i,j,k)
-          enddo
-       enddo
-    enddo
-
-  end subroutine calc_tmp
 end subroutine proj
