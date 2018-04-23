@@ -305,7 +305,7 @@ def make_command_obj_from_cpp(obj_file, cpp_file, include_dirs=None,
     command = ' '.join([conf_vars[k] for k in keys])
 
     if cpp_file.endswith('.cu'):
-        NVCC = os.environ.get('NVCC', default='nvcc')
+        NVCC = os.environ.get('NVCC', 'nvcc')
         command = (
             NVCC + ' -m64 '
             '-gencode arch=compute_30,code=sm_30 '
@@ -366,7 +366,7 @@ def make_command_ext_from_objs(
         command[0] = cxx.split()[0]
 
     if 'cufft' in ext_file:
-        NVCC = os.environ.get('NVCC', default='nvcc')
+        NVCC = os.environ.get('NVCC', 'nvcc')
         command = (NVCC + ' -Xcompiler -pthread -shared').split()
 
     command += obj_files + ['-o', ext_file]

@@ -81,8 +81,9 @@ def filter_by_shape(df, n0, n1):
     return df[df.columns.difference(["n0", "n1"])]
 
 
-def plot_scaling(path_dir, hostname, dim, n0, n1, n2=None,
-                 show=True, for_latex=False):
+def plot_scaling(
+    path_dir, hostname, dim, n0, n1, n2=None, show=True, for_latex=False
+):
 
     df = load_bench(path_dir, hostname, dim)
     df = filter_by_shape(df, n0, n1)
@@ -118,8 +119,8 @@ def plot_scaling(path_dir, hostname, dim, n0, n1, n2=None,
         ind = _get_short_name(df.index[i0])
         key = df.columns[i1][2:]
         if for_latex:
-            key = key.replace('_', r'\_')
-            ind = ind.replace('_', r'\_')
+            key = key.replace("_", r"\_")
+            ind = ind.replace("_", r"\_")
         return mymin, ind, key
 
     t_min_fft, name_min_fft, key_min_fft = get_min(df_fft_nb_proc_min)
@@ -142,7 +143,7 @@ def plot_scaling(path_dir, hostname, dim, n0, n1, n2=None,
             speedup = t_min_fft / tmp[k] * nb_proc_min
             k = k[2:]
             if for_latex:
-                k = k.replace('_', r'\_')
+                k = k.replace("_", r"\_")
             ax0.plot(
                 speedup.index,
                 speedup.values,
@@ -156,7 +157,7 @@ def plot_scaling(path_dir, hostname, dim, n0, n1, n2=None,
             speedup = t_min_ifft / tmp[k] * nb_proc_min
             k = k[2:]
             if for_latex:
-                k = k.replace('_', r'\_')
+                k = k.replace("_", r"\_")
             ax1.plot(
                 speedup.index,
                 speedup.values,
@@ -188,10 +189,10 @@ def plot_scaling(path_dir, hostname, dim, n0, n1, n2=None,
     )
 
     if for_latex:
-        multiply_symbol = r'$\times$'
+        multiply_symbol = r"$\times$"
     else:
-        multiply_symbol = 'x'
-        
+        multiply_symbol = "x"
+
     title = "Speedup Fast Fourier Transform {} {}{}{}".format(
         dim, n0, multiply_symbol, n1
     )

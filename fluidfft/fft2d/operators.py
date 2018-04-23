@@ -244,11 +244,20 @@ class OperatorsPseudoSpectral2D(object):
         self.kh_2dspectrum = self.deltak * np.arange(self.nkh)
 
         # Initialisation dealiasing
+        kx_max = self.deltakx * (nx // 2)
+        ky_max = self.deltaky * (ny // 2)
         self.coef_dealiasing = coef_dealiasing
-        self.kxmax_dealiasing = kx_max = self.deltakx * (nx // 2 + 1)
-        self.kymax_dealiasing = ky_max = self.deltaky * (ny // 2 + 1)
-        CONDKX = abs(self.KX) >= coef_dealiasing * kx_max
-        CONDKY = abs(self.KY) >= coef_dealiasing * ky_max
+
+        if isinstance(coef_dealiasing, bool) and not coef_dealiasing:
+            self._has_to_dealiase = False
+            self.kxmax_dealiasing = kx_max + self.deltakx
+            self.kymax_dealiasing = ky_max + self.deltaky
+        else:
+            self._has_to_dealiase = True
+            self.kxmax_dealiasing = coef_dealiasing * kx_max
+            self.kymax_dealiasing = coef_dealiasing * ky_max
+        CONDKX = abs(self.KX) >= self.kxmax_dealiasing
+        CONDKY = abs(self.KY) >= self.kymax_dealiasing
         where_dealiased = np.logical_or(CONDKX, CONDKY)
         self.where_dealiased = np.array(where_dealiased, dtype=np.uint8)
         self.indexes_dealiased = np.argwhere(where_dealiased)
@@ -592,9 +601,10 @@ class OperatorsPseudoSpectral2D(object):
 
     def dealiasing_variable(self, f_fft):
         """Dealiasing a variable."""
-        dealiasing_variable(
-            f_fft, self.where_dealiased, self.nK0_loc, self.nK1_loc
-        )
+        if self._has_to_dealiase:
+            dealiasing_variable(
+                f_fft, self.where_dealiased, self.nK0_loc, self.nK1_loc
+            )
 
     def _get_shapeX(self, shape="loc"):
         if shape.lower() == "loc":
