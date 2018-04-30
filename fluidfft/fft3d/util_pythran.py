@@ -87,6 +87,36 @@ def rotfft_from_vecfft(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz):
     return rotxfft, rotyfft, rotzfft
 
 
+# pythran export rotfft_from_vecfft_outin(
+#     complex128[][][], complex128[][][], complex128[][][],
+#     float64[][][], float64[][][], float64[][][],
+#     complex128[][][], complex128[][][], complex128[][][])
+
+
+def rotfft_from_vecfft_outin(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz,
+                             rotxfft, rotyfft, rotzfft):
+    """Compute the curl of a vector (in spectral space)"""
+    # return (1j * (Ky * vz_fft - Kz * vy_fft),
+    #         1j * (Kz * vx_fft - Kx * vz_fft),
+    #         1j * (Kx * vy_fft - Ky * vx_fft))
+
+    n0, n1, n2 = vx_fft.shape
+
+    for i0 in range(n0):
+        for i1 in range(n1):
+            for i2 in range(n2):
+                kx = Kx[i0, i1, i2]
+                ky = Ky[i0, i1, i2]
+                kz = Kz[i0, i1, i2]
+                vx = vx_fft[i0, i1, i2]
+                vy = vy_fft[i0, i1, i2]
+                vz = vz_fft[i0, i1, i2]
+
+                rotxfft[i0, i1, i2] = 1j * (ky * vz - kz * vy)
+                rotyfft[i0, i1, i2] = 1j * (kz * vx - kx * vz)
+                rotzfft[i0, i1, i2] = 1j * (kx * vy - ky * vx)
+
+
 # pythran export vector_product(
 #     float64[][][], float64[][][], float64[][][],
 #     float64[][][], float64[][][], float64[][][])

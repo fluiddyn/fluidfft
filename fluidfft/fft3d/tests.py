@@ -119,6 +119,7 @@ def make_testop_functions(name, cls):
             op.project_perpk3d(afft, afft, afft)
             op.divfft_from_vecfft(afft, afft, afft)
             op.rotfft_from_vecfft(afft, afft, afft)
+            op.rotfft_from_vecfft_outin(afft, afft, afft, afft, afft, afft)
             op.rotzfft_from_vxvyfft(afft, afft)
 
             # depreciated...
