@@ -58,7 +58,6 @@ can_import = _d['can_import']
 
 can_import_cython = can_import('cython')
 can_import_mpi4py = can_import('mpi4py', '2.0.0')
-can_import_pythran = can_import('pythran')
 
 if can_import_cython:
     from Cython.Compiler.Main import \
@@ -104,23 +103,21 @@ path_lib = 'build/lib.' + '-'.join(
     [platform.system().lower(), platform.machine(), short_version])
 
 
-def check_deps():
-    def check_and_print(pkg='', result=None):
-        if result is None:
-            result = can_import(pkg)
+def check_and_print(pkg='', result=None, line_above=False, line_below=False):
+    if result is None:
+        result = can_import(pkg)
 
-        print('{} installed: '.format(pkg).rjust(25) + repr(result))
-
-    print('*' * 50)
-    check_and_print('numpy')
-    check_and_print('mpi4py', can_import_mpi4py)
-    check_and_print('cython', can_import_cython)
-    check_and_print('pythran', can_import_pythran)
-    check_and_print('mako')
-    print('*' * 50)
+    if line_above:
+        print('*' * 50)
+    print('{} installed: '.format(pkg).rjust(25) + repr(result))
+    if line_below:
+        print('*' * 50)
 
 
-check_deps()
+check_and_print('numpy', line_above=True)
+check_and_print('mpi4py', can_import_mpi4py)
+check_and_print('cython', can_import_cython)
+check_and_print('mako', line_below=True)
 
 
 def modification_date(filename):
@@ -503,11 +500,13 @@ def make_extensions(extensions,
 
 
 def make_pythran_extensions(modules):
-    # building with pythran
-    try:
-        from pythran.dist import PythranExtension
-    except ImportError:
-        pass
+    can_import_pythran = can_import('pythran')
+    check_and_print('pythran', can_import_pythran, True, True)
+    if not can_import_pythran:
+        print('Pythran extensions will not built: ', modules)
+        return []
+
+    from pythran.dist import PythranExtension
 
     develop = sys.argv[-1] == 'develop'
     extensions = []
@@ -522,7 +521,9 @@ def make_pythran_extensions(modules):
             pext = PythranExtension(mod, [py_file],)
             pext.include_dirs.append(np.get_include())
             # bug pythran extension...
-            pext.extra_compile_args.extend(['-O3', '-march=native'])
+            compile_arch = os.getenv('CARCH', 'native')
+            pext.extra_compile_args.extend(['-O3',
+                                            '-march={}'.format(compile_arch)])
             # pext.extra_compile_args.append('-fopenmp')
             # pext.extra_link_args.extend([])
             extensions.append(pext)
