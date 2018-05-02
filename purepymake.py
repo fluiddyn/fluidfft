@@ -36,7 +36,7 @@ from time import sleep
 import os
 from runpy import run_path
 from datetime import datetime
-from distutils import sysconfig
+import sysconfig
 import subprocess
 from copy import copy
 import multiprocessing
@@ -301,6 +301,10 @@ def make_command_obj_from_cpp(obj_file, cpp_file, include_dirs=None,
         for k, v in options.items():
             if v is not None:
                 conf_vars[k] = v
+
+    # for Pypy
+    if 'BASECFLAGS' not in conf_vars:
+        keys.remove('BASECFLAGS')
 
     command = ' '.join([conf_vars[k] for k in keys])
 
