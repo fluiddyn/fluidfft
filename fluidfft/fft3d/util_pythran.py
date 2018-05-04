@@ -93,8 +93,9 @@ def rotfft_from_vecfft(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz):
 #     complex128[][][], complex128[][][], complex128[][][])
 
 
-def rotfft_from_vecfft_outin(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz,
-                             rotxfft, rotyfft, rotzfft):
+def rotfft_from_vecfft_outin(
+    vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, rotxfft, rotyfft, rotzfft
+):
     """Compute the curl of a vector (in spectral space)"""
     # return (1j * (Ky * vz_fft - Kz * vy_fft),
     #         1j * (Kz * vx_fft - Kx * vz_fft),

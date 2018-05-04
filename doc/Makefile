@@ -17,7 +17,6 @@ I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 IPYNB_DIR = $(abspath ipynb)
 IPYTHON_NOTEBOOKS = $(wildcard ipynb/*.ipynb)
 IPYTHON_NOTEBOOKS_RST = $(IPYTHON_NOTEBOOKS:.ipynb=.rst)
-IPYTHON_NOTEBOOKS_DIR = $(IPYTHON_NOTEBOOKS:.ipynb=_files)
 
 .PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
 
@@ -53,7 +52,6 @@ help:
 
 clean:
 	rm -rf $(BUILDDIR)/*
-	rm -rf $(IPYTHON_NOTEBOOKS_DIR)
 	rm -f $(IPYTHON_NOTEBOOKS_RST)
 	rm -f ipynb/executed/tuto_*.rst
 	rm -rf tmp

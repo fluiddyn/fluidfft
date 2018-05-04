@@ -6,7 +6,7 @@ Installation and advice
 Dependencies
 ------------
 
-- Python 2.7 or >= 3.4
+- Python 2.7 or >= 3.5
 
 - a C++11 compiler (for example GCC 4.9 or clang)
 

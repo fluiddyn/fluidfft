@@ -1,3 +1,10 @@
+0.2.3
+-----
+
+- Less bugs
+- Pypy compatibility
+- Support jinja2 as fallback for mako
+- rotfft_from_vecfft_outin, 3d scatter/gather and compute spectra routines
 
 0.2.2
 -----

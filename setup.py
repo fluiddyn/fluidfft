@@ -240,7 +240,7 @@ setup(
         # 3 - Alpha
         # 4 - Beta
         # 5 - Production/Stable
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Education',
         'Topic :: Scientific/Engineering',
@@ -254,14 +254,14 @@ setup(
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Cython',
         'Programming Language :: C'],
+    python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*',
     packages=find_packages(exclude=[
         'doc', 'include', 'scripts', 'src_cpp', 'src_cy']),
-    install_requires=['fluiddyn >= 0.2.0'],
+    install_requires=['fluiddyn >= 0.2.3'],
     # cmdclass={'build_ext': build_ext},
     ext_modules=ext_modules,
     entry_points={

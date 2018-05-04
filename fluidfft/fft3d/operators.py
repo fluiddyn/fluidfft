@@ -433,16 +433,18 @@ class OperatorsPseudoSpectral3D(object):
 
         return rotfft_from_vecfft(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz)
 
-    def rotfft_from_vecfft_outin(self, vx_fft, vy_fft, vz_fft,
-                                 rotxfft, rotyfft, rotzfft):
+    def rotfft_from_vecfft_outin(
+        self, vx_fft, vy_fft, vz_fft, rotxfft, rotyfft, rotzfft
+    ):
         """Return the curl of a vector in spectral space."""
         # float64[][][]
         Kx = self.Kx
         Ky = self.Ky
         Kz = self.Kz
 
-        rotfft_from_vecfft_outin(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz,
-                                 rotxfft, rotyfft, rotzfft)
+        rotfft_from_vecfft_outin(
+            vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, rotxfft, rotyfft, rotzfft
+        )
 
     def div_vb_fft_from_vb(self, vx, vy, vz, b):
         r"""Compute :math:`\nabla \cdot (\boldsymbol{v} b)` in spectral space.

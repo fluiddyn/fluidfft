@@ -77,7 +77,6 @@ User Guide
    bench
 
 
-
 Modules Reference
 -----------------
 
@@ -89,8 +88,20 @@ Modules Reference
 See also the `documentation of the cpp code produced with Doxygen
 <doxygen/index.html>`_
 
+
 More
 ----
+
+.. toctree::
+   :maxdepth: 1
+
+   changes
+   Advice for FluidDyn developers <http://fluiddyn.readthedocs.io/en/latest/advice_developers.html>
+   to_do
+
+
+Links
+-----
 
 .. |release| image:: https://img.shields.io/pypi/v/fluidfft.svg
    :target: https://pypi.org/project/fluidfft/
@@ -112,12 +123,11 @@ More
 - Unittest coverage |coverage|
 - Continuous integration with travis-ci.org |travis|
 - Continuous integration with Bitbucket Pipelines |pipelines|
+- `FluidDyn user chat room
+  <https://riot.im/app/#/room/#fluiddyn-users:matrix.org>`_
+- `FluidDyn mailing list <https://www.freelists.org/list/fluiddyn>`_
+- `FluidDyn on Twitter <https://twitter.com/pyfluiddyn>`_
 
-.. toctree::
-   :maxdepth: 1
-
-   changes
-   to_do
 
 Indices and tables
 ==================
