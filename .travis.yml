@@ -16,11 +16,6 @@ matrix:
         - OMPI_CC=/usr/bin/gcc-4.9
         - OMPI_CXX=/usr/bin/g++-4.9
         - TOXENV=py-mpi,codecov-travis
-    - python: 3.4
-      env:
-        - OMPI_CC=/usr/bin/gcc-4.9
-        - OMPI_CXX=/usr/bin/g++-4.9
-        - TOXENV=py-mpi,codecov-travis
 
 before_cache:
   - |
