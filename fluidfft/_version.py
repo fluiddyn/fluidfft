@@ -1,7 +1,7 @@
 """
 Module where the version is written.
 
-It is executed in setup.py and imported in fluiddyn/__init__.py.
+It is executed in setup.py and imported in fluidfft/__init__.py.
 
 See:
 

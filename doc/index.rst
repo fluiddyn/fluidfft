@@ -117,7 +117,7 @@ Links
 .. |pipelines| image:: https://img.shields.io/bitbucket/pipelines/fluiddyn/fluidfft.svg
    :target: https://bitbucket.org/fluiddyn/fluidfft/addon/pipelines/home#!/
 
-
+- `FluidDyn documentation <http://fluiddyn.readthedocs.io>`_
 - `FluidFFT forge on Bitbucket <https://bitbucket.org/fluiddyn/fluidfft>`_
 - FluidFFT in PyPI |release|
 - Unittest coverage |coverage|
