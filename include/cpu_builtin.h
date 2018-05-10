@@ -8,9 +8,11 @@
 /* Returns the byte alignment for optimum simd operations */
 int simd_alignment(void) {
   if(
-      __builtin_cpu_supports("avx") ||
-      __builtin_cpu_supports("avx2") ||
-      __builtin_cpu_supports("avx512f")
+      __builtin_cpu_supports("avx")
+      || __builtin_cpu_supports("avx2")
+#if (__GNUC__ > 4)
+      || __builtin_cpu_supports("avx512f")
+#endif
   )
     return 32;
   else if(
