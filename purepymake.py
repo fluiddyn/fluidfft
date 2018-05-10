@@ -503,7 +503,7 @@ def make_pythran_extensions(modules):
     can_import_pythran = can_import('pythran')
     check_and_print('pythran', can_import_pythran, True, True)
     if not can_import_pythran:
-        print('Pythran extensions will not built: ', modules)
+        print('Pythran extensions will not be built: ', modules)
         return []
 
     from pythran.dist import PythranExtension
