@@ -71,7 +71,7 @@ if can_import_mpi4py:
         # does not work with mpich2 (used by default by anaconda)
         mpicxx_compile_words = subprocess.check_output(
             ['mpicxx', '-showme:compile']).decode().split()
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         try:
             subprocess.call(['CC', '--version'])
             mpicxx_compile_words = subprocess.check_output(

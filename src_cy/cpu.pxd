@@ -32,7 +32,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-# cdef extern from "cpu_builtin.h":
-cdef extern from "cpu.h":
+# cdef extern from "cpu.h":
+cdef extern from "cpu_builtin.h":
 
     int simd_alignment()
