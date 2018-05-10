@@ -11,13 +11,13 @@ clean:
 	rm -rf build
 
 cleanso:
-	find fluidfft* -name "*.so" -delete
+	find fluidfft -name "*.so" -delete
 
 cleanpythran:
-	find fluidfft* -name "*pythran*.so" -delete
+	find fluidfft -name "*pythran*.so" -delete
 
 cleancython:
-	rm -f src_cy/*_cy.cpp
+	find fluidfft -name "*_cy.cpp" -delete
 
 cleanmako:
 	python -c "from src_cy.make_files_with_mako import clean_files as c; c()"

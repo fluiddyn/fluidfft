@@ -44,6 +44,9 @@ import warnings
 # segfaults on some machines (Occigen, Beskow, ...). Of course this
 # alignment can be wrong!
 # cdef int _simd_alignment = 16 # cpu.simd_alignment()
+
+# pa (2018/05/10): problem solved by Ashwin
+# (https://bitbucket.org/fluiddyn/fluidfft/commits/ab5988880d37)
 cdef int _simd_alignment = cpu.simd_alignment()
 
 #: The optimum SIMD alignment in bytes, found by inspecting the CPU.
@@ -105,7 +108,7 @@ cpdef is_byte_aligned(array, n=simd_alignment):
     if not isinstance(array, np.ndarray):
         raise TypeError('Invalid array: is_byte_aligned requires a subclass '
                         'of ndarray')
-    
+
     # See if we're n byte aligned.
     offset = <intptr_t>np.PyArray_DATA(array) % n
 

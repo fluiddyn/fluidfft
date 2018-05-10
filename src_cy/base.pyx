@@ -29,7 +29,7 @@ IF MPI4PY:
 
     # fix a bug arising when using a recent version of mpi4py
     cdef extern from 'mpi-compat.h': pass
-    
+
 # we define python and c types for physical and Fourier spaces
 DTYPEb = np.uint8
 ctypedef np.uint8_t DTYPEb_t

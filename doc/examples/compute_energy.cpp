@@ -1,7 +1,6 @@
 /* compute_energy.cpp */
 
 #include <iostream>
-#include <mpi.h>
 
 using namespace std;
 

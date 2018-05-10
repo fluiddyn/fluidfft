@@ -127,8 +127,17 @@ def modification_date(filename):
 
 class CompilationError(Exception):
     def __init__(self, command, out, err):
+        try:
+            out = out.decode()
+        except UnicodeDecodeError:
+            pass
+        try:
+            err = err.decode()
+        except UnicodeDecodeError:
+            pass
+
         self.message = '\ncommand:\n{}\nstdout:\n {}\nstderr:\n{}'.format(
-            command, out.decode(), err.decode())
+            command, out, err)
         super(CompilationError, self). __init__()
 
     def __str__(self):
