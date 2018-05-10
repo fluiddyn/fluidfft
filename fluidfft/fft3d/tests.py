@@ -2,6 +2,7 @@
 from __future__ import print_function, division
 
 import unittest
+import traceback
 
 import numpy as np
 
@@ -9,6 +10,14 @@ from fluiddyn.util import mpi
 
 from fluidfft.fft3d import get_classes_seq, get_classes_mpi
 from fluidfft.fft3d.operators import OperatorsPseudoSpectral3D, vector_product
+
+
+try:
+    import fluidfft.fft3d.with_fftw3d
+except ImportError:
+    # If this one does not work it is a bad sign so we want to know what appends.
+    traceback.print_exc()
+
 
 n = 8
 

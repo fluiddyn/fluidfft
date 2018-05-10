@@ -3,6 +3,7 @@ from __future__ import print_function, division
 
 import unittest
 from math import pi
+import traceback
 
 import numpy as np
 
@@ -13,6 +14,14 @@ from fluidfft.fft2d.operators import OperatorsPseudoSpectral2D
 
 # to check that at least this class can be imported
 import fluidfft.fft2d.with_pyfftw
+
+
+try:
+    import fluidfft.fft2d.with_fftw1d
+except ImportError:
+    # If this one does not work it is a bad sign so we want to know what appends.
+    traceback.print_exc()
+
 
 n = 24
 
