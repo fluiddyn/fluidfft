@@ -36,7 +36,7 @@
 #
 
 cimport numpy as np
-cimport cpu
+# cimport cpu
 from libc.stdint cimport intptr_t
 import warnings
 
