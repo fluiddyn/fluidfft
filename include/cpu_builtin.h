@@ -7,6 +7,7 @@
 
 /* Returns the byte alignment for optimum simd operations */
 int simd_alignment(void) {
+  __builtin_cpu_init();
   if(
       __builtin_cpu_supports("avx")
       || __builtin_cpu_supports("avx2")
