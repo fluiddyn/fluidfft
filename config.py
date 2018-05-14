@@ -88,10 +88,7 @@ def get_config():
                 if option == 'use':
                     value = value.lower()
                     if not (section == 'fftw3' and value in ('mkl', 'mkl_rt')):
-                        if value not in ['true', 'false']:
-                            raise ValueError(
-                                '"use" should be "True" of "False".')
-                        value = value == 'true'
+                        value = config.getboolean(section, option)
                 else:
                     value = os.path.expanduser(value)
                     value = os.path.expandvars(value)
