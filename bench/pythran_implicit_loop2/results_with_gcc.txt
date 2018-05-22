@@ -1,0 +1,58 @@
+
+Without -march=native -DUSE_BOOST_SIMD
+
+### 3d, float, no loop, return, py
+Mean +- std dev: 355 ms +- 1 ms
+### 3d, float, no loop, inplace, py
+Mean +- std dev: 347 ms +- 13 ms
+### 3d, float, no loop, return
+Mean +- std dev: 25.8 ms +- 1.0 ms
+### 3d, float, no loop, inplace
+Mean +- std dev: 28.0 ms +- 0.3 ms
+### 3d, float, explicit loops reshape, inplace
+Mean +- std dev: 29.9 ms +- 1.8 ms
+### 3d, float, explicit loops, inplace
+Mean +- std dev: 29.6 ms +- 1.8 ms
+
+
+### 3d, complex, no loop, return, py
+Mean +- std dev: 83.6 ms +- 9.3 ms
+### 3d, complex, no loop, inplace, py
+Mean +- std dev: 104 ms +- 25 ms
+### 3d, complex, no loop, return
+Mean +- std dev: 42.5 ms +- 2.9 ms
+### 3d, complex, no loop, inplace
+Mean +- std dev: 40.1 ms +- 9.2 ms
+### 3d, complex, explicit loops reshape, inplace
+Mean +- std dev: 42.8 ms +- 11.4 ms
+### 3d, complex, explicit loops, inplace
+Mean +- std dev: 33.4 ms +- 2.1 ms
+
+
+With -march=native -DUSE_BOOST_SIMD
+
+### 3d, float, no loop, return, py
+Mean +- std dev: 355 ms +- 1 ms
+### 3d, float, no loop, inplace, py
+Mean +- std dev: 356 ms +- 17 ms
+### 3d, float, no loop, return
+Mean +- std dev: 50.4 ms +- 11.6 ms
+### 3d, float, no loop, inplace
+Mean +- std dev: 33.4 ms +- 1.7 ms
+### 3d, float, explicit loops reshape, inplace
+Mean +- std dev: 29.7 ms +- 1.7 ms
+### 3d, float, explicit loops, inplace
+Mean +- std dev: 31.6 ms +- 7.1 ms
+
+### 3d, complex, no loop, return, py
+Mean +- std dev: 95.9 ms +- 14.9 ms
+### 3d, complex, no loop, inplace, py
+Mean +- std dev: 96.5 ms +- 4.2 ms
+### 3d, complex, no loop, return
+Mean +- std dev: 58.5 ms +- 15.5 ms
+### 3d, complex, no loop, inplace
+Mean +- std dev: 33.9 ms +- 1.8 ms
+### 3d, complex, explicit loops reshape, inplace
+Mean +- std dev: 35.6 ms +- 7.9 ms
+### 3d, complex, explicit loops, inplace
+Mean +- std dev: 41.9 ms +- 9.9 ms

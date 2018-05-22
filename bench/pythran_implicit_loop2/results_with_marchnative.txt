@@ -1,0 +1,25 @@
+### 3d, float, no loop, return, py
+Mean +- std dev: 355 ms +- 5 ms
+### 3d, float, no loop, inplace, py
+Mean +- std dev: 345 ms +- 7 ms
+### 3d, float, no loop, return
+Mean +- std dev: 24.6 ms +- 0.2 ms
+### 3d, float, no loop, inplace
+Mean +- std dev: 28.5 ms +- 0.2 ms
+### 3d, float, explicit loops reshape, inplace
+Mean +- std dev: 28.0 ms +- 0.3 ms
+### 3d, float, explicit loops, inplace
+Mean +- std dev: 29.4 ms +- 1.7 ms
+
+### 3d, complex, no loop, return, py
+Mean +- std dev: 82.5 ms +- 4.0 ms
+### 3d, complex, no loop, inplace, py
+Mean +- std dev: 85.2 ms +- 3.8 ms
+### 3d, complex, no loop, return
+Mean +- std dev: 34.9 ms +- 8.3 ms
+### 3d, complex, no loop, inplace
+Mean +- std dev: 19.0 ms +- 0.9 ms
+### 3d, complex, explicit loops reshape, inplace
+Mean +- std dev: 16.9 ms +- 0.9 ms
+### 3d, complex, explicit loops, inplace
+Mean +- std dev: 23.0 ms +- 5.3 ms
