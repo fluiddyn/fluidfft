@@ -33,8 +33,8 @@ def rand3d(n0, n1=None, n2=None):
         n2 = n0
     return np.random.rand(n0, n1, n2)
 
-f2d = rand2d(2*n2d, n2d)
-f3d = rand3d(2*n3d, n3d, n3d)
+f2d = rand2d(n2d, 2*n2d)
+f3d = rand3d(n3d, n3d, 2*n3d)
 
 f2d_c = rand2d(n2d) + 1j * rand2d(n2d)
 f3d_c = rand3d(n3d) + 1j * rand3d(n3d)

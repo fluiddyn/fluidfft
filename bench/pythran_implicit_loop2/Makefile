@@ -2,9 +2,11 @@
 name=mymod
 nameso=$(name)_thran.so
 
-TIMEIT=python -m perf timeit --fast -q -s
-PYTHRAN=pythran -march=native -DUSE_BOOST_SIMD
-# PYTHRAN=pythran
+# TIMEIT=python -m perf timeit --fast -q -s
+TIMEIT=python -m perf timeit -q -s
+
+# PYTHRAN=pythran -march=native -DUSE_BOOST_SIMD
+PYTHRAN=pythran
 
 all: $(nameso)
 
