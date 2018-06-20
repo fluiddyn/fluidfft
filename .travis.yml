@@ -52,7 +52,7 @@ addons:
             - g++-6
             - libfftw3-dev
             - libfftw3-mpi-dev
-            - libhdf5-openmpi-dev
+            - libopenmpi-dev
             - openmpi-bin
             - libopenblas-dev
 
@@ -76,6 +76,9 @@ install:
       if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         conda install -q -y virtualenv numpy cython mako mpi4py coverage
         pip install -U tox-travis
+        # All other dependencies inside tox.ini - since tox does not officially
+        # allow conda install
+        conda install -q -y matplotlib pyfftw psutil future pandas
       else
         pip install -U pip setuptools wheel six colorlog
         pip install -U tox-travis coverage
