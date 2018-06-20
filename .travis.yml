@@ -1,21 +1,33 @@
+os: linux
 language: python
 
 python:
   - 3.6
+  - 3.5
   - 2.7
+  - pypy3
 
 env:
-  - TOXENV=py-mpi,codecov-travis OMPI_CC=/usr/bin/gcc-4.9 OMPI_CXX=/usr/bin/g++-4.9
-  - TOXENV=py-pythran-mpi,codecov-travis OMPI_CC=/usr/bin/gcc-4.9 OMPI_CXX=/usr/bin/g++-4.9
-  - TOXENV=py-pythran-mpi,codecov-travis OMPI_CC=/usr/bin/gcc-6 OMPI_CXX=/usr/bin/g++-6
+  - TOXENV=py-mpi,codecov-travis OMPI_CC=/usr/bin/gcc-6 OMPI_CXX=/usr/bin/g++-6
 
 matrix:
+
   include:
-    - python: 3.5
+    - python: 3.6
       env:
-        - OMPI_CC=/usr/bin/gcc-4.9
-        - OMPI_CXX=/usr/bin/g++-4.9
-        - TOXENV=py-mpi,codecov-travis
+        - OMPI_CC=/usr/bin/gcc-6
+        - OMPI_CXX=/usr/bin/g++-6
+        - TOXENV=py-pythran-mpi,codecov-travis
+    - os: osx
+      osx_image: xcode7.2
+      env: TOXENV=py-mpi,codecov-travis
+      python: 3
+      language: cpp
+      compiler: clang
+      cache: false
+  allow_failures:
+    - python: pypy3
+    - os: osx
 
 before_cache:
   - |
@@ -34,8 +46,6 @@ addons:
         packages:
             - gcc-6
             - g++-6
-            - gcc-4.9
-            - g++-4.9
             - libfftw3-dev
             - libfftw3-mpi-dev
             - libhdf5-openmpi-dev
