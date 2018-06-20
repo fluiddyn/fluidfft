@@ -10,7 +10,7 @@ env:
   - TOXENV=py-mpi,codecov-travis OMPI_CC=/usr/bin/gcc-6 OMPI_CXX=/usr/bin/g++-6
 
 matrix:
-
+  fast_finish: true
   include:
     - python: 3.6
       env:
@@ -74,10 +74,11 @@ before_install:
 install:
     - |
       if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-        conda install -q -y tox numpy cython mako mpi4py coverage
+        conda install -q -y virtualenv numpy cython mako mpi4py coverage
+        pip install -U tox-travis
       else
-        pip install -U pip "setuptools<=36.6.0" wheel six colorlog
-        pip install -U tox-pipenv coverage
+        pip install -U pip setuptools wheel six colorlog
+        pip install -U tox-travis coverage
         pip install -U numpy cython mako mpi4py  # To be removed when pip==10 is out and this step can be bootstrapped
       fi
 

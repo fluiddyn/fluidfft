@@ -4,7 +4,7 @@ import sys
 import getpass
 try:
     import pandas
-    # from . import bench_analysis
+    from . import bench_analysis
     use_pandas = True
 except ImportError:
     use_pandas = False
