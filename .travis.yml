@@ -5,7 +5,6 @@ python:
   - 3.6
   - 3.5
   - 2.7
-  - pypy3
 
 env:
   - TOXENV=py-mpi,codecov-travis OMPI_CC=/usr/bin/gcc-6 OMPI_CXX=/usr/bin/g++-6
@@ -18,9 +17,14 @@ matrix:
         - OMPI_CC=/usr/bin/gcc-6
         - OMPI_CXX=/usr/bin/g++-6
         - TOXENV=py-pythran-mpi,codecov-travis
+    - python: pypy3
+      env:
+        - OMPI_CC=/usr/bin/gcc-6
+        - OMPI_CXX=/usr/bin/g++-6
+        - TOXENV=pypy3-mpi
     - os: osx
-      osx_image: xcode7.2
-      env: TOXENV=py-mpi,codecov-travis
+      osx_image: xcode8.3
+      env: TOXENV=py-mpi PY=3
       python: 3
       language: cpp
       compiler: clang
@@ -51,6 +55,14 @@ addons:
             - libhdf5-openmpi-dev
             - openmpi-bin
             - libopenblas-dev
+
+before_install:
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+        # Install Miniconda
+        curl -s -o miniconda.sh https://repo.continuum.io/miniconda/Miniconda$PY-latest-MacOSX-x86_64.sh;
+        bash miniconda.sh -b -p $HOME/miniconda && rm miniconda.sh;
+        export PATH="$HOME/miniconda/bin:$PATH"; hash -r;
+      fi
 
 # Hotfix to make bootstrapping setup_requires work until PEP 518 is implemented
 # with the release of pip==10.0.0
