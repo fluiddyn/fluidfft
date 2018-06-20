@@ -36,7 +36,8 @@ from time import sleep
 import os
 from runpy import run_path
 from datetime import datetime
-from distutils import sysconfig
+import sysconfig
+from distutils import sysconfig as dsysconfig
 import subprocess
 from copy import copy
 import multiprocessing
@@ -50,7 +51,7 @@ import numpy as np
 
 DEBUG = os.environ.get('FLUIDDYN_DEBUG', False)
 
-config_vars = sysconfig.get_config_vars()
+config_vars = dsysconfig.get_config_vars()
 
 _here = os.path.abspath(os.path.dirname(__file__))
 _d = run_path(os.path.join(_here, 'fluidfft', 'util.py'))
@@ -338,7 +339,12 @@ def make_command_obj_from_cpp(obj_file, cpp_file, include_dirs=None,
             mpicxx.extend(command[1:])
             command = mpicxx
 
-    includepy = conf_vars['INCLUDEPY']
+    try:
+        includepy = conf_vars['INCLUDEPY']
+    except KeyError:
+        # Again! For Pypy (see: https://bitbucket.org/pypy/pypy/issues/2478)
+        includepy = sysconfig.get_config_var('INCLUDEPY')
+
     includedir = os.path.split(includepy)[0]
     if os.path.split(includedir)[-1] == 'include':
         includepy = [includepy, includedir]
