@@ -61,16 +61,25 @@ before_install:
       if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         # Install Miniconda
         curl -s -o miniconda.sh https://repo.continuum.io/miniconda/Miniconda$PY-latest-MacOSX-x86_64.sh;
-        bash miniconda.sh -b -p $HOME/miniconda && rm miniconda.sh;
-        export PATH="$HOME/miniconda/bin:$PATH"; hash -r;
+        export MINICONDA_PREFIX=$HOME/miniconda
+        bash miniconda.sh -b -p $MINICONDA_PREFIX && rm miniconda.sh;
+        echo ". $MINICONDA_PREFIX/etc/profile.d/conda.sh" >> ~/.bashrc;
+        echo "conda activate" >> ~/.bashrc;
+        source ~/.bashrc
+        conda config --add channels conda-forge;
       fi
 
 # Hotfix to make bootstrapping setup_requires work until PEP 518 is implemented
 # with the release of pip==10.0.0
 install:
-    - pip install -U pip "setuptools<=36.6.0" wheel six colorlog
-    - pip install -U tox-pipenv coverage
-    - pip install -U numpy cython mako mpi4py  # To be removed when pip==10 is out and this step can be bootstrapped
+    - |
+      if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+        conda install tox numpy cython mako mpi4py
+      else
+        pip install -U pip "setuptools<=36.6.0" wheel six colorlog
+        pip install -U tox-pipenv coverage
+        pip install -U numpy cython mako mpi4py  # To be removed when pip==10 is out and this step can be bootstrapped
+      fi
 
 before_script:
     - |
