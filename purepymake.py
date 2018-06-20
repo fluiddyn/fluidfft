@@ -36,7 +36,7 @@ from time import sleep
 import os
 from runpy import run_path
 from datetime import datetime
-import sysconfig
+from distutils import sysconfig
 import subprocess
 from copy import copy
 import multiprocessing
