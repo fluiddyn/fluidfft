@@ -57,7 +57,8 @@ addons:
             - libopenblas-dev
 
 before_install:
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+    - |
+      if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         # Install Miniconda
         curl -s -o miniconda.sh https://repo.continuum.io/miniconda/Miniconda$PY-latest-MacOSX-x86_64.sh;
         bash miniconda.sh -b -p $HOME/miniconda && rm miniconda.sh;
