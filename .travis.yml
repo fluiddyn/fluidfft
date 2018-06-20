@@ -74,7 +74,7 @@ before_install:
 install:
     - |
       if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-        conda install tox numpy cython mako mpi4py
+        conda install -q -y tox numpy cython mako mpi4py
       else
         pip install -U pip "setuptools<=36.6.0" wheel six colorlog
         pip install -U tox-pipenv coverage
