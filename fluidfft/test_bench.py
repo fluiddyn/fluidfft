@@ -2,6 +2,12 @@
 import unittest
 import sys
 import getpass
+try:
+    import pandas
+    # from . import bench_analysis
+    use_pandas = True
+except ImportError:
+    use_pandas = False
 
 import matplotlib as mpl
 
@@ -12,7 +18,6 @@ from fluiddyn.io import stdout_redirected
 from fluiddyn.util import mpi
 
 from .bench import bench_all, run
-from . import bench_analysis
 
 
 path_tmp = "/tmp/fluidfft_test_bench" + getpass.getuser()
@@ -26,7 +31,7 @@ class TestsBench(unittest.TestCase):
             args.append(path_tmp)
             sys.argv = args
             run()
-            if mpi.nb_proc > 1 and mpi.rank == 0:
+            if mpi.nb_proc > 1 and mpi.rank == 0 and use_pandas:
                 args = "fluidfft-bench-analysis 24 -d 2 -i".split()
                 args.append(path_tmp)
                 sys.argv = args
