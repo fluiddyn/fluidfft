@@ -78,10 +78,10 @@ install:
         # allow conda install
         conda install -q -y virtualenv numpy cython mako mpi4py coverage \
             matplotlib pyfftw psutil future pandas fftw
-        pip install -U tox-travis
+        pip install -U tox-travis fluiddevops
       else
         pip install -U pip setuptools wheel six colorlog
-        pip install -U tox-travis coverage
+        pip install -U tox-travis coverage fluiddevops
         pip install -U numpy cython mako mpi4py  # To be removed when pip==10 is out and this step can be bootstrapped
       fi
 
@@ -92,7 +92,7 @@ before_script:
       cp $TRAVIS_BUILD_DIR/site.cfg.files/site.cfg.travis_$TRAVIS_OS_NAME $HOME/.fluidfft-site.cfg
 
 script:
-    - travis_wait 30 tox -vv
+    - tox -vv | fluidicat
 
 after_failure:
     - cat $TRAVIS_BUILD_DIR/.tox/log/*.log
