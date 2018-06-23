@@ -7,7 +7,7 @@
 
 /* Returns the byte alignment for optimum simd operations */
 int simd_alignment(void) {
-#ifdef __GNUC__
+#ifndef __APPLE__
   __builtin_cpu_init();
 #endif
   if(

@@ -92,6 +92,7 @@ before_script:
       cp $TRAVIS_BUILD_DIR/site.cfg.files/site.cfg.travis_$TRAVIS_OS_NAME $HOME/.fluidfft-site.cfg
 
 script:
+    - set -o pipefail
     - tox -vv | fluidicat
 
 after_failure:
