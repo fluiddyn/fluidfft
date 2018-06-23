@@ -1,13 +1,12 @@
 [fftw3]
 use = True
-dir = $CONDA_PREFIX
+dir =
 include_dir =
 library_dir =
 
 [fftw3_mpi]
-# https://github.com/conda-forge/fftw-feedstock/pull/23
 use = False
-dir = $CONDA_PREFIX
+dir =
 include_dir =
 library_dir =
 

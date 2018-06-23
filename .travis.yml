@@ -7,7 +7,7 @@ python:
   - 2.7
 
 env:
-  - TOXENV=py-mpi,codecov-travis OMPI_CC=/usr/bin/gcc-6 OMPI_CXX=/usr/bin/g++-6
+  - TOXENV=py-mpi,codecov-travis OMPI_CC=/usr/bin/gcc-6 OMPI_CXX=/usr/bin/g++-6 SITE_CFG=linux
 
 matrix:
   fast_finish: true
@@ -17,14 +17,16 @@ matrix:
         - OMPI_CC=/usr/bin/gcc-6
         - OMPI_CXX=/usr/bin/g++-6
         - TOXENV=py-pythran-mpi,codecov-travis
+        - SITE_CFG=linux
     - python: pypy3
       env:
         - OMPI_CC=/usr/bin/gcc-6
         - OMPI_CXX=/usr/bin/g++-6
-        - TOXENV=pypy3-mpi
+        - TOXENV=pypy3
+        - SITE_CFG=linux_pypy3
     - os: osx
       osx_image: xcode8.3
-      env: TOXENV=py-mpi PY=3
+      env: TOXENV=py PY=3 SITE_CFG=osx
       python: 3
       language: cpp
       compiler: clang
@@ -89,7 +91,7 @@ before_script:
     - |
       mkdir -p $HOME/.config/matplotlib
       echo 'backend      : agg' > $HOME/.config/matplotlib/matplotlibrc
-      cp $TRAVIS_BUILD_DIR/site.cfg.files/site.cfg.travis_$TRAVIS_OS_NAME $HOME/.fluidfft-site.cfg
+      cp $TRAVIS_BUILD_DIR/site.cfg.files/site.cfg.travis_$SITE_CFG $HOME/.fluidfft-site.cfg
 
 script:
     - set -o pipefail
