@@ -31,7 +31,6 @@ Notes
 from __future__ import print_function
 
 import sys
-import platform
 from time import sleep
 import os
 from runpy import run_path
@@ -98,10 +97,10 @@ path_lib_python = os.path.join(
     sys.prefix, 'lib', 'python' + short_version, 'site-packages')
 
 path_tmp = 'build/temp.' + '-'.join(
-    [platform.system().lower(), platform.machine(), short_version])
+    [sysconfig.get_platform(), short_version])
 
 path_lib = 'build/lib.' + '-'.join(
-    [platform.system().lower(), platform.machine(), short_version])
+    [sysconfig.get_platform(), short_version])
 
 
 def check_and_print(pkg='', result=None, line_above=False, line_below=False):
