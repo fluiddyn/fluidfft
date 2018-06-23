@@ -93,7 +93,7 @@ before_script:
 
 script:
     - set -o pipefail
-    - tox -vv | fluidicat
+    - tox -vv | fluidicat --every 1 --wait 300
 
 after_failure:
     - cat $TRAVIS_BUILD_DIR/.tox/log/*.log
