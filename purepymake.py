@@ -91,16 +91,15 @@ except ImportError:
 if DEBUG:
     PARALLEL_COMPILE = False
 
-short_version = '.'.join([str(i) for i in sys.version_info[:2]])
+short_version = sysconfig.get_python_version()
+platform_pyversion = '-'.join([sysconfig.get_platform(), short_version])
 
 path_lib_python = os.path.join(
     sys.prefix, 'lib', 'python' + short_version, 'site-packages')
 
-path_tmp = 'build/temp.' + '-'.join(
-    [sysconfig.get_platform(), short_version])
+path_tmp = 'build/temp.' + platform_pyversion
 
-path_lib = 'build/lib.' + '-'.join(
-    [sysconfig.get_platform(), short_version])
+path_lib = 'build/lib.' + platform_pyversion
 
 
 def check_and_print(pkg='', result=None, line_above=False, line_below=False):
