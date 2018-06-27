@@ -2,16 +2,17 @@
 import unittest
 import sys
 import getpass
+
+import matplotlib as mpl
+
+mpl.use("Agg")
+
 try:
     import pandas
     from . import bench_analysis
     use_pandas = True
 except ImportError:
     use_pandas = False
-
-import matplotlib as mpl
-
-mpl.use("Agg")
 
 from fluiddyn.io import stdout_redirected
 

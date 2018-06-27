@@ -8,7 +8,7 @@ from ${module_name} cimport (
 
 
 def compute_k_adim_seq(nk, axis, dim_first_fft=2):
-    """Compute the adimensional wavenumber for an axis. 
+    """Compute the adimensional wavenumber for an axis.
 
     Parameters
     ----------
@@ -100,7 +100,7 @@ cdef class ${class_name}:
         It is usually 2 but it seems to be 0 for p3dfft (written in Fortran!).
         """
         return self.dim_first_fft
-    
+
     def get_local_size_X(self):
         """Get the local size in real space."""
         return self.thisptr.get_local_size_X()
@@ -125,7 +125,7 @@ cdef class ${class_name}:
 
         # if not (is_byte_aligned(fieldX) and is_byte_aligned(fieldK)):
         #     raise ValueError('Requires aligned array.')
-        
+
         self.thisptr.fft(&fieldX[0, 0, 0], <mycomplex*> &fieldK[0, 0, 0])
 
     @cython.boundscheck(False)
@@ -262,7 +262,7 @@ cdef class ${class_name}:
 
         if not isinstance(root, int):
             raise ValueError('root should be an int')
-        
+
         nX0_loc, nX1_loc, nX2_loc = self.get_shapeX_loc()
         i0_start, i1_start, i2_start = self.get_seq_indices_first_X()
 

@@ -7,7 +7,7 @@ from ${module_name} cimport (
     mycomplex)
 
 from fluiddyn.util import mpi
-    
+
 
 cdef class ${class_name}:
     """Perform Fast Fourier Transform in 2d.
@@ -37,7 +37,7 @@ cdef class ${class_name}:
         except ValueError:
             self._has_to_destroy = 0
             raise
-            
+
     def __init__(self, int n0=2, int n1=2):
         self._shapeK_loc = self.get_shapeK_loc()
         self._shapeX_loc = self.get_shapeX_loc()
@@ -50,11 +50,11 @@ cdef class ${class_name}:
     def get_short_name(self):
         """Produce a short name of this object."""
         return self.__class__.__name__.lower()
-        
+
     def get_local_size_X(self):
         """Get the local size in the real space."""
         return self.thisptr.get_local_size_X()
-    
+
     def run_tests(self):
         """Run the c++ tests."""
         return self.thisptr.test()
@@ -73,7 +73,7 @@ cdef class ${class_name}:
                      view2dc_t fieldK):
         """Perform the fft and copy the result in the second argument."""
         self.thisptr.fft(&fieldX[0, 0], <mycomplex*> &fieldK[0, 0])
-        
+
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
@@ -124,7 +124,7 @@ cdef class ${class_name}:
         """Get the shape of the complex array as it would be with nb_proc = 1
 
         Warning: if get_is_transposed(), the complex array would also be
-        transposed, so in this case, one should write:: 
+        transposed, so in this case, one should write::
 
           nKy = self.get_shapeK_seq[1]
 
@@ -157,7 +157,7 @@ cdef class ${class_name}:
 
         The indices correspond to the index of the dimension in spectral space.
         """
-        
+
         nyseq, nxseq = self.get_shapeX_seq()
 
         kyseq = np.array(list(range(nyseq//2 + 1)) +
@@ -228,12 +228,17 @@ cdef class ${class_name}:
             raise ValueError('root should be an int')
         return ff_seq
 
-    def scatter_Xspace(self, view2df_t ff_seq, root=None):
+    def scatter_Xspace(self, ff_seq, root=None):
         """Scatter an array in real space for a parallel run."""
         cdef np.ndarray[DTYPEf_t, ndim=2] ff_loc
 
         if root is None:
             ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
+            if mpi.rank == 0 and python_implementation == "PyPy":
+                # why do we need that on Pypy?
+                # difference dtype('<f8') and float64?
+                ff_seq = ff_seq.astype("float64")
+
             mpi.comm.Scatter(ff_seq, ff_loc, root=0)
         elif isinstance(root, int):
             ff_loc = None
