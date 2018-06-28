@@ -96,6 +96,8 @@ class OperatorsPseudoSpectral3D(object):
         if isinstance(fft, basestring):
             if fft.lower() in ("sequential", "fftwpy"):
                 fft = "fft3d.with_pyfftw"
+                fallback_fft = "fft3d.with_fftw1d"
+
             if any([fft.startswith(s) for s in ["fluidfft.", "fft3d."]]):
                 try:
                     op_fft = create_fft_object(fft, nz, ny, nx)

@@ -98,6 +98,7 @@ class OperatorsPseudoSpectral2D(object):
         if isinstance(fft, basestring):
             if fft.lower() == "sequential":
                 fft = "fft2d.with_pyfftw"
+                fallback_fft = "fft2d.with_fftw1d"
 
             if any([fft.startswith(s) for s in ["fluidfft.", "fft2d."]]):
                 try:
