@@ -113,7 +113,7 @@ def plot_scaling(
     df_ifft_nb_proc_min = df_ifft.xs(nb_proc_min, level=1)
 
     def get_min(df):
-        m = df.as_matrix()
+        m = df.values
         i0, i1 = np.unravel_index(np.argmin(m), m.shape)
         mymin = m[i0, i1]
         ind = _get_short_name(df.index[i0])
