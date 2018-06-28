@@ -9,7 +9,7 @@
 from __future__ import print_function
 
 from math import pi
-
+import warnings
 from past.builtins import basestring
 
 import numpy as np
@@ -86,14 +86,31 @@ class OperatorsPseudoSpectral3D(object):
         if fft is None:
             if mpi.nb_proc == 1:
                 fft = "fft3d.with_pyfftw"
+                fallback_fft = "fft3d.with_fftw1d"
             else:
                 fft = "fft3d.mpi_with_fftwmpi3d"
+                fallback_fft = "fft3d.mpi_with_fftw1d"
+        else:
+            fallback_fft = fft
 
         if isinstance(fft, basestring):
             if fft.lower() in ("sequential", "fftwpy"):
                 fft = "fft3d.with_pyfftw"
             if any([fft.startswith(s) for s in ["fluidfft.", "fft3d."]]):
-                op_fft = create_fft_object(fft, nz, ny, nx)
+                try:
+                    op_fft = create_fft_object(fft, nz, ny, nx)
+                except ImportError:
+                    if fallback_fft != fft:
+                        warnings.warn(
+                            "Failed to instantiate {}! Attempting fallback {} instead.".format(
+                                fft, fallback_fft
+                            )
+                        )
+                        op_fft = create_fft_object(fallback_fft, nz, ny, nx)
+                        fft = fallback_fft
+                    else:
+                        raise
+
             else:
                 raise ValueError(
                     "Cannot instantiate {}.".format(fft)
@@ -340,7 +357,7 @@ class OperatorsPseudoSpectral3D(object):
     def create_arrayK_random(self, shape="loc", min_val=None, max_val=None):
         """Return a random array in real space."""
         shape = self._get_shapeK(shape)
-        values = (np.random.random(shape) + 1j * np.random.random(shape))
+        values = np.random.random(shape) + 1j * np.random.random(shape)
         return _rescale_random(values, min_val, max_val)
 
     def sum_wavenumbers_versatile(self, field_fft):

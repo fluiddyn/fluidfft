@@ -202,6 +202,8 @@ if nb_proc > 1:
     for name, cls in classes_mpi.items():
         complete_class(name, cls)
 
+    complete_class("None", None)
+
 
 if __name__ == "__main__":
     unittest.main()

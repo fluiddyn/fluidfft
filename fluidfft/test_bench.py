@@ -10,6 +10,7 @@ mpl.use("Agg")
 try:
     import pandas
     from . import bench_analysis
+
     use_pandas = True
 except ImportError:
     use_pandas = False

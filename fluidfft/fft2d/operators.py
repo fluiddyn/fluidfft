@@ -88,15 +88,32 @@ class OperatorsPseudoSpectral2D(object):
         if fft is None:
             if mpi.nb_proc == 1:
                 fft = "fft2d.with_pyfftw"
+                fallback_fft = "fft2d.with_fftw1d"
             else:
                 fft = "fft2d.mpi_with_fftwmpi2d"
+                fallback_fft = "fft2d.mpi_with_fftw1d"
+        else:
+            fallback_fft = fft
 
         if isinstance(fft, basestring):
             if fft.lower() == "sequential":
                 fft = "fft2d.with_pyfftw"
 
             if any([fft.startswith(s) for s in ["fluidfft.", "fft2d."]]):
-                opfft = create_fft_object(fft, ny, nx)
+                try:
+                    opfft = create_fft_object(fft, ny, nx)
+                except ImportError:
+                    if fallback_fft != fft:
+                        warnings.warn(
+                            "Failed to instantiate {}! Attempting fallback {} instead.".format(
+                                fft, fallback_fft
+                            )
+                        )
+                        opfft = create_fft_object(fallback_fft, ny, nx)
+                        fft = fallback_fft
+                    else:
+                        raise
+
             else:
                 raise ValueError(
                     (
@@ -514,8 +531,8 @@ class OperatorsPseudoSpectral2D(object):
             # Memory is not shared
             # In this case, self.dim_ky == 1 and self.dim_kx == 0
             # note : only the kx >= 0 are in the spectral variables
-            E_kykxtmp = 2. * np.transpose(energy_fft) / (
-                self.deltakx * self.deltaky
+            E_kykxtmp = (
+                2. * np.transpose(energy_fft) / (self.deltakx * self.deltaky)
             )
         # print(self.seq_indices_first_K)
         if self.is_sequential:
@@ -651,7 +668,7 @@ class OperatorsPseudoSpectral2D(object):
     def create_arrayK_random(self, shape="loc", min_val=None, max_val=None):
         """Return a random array in real space."""
         shape = self._get_shapeK(shape)
-        values = (np.random.random(shape) + 1j * np.random.random(shape))
+        values = np.random.random(shape) + 1j * np.random.random(shape)
         return _rescale_random(values, min_val, max_val)
 
 

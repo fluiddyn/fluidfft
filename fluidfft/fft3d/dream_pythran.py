@@ -90,11 +90,11 @@ def part1(
     vx, vy, vz, px_vx, py_vx, pz_vx, px_vy, py_vy, pz_vy, px_vz, py_vz, pz_vz
 ):
 
-    vgradvx = (vx * px_vx + vy * py_vx + vz * pz_vx)
+    vgradvx = vx * px_vx + vy * py_vx + vz * pz_vx
 
-    vgradvy = (vx * px_vy + vy * py_vy + vz * pz_vy)
+    vgradvy = vx * px_vy + vy * py_vy + vz * pz_vy
 
-    vgradvz = (vx * px_vz + vy * py_vz + vz * pz_vz)
+    vgradvz = vx * px_vz + vy * py_vz + vz * pz_vz
 
     return vgradvx, vgradvy, vgradvz
 
