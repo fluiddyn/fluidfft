@@ -84,6 +84,18 @@ def make_testop_functions(name, cls):
             self.assertTrue(np.allclose(afft, afft0))
             afft = op.fft(a)
 
+            # MPI Scatter-Gather tests
+            if not op.is_sequential:
+                arr_seq = a if mpi.rank == 0 else None
+
+                arr_loc = op.scatter_Xspace(arr_seq)
+                arr_loc *= 2
+
+                # Note: Specifying root to avoid Allgather
+                arr_seq2 = op.gather_Xspace(arr_loc, root=0)
+                if mpi.rank == 0:
+                    np.testing.assert_array_equal(arr_seq * 2, arr_seq2)
+
             nrja = op.compute_energy_from_X(a)
             nrjafft = op.compute_energy_from_K(afft)
             self.assertAlmostEqual(nrja, nrjafft)

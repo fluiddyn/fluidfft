@@ -47,6 +47,6 @@ class TestsCreateFFTObject(unittest.TestCase):
         elif with_fftw3d:
             method = "fft3d.with_fftw3d"
         else:
-            raise ImportError("No simple 2d classes work.")
+            raise ImportError("No simple 3d classes work.")
 
         create_fft_object(method, 4, 4, 4)

@@ -221,7 +221,7 @@ cdef class ${class_name}:
             mpi.comm.Allgather(ff_loc, ff_seq)
         elif isinstance(root, int):
             ff_seq = None
-            if self.rank == root:
+            if mpi.rank == root:
                 ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
             mpi.comm.Gather(ff_loc, ff_seq, root=root)
         else:
