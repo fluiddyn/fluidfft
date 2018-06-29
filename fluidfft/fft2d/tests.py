@@ -86,7 +86,10 @@ def make_testop_functions(name, cls):
 
             # MPI Scatter-Gather tests
             if not op.is_sequential:
-                arr_seq = a if mpi.rank == 0 else None
+                arr_seq = op.create_arrayX_random(shape="seq")
+
+                if mpi.rank > 0:
+                    arr_seq = None
 
                 arr_loc = op.scatter_Xspace(arr_seq)
                 arr_loc *= 2

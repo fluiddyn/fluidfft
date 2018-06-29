@@ -212,9 +212,14 @@ cdef class ${class_name}:
         """Compute the sum over all wavenumbers."""
         return <float> self.thisptr.sum_wavenumbers(&fieldK[0, 0])
 
-    def gather_Xspace(self, view2df_t ff_loc, root=None):
+    def gather_Xspace(self, ff_loc, root=None):
         """Gather an array in real space for a parallel run."""
         cdef np.ndarray[DTYPEf_t, ndim=2] ff_seq
+
+        if ff_loc.shape != self.get_shapeX_loc():
+            raise ValueError(
+                "The shape of the local array given is incorrect."
+            )
 
         if root is None:
             ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
@@ -231,6 +236,11 @@ cdef class ${class_name}:
     def scatter_Xspace(self, ff_seq, root=None):
         """Scatter an array in real space for a parallel run."""
         cdef np.ndarray[DTYPEf_t, ndim=2] ff_loc
+
+        if ff_seq is not None and ff_seq.shape != self.get_shapeX_seq():
+            raise ValueError(
+                "The shape of the sequential array given is incorrect."
+            )
 
         if root is None:
             ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
