@@ -12,12 +12,8 @@ from fluiddyn.util import mpi
 from fluidfft.fft2d import get_classes_seq, get_classes_mpi
 from fluidfft.fft2d.operators import OperatorsPseudoSpectral2D
 
-# to check that at least this class can be imported
-import fluidfft.fft2d.with_pyfftw
-
-
 try:
-    import fluidfft.fft2d.with_fftw1d
+    import fluidfft.fft2d.with_fftw2d
 except ImportError:
     # If this one does not work it is a bad sign so we want to know what appends.
     traceback.print_exc()
@@ -31,6 +27,9 @@ nb_proc = mpi.nb_proc
 classes_seq = get_classes_seq()
 classes_seq = {name: cls for name, cls in classes_seq.items() if cls is not None}
 
+if not classes_seq:
+    raise ImportError("Not sequential 2d classes working!")
+
 if nb_proc > 1:
     classes_mpi = get_classes_mpi()
     classes_mpi = {
@@ -39,7 +38,6 @@ if nb_proc > 1:
 
 
 def make_test_function(cls):
-
     def test(self):
         o = cls(n, 2 * n)
         o.run_tests()
@@ -174,8 +172,6 @@ if rank == 0:
     for name, cls in classes_seq.items():
         complete_class(name, cls)
 
-    if nb_proc == 1:
-        complete_class("None", None)
 
 if nb_proc > 1:
     if len(classes_mpi) == 0:
@@ -186,7 +182,8 @@ if nb_proc > 1:
     for name, cls in classes_mpi.items():
         complete_class(name, cls)
 
-    complete_class("None", None)
+
+complete_class("None", None)
 
 
 if __name__ == "__main__":

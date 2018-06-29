@@ -28,15 +28,10 @@ def project_perpk3d(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, inv_K_square_nozero):
                 kz = Kz[i0, i1, i2]
 
                 tmp = (
-                    kx
-                    * vx_fft[i0, i1, i2]
-                    + ky
-                    * vy_fft[i0, i1, i2]
-                    + kz
-                    * vz_fft[i0, i1, i2]
-                ) * inv_K_square_nozero[
-                    i0, i1, i2
-                ]
+                    kx * vx_fft[i0, i1, i2]
+                    + ky * vy_fft[i0, i1, i2]
+                    + kz * vz_fft[i0, i1, i2]
+                ) * inv_K_square_nozero[i0, i1, i2]
 
                 vx_fft[i0, i1, i2] -= kx * tmp
                 vy_fft[i0, i1, i2] -= ky * tmp

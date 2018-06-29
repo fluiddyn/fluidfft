@@ -46,6 +46,26 @@ def _make_str_length(length):
     return "{:.3f}".format(length).rstrip("0")
 
 
+def get_simple_2d_seq_method():
+    try:
+        import pyfftw
+
+        fft = "fft2d.with_pyfftw"
+    except ImportError:
+        fft = "fft2d.with_fftw2d"
+    return fft
+
+
+def get_simple_2d_mpi_method():
+    try:
+        import fluidfft.fft2d.mpi_with_fftwmpi2d
+
+        fft = "fft2d.mpi_with_fftwmpi2d"
+    except ImportError:
+        fft = "fft2d.mpi_with_fftw1d"
+    return fft
+
+
 class OperatorsPseudoSpectral2D(object):
     """Perform 2D FFT and operations on data.
 
@@ -87,34 +107,15 @@ class OperatorsPseudoSpectral2D(object):
 
         if fft is None:
             if mpi.nb_proc == 1:
-                fft = "fft2d.with_pyfftw"
-                fallback_fft = "fft2d.with_fftw1d"
+                fft = get_simple_2d_seq_method()
             else:
-                fft = "fft2d.mpi_with_fftwmpi2d"
-                fallback_fft = "fft2d.mpi_with_fftw1d"
-        else:
-            fallback_fft = fft
+                fft = get_simple_2d_mpi_method()
 
         if isinstance(fft, basestring):
             if fft.lower() == "sequential":
-                fft = "fft2d.with_pyfftw"
-                fallback_fft = "fft2d.with_fftw1d"
-
+                fft = get_simple_2d_seq_method()
             if any([fft.startswith(s) for s in ["fluidfft.", "fft2d."]]):
-                try:
-                    opfft = create_fft_object(fft, ny, nx)
-                except ImportError:
-                    if fallback_fft != fft:
-                        warnings.warn(
-                            "Failed to instantiate {}! Attempting fallback {} instead.".format(
-                                fft, fallback_fft
-                            )
-                        )
-                        opfft = create_fft_object(fallback_fft, ny, nx)
-                        fft = fallback_fft
-                    else:
-                        raise
-
+                opfft = create_fft_object(fft, ny, nx)
             else:
                 raise ValueError(
                     (
@@ -356,15 +357,15 @@ class OperatorsPseudoSpectral2D(object):
             E_kx[0] = E_kx[0] / 2
             if self.nx_seq % 2 == 0:
                 E_kx[-1] = E_kx[-1] / 2
-            E_kx = E_kx[:self.nkxE]
+            E_kx = E_kx[: self.nkxE]
             # computation of E_ky
             E_ky_tmp = energy_fft[:, 0].copy()
-            E_ky_tmp += 2 * energy_fft[:, 1:self.nkxE2].sum(1)
+            E_ky_tmp += 2 * energy_fft[:, 1 : self.nkxE2].sum(1)
             if self.nx_seq % 2 == 0:
                 E_ky_tmp += energy_fft[:, self.nkxE - 1]
             nkyE = self.nkyE
             E_ky = E_ky_tmp[:nkyE]
-            E_ky[1:self.nkyE2] += E_ky_tmp[self.nkyE:self.nky_seq][::-1]
+            E_ky[1 : self.nkyE2] += E_ky_tmp[self.nkyE : self.nky_seq][::-1]
             E_ky = E_ky / self.deltaky
         elif self.is_sequential and self.is_transposed:
             # Memory is not shared
@@ -378,15 +379,15 @@ class OperatorsPseudoSpectral2D(object):
             E_kx[0] = E_kx[0] / 2
             if self.nx_seq % 2 == 0 and self.shapeK_seq[0] == self.nkxE:
                 E_kx[-1] = E_kx[-1] / 2
-            E_kx = E_kx[:self.nkxE]
+            E_kx = E_kx[: self.nkxE]
             # computation of E_ky
             E_ky_tmp = energy_fft[0, :].copy()
-            E_ky_tmp += 2 * energy_fft[1:self.nkxE2, :].sum(0)
+            E_ky_tmp += 2 * energy_fft[1 : self.nkxE2, :].sum(0)
             if self.nx_seq % 2 == 0 and self.shapeK_seq[0] == self.nkxE:
                 E_ky_tmp += energy_fft[self.nkxE - 1, :]
             nkyE = self.nkyE
             E_ky = E_ky_tmp[:nkyE]
-            E_ky[1:self.nkyE2] += E_ky_tmp[self.nkyE:self.nky_seq][::-1]
+            E_ky[1 : self.nkyE2] += E_ky_tmp[self.nkyE : self.nky_seq][::-1]
             E_ky = E_ky / self.deltaky
         elif self.is_transposed:
             # Memory is shared along kx (dim 0)
@@ -414,7 +415,7 @@ class OperatorsPseudoSpectral2D(object):
                 sendbuf=[E_kx_loc, MPI.DOUBLE],
                 recvbuf=[E_kx, (counts, None), MPI.DOUBLE],
             )
-            E_kx = E_kx[:self.nkxE]
+            E_kx = E_kx[: self.nkxE]
 
             # computation of E_ky
             E_ky_tmp = 2 * energy_fft[1:-1, :].sum(0)
@@ -436,7 +437,7 @@ class OperatorsPseudoSpectral2D(object):
 
             nkyE = self.nkyE
             E_ky = E_ky_tmp[:nkyE]
-            E_ky[1:self.nkyE2] += E_ky_tmp[self.nkyE:self.nky_seq][::-1]
+            E_ky[1 : self.nkyE2] += E_ky_tmp[self.nkyE : self.nky_seq][::-1]
             E_ky = E_ky / self.deltaky
             E_ky = self.comm.allreduce(E_ky, op=MPI.SUM)
 
@@ -544,8 +545,10 @@ class OperatorsPseudoSpectral2D(object):
             if self.nx_seq % 2 == 0 and self.shapeK_seq[self.dim_kx] == self.nkxE:
                 E_kykxtmp[:, -1] = E_kykxtmp[:, -1] / 2
             E_kykx = np.zeros([self.nkyE, self.nkxE])
-            E_kykx[:self.nkyE, :self.nkxE] = E_kykxtmp[:self.nkyE, :self.nkxE]
-            E_kykx[1:self.nkyE2, :] += E_kykxtmp[self.nkyE:self.nky_seq, :][::-1]
+            E_kykx[: self.nkyE, : self.nkxE] = E_kykxtmp[: self.nkyE, : self.nkxE]
+            E_kykx[1 : self.nkyE2, :] += E_kykxtmp[self.nkyE : self.nky_seq, :][
+                ::-1
+            ]
         elif self.is_transposed:
             # computation of E_kykx
             E_kykx_loc = E_kykxtmp
@@ -562,17 +565,13 @@ class OperatorsPseudoSpectral2D(object):
 
             E_kykx = np.zeros([self.nkyE, self.nkxE])
             nkx_start = self.seq_indices_first_K[0]
-            E_kykx[:, nkx_start:self.nkx_loc + nkx_start] = E_kykx_loc[
-                :self.nkyE, :self.nkx_loc
+            E_kykx[:, nkx_start : self.nkx_loc + nkx_start] = E_kykx_loc[
+                : self.nkyE, : self.nkx_loc
             ]
 
             E_kykx[
-                1:self.nkyE2, nkx_start:self.nkx_loc + nkx_start
-            ] += E_kykx_loc[
-                self.nkyE:self.nky_seq, :self.nkx_loc
-            ][
-                ::-1
-            ]
+                1 : self.nkyE2, nkx_start : self.nkx_loc + nkx_start
+            ] += E_kykx_loc[self.nkyE : self.nky_seq, : self.nkx_loc][::-1]
             E_kykx = self.comm.allreduce(E_kykx, op=MPI.SUM)
 
         elif not self.is_transposed:

@@ -9,7 +9,7 @@
 from __future__ import print_function
 
 from math import pi
-import warnings
+
 from past.builtins import basestring
 
 import numpy as np
@@ -36,6 +36,26 @@ if mpi.nb_proc > 1:
 
 
 __all__ = ["vector_product", "OperatorsPseudoSpectral3D"]
+
+
+def get_simple_3d_seq_method():
+    try:
+        import pyfftw
+
+        fft = "fft3d.with_pyfftw"
+    except ImportError:
+        fft = "fft3d.with_fftw3d"
+    return fft
+
+
+def get_simple_3d_mpi_method():
+    try:
+        import fluidfft.fft3d.mpi_with_fftwmpi3d
+
+        fft = "fft3d.mpi_with_fftwmpi3d"
+    except ImportError:
+        fft = "fft3d.mpi_with_fftw1d"
+    return fft
 
 
 class OperatorsPseudoSpectral3D(object):
@@ -85,34 +105,17 @@ class OperatorsPseudoSpectral3D(object):
 
         if fft is None:
             if mpi.nb_proc == 1:
-                fft = "fft3d.with_pyfftw"
-                fallback_fft = "fft3d.with_fftw1d"
+                fft = get_simple_3d_seq_method()
             else:
-                fft = "fft3d.mpi_with_fftwmpi3d"
-                fallback_fft = "fft3d.mpi_with_fftw1d"
-        else:
-            fallback_fft = fft
+                fft = get_simple_3d_mpi_method()
 
         if isinstance(fft, basestring):
-            if fft.lower() in ("sequential", "fftwpy"):
+            if fft.lower() == "sequential":
+                fft = get_simple_3d_seq_method()
+            elif fft.lower() == "fftwpy":
                 fft = "fft3d.with_pyfftw"
-                fallback_fft = "fft3d.with_fftw1d"
-
             if any([fft.startswith(s) for s in ["fluidfft.", "fft3d."]]):
-                try:
-                    op_fft = create_fft_object(fft, nz, ny, nx)
-                except ImportError:
-                    if fallback_fft != fft:
-                        warnings.warn(
-                            "Failed to instantiate {}! Attempting fallback {} instead.".format(
-                                fft, fallback_fft
-                            )
-                        )
-                        op_fft = create_fft_object(fallback_fft, nz, ny, nx)
-                        fft = fallback_fft
-                    else:
-                        raise
-
+                op_fft = create_fft_object(fft, nz, ny, nx)
             else:
                 raise ValueError(
                     "Cannot instantiate {}.".format(fft)
@@ -497,9 +500,15 @@ class OperatorsPseudoSpectral3D(object):
                 #     '(i0_seq_start, i1_seq_start, i2_seq_start):',
                 #     (i0_seq_start, i1_seq_start, i2_seq_start))
 
-                z_loc = self.z_seq[i0_seq_start:i0_seq_start + self.shapeX_loc[0]]
-                y_loc = self.y_seq[i1_seq_start:i1_seq_start + self.shapeX_loc[1]]
-                x_loc = self.x_seq[i2_seq_start:i2_seq_start + self.shapeX_loc[2]]
+                z_loc = self.z_seq[
+                    i0_seq_start : i0_seq_start + self.shapeX_loc[0]
+                ]
+                y_loc = self.y_seq[
+                    i1_seq_start : i1_seq_start + self.shapeX_loc[1]
+                ]
+                x_loc = self.x_seq[
+                    i2_seq_start : i2_seq_start + self.shapeX_loc[2]
+                ]
 
             # mpi.print_sorted('z_loc', z_loc)
             # mpi.print_sorted('y_loc', y_loc)
@@ -509,7 +518,9 @@ class OperatorsPseudoSpectral3D(object):
                 # 1d decomposition
                 x_loc = self.x_seq
                 y_loc = self.y_seq
-                z_loc = self.z_seq[i0_seq_start:i0_seq_start + self.shapeX_loc[0]]
+                z_loc = self.z_seq[
+                    i0_seq_start : i0_seq_start + self.shapeX_loc[0]
+                ]
         else:
             x_loc = self.x_seq
             y_loc = self.y_seq
@@ -551,13 +562,13 @@ class OperatorsPseudoSpectral3D(object):
 
                 if self.dimK_first_fft != dimK:
                     spectrum_tmp_seq = np.zeros(ni)
-                    spectrum_tmp_seq[istart:istart + nk_loc] = spectrum_tmp_loc
+                    spectrum_tmp_seq[istart : istart + nk_loc] = spectrum_tmp_loc
                     spectrum_ki = spectrum_tmp_seq[:nk_spectra]
                     nk1 = (ni + 1) // 2
                     spectrum_ki[1:nk1] += spectrum_tmp_seq[nk_spectra:][::-1]
                 else:
                     spectrum_tmp_seq = np.zeros(nk_spectra)
-                    spectrum_tmp_seq[istart:istart + nk_loc] = spectrum_tmp_loc
+                    spectrum_tmp_seq[istart : istart + nk_loc] = spectrum_tmp_loc
                     spectrum_ki = spectrum_tmp_seq
 
                 spectrum_ki = mpi.comm.allreduce(spectrum_ki, op=mpi.MPI.SUM)

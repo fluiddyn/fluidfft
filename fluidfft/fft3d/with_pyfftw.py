@@ -6,16 +6,13 @@
 
 """
 
-from warnings import warn
-from time import time
-
-import numpy as np
+# to get a clear ImportError in case...
+import pyfftw
 
 from fluiddyn.calcul.easypyfft import FFTW3DReal2Complex
 
 
 class FFT3DWithPYFFTW(FFTW3DReal2Complex):
-
     def __init__(self, n0, n1, n2):
         super(FFTclass, self).__init__(n2, n1, n0)
 

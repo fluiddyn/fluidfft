@@ -12,7 +12,11 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 
 from .bench import (
-    path_results, argparse, __version__, parse_args_dim, MyValueError
+    path_results,
+    argparse,
+    __version__,
+    parse_args_dim,
+    MyValueError,
 )
 
 
@@ -46,7 +50,7 @@ def _get_color_from_lib(name):
 
 def _get_short_name(name):
     if name.startswith("fft3dmpiwith") or name.startswith("fft2dmpiwith"):
-        return name[len("fft3dmpiwith"):]
+        return name[len("fft3dmpiwith") :]
 
     return name
 

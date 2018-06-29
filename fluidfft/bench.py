@@ -39,9 +39,7 @@ print = mpi.printby0
 def _format_times(times):
     return (
         "\tmedian = {:.6f} s\n" "\tmean =   {:.6f} s\n" "\tmin =    {:.6f} s"
-    ).format(
-        np.median(times), times.mean(), times.min()
-    )
+    ).format(np.median(times), times.mean(), times.min())
 
 
 def bench_like_cpp_as_arg(obj, nb_exec=20):
@@ -152,7 +150,7 @@ def bench_all(
     n2=None,
     path_dir=path_results,
     skip_patterns=None,
-    nb_exec=None
+    nb_exec=None,
 ):
 
     if n1 is None:

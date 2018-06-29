@@ -27,6 +27,9 @@ nb_proc = mpi.nb_proc
 classes_seq = get_classes_seq()
 classes_seq = {name: cls for name, cls in classes_seq.items() if cls is not None}
 
+if not classes_seq:
+    raise ImportError("Not sequential 2d classes working!")
+
 if nb_proc > 1:
     classes_mpi = get_classes_mpi()
     classes_mpi = {
@@ -201,8 +204,6 @@ if nb_proc > 1:
 
     for name, cls in classes_mpi.items():
         complete_class(name, cls)
-
-    complete_class("None", None)
 
 
 if __name__ == "__main__":

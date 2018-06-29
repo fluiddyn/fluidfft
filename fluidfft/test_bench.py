@@ -26,7 +26,6 @@ path_tmp = "/tmp/fluidfft_test_bench" + getpass.getuser()
 
 
 class TestsBench(unittest.TestCase):
-
     def test2d(self):
         with stdout_redirected():
             args = "fluidfft-bench 24 24 -o".split()
