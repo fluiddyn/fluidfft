@@ -105,7 +105,7 @@ class OperatorsPseudoSpectral2D(object):
         self.lx = lx = float(lx)
         self.ly = ly = float(ly)
 
-        if fft is None:
+        if fft is None or fft == "default":
             if mpi.nb_proc == 1:
                 fft = get_simple_2d_seq_method()
             else:

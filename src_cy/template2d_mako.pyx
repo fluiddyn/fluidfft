@@ -234,10 +234,10 @@ cdef class ${class_name}:
 
         if root is None:
             ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
-            if mpi.rank == 0 and python_implementation == "PyPy":
-                # why do we need that on Pypy?
+            if mpi.rank == 0:
+                # why do we need that?
                 # difference dtype('<f8') and float64?
-                ff_seq = ff_seq.astype("float64")
+                ff_seq = ff_seq.astype(DTYPEf)
 
             mpi.comm.Scatter(ff_seq, ff_loc, root=0)
         elif isinstance(root, int):

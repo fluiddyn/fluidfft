@@ -11,8 +11,6 @@ cimport numpy as np
 import numpy as np
 np.import_array()
 
-import platform
-
 try:
     from mpi4py import MPI
 except ImportError:
@@ -53,5 +51,3 @@ ctypedef DTYPEf_t[:, ::contiguous] view2df_t
 ctypedef DTYPEc_t[:, ::contiguous] view2dc_t
 
 include 'util_pyfftw.pyx'
-
-python_implementation = platform.python_implementation()

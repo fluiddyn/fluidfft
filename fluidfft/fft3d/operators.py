@@ -103,7 +103,7 @@ class OperatorsPseudoSpectral3D(object):
         self.ny = self.ny_seq = ny
         self.nz = self.nz_seq = nz
 
-        if fft is None:
+        if fft is None or fft == "default":
             if mpi.nb_proc == 1:
                 fft = get_simple_3d_seq_method()
             else:
