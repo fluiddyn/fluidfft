@@ -151,7 +151,7 @@ cdef class ${class_name}:
     cpdef fft(self, view3df_t fieldX):
         """Perform FFT and return the result."""
         cdef np.ndarray[DTYPEc_t, ndim=3] fieldK
-        fieldK = np.empty(self.get_shapeK_loc(), dtype=DTYPEc, order='C')
+        fieldK = np.empty(self._shapeK_loc, dtype=DTYPEc, order='C')
         self.thisptr.fft(&fieldX[0, 0, 0], <mycomplex*> &fieldK[0, 0, 0])
         return fieldK
 
@@ -199,7 +199,7 @@ cdef class ${class_name}:
         i0_start, i1_start, i2_start = self.get_seq_indices_first_X()
 
         if root is None:
-            ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
+            ff_seq = np.empty(self._shapeX_seq, DTYPEf)
             for i in range(self.nb_proc):
                 if self.rank == i:
                     nX0_rank = nX0_loc
@@ -219,7 +219,7 @@ cdef class ${class_name}:
         elif isinstance(root, int):
             ff_seq = None
             if self.rank == root:
-                ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
+                ff_seq = np.empty(self._shapeX_seq, DTYPEf)
             for i in range(self.nb_proc):
                 if i == root and self.rank == root:
                     ff_seq[i0_start:i0_start+nX0_loc,
@@ -355,8 +355,8 @@ cdef class ${class_name}:
         cdef int d0, d1, d2, i0_start, i1_start, i2_start
         cdef np.ndarray tmp, k0_adim_loc, k1_adim_loc, k2_adim_loc
 
-        nK0, nK1, nK2 = self.get_shapeK_seq()
-        nK0_loc, nK1_loc, nK2_loc = self.get_shapeK_loc()
+        nK0, nK1, nK2 = self._shapeK_seq
+        nK0_loc, nK1_loc, nK2_loc = self._shapeK_loc
 
         d0, d1, d2 = self.get_dimX_K()
         i0_start, i1_start, i2_start = self.get_seq_indices_first_K()
@@ -374,7 +374,7 @@ cdef class ${class_name}:
 
     def build_invariant_arrayX_from_2d_indices12X(self, o2d, arr2d):
         """Build an array in real space invariant in the third dim."""
-        nX0, nX1, nX2 = self.get_shapeX_seq()
+        nX0, nX1, nX2 = self._shapeX_seq
         nX0loc, nX1loc, nX2loc = self.get_shapeX_loc()
 
         if (nX1, nX2) != tuple(o2d.shapeX_seq):
@@ -400,10 +400,10 @@ cdef class ${class_name}:
 
     def build_invariant_arrayK_from_2d_indices12X(self, o2d, arr2d):
         """Build an array in Fourier space invariant in the third dim."""
-        nK0, nK1, nK2 = self.get_shapeK_seq()
-        nK0loc, nK1loc, nK2loc = self.get_shapeK_loc()
+        nK0, nK1, nK2 = self._shapeK_seq
+        nK0loc, nK1loc, nK2loc = self._shapeK_loc
 
-        nX0, nX1, nX2 = self.get_shapeX_seq()
+        nX0, nX1, nX2 = self._shapeX_seq
 
         if (nX1, nX2) != o2d.shapeX_seq:
             raise ValueError('Not the same physical shape...')

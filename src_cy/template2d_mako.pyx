@@ -102,7 +102,7 @@ cdef class ${class_name}:
     cpdef fft(self, view2df_t fieldX):
         """Perform the fft and returns the result."""
         cdef np.ndarray[DTYPEc_t, ndim=2] fieldK
-        fieldK = np.empty(self.get_shapeK_loc(), dtype=DTYPEc, order='C')
+        fieldK = np.empty(self._shapeK_loc, dtype=DTYPEc, order='C')
         self.thisptr.fft(&fieldX[0, 0], <mycomplex*> &fieldK[0, 0])
         return fieldK
 
@@ -112,7 +112,7 @@ cdef class ${class_name}:
     cpdef ifft(self, view2dc_t fieldK):
         """Perform the ifft and returns the result."""
         cdef np.ndarray[DTYPEf_t, ndim=2] fieldX
-        fieldX = np.empty(self.get_shapeX_loc(), dtype=DTYPEf, order='C')
+        fieldX = np.empty(self._shapeX_loc, dtype=DTYPEf, order='C')
         self.thisptr.ifft(<mycomplex*> &fieldK[0, 0], &fieldX[0, 0])
         return fieldX
 
@@ -172,7 +172,7 @@ cdef class ${class_name}:
         The indices correspond to the index of the dimension in spectral space.
         """
 
-        nyseq, nxseq = self.get_shapeX_seq()
+        nyseq, nxseq = self._shapeX_seq
 
         kyseq = np.array(list(range(nyseq//2 + 1)) +
                          list(range(-nyseq//2 + 1, 0)))
@@ -184,7 +184,7 @@ cdef class ${class_name}:
             k0seq, k1seq = kyseq, kxseq
 
         ik0_start, ik1_start = self.get_seq_indices_first_K()
-        nk0loc, nk1loc = self.get_shapeK_loc()
+        nk0loc, nk1loc = self._shapeK_loc
 
         k0_adim_loc = k0seq[ik0_start:ik0_start+nk0loc]
         k1_adim_loc = k1seq[ik1_start:ik1_start+nk1loc]
@@ -203,10 +203,10 @@ cdef class ${class_name}:
 
         The indices correspond to the index of the dimension in real space.
         """
-        nyseq, nxseq = self.get_shapeX_seq()
+        nyseq, nxseq = self._shapeX_seq
 
         ix0_start, ix1_start = self.get_seq_indices_first_X()
-        nx0loc, nx1loc = self.get_shapeX_loc()
+        nx0loc, nx1loc = self._shapeX_loc
 
         x0loc = np.array(range(ix0_start, ix0_start+nx0loc))
         x1loc = np.array(range(ix1_start, ix1_start+nx1loc))
@@ -233,18 +233,18 @@ cdef class ${class_name}:
         if not self._is_mpi_lib:
             return ff_loc
 
-        if ff_loc.shape != self.get_shapeX_loc():
+        if ff_loc.shape != self._shapeX_loc:
             raise ValueError(
                 "The shape of the local array given is incorrect."
             )
 
         if root is None:
-            ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
+            ff_seq = np.empty(self._shapeX_seq, DTYPEf)
             self.comm.Allgather(ff_loc, ff_seq)
         elif isinstance(root, int):
             ff_seq = None
             if self.rank == root:
-                ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
+                ff_seq = np.empty(self._shapeX_seq, DTYPEf)
             self.comm.Gather(ff_loc, ff_seq, root=root)
         else:
             raise ValueError('root should be an int')
@@ -257,13 +257,13 @@ cdef class ${class_name}:
         if not self._is_mpi_lib:
             return ff_seq
 
-        if ff_seq is not None and ff_seq.shape != self.get_shapeX_seq():
+        if ff_seq is not None and ff_seq.shape != self._shapeX_seq:
             raise ValueError(
                 "The shape of the sequential array given is incorrect."
             )
 
         if root is None:
-            ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
+            ff_loc = np.empty(self._shapeX_loc, DTYPEf)
             if self.rank == 0:
                 # why do we need that?
                 # difference dtype('<f8') and float64?
@@ -273,7 +273,7 @@ cdef class ${class_name}:
         elif isinstance(root, int):
             ff_loc = None
             if self.rank == root:
-                ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
+                ff_loc = np.empty(self._shapeX_loc, DTYPEf)
             self.comm.Scatter(ff_seq, ff_loc, root=root)
         else:
             raise ValueError('root should be an int')
