@@ -27,7 +27,8 @@ cdef class ${class_name}:
     """
     cdef int _has_to_destroy
     cdef mycppclass* thisptr
-    cdef tuple _shapeK_loc, _shapeX_loc
+    cdef tuple _shapeK_loc, _shapeX_loc, _shapeK_seq, _shapeX_seq
+    cdef int _is_mpi_lib
 
     IF MPI4PY:
         cdef public MPI.Comm comm
@@ -44,12 +45,16 @@ cdef class ${class_name}:
     def __init__(self, int n0=2, int n1=2):
         self._shapeK_loc = self.get_shapeK_loc()
         self._shapeX_loc = self.get_shapeX_loc()
+        self._shapeK_seq = self.get_shapeK_seq()
+        self._shapeX_seq = self.get_shapeX_seq()
 
         # info on MPI
         self.nb_proc = nb_proc
         self.rank = rank
         if nb_proc > 1:
             self.comm = comm
+
+        self._is_mpi_lib = self._shapeX_seq != self._shapeX_loc
 
     def __dealloc__(self):
         if self._has_to_destroy:
@@ -225,6 +230,9 @@ cdef class ${class_name}:
         """Gather an array in real space for a parallel run."""
         cdef np.ndarray[DTYPEf_t, ndim=2] ff_seq
 
+        if not self._is_mpi_lib:
+            return ff_loc
+
         if ff_loc.shape != self.get_shapeX_loc():
             raise ValueError(
                 "The shape of the local array given is incorrect."
@@ -245,6 +253,9 @@ cdef class ${class_name}:
     def scatter_Xspace(self, ff_seq, root=None):
         """Scatter an array in real space for a parallel run."""
         cdef np.ndarray[DTYPEf_t, ndim=2] ff_loc
+
+        if not self._is_mpi_lib:
+            return ff_seq
 
         if ff_seq is not None and ff_seq.shape != self.get_shapeX_seq():
             raise ValueError(
