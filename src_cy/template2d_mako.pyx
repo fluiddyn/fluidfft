@@ -6,7 +6,6 @@ from ${module_name} cimport (
     ${class_name} as mycppclass,
     mycomplex)
 
-from fluiddyn.util import mpi
 
 
 cdef class ${class_name}:
@@ -30,6 +29,10 @@ cdef class ${class_name}:
     cdef mycppclass* thisptr
     cdef tuple _shapeK_loc, _shapeX_loc
 
+    IF MPI4PY:
+        cdef public MPI.Comm comm
+    cdef public int nb_proc, rank
+
     def __cinit__(self, int n0=2, int n1=2):
         self._has_to_destroy = 1
         try:
@@ -41,6 +44,12 @@ cdef class ${class_name}:
     def __init__(self, int n0=2, int n1=2):
         self._shapeK_loc = self.get_shapeK_loc()
         self._shapeX_loc = self.get_shapeX_loc()
+
+        # info on MPI
+        self.nb_proc = nb_proc
+        self.rank = rank
+        if nb_proc > 1:
+            self.comm = comm
 
     def __dealloc__(self):
         if self._has_to_destroy:
@@ -223,12 +232,12 @@ cdef class ${class_name}:
 
         if root is None:
             ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
-            mpi.comm.Allgather(ff_loc, ff_seq)
+            self.comm.Allgather(ff_loc, ff_seq)
         elif isinstance(root, int):
             ff_seq = None
-            if mpi.rank == root:
+            if self.rank == root:
                 ff_seq = np.empty(self.get_shapeX_seq(), DTYPEf)
-            mpi.comm.Gather(ff_loc, ff_seq, root=root)
+            self.comm.Gather(ff_loc, ff_seq, root=root)
         else:
             raise ValueError('root should be an int')
         return ff_seq
@@ -244,17 +253,17 @@ cdef class ${class_name}:
 
         if root is None:
             ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
-            if mpi.rank == 0:
+            if self.rank == 0:
                 # why do we need that?
                 # difference dtype('<f8') and float64?
                 ff_seq = ff_seq.astype(DTYPEf)
 
-            mpi.comm.Scatter(ff_seq, ff_loc, root=0)
+            self.comm.Scatter(ff_seq, ff_loc, root=0)
         elif isinstance(root, int):
             ff_loc = None
             if self.rank == root:
                 ff_loc = np.empty(self.get_shapeX_loc(), DTYPEf)
-            mpi.comm.Scatter(ff_seq, ff_loc, root=root)
+            self.comm.Scatter(ff_seq, ff_loc, root=root)
         else:
             raise ValueError('root should be an int')
         return ff_loc
