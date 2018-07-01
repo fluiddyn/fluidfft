@@ -1,5 +1,13 @@
-0.2.3
------
+0.2.4 (2018-07-01)
+------------------
+
+- bugfixes and code improvements
+- support PyPy3 and macOS
+- More robust to lack of pyfftw and to mkl
+- Support fft="default" in operator classes
+
+0.2.3 (2018-06-04)
+------------------
 
 - Less bugs
 - Pypy compatibility
