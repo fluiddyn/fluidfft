@@ -6,46 +6,50 @@ Installation and advice
 Dependencies
 ------------
 
+See `Get a good scientific Python environment
+<http://fluiddyn.readthedocs.io/en/latest/get_good_Python_env.html>`_
+
 - Python 2.7 or >= 3.5
 
 - a C++11 compiler (for example GCC 4.9 or clang)
 
 - Numpy
 
-  Make sure to correctly install numpy before anything. 
+  Make sure to correctly install numpy before anything.
 
-  .. note::
-  
-     Be careful, the wheels install with `pip install numpy` can be slow. You
-     might get something more efficient by compiling from source using:
+  - with ``pip``::
 
-     .. code:: bash
+      pip install numpy
 
-        pip install numpy --no-binary numpy
-        python -c 'import numpy; numpy.test()'
+  - with ``conda``::
 
-  .. toctree::
-     :maxdepth: 1
+      conda install numpy blas=*=openblas
 
-     install/blas_libs
+    .. warning::
 
-  .. warning::
+       In anaconda (or miniconda), Numpy installed with `conda install numpy` can
+       be built and linked with MKL (an Intel library).  This can be a real plus
+       for performance since MKL replaces fftw functions by (usually) faster ones
+       but it has a drawback for fft using the library fftw3_mpi (an
+       implementation of parallel fft using 1D decomposition by fftw).  MKL
+       implements some fftw functions but not all the functions defined in
+       fftw3_mpi. Since the libraries are loaded dynamically, if numpy is imported
+       before the fftw_mpi libraries, this can lead to very bad issues
+       (segmentation fault, only if numpy is imported before the class!). For
+       security, we prefer to automatically disable the building of the fft
+       classes using fftw3_mpi when it is detected that numpy uses the MKL library
+       where some fftw symbols are defined.
 
-     In anaconda (or miniconda), Numpy installed with `conda install numpy` is
-     built and linked with MKL (an Intel library).  This can be a real plus for
-     performance since MKL replaces fftw functions by (usually) faster ones but it
-     has a drawback for fft using the library fftw3_mpi (an implementation of
-     parallel fft using 1D decomposition by fftw).  MKL implements some fftw
-     functions but not all the functions defined in fftw3_mpi. Since the libraries
-     are loaded dynamically, if numpy is imported before the fftw_mpi libraries,
-     this can lead to very bad issues (segmentation fault, only if numpy is
-     imported before the class!). For security, we prefer to automatically disable
-     the building of the fft classes using fftw3_mpi when it is detected that
-     numpy uses the MKL library where some fftw symbols are defined.
+       .. toctree::
+	  :maxdepth: 1
 
-- Cython
+	  install/blas_libs
 
-- `Pythran <https://github.com/serge-sans-paille/pythran>`_
+- Cython (optional)
+
+- Mako or Jinja2 to produce the Cython files from templates (optional)
+
+- `Pythran <https://github.com/serge-sans-paille/pythran>`_ (optional)
 
   We choose to use the new static Python compiler `Pythran
   <https://github.com/serge-sans-paille/pythran>`_ for some functions of the
@@ -78,8 +82,8 @@ Dependencies
 
 - mpi4py (optional, only for mpi runs),
 
-- pyfftw: FluidFFT can of course use pyfftw and it is often a very fast solution
-  for undistributed FFT. However, pyfftw is just an optional dependency.
+- pyfftw (optional): FluidFFT can of course use pyfftw and it is often a very fast
+  solution for undistributed FFT.
 
 - And of course FFT libraries!
 
