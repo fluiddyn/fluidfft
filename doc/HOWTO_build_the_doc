@@ -1,3 +1,7 @@
+If needed create the environment::
+
+  conda env create -name env_fluidfft_doc --file environment.yml
+
 Run in a terminal from this directory::
 
   make html

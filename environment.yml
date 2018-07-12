@@ -4,9 +4,17 @@ channels:
 
 dependencies:
   - python=3.6
+  - blas=*=openblas
   - numpy
   - cython
+  - pythran
   - h5py
   - matplotlib
   - pandas
   - pyfftw
+  - psutil
+  - colorlog
+  - mako
+  - pip:
+    - fluiddyn
+    - mpi4py

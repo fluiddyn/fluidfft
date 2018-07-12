@@ -6,8 +6,8 @@ Installation and advice
 Dependencies
 ------------
 
-See `Get a good scientific Python environment
-<http://fluiddyn.readthedocs.io/en/latest/get_good_Python_env.html>`_
+We explain how to install the dependencies here: `Get a good scientific Python
+environment <http://fluiddyn.readthedocs.io/en/latest/get_good_Python_env.html>`_
 
 - Python 2.7 or >= 3.5
 
@@ -15,37 +15,38 @@ See `Get a good scientific Python environment
 
 - Numpy
 
-  Make sure to correctly install numpy before anything.
+  Make sure to correctly install numpy before anything, with ``pip`` or ``conda``.
 
-  - with ``pip``::
+  .. warning::
 
-      pip install numpy
+     In anaconda (or miniconda), Numpy installed with `conda install numpy` can be
+     built and linked with MKL (an Intel library).  This can be a real plus for
+     performance since MKL replaces fftw functions by (usually) faster ones but it
+     has a drawback for fft using the library fftw3_mpi (an implementation of
+     parallel fft using 1D decomposition by fftw).  MKL implements some fftw
+     functions but not all the functions defined in fftw3_mpi. Since the libraries
+     are loaded dynamically, if numpy is imported before the fftw_mpi libraries,
+     this can lead to very bad issues (segmentation fault, only if numpy is
+     imported before the class!). For security, we prefer to automatically disable
+     the building of the fft classes using fftw3_mpi when it is detected that
+     numpy uses the MKL library where some fftw symbols are defined.
 
-  - with ``conda``::
+     To install with anaconda numpy linked with openblas::
 
-      conda install numpy blas=*=openblas
+       conda config --add channels conda-forge
+       conda install numpy blas=*=openblas
 
-    .. warning::
+  .. note::
 
-       In anaconda (or miniconda), Numpy installed with `conda install numpy` can
-       be built and linked with MKL (an Intel library).  This can be a real plus
-       for performance since MKL replaces fftw functions by (usually) faster ones
-       but it has a drawback for fft using the library fftw3_mpi (an
-       implementation of parallel fft using 1D decomposition by fftw).  MKL
-       implements some fftw functions but not all the functions defined in
-       fftw3_mpi. Since the libraries are loaded dynamically, if numpy is imported
-       before the fftw_mpi libraries, this can lead to very bad issues
-       (segmentation fault, only if numpy is imported before the class!). For
-       security, we prefer to automatically disable the building of the fft
-       classes using fftw3_mpi when it is detected that numpy uses the MKL library
-       where some fftw symbols are defined.
+     Some notes how to build OpenBlas and numpy from source (not very useful now
+     that we have good numpy wheels):
 
-       .. toctree::
-	  :maxdepth: 1
+     .. toctree::
+	:maxdepth: 0
 
-	  install/blas_libs
+	install/blas_libs
 
-- Cython (optional)
+- Cython (optional, but necessary to use the fluidfft C++ FFT classes)
 
 - Mako or Jinja2 to produce the Cython files from templates (optional)
 
@@ -80,7 +81,7 @@ See `Get a good scientific Python environment
         CXX=clang++
         CC=clang
 
-- mpi4py (optional, only for mpi runs),
+- mpi4py (optional, only for mpi classes),
 
 - pyfftw (optional): FluidFFT can of course use pyfftw and it is often a very fast
   solution for undistributed FFT.
@@ -124,11 +125,33 @@ or::
 
   pip install fluidfft --user
 
-However, it better to configure the installation of FluidFFT by creating the file
-``~/.fluidfft-site.cfg`` and modify it to fit your requirements before the
-installation with pip::
+However, it is often useful to configure the installation of FluidFFT by creating
+the file ``~/.fluidfft-site.cfg`` and modify it to fit your requirements before
+the installation with pip::
 
   wget https://bitbucket.org/fluiddyn/fluidfft/raw/default/site.cfg.default -O ~/.fluidfft-site.cfg
+
+.. note::
+
+   On some systems, ``wget`` is not installed by default. You may be able to use
+   ``curl`` instead.
+
+.. warning::
+
+   By default (without ``~/.fluidfft-site.cfg``), no FFT classes are compiled so
+   that fluidfft will only be able to uses its pure-Python FFT classes (using in
+   particular pyfftw)!
+
+.. warning::
+
+   If fluidfft has already been installed and you want to recompile with new
+   configuration values in ``~/.fluidfft-site.cfg``, you need to really recompile
+   fluidfft and not just reinstall an already produced wheel. To do this, use::
+
+     pip install fluidfft --no-binary fluidfft -v
+
+   ``-v`` toggles the verbose mode of pip so that we see the compilation log and
+   can check that everything goes well.
 
 
 Install from the repository (recommended)
