@@ -57,6 +57,7 @@ _d = run_path(os.path.join(_here, 'fluidfft', 'util.py'))
 can_import = _d['can_import']
 
 can_import_cython = can_import('cython')
+can_import_pythran = can_import('pythran')
 can_import_mpi4py = can_import('mpi4py', '2.0.0')
 
 if can_import_cython:
@@ -64,6 +65,22 @@ if can_import_cython:
         CompilationOptions, \
         default_options as cython_default_options, \
         compile_single as cython_compile
+
+if can_import_pythran:
+    try:
+        from pythran.dist import PythranBuildExt, PythranExtension
+
+        class fluidfft_build_ext(build_ext, PythranBuildExt):
+            def build_extension(self, ext):
+                if isinstance(ext, PythranExtension):
+                    PythranBuildExt.build_extension(self, ext)
+                else:
+                    build_ext.build_extension(self, ext)
+
+    except ImportError:
+        fluidfft_build_ext = build_ext
+else:
+    fluidfft_build_ext = build_ext
 
 if can_import_mpi4py:
     mpicxx_compile_words = []
@@ -116,6 +133,7 @@ def check_and_print(pkg='', result=None, line_above=False, line_below=False):
 check_and_print('numpy', line_above=True)
 check_and_print('mpi4py', can_import_mpi4py)
 check_and_print('cython', can_import_cython)
+check_and_print('pythran', can_import_pythran)
 check_and_print('mako', line_below=True)
 
 
@@ -513,13 +531,9 @@ def make_extensions(extensions,
 
 
 def make_pythran_extensions(modules):
-    can_import_pythran = can_import('pythran')
-    check_and_print('pythran', can_import_pythran, True, True)
     if not can_import_pythran:
         print('Pythran extensions will not be built: ', modules)
         return []
-
-    from pythran.dist import PythranExtension
 
     develop = sys.argv[-1] == 'develop'
     extensions = []
@@ -591,5 +605,5 @@ def compile(self, sources, output_dir=None, macros=None,
 
 def monkeypatch_parallel_build():
     if PARALLEL_COMPILE:
-        build_ext.build_extensions = build_extensions
+        fluidfft_build_ext.build_extensions = build_extensions
         CCompiler.compile = compile

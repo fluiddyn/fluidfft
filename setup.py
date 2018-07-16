@@ -24,7 +24,7 @@ from numpy.__config__ import get_info
 from src_cy.make_files_with_mako import make_pyx_files
 from purepymake import (
     Extension, make_extensions, monkeypatch_parallel_build,
-    make_pythran_extensions)
+    make_pythran_extensions, fluidfft_build_ext)
 
 try:
     from config import parse_config
@@ -262,7 +262,7 @@ setup(
     packages=find_packages(exclude=[
         'doc', 'include', 'scripts', 'src_cpp', 'src_cy']),
     install_requires=['fluiddyn >= 0.2.3'],
-    # cmdclass={'build_ext': build_ext},
+    cmdclass={'build_ext': fluidfft_build_ext},
     ext_modules=ext_modules,
     entry_points={
         'console_scripts':
