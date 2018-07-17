@@ -301,6 +301,16 @@ class OperatorsPseudoSpectral2D(object):
 
         self.XX, self.YY = np.meshgrid(x_loc, y_loc)
 
+    def mean_global(self, field):
+        """Compute the global average over all processes"""
+        if self.is_sequential:
+            return field.mean()
+        else:
+            result = field.sum()
+            result = mpi.comm.allreduce(result, op=mpi.MPI.SUM)
+            result /= self.nx_seq * self.ny_seq
+            return result
+
     def sum_wavenumbers(self, field_fft):
         """Compute the sum over all wavenumbers."""
         return self.opfft.sum_wavenumbers(np.ascontiguousarray(field_fft))
