@@ -67,8 +67,11 @@ if can_import_cython:
         compile_single as cython_compile
 
 if can_import_pythran:
+    # pythran 0.8.6
+    from pythran.dist import PythranExtension
     try:
-        from pythran.dist import PythranBuildExt, PythranExtension
+        # pythran > 0.8.6
+        from pythran.dist import PythranBuildExt
 
         class fluidfft_build_ext(build_ext, PythranBuildExt):
             def build_extension(self, ext):
