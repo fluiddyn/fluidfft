@@ -29,7 +29,7 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1):
   /* x corresponds to dim 1 in physical space */
   ny = N0;
   nx = N1;
-  
+
   nX0 = N0;
   nX1 = N1;
   nX0loc = local_nX0;
@@ -115,6 +115,24 @@ FFT2DMPIWithFFTWMPI2D::~FFT2DMPIWithFFTWMPI2D(void)
 }
 
 
+bool FFT2DMPIWithFFTWMPI2D::are_parameters_bad()
+{
+  if (N0 % nb_proc != 0)
+    {
+      if (rank == 0)
+	cout << "bad parameters: (N0 % nb_proc != 0)" << endl;
+      return 1;
+    }
+  if (N1/2 % nb_proc != 0)
+    {
+      if (rank == 0)
+	cout << "bad parameters: (N1/2 % nb_proc != 0)" << endl;
+      return 1;
+    }
+  return 0;
+}
+
+
 char const* FFT2DMPIWithFFTWMPI2D::get_classname()
 { return "FFT2DMPIWithFFTWMPI2D";}
 
@@ -148,7 +166,7 @@ myreal FFT2DMPIWithFFTWMPI2D::compute_energy_from_K(mycomplex* fieldK)
   i0 = 0;
   for (i1=0; i1<nK1; i1++)
     energy_tmp += pow(abs(fieldK[i1]), 2);
-  
+
   //if iKx == 0 | nK0loc == 1 && iKx=last
   if (rank == 0 | (rank == nb_proc -1 & nK0loc == 1))  // i.e. if iKx == 0
     energy_loc = energy_tmp/2;
@@ -193,7 +211,7 @@ myreal FFT2DMPIWithFFTWMPI2D::sum_wavenumbers(myreal* fieldK)
   i0 = 0;
   for (i1=0; i1<nK1; i1++)
     sum_tmp += fieldK[i1];
-  
+
   //if (local_K0_start == 0)  // i.e. if iKx == 0
   if (rank == 0 | (rank == nb_proc -1 & nK0loc == 1))  // i.e. if iKx == 0
     sum_loc = sum_tmp/2;
@@ -295,4 +313,3 @@ void FFT2DMPIWithFFTWMPI2D::ifft(mycomplex *fieldK, myreal *fieldX)
     for (i1=0; i1<nX1; i1++)
       fieldX[i1 + i0*nX1] = arrayX[i1 + i0*nX1_pad];
 }
-

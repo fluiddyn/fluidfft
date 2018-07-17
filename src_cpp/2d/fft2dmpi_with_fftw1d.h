@@ -9,12 +9,12 @@ class FFT2DMPIWithFFTW1D: public BaseFFT2DMPI
   void destroy();
 
   virtual bool are_parameters_bad();
-  
+
   virtual const char* get_classname();
-  
+
   void fft(myreal *fieldX, mycomplex *fieldK);
   void ifft(mycomplex *fieldK, myreal *fieldX);
-  
+
   myreal compute_energy_from_X(myreal* fieldX);
   myreal compute_energy_from_K(mycomplex* fieldK);
   myreal sum_wavenumbers(myreal* fieldK);
@@ -27,5 +27,5 @@ class FFT2DMPIWithFFTW1D: public BaseFFT2DMPI
   mycomplex *arrayK_pR, *arrayK_pC;
 
   unsigned flags;
-  MPI_Datatype MPI_type_column, MPI_type_block; 
+  MPI_Datatype MPI_type_column, MPI_type_block;
 };

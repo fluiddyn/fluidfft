@@ -10,7 +10,9 @@ class FFT2DMPIWithFFTWMPI2D: public BaseFFT2DMPI
   FFT2DMPIWithFFTWMPI2D(int N0, int N1);
   ~FFT2DMPIWithFFTWMPI2D();
   void destroy();
-  
+
+  virtual bool are_parameters_bad();
+
   virtual const char* get_classname();
 
   /* int get_local_size_X(); */
@@ -18,7 +20,7 @@ class FFT2DMPIWithFFTWMPI2D: public BaseFFT2DMPI
 
   void fft(myreal *fieldX, mycomplex *fieldK);
   void ifft(mycomplex *fieldK, myreal *fieldX);
-  
+
   myreal compute_energy_from_X(myreal* fieldX);
   myreal compute_energy_from_K(mycomplex* fieldK);
   myreal sum_wavenumbers(myreal* fieldK);
