@@ -78,6 +78,8 @@ FFT3DMPIWithFFTWMPI3D::FFT3DMPIWithFFTWMPI3D(int argN0, int argN1, int argN2):
   nK1loc = nK1;
   nK2loc = nK2;
 
+  size_fieldK = nK0loc * nK1loc * nK2loc;
+
   flags = FFTW_MEASURE;
 /*    flags = FFTW_ESTIMATE;*/
 /*    flags = FFTW_PATIENT;*/
@@ -179,7 +181,7 @@ myreal FFT3DMPIWithFFTWMPI3D::compute_energy_from_K(mycomplex* fieldK)
     energy_loc += energy_tmp/2.;
   else
     energy_loc += energy_tmp;
-  
+
   // other modes
   for (i0=0; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
@@ -217,7 +219,7 @@ myreal FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_double(myreal* fieldK)
     energy_loc += energy_tmp/2.;
   else
     energy_loc += energy_tmp;
-  
+
   // other modes
   for (i0=0; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
@@ -254,7 +256,7 @@ void FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_complex(
     energy_loc += energy_tmp/2.;
   else
     energy_loc += energy_tmp;
-  
+
   // other modes
   for (i0=0; i0<nK0loc; i0++)
     for (i1=0; i1<nK1; i1++)
@@ -294,7 +296,7 @@ void FFT3DMPIWithFFTWMPI3D::ifft(mycomplex *fieldK, myreal *fieldX)
 {
   int i0, i1, i2;
   // cout << "FFT3DMPIWithFFTWMPI3D::ifft" << endl;
-  memcpy(arrayK, fieldK, alloc_local*sizeof(mycomplex));
+  memcpy(arrayK, fieldK, size_fieldK*sizeof(mycomplex));
 #ifdef SINGLE_PREC
   fftwf_execute(plan_c2r);
 #else
@@ -311,7 +313,7 @@ void FFT3DMPIWithFFTWMPI3D::ifft_destroy(mycomplex *fieldK, myreal *fieldX)
 {
   int i0, i1, i2;
   // todo: we are allowed to destroy the input here! No copy!
-  memcpy(arrayK, fieldK, alloc_local*sizeof(mycomplex));
+  memcpy(arrayK, fieldK, size_fieldK*sizeof(mycomplex));
 #ifdef SINGLE_PREC
   fftwf_execute(plan_c2r);
 #else

@@ -48,6 +48,8 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1):
   nK0loc = nKxloc;
   nK1 = nKy;
 
+  size_fieldK = nKxloc * nKy;
+
   /* Case nK0loc ==0 */
   if (nK0loc == 0)
   {
@@ -59,6 +61,7 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1):
   flags = FFTW_MEASURE;
 /*    flags = FFTW_ESTIMATE;*/
 /*    flags = FFTW_PATIENT;*/
+
 #ifdef SINGLE_PREC
   arrayX = fftwf_alloc_real(2 * alloc_local);
   arrayK = fftwf_alloc_complex(alloc_local);
@@ -315,7 +318,7 @@ void FFT2DMPIWithFFTWMPI2D::ifft(mycomplex *fieldK, myreal *fieldX)
 {
   int i0, i1;
   // cout << "FFT2DMPIWithFFTWMPI2D::ifft" << endl;
-  memcpy(arrayK, fieldK, alloc_local*sizeof(mycomplex));
+  memcpy(arrayK, fieldK, size_fieldK * sizeof(mycomplex));
 #ifdef SINGLE_PREC
   fftwf_execute(plan_c2r);
 #else

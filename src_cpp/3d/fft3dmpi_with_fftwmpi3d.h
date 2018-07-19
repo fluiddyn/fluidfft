@@ -9,7 +9,7 @@ class FFT3DMPIWithFFTWMPI3D: public BaseFFT3DMPI
  public:
   FFT3DMPIWithFFTWMPI3D(int N0, int N1, int N2);
   void destroy();
-  
+
   bool are_parameters_bad();
   virtual const char* get_classname();
 
@@ -24,13 +24,13 @@ class FFT3DMPIWithFFTWMPI3D: public BaseFFT3DMPI
   virtual void get_dimX_K(int*, int*, int*);
   virtual void get_seq_indices_first_X(int*, int*, int*);
   virtual void get_seq_indices_first_K(int*, int*, int*);
-  
+
  private:
   int nX1_pad;
   myreal *arrayX;
   mycomplex *arrayK;
   myfftw_plan plan_r2c, plan_c2r;
-  ptrdiff_t alloc_local, local_K0_start;
+  ptrdiff_t alloc_local, local_K0_start, size_fieldK;
   ptrdiff_t local_X0_start;
 
   unsigned flags;
