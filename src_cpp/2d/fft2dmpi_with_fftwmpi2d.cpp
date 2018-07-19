@@ -4,6 +4,8 @@
 FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1):
   BaseFFT2DMPI::BaseFFT2DMPI(argN0, argN1)
 {
+  int nK0_loc_iszero = 0;
+  int count_nK0loc_zero = 0;
   struct timeval start_time, end_time;
   myreal total_usecs;
   ptrdiff_t local_nX0;
@@ -34,7 +36,7 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1):
   nX1 = N1;
   nX0loc = local_nX0;
   nXyloc = nX0loc;
-  nX1_pad = N1 + 2;
+  nX1_pad = 2*(N1/2 + 1);
 
   nKx = nx/2+1;
   nKxloc = local_nK0;
@@ -45,6 +47,14 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1):
   nK0 = nKx;
   nK0loc = nKxloc;
   nK1 = nKy;
+
+  /* Case nK0loc ==0 */
+  if (nK0loc == 0)
+  {
+      nK0_loc_iszero = 1;
+  }
+  MPI_Allreduce(&nK0_loc_iszero, &count_nK0loc_zero, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+  last_rank_nozero = nb_proc - 1 - count_nK0loc_zero;
 
   flags = FFTW_MEASURE;
 /*    flags = FFTW_ESTIMATE;*/
@@ -162,13 +172,15 @@ myreal FFT2DMPIWithFFTWMPI2D::compute_energy_from_K(mycomplex* fieldK)
   myreal energy_tmp = 0;
   myreal energy;
 
+  if (nK0loc != 0)
+  {
   // modes i0 = iKx = 0
   i0 = 0;
   for (i1=0; i1<nK1; i1++)
     energy_tmp += pow(abs(fieldK[i1]), 2);
 
   //if iKx == 0 | nK0loc == 1 && iKx=last
-  if ((rank == 0) | ((rank == nb_proc -1) & (nK0loc == 1)))  // i.e. if iKx == 0
+  if ((rank == 0) | ((rank == last_rank_nozero) & (nK0loc == 1)))  // i.e. if iKx == 0
     energy_loc = energy_tmp/2;
   else
     energy_loc = energy_tmp;
@@ -181,7 +193,7 @@ myreal FFT2DMPIWithFFTWMPI2D::compute_energy_from_K(mycomplex* fieldK)
     i_tmp = i0 * nK1;
     for (i1=0; i1<nK1; i1++)
       energy_tmp += pow(abs(fieldK[i1 + i_tmp]), 2);
-    if (rank == nb_proc - 1)
+    if (rank == last_rank_nozero)
       energy_loc += energy_tmp/2;
     else
       energy_loc += energy_tmp;
@@ -190,7 +202,7 @@ myreal FFT2DMPIWithFFTWMPI2D::compute_energy_from_K(mycomplex* fieldK)
       for (i1=0; i1<nK1; i1++)
         energy_loc += pow(abs(fieldK[i1 + i0*nK1]), 2);
    }
-
+   }
 #ifdef SINGLE_PREC
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
 #else
@@ -213,7 +225,7 @@ myreal FFT2DMPIWithFFTWMPI2D::sum_wavenumbers(myreal* fieldK)
     sum_tmp += fieldK[i1];
 
   //if (local_K0_start == 0)  // i.e. if iKx == 0
-  if ((rank == 0) | ((rank == nb_proc - 1) & (nK0loc == 1)))  // i.e. if iKx == 0
+  if ((rank == 0) | ((rank == last_rank_nozero) & (nK0loc == 1)))  // i.e. if iKx == 0
     sum_loc = sum_tmp/2;
   else
     sum_loc = sum_tmp;
@@ -227,7 +239,7 @@ myreal FFT2DMPIWithFFTWMPI2D::sum_wavenumbers(myreal* fieldK)
     for (i1=0; i1<nK1; i1++)
       sum_tmp += fieldK[i1 + i_tmp];
 
-    if (rank == nb_proc - 1)
+    if (rank == last_rank_nozero)
       sum_loc += sum_tmp/2;
     else
       sum_loc += sum_tmp;
