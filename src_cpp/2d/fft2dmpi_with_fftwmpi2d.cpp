@@ -168,7 +168,7 @@ myreal FFT2DMPIWithFFTWMPI2D::compute_energy_from_K(mycomplex* fieldK)
     energy_tmp += pow(abs(fieldK[i1]), 2);
 
   //if iKx == 0 | nK0loc == 1 && iKx=last
-  if (rank == 0 | (rank == nb_proc -1 & nK0loc == 1))  // i.e. if iKx == 0
+  if ((rank == 0) | ((rank == nb_proc -1) & (nK0loc == 1)))  // i.e. if iKx == 0
     energy_loc = energy_tmp/2;
   else
     energy_loc = energy_tmp;
@@ -213,7 +213,7 @@ myreal FFT2DMPIWithFFTWMPI2D::sum_wavenumbers(myreal* fieldK)
     sum_tmp += fieldK[i1];
 
   //if (local_K0_start == 0)  // i.e. if iKx == 0
-  if (rank == 0 | (rank == nb_proc -1 & nK0loc == 1))  // i.e. if iKx == 0
+  if ((rank == 0) | ((rank == nb_proc - 1) & (nK0loc == 1)))  // i.e. if iKx == 0
     sum_loc = sum_tmp/2;
   else
     sum_loc = sum_tmp;
