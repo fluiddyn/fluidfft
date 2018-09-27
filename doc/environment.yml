@@ -7,13 +7,13 @@ dependencies:
   - numpy
   - cython
   - h5py
-  - sphinx
-  - numpydoc
   - jupyter
   - matplotlib
   - pandas
   - pyfftw
-  - mako
   - pip:
+    - sphinx
+    - numpydoc
+    - mako
     - sphinx_rtd_theme
     - hg+https://bitbucket.org/fluiddyn/fluiddyn#egg=fluiddyn
