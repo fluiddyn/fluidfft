@@ -1,7 +1,7 @@
 
 name=mymod
 
-all: $(name)_default.so $(name)_native.so $(name)_simd.so
+all: $(name)_default.so $(name)_simd.so
 
 $(name)_default.so: $(name).py
 	pythran -v $(name).py -o $(name)_default.so
@@ -37,7 +37,7 @@ perfdefault2d: all
 	@python -m perf timeit -s \
 	  'from bench import myfunc_loops2d_default as func, f2d as arr' $(code)
 
-perfsimd2d: all
+perfsimd2d: $(name)_simd.so
 	# simd 2d (no loop)
 	@python -m perf timeit -s \
 	  'from bench import myfunc_simd as func, f2d as arr' $(code)
