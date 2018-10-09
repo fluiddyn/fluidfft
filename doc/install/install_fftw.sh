@@ -46,11 +46,11 @@ build() {
   CFLAGS+=" -O3 -fomit-frame-pointer -malign-double -fstrict-aliasing -ffast-math"
 
   CONFIGURE="./configure F77=gfortran CC=gcc CXX=g++ \
-	         --prefix=${pkgdir} \
-                 --enable-shared \
-		 --enable-threads \
-		 --enable-openmp \
-		 --enable-mpi"
+	          --prefix=${pkgdir} \
+            --enable-shared \
+		        --enable-threads \
+		        --enable-openmp \
+		        --enable-mpi"
 
   # build double precision
   cd ${srcdir}/${pkgname}-${pkgver}-double

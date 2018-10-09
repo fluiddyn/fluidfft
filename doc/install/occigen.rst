@@ -48,6 +48,10 @@ We have to build fftw3, p3dfft and pfft... For fftw3:
 .. literalinclude:: occigen_install_fftw3.sh
    :language: shell
 
+We need pyfftw::
+
+  pip install pyfftw
+
 For p3dfft:
 
 .. literalinclude:: occigen_install_p3dfft.sh

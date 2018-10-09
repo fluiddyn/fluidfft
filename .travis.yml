@@ -81,11 +81,11 @@ install:
         # allow conda install
         conda install -q -y virtualenv numpy cython mako mpi4py coverage \
             matplotlib pyfftw psutil future pandas fftw openmpi
-        pip install -U tox-travis fluiddevops
+        pip install -U tox-pipenv fluiddevops
         pip install -e "hg+https://bitbucket.org/fluiddyn/fluiddyn#egg=fluiddyn"
       else
         pip install -U pip setuptools wheel six colorlog
-        pip install -U tox-travis coverage fluiddevops
+        pip install -U tox-pipenv coverage fluiddevops
         pip install -U numpy cython mako mpi4py  # To be removed when pip==10 is out and this step can be bootstrapped
       fi
 

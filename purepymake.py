@@ -606,8 +606,11 @@ def make_pythran_extensions(modules):
             # bug pythran extension...
             compile_arch = os.getenv("CARCH", "native")
             pext.extra_compile_args.extend(
-                ["-O3", "-march={}".format(compile_arch), "-DUSE_XSIMD"]
+                ["-O3", "-march={}".format(compile_arch)]
             )
+            if not os.environ.get("NO_XSIMD", False):
+                pext.extra_compile_args.append("-DUSE_XSIMD")
+
             # pext.extra_compile_args.append('-fopenmp')
             # pext.extra_link_args.extend([])
             extensions.append(pext)

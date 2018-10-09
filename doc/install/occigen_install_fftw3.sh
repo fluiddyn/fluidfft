@@ -17,3 +17,15 @@ mkdir -p $PREFIX
     --prefix=$PREFIX
 
 make -j 4 && make install
+
+./configure CC=icc CFLAGS=-gcc --with-our-malloc16 --enable-threads \
+    --enable-openmp --enable-mpi --enable-shared --enable-avx \
+    --prefix=$PREFIX --enable-float
+
+make -j 4 && make install
+
+./configure CC=icc CFLAGS=-gcc --with-our-malloc16 --enable-threads \
+    --enable-openmp --enable-mpi --enable-shared \
+    --prefix=$PREFIX --enable-long-double
+
+make -j 4 && make install

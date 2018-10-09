@@ -22,6 +22,7 @@ pipelines:
             caches:
               - pip
             script:
+              - export NO_XSIMD=1
               - pip install -U tox --user
               - tox -e py36-pythran-mpi,codecov -vv
         - step:
@@ -29,5 +30,6 @@ pipelines:
             caches:
               - pip
             script:
+              - export NO_XSIMD=1
               - pip install -U tox --user
               - tox -e py27-pythran-mpi,codecov -vv
