@@ -84,8 +84,8 @@ install:
         pip install -U tox-pipenv fluiddevops
         pip install -e "hg+https://bitbucket.org/fluiddyn/fluiddyn#egg=fluiddyn"
       else
-        pip install -U pip==18.0 setuptools wheel six colorlog
-        pip install -U pipenv==2018.7.1 tox-pipenv coverage fluiddevops
+        pip install -U pip setuptools wheel six colorlog
+        pip install -U pipenv tox-pipenv coverage fluiddevops
         pip install -U numpy cython mako mpi4py  # To be removed when pip==10 is out and this step can be bootstrapped
       fi
 

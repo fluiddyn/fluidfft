@@ -48,7 +48,7 @@ from setuptools import Extension as SetuptoolsExtension
 
 import numpy as np
 
-DEBUG = os.environ.get("FLUIDDYN_DEBUG", False)
+DEBUG = os.getenv("FLUIDDYN_DEBUG", False)
 
 config_vars = dsysconfig.get_config_vars()
 
@@ -135,22 +135,20 @@ path_tmp = "build/temp." + platform_pyversion
 path_lib = "build/lib." + platform_pyversion
 
 
-def check_and_print(pkg="", result=None, line_above=False, line_below=False):
+def check_and_print(pkg="", result=None):
     if result is None:
         result = can_import(pkg)
 
-    if line_above:
-        print("*" * 50)
     print("{} installed: ".format(pkg).rjust(25) + repr(result))
-    if line_below:
-        print("*" * 50)
 
 
-check_and_print("numpy", line_above=True)
+print("*" * 50)
+check_and_print("numpy")
 check_and_print("mpi4py", can_import_mpi4py)
 check_and_print("cython", can_import_cython)
 check_and_print("pythran", can_import_pythran)
-check_and_print("mako", line_below=True)
+check_and_print("mako")
+print("*" * 50)
 
 
 def modification_date(filename):
@@ -365,7 +363,7 @@ def make_command_obj_from_cpp(
     command = " ".join([conf_vars[k] for k in keys])
 
     if cpp_file.endswith(".cu"):
-        NVCC = os.environ.get("NVCC", "nvcc")
+        NVCC = os.getenv("NVCC", "nvcc")
         command = (
             NVCC + " -m64 "
             "-gencode arch=compute_30,code=sm_30 "
@@ -435,7 +433,7 @@ def make_command_ext_from_objs(
         command[0] = cxx.split()[0]
 
     if "cufft" in ext_file:
-        NVCC = os.environ.get("NVCC", "nvcc")
+        NVCC = os.getenv("NVCC", "nvcc")
         command = (NVCC + " -Xcompiler -pthread -shared").split()
 
     command += obj_files + ["-o", ext_file]
@@ -608,10 +606,10 @@ def make_pythran_extensions(modules):
             pext.extra_compile_args.extend(
                 ["-O3", "-march={}".format(compile_arch)]
             )
-            if not os.environ.get("NO_XSIMD", False):
+            if not os.getenv("FLUIDDYN_NO_XSIMD", False):
                 pext.extra_compile_args.append("-DUSE_XSIMD")
             else:
-                print("NO_XSIMD")
+                print("FLUIDDYN_NO_XSIMD")
 
             # pext.extra_compile_args.append('-fopenmp')
             # pext.extra_link_args.extend([])
