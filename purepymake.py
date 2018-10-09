@@ -610,6 +610,8 @@ def make_pythran_extensions(modules):
             )
             if not os.environ.get("NO_XSIMD", False):
                 pext.extra_compile_args.append("-DUSE_XSIMD")
+            else:
+                print("NO_XSIMD")
 
             # pext.extra_compile_args.append('-fopenmp')
             # pext.extra_link_args.extend([])
