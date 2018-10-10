@@ -104,7 +104,7 @@ if can_import_mpi4py:
                 .decode()
                 .split()
             )
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, FileNotFoundError):
             warnings.warn(
                 "Unable to find MPI compile flags."
                 "Setting mpicxx_compile_words=[]"
