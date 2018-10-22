@@ -74,3 +74,33 @@ Mean +- std dev: 10.6 ms +- 0.0 ms
 # simd 2d (explicit loops)
 Mean +- std dev: 5.54 ms +- 0.02 ms
 ```
+
+# branch fix/more-complex-vectorize
+
+### gcc 6.3
+
+```
+## default 2d (no loop)
+Mean +- std dev: 10.6 ms +- 0.0 ms
+# default 2d (explicit loops)
+Mean +- std dev: 5.41 ms +- 0.01 ms
+
+# simd 2d (no loop)
+Mean +- std dev: 5.72 ms +- 0.01 ms
+# simd 2d (explicit loops)
+Mean +- std dev: 5.46 ms +- 0.01 ms
+```
+
+### clang 6.0
+
+```
+## default 2d (no loop)
+Mean +- std dev: 5.56 ms +- 0.03 ms
+# default 2d (explicit loops)
+Mean +- std dev: 5.56 ms +- 0.02 ms
+
+# simd 2d (no loop)
+Mean +- std dev: 5.66 ms +- 0.01 ms
+# simd 2d (explicit loops)
+Mean +- std dev: 5.73 ms +- 0.04 ms
+```
