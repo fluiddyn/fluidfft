@@ -24,10 +24,3 @@ pipelines:
             script:
               - pip install -U tox --user
               - tox -vv -e py36-pythran-mpi,codecov
-        - step:
-            image: fluiddyn/python2-stable
-            caches:
-              - pip
-            script:
-              - pip install -U tox --user
-              - tox -vv -e py27-pythran-mpi,codecov
