@@ -3,8 +3,6 @@ language: python
 
 python:
   - 3.6
-  - 3.5
-  - 2.7
 
 env:
   - TOXENV=py-mpi,codecov-travis OMPI_CC=/usr/bin/gcc-6 OMPI_CXX=/usr/bin/g++-6 SITE_CFG=linux
