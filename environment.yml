@@ -15,6 +15,7 @@ dependencies:
   - psutil
   - colorlog
   - mako
+  - openmpi
   - pip:
     - fluiddyn
     - mpi4py
