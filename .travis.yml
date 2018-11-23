@@ -18,6 +18,14 @@ matrix:
         - OMPI_CXX=/usr/bin/g++-6
         - TOXENV=py-pythran-mpi,codecov-travis
         - SITE_CFG=linux
+    - python: 3.7
+      env:
+        - OMPI_CC=/usr/bin/gcc-6
+        - OMPI_CXX=/usr/bin/g++-6
+        - TOXENV=py-pythran-mpi,codecov-travis
+        - SITE_CFG=linux
+      dist: xenial     # required for Python 3.7 (travis-ci/travis-ci#9069)
+      sudo: required   # required for Python 3.7 (travis-ci/travis-ci#9069)
     - python: pypy3
       env:
         - OMPI_CC=/usr/bin/gcc-6
