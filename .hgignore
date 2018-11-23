@@ -56,7 +56,7 @@ site.cfg
 .tox/*
 
 .cache/*
-
+.mypy_cache/*
 */*_pythran.cpp
 
 bench/operator2d/*/__init__.py
