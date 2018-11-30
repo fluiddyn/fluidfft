@@ -534,6 +534,12 @@ class OperatorsPseudoSpectral2D(object):
 
     def compute_spectrum_kykx(self, energy_fft):
         """Compute a spectrum vs ky, kx. Return a dictionary."""
+        if not(energy_fft.dtype == 'float64'):
+            print('Do you really want to do spectrum_kykx with complex field?')
+            print('Perhaps you want to compute a spectrum from energy_fft :')
+            print('E_fft = oper.compute_spectrum_kykx(abs(a_complex)**2)')
+            return
+
         if not self.is_transposed:
             # Memory is not shared
             # In this case, self.dim_ky == 0 and self.dim_kx == 1
@@ -592,6 +598,11 @@ class OperatorsPseudoSpectral2D(object):
 
     def compute_spectrum_kykx_unfolded(self, energy_fft):
         """Compute a spectrum vs ky, kx. Return a dictionary."""
+        if not(energy_fft.dtype == 'float64'):
+            print('Do you really want to do spectrum_kykx with complex field?')
+            print('Perhaps you want to compute a spectrum from energy_fft :')
+            print('E_fft = oper.compute_spectrum_kykx(abs(a_complex)**2)')
+            return
         if not self.is_transposed:
             # Memory is not shared
             # In this case, self.dim_ky == 0 and self.dim_kx == 1
