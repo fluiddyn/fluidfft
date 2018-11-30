@@ -356,7 +356,6 @@ class OperatorsPseudoSpectral2D(object):
     def compute_1dspectra(self, energy_fft):
         """Compute the 1D spectra. Return a dictionary."""
         if self.is_sequential and not self.is_transposed:
-            # Memory is not shared
             # In this case, self.dim_ky == 0 and self.dim_kx == 1
             # note that only the kx >= 0 are in the spectral variables
             #
@@ -378,7 +377,6 @@ class OperatorsPseudoSpectral2D(object):
             E_ky[1 : self.nkyE2] += E_ky_tmp[self.nkyE : self.nky_seq][::-1]
             E_ky = E_ky / self.deltaky
         elif self.is_sequential and self.is_transposed:
-            # Memory is not shared
             # In this case, self.dim_ky == 1 and self.dim_kx == 0
             # note that only the kx >= 0 are in the spectral variables
             #
@@ -452,7 +450,6 @@ class OperatorsPseudoSpectral2D(object):
             E_ky = self.comm.allreduce(E_ky, op=MPI.SUM)
 
         elif not self.is_transposed:
-            # Memory is shared along ky
             # In this case, self.dim_ky == 0 and self.dim_ky == 1
             # note that only the kx>=0 are in the spectral variables
             # to obtain the spectrum as a function of kx
@@ -532,27 +529,28 @@ class OperatorsPseudoSpectral2D(object):
             spectrum2D = self.comm.allreduce(spectrum2D, op=mpi.MPI.SUM)
         return spectrum2D / deltak
 
-    def compute_spectrum_kykx(self, energy_fft):
+    def compute_spectrum_kykx(self, energy_fft, folded=True):
         """Compute a spectrum vs ky, kx. Return a dictionary."""
         if not(energy_fft.dtype == 'float64'):
-            print('Do you really want to do spectrum_kykx with complex field?')
-            print('Perhaps you want to compute a spectrum from energy_fft :')
-            print('E_fft = oper.compute_spectrum_kykx(abs(a_complex)**2)')
-            return
-
+            raise TypeError(
+                "Do you really want to do spectrum_kykx with complex field?"
+                "Perhaps you want to compute a spectrum from energy_fft :"
+                "E_fft = oper.compute_spectrum_kykx(abs(a_complex)**2)"
+            )
         if not self.is_transposed:
-            # Memory is not shared
             # In this case, self.dim_ky == 0 and self.dim_kx == 1
             # note : only the kx >= 0 and ky>=0 are in the spectral variables
             E_kykxtmp = 2. * energy_fft / (self.deltakx * self.deltaky)
         else:
-            # Memory is not shared
             # In this case, self.dim_ky == 1 and self.dim_kx == 0
             # note : only the kx >= 0 are in the spectral variables
             E_kykxtmp = (
                 2. * np.transpose(energy_fft) / (self.deltakx * self.deltaky)
             )
-        # print(self.seq_indices_first_K)
+        if folded:
+            nkyE = self.nkyE
+        else:
+            nkyE = self.ny_seq
         if self.is_sequential:
             #
             # computation of E_kykx
@@ -560,11 +558,13 @@ class OperatorsPseudoSpectral2D(object):
 
             if self.nx_seq % 2 == 0 and self.shapeK_seq[self.dim_kx] == self.nkxE:
                 E_kykxtmp[:, -1] = E_kykxtmp[:, -1] / 2
-            E_kykx = np.zeros([self.nkyE, self.nkxE])
-            E_kykx[: self.nkyE, : self.nkxE] = E_kykxtmp[: self.nkyE, : self.nkxE]
-            E_kykx[1 : self.nkyE2, :] += E_kykxtmp[self.nkyE : self.nky_seq, :][
-                ::-1
-            ]
+            E_kykx = np.zeros([nkyE, self.nkxE])
+            E_kykx[: nkyE, : self.nkxE] = E_kykxtmp[: nkyE, : self.nkxE]
+            if folded:
+                E_kykx[1 : self.nkyE2, :] += E_kykxtmp[self.nkyE : self.nky_seq, :][
+                    ::-1
+                ]
+
         elif self.is_transposed:
             # computation of E_kykx
             E_kykx_loc = E_kykxtmp
@@ -579,75 +579,17 @@ class OperatorsPseudoSpectral2D(object):
             ):
                 E_kykx_loc[:, -1] = E_kykx_loc[:, -1] / 2
 
-            E_kykx = np.zeros([self.nkyE, self.nkxE])
+            E_kykx = np.zeros([nkyE, self.nkxE])
             nkx_start = self.seq_indices_first_K[0]
             E_kykx[:, nkx_start : self.nkx_loc + nkx_start] = E_kykx_loc[
-                : self.nkyE, : self.nkx_loc
+                : nkyE, : self.nkx_loc
             ]
+            if folded:
+                E_kykx[ 
+                    1 : self.nkyE2, nkx_start : self.nkx_loc + nkx_start
+                ] += E_kykx_loc[nkyE : self.nky_seq, : self.nkx_loc][::-1]
 
-            E_kykx[
-                1 : self.nkyE2, nkx_start : self.nkx_loc + nkx_start
-            ] += E_kykx_loc[self.nkyE : self.nky_seq, : self.nkx_loc][::-1]
-            E_kykx = self.comm.allreduce(E_kykx, op=MPI.SUM)
 
-        elif not self.is_transposed:
-
-            raise NotImplementedError
-
-        return E_kykx
-
-    def compute_spectrum_kykx_unfolded(self, energy_fft):
-        """Compute a spectrum vs ky, kx. Return a dictionary."""
-        if not(energy_fft.dtype == 'float64'):
-            print('Do you really want to do spectrum_kykx with complex field?')
-            print('Perhaps you want to compute a spectrum from energy_fft :')
-            print('E_fft = oper.compute_spectrum_kykx(abs(a_complex)**2)')
-            return
-        if not self.is_transposed:
-            # Memory is not shared
-            # In this case, self.dim_ky == 0 and self.dim_kx == 1
-            # note : only the kx >= 0 and ky>=0 are in the spectral variables
-            E_kykxtmp = 2. * energy_fft / (self.deltakx * self.deltaky)
-        else:
-            # Memory is not shared
-            # In this case, self.dim_ky == 1 and self.dim_kx == 0
-            # note : only the kx >= 0 are in the spectral variables
-            E_kykxtmp = (
-                2. * np.transpose(energy_fft) / (self.deltakx * self.deltaky)
-            )
-        # print(self.seq_indices_first_K)
-        if self.is_sequential:
-            #
-            # computation of E_kykx
-            E_kykxtmp[:, 0] = E_kykxtmp[:, 0] / 2
-
-            if self.nx_seq % 2 == 0 and self.shapeK_seq[self.dim_kx] == self.nkxE:
-                E_kykxtmp[:, -1] = E_kykxtmp[:, -1] / 2
-            E_kykx = np.zeros([self.ny_seq, self.nkxE])
-            E_kykx[: self.ny_seq, : self.nkxE] = E_kykxtmp[: self.ny_seq, : self.nkxE]
-        elif self.is_transposed:
-            # computation of E_kykx
-            E_kykx_loc = E_kykxtmp
-
-            if self.rank == 0:
-                E_kykx_loc[:, 0] = E_kykx_loc[:, 0] / 2
-
-            if (
-                self.rank == self.nb_proc - 1
-                and self.nx_seq % 2 == 0
-                and self.shapeK_seq[0] == self.nkxE
-            ):
-                E_kykx_loc[:, -1] = E_kykx_loc[:, -1] / 2
-
-            E_kykx = np.zeros([self.ny_seq, self.nkxE])
-            nkx_start = self.seq_indices_first_K[0]
-            E_kykx[:, nkx_start : self.nkx_loc + nkx_start] = E_kykx_loc[
-                : self.ny_seq, : self.nkx_loc
-            ]
-
-#            E_kykx[
-#                1 : self.nkyE2, nkx_start : self.nkx_loc + nkx_start
-#            ] += E_kykx_loc[self.nkyE : self.nky_seq, : self.nkx_loc][::-1]
             E_kykx = self.comm.allreduce(E_kykx, op=MPI.SUM)
 
         elif not self.is_transposed:
@@ -748,27 +690,3 @@ class OperatorsPseudoSpectral2D(object):
         return _rescale_random(values, min_val, max_val)
 
 
-# if __name__ == '__main__':
-#     self = OperatorsPseudoSpectral2D(5, 3, 2*pi, 1*pi)
-
-#     a = np.random.random(self.opfft.get_local_size_X()).reshape(
-#         self.opfft.get_shapeX_loc())
-#     afft = self.fft(a)
-#     a = self.ifft(afft)
-#     afft = self.fft(a)
-
-#     print('energy spatial C:', self.compute_energy_from_X(a))
-#     print('energy fft      :', self.compute_energy_from_K(afft))
-
-#     print('energy spatial P:', (a**2).mean()/2)
-
-#     energy_fft = 0.5 * abs(afft)**2
-
-#     E_kx, E_ky = self.compute_1dspectra(energy_fft)
-
-#     print('energy E_kx     ;', E_kx.sum()*self.deltakx)
-#     print('energy E_ky     :', E_ky.sum()*self.deltaky)
-
-#     E_kh = self.compute_2dspectrum(energy_fft)
-
-#     print('energy E_kh     :', E_kh.sum()*self.deltak)

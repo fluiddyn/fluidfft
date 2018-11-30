@@ -126,7 +126,7 @@ def make_testop_functions(name, cls):
 
             try:
                 E_ky_kx = op.compute_spectrum_kykx(energy_fft)
-                E_ky_kx_uf = op.compute_spectrum_kykx_unfolded(energy_fft)
+                E_ky_kx_uf = op.compute_spectrum_kykx(energy_fft, folded=False)
             except NotImplementedError:
                 pass
             else:
