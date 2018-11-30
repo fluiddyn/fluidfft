@@ -590,6 +590,61 @@ class OperatorsPseudoSpectral2D(object):
 
         return E_kykx
 
+    def compute_spectrum_kykx_unfolded(self, energy_fft):
+        """Compute a spectrum vs ky, kx. Return a dictionary."""
+        if not self.is_transposed:
+            # Memory is not shared
+            # In this case, self.dim_ky == 0 and self.dim_kx == 1
+            # note : only the kx >= 0 and ky>=0 are in the spectral variables
+            E_kykxtmp = 2. * energy_fft / (self.deltakx * self.deltaky)
+        else:
+            # Memory is not shared
+            # In this case, self.dim_ky == 1 and self.dim_kx == 0
+            # note : only the kx >= 0 are in the spectral variables
+            E_kykxtmp = (
+                2. * np.transpose(energy_fft) / (self.deltakx * self.deltaky)
+            )
+        # print(self.seq_indices_first_K)
+        if self.is_sequential:
+            #
+            # computation of E_kykx
+            E_kykxtmp[:, 0] = E_kykxtmp[:, 0] / 2
+
+            if self.nx_seq % 2 == 0 and self.shapeK_seq[self.dim_kx] == self.nkxE:
+                E_kykxtmp[:, -1] = E_kykxtmp[:, -1] / 2
+            E_kykx = np.zeros([self.ny_seq, self.nkxE])
+            E_kykx[: self.ny_seq, : self.nkxE] = E_kykxtmp[: self.ny_seq, : self.nkxE]
+        elif self.is_transposed:
+            # computation of E_kykx
+            E_kykx_loc = E_kykxtmp
+
+            if self.rank == 0:
+                E_kykx_loc[:, 0] = E_kykx_loc[:, 0] / 2
+
+            if (
+                self.rank == self.nb_proc - 1
+                and self.nx_seq % 2 == 0
+                and self.shapeK_seq[0] == self.nkxE
+            ):
+                E_kykx_loc[:, -1] = E_kykx_loc[:, -1] / 2
+
+            E_kykx = np.zeros([self.ny_seq, self.nkxE])
+            nkx_start = self.seq_indices_first_K[0]
+            E_kykx[:, nkx_start : self.nkx_loc + nkx_start] = E_kykx_loc[
+                : self.ny_seq, : self.nkx_loc
+            ]
+
+#            E_kykx[
+#                1 : self.nkyE2, nkx_start : self.nkx_loc + nkx_start
+#            ] += E_kykx_loc[self.nkyE : self.nky_seq, : self.nkx_loc][::-1]
+            E_kykx = self.comm.allreduce(E_kykx, op=MPI.SUM)
+
+        elif not self.is_transposed:
+
+            raise NotImplementedError
+
+        return E_kykx
+
     def projection_perp(self, fx_fft, fy_fft):
         """Project (inplace) a vector perpendicular to the wavevector.
 

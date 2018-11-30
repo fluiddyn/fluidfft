@@ -126,11 +126,15 @@ def make_testop_functions(name, cls):
 
             try:
                 E_ky_kx = op.compute_spectrum_kykx(energy_fft)
+                E_ky_kx_uf = op.compute_spectrum_kykx_unfolded(energy_fft)
             except NotImplementedError:
                 pass
             else:
                 self.assertAlmostEqual(
                     E_ky_kx.sum() * op.deltakx * op.deltaky, nrja
+                )
+                self.assertAlmostEqual(
+                    E_ky_kx_uf.sum() * op.deltakx * op.deltaky, nrja
                 )
 
             nrj_sw = op.sum_wavenumbers(energy_fft)
