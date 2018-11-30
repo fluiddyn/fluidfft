@@ -531,7 +531,7 @@ class OperatorsPseudoSpectral2D(object):
 
     def compute_spectrum_kykx(self, energy_fft, folded=True):
         """Compute a spectrum vs ky, kx. Return a dictionary."""
-        if not(energy_fft.dtype == 'float64'):
+        if not np.issubdtype(energy_fft.dtype, np.floating):
             raise TypeError(
                 "Do you really want to do spectrum_kykx with complex field?"
                 "Perhaps you want to compute a spectrum from energy_fft :"
