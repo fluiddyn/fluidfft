@@ -530,7 +530,20 @@ class OperatorsPseudoSpectral2D(object):
         return spectrum2D / deltak
 
     def compute_spectrum_kykx(self, energy_fft, folded=True):
-        """Compute a spectrum vs ky, kx. Return a dictionary."""
+        """Compute a spectrum vs ky, kx. Return a dictionary.
+
+        Parameters
+        ----------
+        energy_fft : ndarray[float]
+
+            A real valued 2D array representing the energy content in each
+            wavenumber.
+
+        folded : bool
+
+            Computes a spectra with the (+ky, +kx) and (-ky, +kx) quadrants folded, when ``True``.
+
+        """
         if not np.issubdtype(energy_fft.dtype, np.floating):
             raise TypeError(
                 "Do you really want to do spectrum_kykx with complex field?"
