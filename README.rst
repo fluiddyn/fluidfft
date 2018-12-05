@@ -60,7 +60,7 @@ provided you have the optional FFT libaries, that you need, installed and
 discoverable in your path (see environment variables ``LIBRARY_PATH``,
 ``LD_LIBRARY_PATH``, ``CPATH``) it should be sufficient to run::
 
-  pip install fluiddyn fluidpythran mako cython [--user]
+  pip install fluiddyn mako cython [--user]
   pip install fluidfft [--user]
 
 Add ``--user`` flag if you are installing without setting up a virtual
