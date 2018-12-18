@@ -114,7 +114,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode', 'sphinx.ext.autosummary',
     'numpydoc',
-    'fluiddoc.mathmacro',
+    # 'fluiddoc.mathmacro',
     # 'breathe'
 ]
 
