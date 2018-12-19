@@ -15,12 +15,12 @@ pipelines:
               - pip
             script:
               - cp site.cfg.default site.cfg
-              - pip install -U tox --user
+              - pip install -U tox "fluidpythran>=0.1.7" --user
               - tox -vv -e py36,codecov
         - step:
             image: fluiddyn/python3-stable
             caches:
               - pip
             script:
-              - pip install -U tox --user
+              - pip install -U tox "fluidpythran>=0.1.7" --user
               - tox -vv -e py36-pythran-mpi,codecov
