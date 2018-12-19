@@ -1,6 +1,4 @@
 
-from __future__ import print_function, division
-
 from fluiddyn.util import mpi
 
 from fluidfft.fft2d import get_classes_seq, get_classes_mpi

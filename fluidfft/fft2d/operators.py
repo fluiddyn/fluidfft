@@ -23,9 +23,12 @@ from fluidfft.util import _rescale_random
 Ac = "complex128[][]"
 Af = "float64[][]"
 
-
-if mpi.nb_proc > 1:
-    MPI = mpi.MPI
+try:
+    if mpi.nb_proc > 1:
+        MPI = mpi.MPI
+except TypeError:
+    # for FluidPythran transpilation
+    pass
 
 
 def _make_str_length(length):

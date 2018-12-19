@@ -4,8 +4,6 @@
 
 """
 
-from __future__ import print_function, division
-
 import os
 import json
 import socket
@@ -99,7 +97,7 @@ def bench_like_cpp_return(obj, nb_exec=20):
 
 
 def pourc(t_slow, t_fast):
-    return 100. * (t_slow - t_fast) / t_fast
+    return 100.0 * (t_slow - t_fast) / t_fast
 
 
 def compare_benchs(o, nb_exec=20):

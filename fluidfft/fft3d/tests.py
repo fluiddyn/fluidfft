@@ -1,6 +1,3 @@
-
-from __future__ import print_function, division
-
 import unittest
 import traceback
 
@@ -123,8 +120,8 @@ def make_testop_functions(name, cls):
             op.produce_long_str_describing_oper()
             op.create_arrayX(value=None, shape="loc")
             op.create_arrayX(value=None, shape="seq")
-            op.create_arrayX(value=0.)
-            op.create_arrayK(value=1.)
+            op.create_arrayX(value=0.0)
+            op.create_arrayK(value=1.0)
             op.create_arrayX_random(max_val=2)
             op.create_arrayK_random(min_val=-1, max_val=1, shape="seq")
 

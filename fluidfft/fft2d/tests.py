@@ -1,6 +1,3 @@
-
-from __future__ import print_function, division
-
 import unittest
 from math import pi
 import traceback
@@ -49,7 +46,7 @@ def make_test_function(cls):
         EX = o.compute_energy_from_X(a)
         EK = o.compute_energy_from_K(afft)
 
-        self.assertTrue(EX != 0.)
+        self.assertTrue(EX != 0.0)
         self.assertAlmostEqual(EX, EK)
 
         k0, k1 = o.get_k_adim_loc()
@@ -71,9 +68,9 @@ def make_testop_functions(name, cls):
     for key, (n0, n1) in shapes.items():
 
         def test(self, n0=n0, n1=n1):
-            op = OperatorsPseudoSpectral2D(n0, n1, 3 * pi, 1., fft=cls)
-            op.create_arrayX(value=1., shape="seq")
-            op.create_arrayK(value=1., shape="seq")
+            op = OperatorsPseudoSpectral2D(n0, n1, 3 * pi, 1.0, fft=cls)
+            op.create_arrayX(value=1.0, shape="seq")
+            op.create_arrayK(value=1.0, shape="seq")
 
             a = op.create_arrayX_random(max_val=2)
             a0 = a.copy()
@@ -103,7 +100,7 @@ def make_testop_functions(name, cls):
             nrjafft = op.compute_energy_from_K(afft)
             self.assertAlmostEqual(nrja, nrjafft)
 
-            nrja_mean_global = op.mean_global(0.5 * a**2)
+            nrja_mean_global = op.mean_global(0.5 * a ** 2)
             self.assertAlmostEqual(nrja, nrja_mean_global)
 
             # print('energy', nrja)

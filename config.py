@@ -2,7 +2,6 @@
 site.cfg.default to site.cfg and modify this file.
 
 """
-from __future__ import print_function
 import os
 import sys
 

@@ -75,10 +75,6 @@ def loop_spectra3d(spectrum_k0k1k2: Af, ks: "float[]", K2: Af):
     return spectrum3d
 
 
-if mpi.nb_proc > 1:
-    MPI = mpi.MPI
-
-
 def get_simple_3d_seq_method():
     try:
         import pyfftw

@@ -28,8 +28,6 @@ fft objects:
 
 """
 
-from __future__ import print_function
-
 from importlib import import_module as _import_module
 
 from fluiddyn.util.mpi import printby0
