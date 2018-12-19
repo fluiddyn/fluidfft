@@ -92,7 +92,7 @@ install:
       else
         pip install -U pip setuptools wheel six colorlog
         pip install -U pipenv tox-pipenv coverage fluiddevops
-        pip install -U numpy cython mako mpi4py  # To be removed when pip==10 is out and this step can be bootstrapped
+        pip install -U numpy cython mako mpi4py "fluidpythran>=0.1.7"  # To be removed when pip==10 is out and this step can be bootstrapped
       fi
 
 before_script:

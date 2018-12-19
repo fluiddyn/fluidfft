@@ -6,36 +6,77 @@
    :undoc-members:
 
 """
-from __future__ import print_function
 
 from math import pi
 
-from past.builtins import basestring
-
 import numpy as np
 
+from fluidpythran import boost, Array, Type
 from fluiddyn.util import mpi
 
 from fluidfft import create_fft_object, empty_aligned
 from fluidfft.util import _rescale_random
 from fluidfft.fft2d.operators import _make_str_length
 
-from .util_pythran import (
-    project_perpk3d,
-    divfft_from_vecfft,
-    rotfft_from_vecfft,
-    rotfft_from_vecfft_outin,
-    vector_product,
-    loop_spectra3d,
-)
+# pythran import numpy as np
 
-# from .dream_pythran import _vgradv_from_v2
+Ac = "complex128[:,:,:]"
+Af = "float64[:,:,:]"
+A = Array[Type(np.float64, np.complex128), "3d"]
+
+
+@boost
+def vector_product(ax: Af, ay: Af, az: Af, bx: Af, by: Af, bz: Af):
+    """Compute the vector product.
+
+    Warning: the arrays bx, by, bz are overwritten.
+
+    """
+    n0, n1, n2 = ax.shape
+
+    for i0 in range(n0):
+        for i1 in range(n1):
+            for i2 in range(n2):
+                elem_ax = ax[i0, i1, i2]
+                elem_ay = ay[i0, i1, i2]
+                elem_az = az[i0, i1, i2]
+                elem_bx = bx[i0, i1, i2]
+                elem_by = by[i0, i1, i2]
+                elem_bz = bz[i0, i1, i2]
+
+                bx[i0, i1, i2] = elem_ay * elem_bz - elem_az * elem_by
+                by[i0, i1, i2] = elem_az * elem_bx - elem_ax * elem_bz
+                bz[i0, i1, i2] = elem_ax * elem_by - elem_ay * elem_bx
+
+    return bx, by, bz
+
+
+@boost
+def loop_spectra3d(spectrum_k0k1k2: Af, ks: "float[]", K2: Af):
+    """Compute the 3d spectrum."""
+    deltak = ks[1]
+    nk = len(ks)
+    spectrum3d = np.zeros(nk)
+    nk0, nk1, nk2 = spectrum_k0k1k2.shape
+    for ik0 in range(nk0):
+        for ik1 in range(nk1):
+            for ik2 in range(nk2):
+                value = spectrum_k0k1k2[ik0, ik1, ik2]
+                kappa = np.sqrt(K2[ik0, ik1, ik2])
+                ik = int(kappa / deltak)
+                if ik >= nk - 1:
+                    ik = nk - 1
+                    spectrum3d[ik] += value
+                else:
+                    coef_share = (kappa - ks[ik]) / deltak
+                    spectrum3d[ik] += (1 - coef_share) * value
+                    spectrum3d[ik + 1] += coef_share * value
+
+    return spectrum3d
+
 
 if mpi.nb_proc > 1:
     MPI = mpi.MPI
-
-
-__all__ = ["vector_product", "OperatorsPseudoSpectral3D"]
 
 
 def get_simple_3d_seq_method():
@@ -58,7 +99,8 @@ def get_simple_3d_mpi_method():
     return fft
 
 
-class OperatorsPseudoSpectral3D(object):
+@boost
+class OperatorsPseudoSpectral3D:
     """Perform 2D FFT and operations on data.
 
     Parameters
@@ -98,7 +140,12 @@ class OperatorsPseudoSpectral3D(object):
 
     """
 
-    def __init__(self, nx, ny, nz, lx, ly, lz, fft=None, coef_dealiasing=1.):
+    Kx: Af
+    Ky: Af
+    Kz: Af
+    inv_K_square_nozero: Af
+
+    def __init__(self, nx, ny, nz, lx, ly, lz, fft=None, coef_dealiasing=1.0):
         self.nx = self.nx_seq = nx
         self.ny = self.ny_seq = ny
         self.nz = self.nz_seq = nz
@@ -109,7 +156,7 @@ class OperatorsPseudoSpectral3D(object):
             else:
                 fft = get_simple_3d_mpi_method()
 
-        if isinstance(fft, basestring):
+        if isinstance(fft, str):
             if fft.lower() == "sequential":
                 fft = get_simple_3d_seq_method()
             elif fft.lower() == "fftwpy":
@@ -240,7 +287,7 @@ class OperatorsPseudoSpectral3D(object):
         if all(index == 0 for index in self.seq_indices_first_K):
             K_square_nozero[0, 0, 0] = 1e-14
 
-        self.inv_K_square_nozero = 1. / K_square_nozero
+        self.inv_K_square_nozero = 1.0 / K_square_nozero
 
         self.coef_dealiasing = coef_dealiasing
 
@@ -421,52 +468,50 @@ class OperatorsPseudoSpectral3D(object):
 
         return field_fft
 
-    def project_perpk3d(self, vx_fft, vy_fft, vz_fft):
+    @boost
+    def project_perpk3d(self, vx_fft: A, vy_fft: A, vz_fft: A):
         """Project (inplace) a vector perpendicular to the wavevector.
 
         The resulting vector is divergence-free.
 
         """
-        project_perpk3d(
-            vx_fft,
-            vy_fft,
-            vz_fft,
-            self.Kx,
-            self.Ky,
-            self.Kz,
-            self.inv_K_square_nozero,
+        tmp = (
+            self.Kx * vx_fft + self.Ky * vy_fft + self.Kz * vz_fft
+        ) * self.inv_K_square_nozero
+
+        vx_fft -= self.Kx * tmp
+        vy_fft -= self.Ky * tmp
+        vz_fft -= self.Kz * tmp
+
+    @boost
+    def divfft_from_vecfft(self, vx_fft: Ac, vy_fft: Ac, vz_fft: Ac):
+        """Return the divergence of a vector in spectral space."""
+        return 1j * (self.Kx * vx_fft + self.Ky * vy_fft + self.Kz * vz_fft)
+
+    @boost
+    def rotfft_from_vecfft(self, vx_fft: Ac, vy_fft: Ac, vz_fft: Ac):
+        """Return the curl of a vector in spectral space."""
+
+        return (
+            1j * (self.Ky * vz_fft - self.Kz * vy_fft),
+            1j * (self.Kz * vx_fft - self.Kx * vz_fft),
+            1j * (self.Kx * vy_fft - self.Ky * vx_fft),
         )
 
-    def divfft_from_vecfft(self, vx_fft, vy_fft, vz_fft):
-        """Return the divergence of a vector in spectral space."""
-        # float64[][][]
-        Kx = self.Kx
-        Ky = self.Ky
-        Kz = self.Kz
-
-        return divfft_from_vecfft(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz)
-
-    def rotfft_from_vecfft(self, vx_fft, vy_fft, vz_fft):
-        """Return the curl of a vector in spectral space."""
-        # float64[][][]
-        Kx = self.Kx
-        Ky = self.Ky
-        Kz = self.Kz
-
-        return rotfft_from_vecfft(vx_fft, vy_fft, vz_fft, Kx, Ky, Kz)
-
+    @boost
     def rotfft_from_vecfft_outin(
-        self, vx_fft, vy_fft, vz_fft, rotxfft, rotyfft, rotzfft
+        self,
+        vx_fft: Ac,
+        vy_fft: Ac,
+        vz_fft: Ac,
+        rotxfft: Ac,
+        rotyfft: Ac,
+        rotzfft: Ac,
     ):
         """Return the curl of a vector in spectral space."""
-        # float64[][][]
-        Kx = self.Kx
-        Ky = self.Ky
-        Kz = self.Kz
-
-        rotfft_from_vecfft_outin(
-            vx_fft, vy_fft, vz_fft, Kx, Ky, Kz, rotxfft, rotyfft, rotzfft
-        )
+        rotxfft[:] = 1j * (self.Ky * vz_fft - self.Kz * vy_fft)
+        rotyfft[:] = 1j * (self.Kz * vx_fft - self.Kx * vz_fft)
+        rotzfft[:] = 1j * (self.Kx * vy_fft - self.Ky * vx_fft)
 
     def div_vb_fft_from_vb(self, vx, vy, vz, b):
         r"""Compute :math:`\nabla \cdot (\boldsymbol{v} b)` in spectral space.
@@ -478,11 +523,10 @@ class OperatorsPseudoSpectral3D(object):
         vybfft = fft3d(vy * b)
         vzbfft = fft3d(vz * b)
 
-        return divfft_from_vecfft(
-            vxbfft, vybfft, vzbfft, self.Kx, self.Ky, self.Kz
-        )
+        return self.divfft_from_vecfft(vxbfft, vybfft, vzbfft)
 
-    def rotzfft_from_vxvyfft(self, vx_fft, vy_fft):
+    @boost
+    def rotzfft_from_vxvyfft(self, vx_fft: Ac, vy_fft: Ac):
         """Compute the z component of the curl in spectral space."""
         return 1j * (self.Kx * vy_fft - self.Ky * vx_fft)
 

@@ -6,30 +6,23 @@
    :undoc-members:
 
 """
-from __future__ import print_function
-
-from builtins import range
 
 from math import pi
 import warnings
 
-from past.builtins import basestring
-
 import numpy as np
 
+from fluidpythran import boost
 from fluiddyn.util import mpi
 
 from fluidfft import create_fft_object, empty_aligned
 from fluidfft.util import _rescale_random
 
-from .util_pythran import (
-    dealiasing_variable,
-    vecfft_from_rotfft,
-    vecfft_from_divfft,
-    gradfft_from_fft,
-    divfft_from_vecfft,
-    rotfft_from_vecfft,
-)
+# pythran import numpy as np
+
+Ac = "complex128[][]"
+Af = "float64[][]"
+
 
 if mpi.nb_proc > 1:
     MPI = mpi.MPI
@@ -66,6 +59,7 @@ def get_simple_2d_mpi_method():
     return fft
 
 
+@boost
 class OperatorsPseudoSpectral2D(object):
     """Perform 2D FFT and operations on data.
 
@@ -98,7 +92,16 @@ class OperatorsPseudoSpectral2D(object):
 
     """
 
-    def __init__(self, nx, ny, lx, ly, fft=None, coef_dealiasing=1.):
+    KX: Af
+    KY: Af
+    KX_over_K2: Af
+    KY_over_K2: Af
+    _has_to_dealiase: bool
+    where_dealiased: "uint8[][]"
+    nK0_loc: int
+    nK1_loc: int
+
+    def __init__(self, nx, ny, lx, ly, fft=None, coef_dealiasing=1.0):
 
         self.nx_seq = self.nx = nx = int(nx)
         self.ny_seq = self.ny = ny = int(ny)
@@ -111,7 +114,7 @@ class OperatorsPseudoSpectral2D(object):
             else:
                 fft = get_simple_2d_mpi_method()
 
-        if isinstance(fft, basestring):
+        if isinstance(fft, str):
             if fft.lower() == "sequential":
                 fft = get_simple_2d_seq_method()
             if any([fft.startswith(s) for s in ["fluidfft.", "fft2d."]]):
@@ -244,9 +247,9 @@ class OperatorsPseudoSpectral2D(object):
             self.scatter_Xspace = self.opfft.scatter_Xspace
 
         if mpi.rank == 0 or self.is_sequential:
-            self.K_not0[0, 0] = 10.e-10
-            self.K2_not0[0, 0] = 10.e-10
-            self.K4_not0[0, 0] = 10.e-10
+            self.K_not0[0, 0] = 10.0e-10
+            self.K2_not0[0, 0] = 10.0e-10
+            self.K4_not0[0, 0] = 10.0e-10
 
         self.KX_over_K2 = self.KX / self.K2_not0
         self.KY_over_K2 = self.KY / self.K2_not0
@@ -362,7 +365,7 @@ class OperatorsPseudoSpectral2D(object):
             # computation of E_kx
             # we sum over all ky
             # the 2 is here because there are only the kx >= 0
-            E_kx = 2. * energy_fft.sum(self.dim_ky) / self.deltakx
+            E_kx = 2.0 * energy_fft.sum(self.dim_ky) / self.deltakx
             E_kx[0] = E_kx[0] / 2
             if self.nx_seq % 2 == 0:
                 E_kx[-1] = E_kx[-1] / 2
@@ -383,7 +386,7 @@ class OperatorsPseudoSpectral2D(object):
             # computation of E_kx
             # we sum over all ky
             # the 2 is here because there are only the kx >= 0
-            E_kx = 2. * energy_fft.sum(self.dim_ky) / self.deltakx
+            E_kx = 2.0 * energy_fft.sum(self.dim_ky) / self.deltakx
             E_kx[0] = E_kx[0] / 2
             if self.nx_seq % 2 == 0 and self.shapeK_seq[0] == self.nkxE:
                 E_kx[-1] = E_kx[-1] / 2
@@ -405,7 +408,7 @@ class OperatorsPseudoSpectral2D(object):
             # computation of E_kx
             # we sum over all ky
             # the 2 is here because there are only the kx >= 0
-            E_kx_loc = 2. * energy_fft.sum(self.dim_ky) / self.deltakx
+            E_kx_loc = 2.0 * energy_fft.sum(self.dim_ky) / self.deltakx
             if self.rank == 0:
                 E_kx_loc[0] = E_kx_loc[0] / 2
 
@@ -553,12 +556,12 @@ class OperatorsPseudoSpectral2D(object):
         if not self.is_transposed:
             # In this case, self.dim_ky == 0 and self.dim_kx == 1
             # note : only the kx >= 0 and ky>=0 are in the spectral variables
-            E_kykxtmp = 2. * energy_fft / (self.deltakx * self.deltaky)
+            E_kykxtmp = 2.0 * energy_fft / (self.deltakx * self.deltaky)
         else:
             # In this case, self.dim_ky == 1 and self.dim_kx == 0
             # note : only the kx >= 0 are in the spectral variables
             E_kykxtmp = (
-                2. * np.transpose(energy_fft) / (self.deltakx * self.deltaky)
+                2.0 * np.transpose(energy_fft) / (self.deltakx * self.deltaky)
             )
         if folded:
             nkyE = self.nkyE
@@ -572,11 +575,11 @@ class OperatorsPseudoSpectral2D(object):
             if self.nx_seq % 2 == 0 and self.shapeK_seq[self.dim_kx] == self.nkxE:
                 E_kykxtmp[:, -1] = E_kykxtmp[:, -1] / 2
             E_kykx = np.zeros([nkyE, self.nkxE])
-            E_kykx[: nkyE, : self.nkxE] = E_kykxtmp[: nkyE, : self.nkxE]
+            E_kykx[:nkyE, : self.nkxE] = E_kykxtmp[:nkyE, : self.nkxE]
             if folded:
-                E_kykx[1 : self.nkyE2, :] += E_kykxtmp[self.nkyE : self.nky_seq, :][
-                    ::-1
-                ]
+                E_kykx[1 : self.nkyE2, :] += E_kykxtmp[
+                    self.nkyE : self.nky_seq, :
+                ][::-1]
 
         elif self.is_transposed:
             # computation of E_kykx
@@ -595,13 +598,12 @@ class OperatorsPseudoSpectral2D(object):
             E_kykx = np.zeros([nkyE, self.nkxE])
             nkx_start = self.seq_indices_first_K[0]
             E_kykx[:, nkx_start : self.nkx_loc + nkx_start] = E_kykx_loc[
-                : nkyE, : self.nkx_loc
+                :nkyE, : self.nkx_loc
             ]
             if folded:
-                E_kykx[ 
+                E_kykx[
                     1 : self.nkyE2, nkx_start : self.nkx_loc + nkx_start
                 ] += E_kykx_loc[nkyE : self.nky_seq, : self.nkx_loc][::-1]
-
 
             E_kykx = self.comm.allreduce(E_kykx, op=MPI.SUM)
 
@@ -625,34 +627,47 @@ class OperatorsPseudoSpectral2D(object):
         fy_fft[:] = b
         return a, b
 
-    def rotfft_from_vecfft(self, vecx_fft, vecy_fft):
+    @boost
+    def rotfft_from_vecfft(self, vecx_fft: Ac, vecy_fft: Ac):
         """Return the rotational of a vector in spectral space."""
-        return rotfft_from_vecfft(vecx_fft, vecy_fft, self.KX, self.KY)
+        return 1j * (self.KX * vecy_fft - self.KY * vecx_fft)
 
-    def divfft_from_vecfft(self, vecx_fft, vecy_fft):
+    @boost
+    def divfft_from_vecfft(self, vecx_fft: Ac, vecy_fft: Ac):
         """Return the divergence of a vector in spectral space."""
-        return divfft_from_vecfft(vecx_fft, vecy_fft, self.KX, self.KY)
+        return 1j * (self.KX * vecx_fft + self.KY * vecy_fft)
 
-    def vecfft_from_rotfft(self, rot_fft):
+    @boost
+    def vecfft_from_rotfft(self, rot_fft: Ac):
         """Return the velocity in spectral space computed from the
         rotational."""
-        return vecfft_from_rotfft(rot_fft, self.KX_over_K2, self.KY_over_K2)
+        ux_fft = 1j * self.KY_over_K2 * rot_fft
+        uy_fft = -1j * self.KX_over_K2 * rot_fft
+        return ux_fft, uy_fft
 
-    def vecfft_from_divfft(self, div_fft):
+    @boost
+    def vecfft_from_divfft(self, div_fft: Ac):
         """Return the velocity in spectral space computed from the
         divergence."""
-        return vecfft_from_divfft(div_fft, self.KX_over_K2, self.KY_over_K2)
+        ux_fft = -1j * self.KX_over_K2 * div_fft
+        uy_fft = -1j * self.KY_over_K2 * div_fft
+        return ux_fft, uy_fft
 
-    def gradfft_from_fft(self, f_fft):
+    @boost
+    def gradfft_from_fft(self, f_fft: Ac):
         """Return the gradient of f_fft in spectral space."""
-        return gradfft_from_fft(f_fft, self.KX, self.KY)
+        px_f_fft = 1j * self.KX * f_fft
+        py_f_fft = 1j * self.KY * f_fft
+        return px_f_fft, py_f_fft
 
-    def dealiasing_variable(self, f_fft):
+    @boost
+    def dealiasing_variable(self, f_fft: Ac):
         """Dealiasing a variable."""
         if self._has_to_dealiase:
-            dealiasing_variable(
-                f_fft, self.where_dealiased, self.nK0_loc, self.nK1_loc
-            )
+            for iK0 in range(self.nK0_loc):
+                for iK1 in range(self.nK1_loc):
+                    if self.where_dealiased[iK0, iK1]:
+                        f_fft[iK0, iK1] = 0.0
 
     def _get_shapeX(self, shape="loc"):
         if shape.lower() == "loc":
@@ -701,5 +716,3 @@ class OperatorsPseudoSpectral2D(object):
         shape = self._get_shapeK(shape)
         values = np.random.random(shape) + 1j * np.random.random(shape)
         return _rescale_random(values, min_val, max_val)
-
-

@@ -58,6 +58,7 @@ site.cfg
 .cache/*
 .mypy_cache/*
 */*_pythran.cpp
+**/__pythran__/*
 
 bench/operator2d/*/__init__.py
 bench/operator2d/util.py

@@ -1,7 +1,6 @@
-from __future__ import print_function
-
 import os
 from runpy import run_path
+from pathlib import Path
 
 from warnings import warn
 from setuptools import setup, find_packages
@@ -49,6 +48,15 @@ try:
     #       implementation.
 except KeyError:
     use_mkl_intel = False
+
+
+from fluidpythran.dist import make_pythran_files
+
+here = Path(__file__).parent.absolute()
+paths = ["fluidfft/fft2d/operators.py", "fluidfft/fft3d/operators.py"]
+make_pythran_files(
+    [here / path for path in paths], mocked_modules=("fluiddyn.util",)
+)
 
 make_pyx_files()
 
@@ -242,11 +250,15 @@ ext_modules = make_extensions(
     lib_dirs_dict=lib_dirs_dict,
 )
 
-ext_modules.extend(
-    make_pythran_extensions(
-        ["fluidfft.fft2d.util_pythran", "fluidfft.fft3d.util_pythran"]
-    )
-)
+ext_names = []
+for root, dirs, files in os.walk("fluidfft"):
+    path_dir = Path(root)
+    for name in files:
+        if path_dir.name == "__pythran__" and name.endswith(".py"):
+            path = os.path.join(root, name)
+            ext_names.append(path.replace(os.path.sep, ".").split(".py")[0])
+
+ext_modules.extend(make_pythran_extensions(ext_names))
 
 # from purepymake import can_import_cython
 # if can_import_cython:
