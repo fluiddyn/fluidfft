@@ -55,7 +55,8 @@ from fluidpythran.dist import make_pythran_files
 here = Path(__file__).parent.absolute()
 paths = ["fluidfft/fft2d/operators.py", "fluidfft/fft3d/operators.py"]
 make_pythran_files(
-    [here / path for path in paths], mocked_modules=("fluiddyn.util",)
+    [here / path for path in paths],
+    mocked_modules=("fluiddyn.util", "fluiddyn.util.mpi"),
 )
 
 make_pyx_files()
