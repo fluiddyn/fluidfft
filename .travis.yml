@@ -16,6 +16,8 @@ matrix:
         - OMPI_CXX=/usr/bin/g++-6
         - TOXENV=py-pythran-mpi,codecov-travis
         - SITE_CFG=linux
+      dist: xenial
+      sudo: required
     - python: 3.7
       env:
         - OMPI_CC=/usr/bin/gcc-6
@@ -30,6 +32,8 @@ matrix:
         - OMPI_CXX=/usr/bin/g++-6
         - TOXENV=pypy3
         - SITE_CFG=linux_pypy3
+      dist: xenial
+      sudo: required
     - os: osx
       osx_image: xcode8.3
       env: TOXENV=py PY=3 SITE_CFG=osx
