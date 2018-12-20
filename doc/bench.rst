@@ -56,7 +56,7 @@ ifft, three functions are used and compared (see the legends):
   Python. No array is provided to the function to contain the result so a numpy
   array is created and then returned by the function.
 
-The fastest methods are fftw1d (which is limited to 96 cores) and p3dfft.
+The fastest methods are fftw1d (which is limited to 192 cores) and p3dfft.
 
 The benchmark is not sufficiently accurate to measure the cost of calling the
 functions from Python (difference between continuous and dashed lines,
@@ -72,7 +72,7 @@ i.e. between the "as_arg" and the "return" Python methods).
    (1152x1152x1152) on Occigen.
 
 For this resolution, the fftw1d is also the fastest method when using only few
-cores and it can not be used for more that 192 cores. The faster library when
+cores and it can not be used for more that 576 cores. The faster library when
 using more cores is also p3dfft.
 
 Benchmarks on Beskow

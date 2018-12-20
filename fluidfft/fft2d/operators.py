@@ -20,8 +20,8 @@ from fluidfft.util import _rescale_random
 
 # pythran import numpy as np
 
-Ac = "complex128[][]"
-Af = "float64[][]"
+Ac = "complex128[:,:]"
+Af = "float64[:,:]"
 
 try:
     if mpi.nb_proc > 1:
