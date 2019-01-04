@@ -701,7 +701,7 @@ class OperatorsPseudoSpectral2D(object):
         return field
 
     def create_arrayK(self, value=None, shape="loc"):
-        """Return a constant array in real space."""
+        """Return a constant array in spectral space."""
         shapeK = self._get_shapeK(shape)
         field = empty_aligned(shapeK, dtype=np.complex128)
         if value is not None:
