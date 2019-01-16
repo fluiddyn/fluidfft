@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 from setuptools.dist import Distribution
 
 # Bootstrapping dependencies required for the setup
-setup_requires = ["numpy", "cython", "mako"]
+setup_requires = []
 on_tox = os.getenv("TOXENV")
 if on_tox is not None:
     setup_requires.append("mpi4py")
@@ -261,11 +261,6 @@ for root, dirs, files in os.walk("fluidfft"):
 
 ext_modules.extend(make_pythran_extensions(ext_names))
 
-# from purepymake import can_import_cython
-# if can_import_cython:
-#     from Cython.Build import cythonize
-#     ext_modules.extend(cythonize('./fluidfft/fft3d/dream_cythran.pyx'))
-
 
 setup(
     name="fluidfft",
@@ -302,7 +297,7 @@ setup(
     packages=find_packages(
         exclude=["doc", "include", "scripts", "src_cpp", "src_cy"]
     ),
-    install_requires=["fluiddyn >= 0.2.3"],
+    install_requires=["fluiddyn >= 0.2.3", "fluidpythran >= 0.1.7"],
     cmdclass={"build_ext": fluidfft_build_ext},
     ext_modules=ext_modules,
     entry_points={

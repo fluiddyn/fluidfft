@@ -4,9 +4,9 @@
 # Minimum requirements for the build system to execute.
 requires = [
     "setuptools", "wheel",
-    "numpy", "Cython",
+    "numpy", "cython",
     # Will only work when Mako supplies wheels / pip supports
     # installation from source
     # "Mako",
-    "Jinja2", "fluidpythran>=0.1.7"
+    "jinja2", "fluidpythran>=0.1.7"
 ]

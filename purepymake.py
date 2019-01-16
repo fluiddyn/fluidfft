@@ -147,6 +147,7 @@ check_and_print("mpi4py", can_import_mpi4py)
 check_and_print("cython", can_import_cython)
 check_and_print("pythran", can_import_pythran)
 check_and_print("mako")
+check_and_print("jinja2")
 print("*" * 50)
 
 
