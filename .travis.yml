@@ -88,15 +88,16 @@ install:
       if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         # All dependencies inside tox.ini - since tox does not officially
         # allow conda install
-        conda install -q -y virtualenv numpy cython mako mpi4py coverage \
+        conda install -q -y virtualenv numpy cython mako mpi4py \
             matplotlib pyfftw psutil pandas fftw openmpi
-        pip install -U tox-pipenv fluiddevops
-        pip install -e "hg+https://bitbucket.org/fluiddyn/fluiddyn#egg=fluiddyn"
       else
-        pip install -U pip setuptools wheel six colorlog
-        pip install -U pipenv tox-pipenv coverage fluiddevops
+        pip install -U pip colorlog
+        pip install -U numpy cython mako # To be removed when tox support pyproject.toml
         pip install -U mpi4py
       fi
+      pip install -U fluidpythran  # To be removed when tox support pyproject.toml
+      pip install -U pipenv tox==3.6 tox-pipenv coverage fluiddevops
+      pip install -e "hg+https://bitbucket.org/fluiddyn/fluiddyn#egg=fluiddyn"
 
 before_script:
     - |
