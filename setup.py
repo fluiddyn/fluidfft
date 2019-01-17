@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 from setuptools.dist import Distribution
 
 # Bootstrapping dependencies required for the setup
-setup_requires = []
+setup_requires = ["numpy", "cython", "jinja2", "fluidpythran"]
 on_tox = os.getenv("TOXENV")
 if on_tox is not None:
     setup_requires.append("mpi4py")

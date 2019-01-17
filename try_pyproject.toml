@@ -1,5 +1,8 @@
 # Refer: PEP 508, 517, 518 specifications.
-# Requires pip>=10
+
+# With PEP 517, the build is isolated and we cannot specify optional build
+# dependencies. Thus we cannot use pyproject.toml
+
 [build-system]
 # Minimum requirements for the build system to execute.
 requires = [
@@ -7,6 +10,6 @@ requires = [
     "numpy", "cython",
     # Will only work when Mako supplies wheels / pip supports
     # installation from source
-    # "Mako",
+    # "mako",
     "jinja2", "fluidpythran>=0.1.7"
 ]
