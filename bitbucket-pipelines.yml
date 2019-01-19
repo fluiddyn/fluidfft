@@ -15,12 +15,12 @@ pipelines:
               - pip
             script:
               - cp site.cfg.default site.cfg
-              - pip install -U tox numpy cython mako fluidpythran --user
+              - pip install -U tox numpy cython mako transonic --user
               - tox -vv -e py36,codecov
         - step:
             image: fluiddyn/python3-stable
             caches:
               - pip
             script:
-              - pip install -U tox numpy cython mako fluidpythran mpi4py --user
+              - pip install -U tox numpy cython mako transonic mpi4py --user
               - tox -vv -e py36-pythran-mpi,codecov

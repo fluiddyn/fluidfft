@@ -11,14 +11,14 @@ from math import pi
 
 import numpy as np
 
-from fluidpythran import boost, Array, Type
+from transonic import boost, Array, Type
 from fluiddyn.util import mpi
 
 from fluidfft import create_fft_object, empty_aligned
 from fluidfft.util import _rescale_random
 from fluidfft.fft2d.operators import _make_str_length
 
-# pythran import numpy as np
+# transonic import numpy as np
 
 Ac = "complex128[:,:,:]"
 Af = "float64[:,:,:]"

@@ -14,8 +14,10 @@ for kk, vv in info.items():
 
 setup = (
 'import numpy as np',
-'from fluidfft.fft2d.util_pythran import divfft_from_vecfft',
+'from fluidfft.fft2d.operators import OperatorsPseudoSpectral2D'
 'shape = (1024,)*2',
+'oper = OperatorsPseudoSpectral2D(*shape, 1, 1)'
+'divfft_from_vecfft = oper.divfft_from_vecfft',
 'a_fft = np.ones(shape, dtype=np.complex128)',
 'b_fft = np.ones(shape, dtype=np.complex128)',
 'kx = np.ones(shape, dtype=np.float64)',
@@ -29,4 +31,3 @@ nb_iter = 2000
 t = timeit.Timer(cmd, setup=setup)
 print('divfft_from_vecfft: {} sec / iteration for {} iterations'.format(
     t.timeit(nb_iter) / nb_iter, nb_iter))
-

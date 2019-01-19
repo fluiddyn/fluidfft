@@ -12,13 +12,13 @@ import warnings
 
 import numpy as np
 
-from fluidpythran import boost
+from transonic import boost
 from fluiddyn.util import mpi
 
 from fluidfft import create_fft_object, empty_aligned
 from fluidfft.util import _rescale_random
 
-# pythran import numpy as np
+# transonic import numpy as np
 
 Ac = "complex128[:,:]"
 Af = "float64[:,:]"
@@ -27,7 +27,7 @@ try:
     if mpi.nb_proc > 1:
         MPI = mpi.MPI
 except TypeError:
-    # for FluidPythran transpilation
+    # for Transonic transpilation
     pass
 
 

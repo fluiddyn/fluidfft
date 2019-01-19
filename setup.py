@@ -1,4 +1,5 @@
 import os
+import sys
 from runpy import run_path
 from pathlib import Path
 
@@ -7,7 +8,7 @@ from setuptools import setup, find_packages
 from setuptools.dist import Distribution
 
 # Bootstrapping dependencies required for the setup
-setup_requires = ["numpy", "cython", "jinja2", "fluidpythran"]
+setup_requires = ["numpy", "cython", "jinja2", "transonic"]
 on_tox = os.getenv("TOXENV")
 if on_tox is not None:
     setup_requires.append("mpi4py")
@@ -49,17 +50,18 @@ try:
 except KeyError:
     use_mkl_intel = False
 
+if "egg_info" not in sys.argv:
 
-from fluidpythran.dist import make_pythran_files
+    from transonic.dist import make_backend_files
 
-here = Path(__file__).parent.absolute()
-paths = ["fluidfft/fft2d/operators.py", "fluidfft/fft3d/operators.py"]
-make_pythran_files(
-    [here / path for path in paths],
-    mocked_modules=("fluiddyn.util", "fluiddyn.util.mpi"),
-)
+    here = Path(__file__).parent.absolute()
+    paths = ["fluidfft/fft2d/operators.py", "fluidfft/fft3d/operators.py"]
+    make_backend_files(
+        [here / path for path in paths],
+        mocked_modules=("fluiddyn.util", "fluiddyn.util.mpi"),
+    )
 
-make_pyx_files()
+    make_pyx_files()
 
 config, lib_flags_dict, lib_dirs_dict = parse_config()
 
@@ -297,7 +299,7 @@ setup(
     packages=find_packages(
         exclude=["doc", "include", "scripts", "src_cpp", "src_cy"]
     ),
-    install_requires=["fluiddyn >= 0.2.3", "fluidpythran >= 0.1.7"],
+    install_requires=["fluiddyn >= 0.2.3", "transonic >= 0.1.7"],
     cmdclass={"build_ext": fluidfft_build_ext},
     ext_modules=ext_modules,
     entry_points={
