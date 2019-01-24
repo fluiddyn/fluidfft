@@ -586,7 +586,7 @@ def make_pythran_extensions(modules):
         print("Pythran extensions will not be built: ", modules)
         return []
 
-    develop = sys.argv[-1] == "develop"
+    develop = "develop" in sys.argv
     extensions = []
     for mod in modules:
         base_file = mod.replace(".", os.path.sep)

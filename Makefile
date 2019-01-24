@@ -2,13 +2,10 @@
 .PHONY: clean cleanall cleanmako cleancython develop build_ext_inplace
 
 develop:
-	python setup.py develop
+	pip install -v -e .[dev] | grep -v link
 
 develop_pip:
 	pip install -v -e .
-
-build_ext_inplace:
-	python setup.py build_ext --inplace
 
 clean:
 	rm -rf build

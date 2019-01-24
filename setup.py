@@ -5,7 +5,6 @@ from pathlib import Path
 
 from warnings import warn
 from setuptools import setup, find_packages
-from setuptools.dist import Distribution
 
 # Bootstrapping dependencies required for the setup
 setup_requires = ["numpy", "cython", "jinja2", "transonic"]
@@ -15,7 +14,41 @@ if on_tox is not None:
     if "pythran" in on_tox:
         setup_requires.append("pythran")
 
-Distribution(dict(setup_requires=setup_requires))
+# Get the long description from the relevant file
+with open("README.rst") as f:
+    long_description = f.read()
+lines = long_description.splitlines(True)
+for i, line in enumerate(lines):
+    if line.endswith(":alt: Code coverage\n"):
+        iline_coverage = i
+        break
+
+long_description = "".join(lines[iline_coverage + 2 :])
+
+# Get the version from the relevant file
+d = run_path("fluidfft/_version.py")
+__version__ = d["__version__"]
+
+packages = find_packages(
+    exclude=["doc", "include", "scripts", "src_cpp", "src_cy"]
+)
+entry_points = {
+    "console_scripts": [
+        "fluidfft-bench = fluidfft.bench:run",
+        "fluidfft-bench-analysis = fluidfft.bench_analysis:run",
+    ]
+}
+
+if "egg_info" in sys.argv:
+    setup(
+        version=__version__,
+        long_description=long_description,
+        packages=packages,
+        entry_points=entry_points,
+    )
+
+    sys.exit()
+
 
 import numpy as np
 from numpy.__config__ import get_info
@@ -50,18 +83,17 @@ try:
 except KeyError:
     use_mkl_intel = False
 
-if "egg_info" not in sys.argv:
 
-    from transonic.dist import make_backend_files
+from transonic.dist import make_backend_files
 
-    here = Path(__file__).parent.absolute()
-    paths = ["fluidfft/fft2d/operators.py", "fluidfft/fft3d/operators.py"]
-    make_backend_files(
-        [here / path for path in paths],
-        mocked_modules=("fluiddyn.util", "fluiddyn.util.mpi"),
-    )
+here = Path(__file__).parent.absolute()
+paths = ["fluidfft/fft2d/operators.py", "fluidfft/fft3d/operators.py"]
+make_backend_files(
+    [here / path for path in paths],
+    mocked_modules=("fluiddyn.util", "fluiddyn.util.mpi"),
+)
 
-    make_pyx_files()
+make_pyx_files()
 
 config, lib_flags_dict, lib_dirs_dict = parse_config()
 
@@ -69,21 +101,6 @@ config, lib_flags_dict, lib_dirs_dict = parse_config()
 if "environ" in config:
     os.environ.update(config["environ"])
 
-
-# Get the long description from the relevant file
-with open("README.rst") as f:
-    long_description = f.read()
-lines = long_description.splitlines(True)
-for i, line in enumerate(lines):
-    if line.endswith(":alt: Code coverage\n"):
-        iline_coverage = i
-        break
-
-long_description = "".join(lines[iline_coverage + 2 :])
-
-# Get the version from the relevant file
-d = run_path("fluidfft/_version.py")
-__version__ = d["__version__"]
 
 # make a python module from cython files
 run_path("src_cy/create_fake_mod_for_doc.py")
@@ -263,49 +280,12 @@ for root, dirs, files in os.walk("fluidfft"):
 
 ext_modules.extend(make_pythran_extensions(ext_names))
 
-
 setup(
-    name="fluidfft",
     version=__version__,
-    description=("Efficient and easy Fast Fourier Transform (FFT) for Python."),
     long_description=long_description,
-    keywords="Fast Fourier Transform, FFT, spectral code",
-    author="Pierre Augier",
-    author_email="pierre.augier@legi.cnrs.fr",
-    url="https://bitbucket.org/fluiddyn/fluidfft",
-    license="CeCILL",
-    classifiers=[
-        # How mature is this project? Common values are
-        # 3 - Alpha
-        # 4 - Beta
-        # 5 - Production/Stable
-        "Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Science/Research",
-        "Intended Audience :: Education",
-        "Topic :: Scientific/Engineering",
-        "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
-        # actually CeCILL License (GPL compatible license for French laws)
-        #
-        # Specify the Python versions you support here. In particular,
-        # ensure that you indicate whether you support Python 2,
-        # Python 3 or both.
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Cython",
-        "Programming Language :: C",
-    ],
-    python_requires=">=3.6",
-    packages=find_packages(
-        exclude=["doc", "include", "scripts", "src_cpp", "src_cy"]
-    ),
-    install_requires=["fluiddyn >= 0.2.3", "transonic >= 0.1.7"],
+    packages=packages,
     cmdclass={"build_ext": fluidfft_build_ext},
     ext_modules=ext_modules,
-    entry_points={
-        "console_scripts": [
-            "fluidfft-bench = fluidfft.bench:run",
-            "fluidfft-bench-analysis = fluidfft.bench_analysis:run",
-        ]
-    },
+    entry_points=entry_points,
+    setup_requires=setup_requires,
 )
