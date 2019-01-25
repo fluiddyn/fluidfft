@@ -4,12 +4,11 @@ from runpy import run_path
 from pathlib import Path
 from warnings import warn
 
-from distutils.ccompiler import CCompiler
 from distutils import sysconfig as dsysconfig
 
 from setuptools.command.build_ext import build_ext
 
-from purepymake import make_extensions, make_pythran_extensions, num_procs
+from setup_make import make_extensions, make_pythran_extensions, num_procs
 
 
 config_vars = dsysconfig.get_config_vars()
@@ -25,8 +24,8 @@ try:
 except ImportError:
     can_import_pythran = False
 
-    class PythranExtension:
-        """A false PythranExtension"""
+    PythranBuildExt = object
+    PythranExtension = object
 
 
 DEBUG = os.getenv("FLUIDDYN_DEBUG", False)
@@ -180,11 +179,8 @@ def base_names_from_config(config):
     return base_names
 
 
-class FluidFFTBuildExt(build_ext):
-    def run(self):
-
-        # parallel build
-        CCompiler.compile = compile
+class FluidFFTBuildExt(build_ext, PythranBuildExt):
+    def fluid_make_ext_modules(self):
 
         # make a python module from cython files
         run_path("src_cy/create_fake_mod_for_doc.py")
@@ -269,28 +265,32 @@ class FluidFFTBuildExt(build_ext):
             lib_dirs_dict=lib_dirs_dict,
         )
 
-        ext_names = []
-        for root, dirs, files in os.walk("fluidfft"):
-            path_dir = Path(root)
-            for name in files:
-                if path_dir.name == "__pythran__" and name.endswith(".py"):
-                    path = os.path.join(root, name)
-                    ext_names.append(
-                        path.replace(os.path.sep, ".").split(".py")[0]
-                    )
+        ext_modules.extend(make_pythran_extensions())
 
-        ext_modules.extend(make_pythran_extensions(ext_names))
+        return ext_modules
 
-        self.extensions = []
-        self.ext_modules = ext_modules
+    def finalize_options(self):
 
-        super().run()
+        # todo: it is not the right place to compile.
+        # However, we need to modify self.distribution.ext_modules here.
+        # We would have to split this process in
+        # 1. create Extension
+        # 2. preprocess them (compile and change the source files)
+
+        # 1. should be here and 2. should be in the run method of this class.
+
+        if not hasattr(self, "fluid_ext_modules"):
+            self.distribution.ext_modules = (
+                self.fluid_ext_modules
+            ) = self.fluid_make_ext_modules()
+
+        super().finalize_options()
 
     def build_extension(self, ext):
         if isinstance(ext, PythranExtension):
-            PythranBuildExt.build_extension(self, ext)
+            return PythranBuildExt.build_extension(self, ext)
         else:
-            build_ext.build_extension(self, ext)
+            return build_ext.build_extension(self, ext)
 
     def build_extensions(self):
         # monkey-patch as in distutils.command.build_ext (parallel)
@@ -305,12 +305,6 @@ class FluidFFTBuildExt(build_ext):
             if key not in to_be_removed
             and all([not key.startswith(s) for s in starts_forbiden])
         ]
-
-        for ext in self.extensions:
-            try:
-                ext.sources = self.cython_sources(ext.sources, ext)
-            except AttributeError:
-                pass
 
         pool = Pool(num_procs)
         pool.map(self.build_extension, self.extensions)

@@ -535,7 +535,16 @@ def make_extensions(
     return extensions_out
 
 
-def make_pythran_extensions(modules):
+def make_pythran_extensions():
+
+    modules = []
+    for root, dirs, files in os.walk("fluidfft"):
+        path_dir = Path(root)
+        for name in files:
+            if path_dir.name == "__pythran__" and name.endswith(".py"):
+                path = os.path.join(root, name)
+                modules.append(path.replace(os.path.sep, ".").split(".py")[0])
+
     import numpy as np
 
     if not can_import_pythran:
@@ -573,30 +582,3 @@ def make_pythran_extensions(modules):
             # pext.extra_link_args.extend([])
             extensions.append(pext)
     return extensions
-
-
-def compile(
-    self,
-    sources,
-    output_dir=None,
-    macros=None,
-    include_dirs=None,
-    debug=0,
-    extra_preargs=None,
-    extra_postargs=None,
-    depends=None,
-):
-    macros, objects, extra_postargs, pp_opts, build = self._setup_compile(
-        output_dir, macros, include_dirs, sources, depends, extra_postargs
-    )
-    cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
-
-    for obj in objects:
-        try:
-            src, ext = build[obj]
-        except KeyError:
-            continue
-        self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
-
-    # Return *all* object filenames, not just the ones we just built.
-    return objects
