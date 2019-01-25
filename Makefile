@@ -4,9 +4,6 @@
 develop:
 	pip install -v -e .[dev] | grep -v link
 
-develop_pip:
-	pip install -v -e .
-
 clean:
 	rm -rf build
 
@@ -14,7 +11,7 @@ cleanso:
 	find fluidfft -name "*.so" -delete
 
 cleanpythran:
-	find fluidfft -name "*pythran*.so" -delete
+	find fluidfft -name __pythran__ -type d -exec rm -rf "{}" +
 
 cleancython:
 	find fluidfft -name "*_cy.cpp" -delete

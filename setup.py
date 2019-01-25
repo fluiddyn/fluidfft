@@ -1,10 +1,18 @@
 import os
-import sys
 from runpy import run_path
 from pathlib import Path
 
-from warnings import warn
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Extension
+
+here = Path(__file__).parent.absolute()
+
+try:
+    from setup_build import FluidFFTBuildExt
+except ImportError:
+    # fix a bug... Useful when there is already a module with the same name
+    # imported.
+    FluidFFTBuildExt = run_path(here / "setup_build.py")["FluidFFTBuildExt"]
+
 
 # Bootstrapping dependencies required for the setup
 setup_requires = ["numpy", "cython", "jinja2", "transonic"]
@@ -29,9 +37,6 @@ long_description = "".join(lines[iline_coverage + 2 :])
 d = run_path("fluidfft/_version.py")
 __version__ = d["__version__"]
 
-packages = find_packages(
-    exclude=["doc", "include", "scripts", "src_cpp", "src_cy"]
-)
 entry_points = {
     "console_scripts": [
         "fluidfft-bench = fluidfft.bench:run",
@@ -39,253 +44,16 @@ entry_points = {
     ]
 }
 
-if "egg_info" in sys.argv:
-    setup(
-        version=__version__,
-        long_description=long_description,
-        packages=packages,
-        entry_points=entry_points,
-    )
-
-    sys.exit()
-
-
-import numpy as np
-from numpy.__config__ import get_info
-
-from src_cy.make_files_with_mako import make_pyx_files
-from purepymake import (
-    Extension,
-    make_extensions,
-    monkeypatch_parallel_build,
-    make_pythran_extensions,
-    fluidfft_build_ext,
-)
-
-try:
-    from config import parse_config
-except ImportError:
-    # solve a bug... Useful when there is already a module config imported...
-    here = os.path.abspath(os.path.dirname(__file__))
-    d = run_path(os.path.join(here, "config.py"))
-    parse_config = d["parse_config"]
-
-
-monkeypatch_parallel_build()
-
-try:
-    blas_libs = get_info("blas_opt")["libraries"]
-    use_mkl_intel = "mkl_intel_lp64" in blas_libs or "mkl_rt" in blas_libs
-    # Note: No symbol clash occurs if 'mkl_rt' appears in numpy libraries
-    #       instead.
-    # P.S.: If 'mkl_rt' is detected, use FFTW libraries, not Intel's MKL/FFTW
-    #       implementation.
-except KeyError:
-    use_mkl_intel = False
-
-
-from transonic.dist import make_backend_files
-
-here = Path(__file__).parent.absolute()
-paths = ["fluidfft/fft2d/operators.py", "fluidfft/fft3d/operators.py"]
-make_backend_files(
-    [here / path for path in paths],
-    mocked_modules=("fluiddyn.util", "fluiddyn.util.mpi"),
-)
-
-make_pyx_files()
-
-config, lib_flags_dict, lib_dirs_dict = parse_config()
-
-# handle environ (variables) in config
-if "environ" in config:
-    os.environ.update(config["environ"])
-
-
-# make a python module from cython files
-run_path("src_cy/create_fake_mod_for_doc.py")
-
-src_cpp_dir = "src_cpp"
-src_cy_dir = "src_cy"
-src_cy_dir2d = "fluidfft/fft2d"
-src_cy_dir3d = "fluidfft/fft3d"
-src_base = "src_cpp/base"
-src_cpp_3d = "src_cpp/3d"
-src_cpp_2d = "src_cpp/2d"
-
-
-def create_ext(base_name):
-
-    if base_name.startswith("fft2d"):
-        dim = "2d"
-        src_cy_dir_dim = src_cy_dir2d
-    elif base_name.startswith("fft3d"):
-        dim = "3d"
-        src_cy_dir_dim = src_cy_dir3d
-    else:
-        raise ValueError()
-
-    src_cpp_dim = os.path.join(src_cpp_dir, dim)
-
-    source_ends = [".pyx"]
-    if base_name.endswith("cufft"):
-        source_ends.append(".cu")
-    else:
-        source_ends.append(".cpp")
-
-    source_files = [base_name + end for end in source_ends]
-
-    base_name = base_name[len("fft2d") :]
-    if base_name.startswith("_"):
-        base_name = base_name[1:]
-
-    sources = []
-    for name_file in source_files:
-        if name_file.endswith(".pyx"):
-            path = os.path.join(src_cy_dir_dim, name_file)
-        else:
-            path = os.path.join(src_cpp_dim, name_file)
-        sources.append(path)
-
-    sources.extend(
-        [
-            os.path.join(src_base, "base_fft.cpp"),
-            os.path.join(src_cpp_dim, "base_fft" + dim + ".cpp"),
-        ]
-    )
-    if base_name.startswith("mpi"):
-        sources.extend(
-            [
-                os.path.join(src_base, "base_fftmpi.cpp"),
-                os.path.join(src_cpp_dim, "base_fft" + dim + "mpi.cpp"),
-            ]
-        )
-
-    libraries = ["fftw3"]
-
-    if "fftwmpi" in base_name:
-        libraries.append("fftw3_mpi")
-    elif "pfft" in base_name:
-        libraries.extend(["fftw3_mpi", "pfft"])
-    elif "p3dfft" in base_name:
-        libraries.append("p3dfft")
-    elif "cufft" in base_name:
-        libraries.extend(["cufft", "mpi_cxx"])
-
-    return Extension(
-        name="fluidfft.fft" + dim + "." + base_name,
-        sources=sources,
-        libraries=libraries,
-    )
-
-
-base_names = []
-if config["fftw3"]["use"]:
-    base_names.extend(
-        [
-            "fft2d_with_fftw1d",
-            "fft2d_with_fftw2d",
-            "fft2dmpi_with_fftw1d",
-            "fft3d_with_fftw3d",
-            "fft3dmpi_with_fftw1d",
-        ]
-    )
-
-if config["fftw3_mpi"]["use"]:
-    if use_mkl_intel:
-        warn(
-            "When numpy uses mkl (as for example with conda), "
-            "there are symbol conflicts between mkl and fftw. "
-            "This can lead to a segmentation fault "
-            "so we do not build the extensions using fftwmpi."
-        )
-    else:
-        base_names.extend(["fft2dmpi_with_fftwmpi2d", "fft3dmpi_with_fftwmpi3d"])
-
-if config["cufft"]["use"]:
-    base_names.extend(["fft2d_with_cufft"])
-    base_names.extend(["fft3d_with_cufft"])
-
-if config["pfft"]["use"] and not use_mkl_intel:
-    base_names.extend(["fft3dmpi_with_pfft"])
-
-if config["p3dfft"]["use"]:
-    base_names.extend(["fft3dmpi_with_p3dfft"])
-
-
-ext_modules = []
-
-include_dirs = [
-    src_cy_dir,
-    src_cy_dir2d,
-    src_cy_dir3d,
-    src_base,
-    src_cpp_3d,
-    src_cpp_2d,
-    "include",
-    np.get_include(),
-]
-
-try:
-    import mpi4py
-except ImportError:
-    warn("ImportError for mpi4py: " "all extensions based on mpi won't be built.")
-    base_names = [name for name in base_names if "mpi" not in name]
-else:
-    if mpi4py.__version__[0] < "2":
-        raise ValueError("Please upgrade to mpi4py >= 2.0")
-    include_dirs.append(mpi4py.get_include())
-
-
-def update_with_config(key):
-    cfg = config[key]
-    if len(cfg["dir"]) > 0:
-        path = os.path.join(cfg["dir"], "include")
-        if path not in include_dirs:
-            include_dirs.append(path)
-    if len(cfg["include_dir"]) > 0:
-        path = cfg["include_dir"]
-        if path not in include_dirs:
-            include_dirs.append(path)
-
-
-if config["fftw3"]["use"]:
-    update_with_config("fftw3")
-
-keys = ["pfft", "p3dfft", "cufft"]
-
-
-for base_name in base_names:
-    ext_modules.append(create_ext(base_name))
-    if "fftwmpi" in base_name:
-        update_with_config("fftw3_mpi")
-    for key in keys:
-        if key in base_name:
-            update_with_config(key)
-
-ext_modules = make_extensions(
-    ext_modules,
-    include_dirs=include_dirs,
-    lib_flags_dict=lib_flags_dict,
-    lib_dirs_dict=lib_dirs_dict,
-)
-
-ext_names = []
-for root, dirs, files in os.walk("fluidfft"):
-    path_dir = Path(root)
-    for name in files:
-        if path_dir.name == "__pythran__" and name.endswith(".py"):
-            path = os.path.join(root, name)
-            ext_names.append(path.replace(os.path.sep, ".").split(".py")[0])
-
-ext_modules.extend(make_pythran_extensions(ext_names))
 
 setup(
     version=__version__,
     long_description=long_description,
-    packages=packages,
-    cmdclass={"build_ext": fluidfft_build_ext},
-    ext_modules=ext_modules,
+    packages=find_packages(
+        exclude=["doc", "include", "scripts", "src_cpp", "src_cy"]
+    ),
     entry_points=entry_points,
     setup_requires=setup_requires,
+    # To trick build into running build_ext (taken from h5py)
+    ext_modules=[Extension("trick.x", ["trick.c"])],
+    cmdclass={"build_ext": FluidFFTBuildExt},
 )
