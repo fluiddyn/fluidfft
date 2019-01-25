@@ -4,10 +4,14 @@
 """
 # import inspect as _inspect
 
-import numpy as np
-
 # we need this try because this file is executed during the build when we don't
 # have fluiddyn
+
+try:
+    import numpy as np
+except ImportError:
+    pass
+
 try:
     from fluidfft import byte_align
 except ImportError:

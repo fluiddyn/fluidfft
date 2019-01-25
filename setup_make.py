@@ -40,51 +40,24 @@ import subprocess
 from copy import copy
 import multiprocessing
 import warnings
+from pathlib import Path
 
-from distutils.ccompiler import CCompiler
-from setuptools.command.build_ext import build_ext
 from setuptools import Extension as SetuptoolsExtension
 
-import numpy as np
 
 DEBUG = os.getenv("FLUIDDYN_DEBUG", False)
 
 config_vars = dsysconfig.get_config_vars()
 
-_here = os.path.abspath(os.path.dirname(__file__))
-_d = run_path(os.path.join(_here, "fluidfft", "util.py"))
+here = Path(__file__).parent.absolute()
+
+_d = run_path(here / "fluidfft" / "util.py")
 can_import = _d["can_import"]
 
-can_import_cython = can_import("cython")
+
 can_import_pythran = can_import("pythran")
 can_import_mpi4py = can_import("mpi4py", "2.0.0")
 
-if can_import_cython:
-    from Cython.Compiler.Main import (
-        CompilationOptions,
-        default_options as cython_default_options,
-        compile_single as cython_compile,
-    )
-
-if can_import_pythran:
-    # pythran 0.8.6
-    from pythran.dist import PythranExtension
-
-    try:
-        # pythran > 0.8.6
-        from pythran.dist import PythranBuildExt
-
-        class fluidfft_build_ext(build_ext, PythranBuildExt):
-            def build_extension(self, ext):
-                if isinstance(ext, PythranExtension):
-                    PythranBuildExt.build_extension(self, ext)
-                else:
-                    build_ext.build_extension(self, ext)
-
-    except ImportError:
-        fluidfft_build_ext = build_ext
-else:
-    fluidfft_build_ext = build_ext
 
 if can_import_mpi4py:
     mpicxx_compile_words = []
@@ -109,15 +82,8 @@ if can_import_mpi4py:
                 "Setting mpicxx_compile_words=[]"
             )
 
-try:
-    from concurrent.futures import ThreadPoolExecutor as Pool
 
-    PARALLEL_COMPILE = True
-except ImportError:
-    #  pip install futures  # to use concurrent.futures Python 2.7 backport
-    from multiprocessing.pool import ThreadPool as Pool
-
-    PARALLEL_COMPILE = True
+PARALLEL_COMPILE = True
 
 if DEBUG:
     PARALLEL_COMPILE = False
@@ -142,12 +108,8 @@ def check_and_print(pkg="", result=None):
 
 
 print("*" * 50)
-check_and_print("numpy")
 check_and_print("mpi4py", can_import_mpi4py)
-check_and_print("cython", can_import_cython)
 check_and_print("pythran", can_import_pythran)
-check_and_print("mako")
-check_and_print("jinja2")
 print("*" * 50)
 
 
@@ -174,17 +136,6 @@ class CompilationError(Exception):
 
     def __str__(self):
         return super(CompilationError, self).__str__() + self.message
-
-
-class Extension(object):
-    def __init__(self, name, sources=None, libraries=None, language=None):
-        self.name = name
-        self.sources = sources
-        self.libraries = libraries
-        self.language = language
-
-    def __repr__(self):
-        return "purepymake.Extension<{}>".format(self.name)
 
 
 def has_to_build(output_file, input_files):
@@ -312,11 +263,14 @@ def make_function_cpp_from_pyx(
     if not has_to_build(cpp_file, (pyx_file,)):
         return
 
-    if not can_import_cython:
-        raise ImportError("Can not import Cython.")
+    from Cython.Compiler.Main import (
+        compile_single,
+        default_options,
+        CompilationOptions,
+    )
 
     options = CompilationOptions(
-        cython_default_options,
+        default_options,
         include_path=include_dirs,
         output_file=cpp_file,
         cplus=True,
@@ -326,7 +280,7 @@ def make_function_cpp_from_pyx(
 
     # return (func, args, kwargs)
     return (
-        cython_compile,
+        compile_single,
         (pyx_file,),
         {"options": options, "full_module_name": full_module_name},
     )
@@ -489,7 +443,7 @@ def make_extensions(
     files["o"] = []
 
     # Enable linetrace for Cython extensions while using tox
-    if can_import_cython and os.getenv("TOXENV") is not None:
+    if os.getenv("TOXENV") is not None:
         warnings.warn(
             "Enabling linetrace for coverage tests. Extensions can be really "
             "slow. Recompile for practical use."
@@ -581,10 +535,23 @@ def make_extensions(
     return extensions_out
 
 
-def make_pythran_extensions(modules):
+def make_pythran_extensions():
+
+    modules = []
+    for root, dirs, files in os.walk("fluidfft"):
+        path_dir = Path(root)
+        for name in files:
+            if path_dir.name == "__pythran__" and name.endswith(".py"):
+                path = os.path.join(root, name)
+                modules.append(path.replace(os.path.sep, ".").split(".py")[0])
+
+    import numpy as np
+
     if not can_import_pythran:
         print("Pythran extensions will not be built: ", modules)
         return []
+
+    from pythran.dist import PythranExtension
 
     develop = "develop" in sys.argv
     extensions = []
@@ -615,65 +582,3 @@ def make_pythran_extensions(modules):
             # pext.extra_link_args.extend([])
             extensions.append(pext)
     return extensions
-
-
-def build_extensions(self):
-    # monkey-patch as in distutils.command.build_ext (parallel)
-    self.check_extensions_list(self.extensions)
-
-    to_be_removed = ["-Wstrict-prototypes"]
-    starts_forbiden = ["-axMIC_", "-diag-disable:"]
-
-    self.compiler.compiler_so = [
-        key
-        for key in self.compiler.compiler_so
-        if key not in to_be_removed
-        and all([not key.startswith(s) for s in starts_forbiden])
-    ]
-
-    for ext in self.extensions:
-        try:
-            ext.sources = self.cython_sources(ext.sources, ext)
-        except AttributeError:
-            pass
-
-    pool = Pool(num_procs)
-    pool.map(self.build_extension, self.extensions)
-    try:
-        pool.shutdown()
-    except AttributeError:
-        pool.close()
-        pool.join()
-
-
-def compile(
-    self,
-    sources,
-    output_dir=None,
-    macros=None,
-    include_dirs=None,
-    debug=0,
-    extra_preargs=None,
-    extra_postargs=None,
-    depends=None,
-):
-    macros, objects, extra_postargs, pp_opts, build = self._setup_compile(
-        output_dir, macros, include_dirs, sources, depends, extra_postargs
-    )
-    cc_args = self._get_cc_args(pp_opts, debug, extra_preargs)
-
-    for obj in objects:
-        try:
-            src, ext = build[obj]
-        except KeyError:
-            continue
-        self._compile(obj, src, ext, cc_args, extra_postargs, pp_opts)
-
-    # Return *all* object filenames, not just the ones we just built.
-    return objects
-
-
-def monkeypatch_parallel_build():
-    if PARALLEL_COMPILE:
-        fluidfft_build_ext.build_extensions = build_extensions
-        CCompiler.compile = compile
