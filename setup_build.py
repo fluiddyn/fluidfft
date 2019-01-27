@@ -279,6 +279,8 @@ class FluidFFTBuildExt(build_ext, PythranBuildExt):
 
         # 1. should be here and 2. should be in the run method of this class.
 
+        # todo: even better: as in fluidsim
+
         if not hasattr(self, "fluid_ext_modules"):
             self.distribution.ext_modules = (
                 self.fluid_ext_modules

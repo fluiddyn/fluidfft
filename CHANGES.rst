@@ -1,4 +1,12 @@
 
+0.2.8 (2019-01-27)
+------------------
+
+- ``pip install`` from an empty environment should works
+- Use transonic
+- ``compute_spectrum_kykx`` (in 2d operators)
+- Supports Python >= 3.6
+
 0.2.7 (2018-10-22)
 ------------------
 
