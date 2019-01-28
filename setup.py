@@ -19,8 +19,6 @@ setup_requires = ["numpy", "cython", "jinja2", "transonic"]
 on_tox = os.getenv("TOXENV")
 if on_tox is not None:
     setup_requires.append("mpi4py")
-    if "pythran" in on_tox:
-        setup_requires.append("pythran")
 
 # Get the long description from the relevant file
 with open("README.rst") as f:
