@@ -335,7 +335,7 @@ bool FFT3DMPIWithP3DFFT::are_parameters_bad()
   if (N2<=1 || N1< nprocmesh[1] || (N0*N1)/nb_proc == 0)
     {
       if (rank == 0)
-        cout << "bad paramters N0=" << N0 << " or N1=" << N1 << " or N2=" << N2 << endl;
+        cout << "bad parameters N0=" << N0 << " or N1=" << N1 << " or N2=" << N2 << endl;
       return 1;
     }
   return 0;
