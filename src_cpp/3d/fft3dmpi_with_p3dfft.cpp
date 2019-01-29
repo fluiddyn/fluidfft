@@ -6,7 +6,7 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
 {
   struct timeval start_time, end_time;
   double total_usecs;
-  
+
   int conf;
   int memsize[3];
   int istart[3],isize[3],iend[3];
@@ -36,7 +36,7 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   Cp3dfft_setup(nprocmesh, N2, N1, N0, MPI_Comm_c2f(MPI_COMM_WORLD),
 		nX2, nX1, nX0, 0, memsize);
   /* Get dimensions for input array - real numbers, X-pencil shape.
-   *    *       Note that we are following the Fortran ordering, i.e. 
+   *    *       Note that we are following the Fortran ordering, i.e.
    *       *             the dimension with stride-1 is X. */
   conf = 1;
   Cp3dfft_get_dims(istart, iend, isize, conf);
@@ -80,7 +80,7 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   nK2loc = nKxloc;
   MPI_Barrier(MPI_COMM_WORLD);
   fflush(stdout);
-  
+
   MPI_Barrier(MPI_COMM_WORLD);
   local_X0_start = istart[2]-1;
   local_X1_start = istart[1]-1;
@@ -89,7 +89,7 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2):
   local_K0_start = fstart[2]-1;
   local_K1_start = fstart[1]-1;
   local_K2_start = fstart[0]-1;
-  
+
   gettimeofday(&end_time, NULL);
 
   total_usecs = (end_time.tv_sec-start_time.tv_sec) +
@@ -158,7 +158,7 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex* fieldK)
   {
     energy_loc = 0;
   }
- 
+
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
   return (myreal) energy;
@@ -200,14 +200,14 @@ myreal FFT3DMPIWithP3DFFT::sum_wavenumbers_double(myreal* fieldK)
       for (i1=0; i1<nK1loc; i1++)
         for (i2=1; i2<nK2loc-1; i2++)
           sum_loc += (double) fieldK[i2 + (i1 + i0*nK1loc)*nK2loc];
-  } 
+  }
 
   // case nK1loc==0
   if (min(nK0loc, nK2loc) == 0)
-  { 
+  {
     sum_loc = 0;
   }
- 
+
   MPI_Allreduce(&sum_loc, &sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
   return (myreal) sum*2.;
@@ -255,7 +255,7 @@ void FFT3DMPIWithP3DFFT::sum_wavenumbers_complex(
 
   // case nK1loc==0
   if (min(nK0loc, nK2loc) == 0)
-  { 
+  {
     sum_loc = 0;
   }
 
@@ -268,7 +268,7 @@ void FFT3DMPIWithP3DFFT::sum_wavenumbers_complex(
 myreal FFT3DMPIWithP3DFFT::compute_mean_from_K(mycomplex* fieldK)
 {
   double mean, local_mean;
- 
+
   if (local_K2_start == 0 and local_K1_start == 0)
     local_mean = (double) real(fieldK[0]);
   else
@@ -335,9 +335,8 @@ bool FFT3DMPIWithP3DFFT::are_parameters_bad()
   if (N2<=1 || N1< nprocmesh[1] || (N0*N1)/nb_proc == 0)
     {
       if (rank == 0)
-        cout << "bad parameters N0 or N1 or N2" << endl;
+        cout << "bad parameters N0=" << N0 << " or N1=" << N1 << " or N2=" << N2 << endl;
       return 1;
     }
   return 0;
 }
-

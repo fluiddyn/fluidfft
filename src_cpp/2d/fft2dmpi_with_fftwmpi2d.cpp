@@ -133,13 +133,13 @@ bool FFT2DMPIWithFFTWMPI2D::are_parameters_bad()
   if (N0 % nb_proc != 0)
     {
       if (rank == 0)
-	cout << "bad parameters: (N0 % nb_proc != 0)" << endl;
+  cout << "bad parameters: (N0 % nb_proc != 0); (N0=" << N0 << ", nb_proc=" << nb_proc << ")" << endl;
       return 1;
     }
   if (N1/2 % nb_proc != 0)
     {
       if (rank == 0)
-	cout << "bad parameters: (N1/2 % nb_proc != 0)" << endl;
+	cout << "bad parameters: (N1/2 % nb_proc != 0); (N1/2=" << N1/2 << ", nb_proc=" << nb_proc << ")" << endl;
       return 1;
     }
   return 0;

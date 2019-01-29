@@ -8,7 +8,7 @@ FFT3DMPIWithPFFT::FFT3DMPIWithPFFT(int argN0, int argN1, int argN2):
   double total_usecs;
   unsigned flag_fwd, flag_bck;
   int irank;
-  
+
   this->_init();
 
 #ifdef SINGLE_PREC
@@ -40,7 +40,7 @@ FFT3DMPIWithPFFT::FFT3DMPIWithPFFT(int argN0, int argN1, int argN2):
 		 "Error: This test file only works with %d processes.\n",
 		 nprocmesh[0]*nprocmesh[1]);
 #endif
-    
+
     MPI_Barrier(MPI_COMM_WORLD);
     MPI_Finalize();
     exit(1);
@@ -52,7 +52,7 @@ FFT3DMPIWithPFFT::FFT3DMPIWithPFFT(int argN0, int argN1, int argN2):
 
   flag_fwd = PFFT_TRANSPOSED_OUT;
   flag_bck = PFFT_TRANSPOSED_IN;
-  
+
   /* Get parameters of data distribution */
 #ifdef SINGLE_PREC
   alloc_local = pfftf_local_size_dft_r2c_3d(
@@ -122,9 +122,9 @@ FFT3DMPIWithPFFT::FFT3DMPIWithPFFT(int argN0, int argN1, int argN2):
 	  if (irank == rank)
 	    printf("rank%d: nK2 = %d ; nK2loc: %d; nX0loc: %d ; local_ni[0] %zu\n",
 		   rank, nK2, nK2loc, nX0loc, local_ni[0]);
-	} 
+	}
     }
-  
+
   MPI_Barrier(MPI_COMM_WORLD);
   local_X0_start = local_i_start[0];
   local_X1_start = local_i_start[1];
@@ -237,7 +237,7 @@ myreal FFT3DMPIWithPFFT::compute_energy_from_K(mycomplex* fieldK)
       energy_loc += energy_tmp/2.;
     else
       energy_loc += energy_tmp;
-  
+
     // other modes
     for (i0=0; i0<nK0loc; i0++)
       for (i1=1; i1<nK1loc-1; i1++)
@@ -287,7 +287,7 @@ myreal FFT3DMPIWithPFFT::sum_wavenumbers_double(myreal* fieldK)
         sum_loc += sum_tmp/2.;
     else
       sum_loc += sum_tmp;
-  
+
     // other modes
     for (i0=0; i0<nK0loc; i0++)
       for (i1=1; i1<nK1loc-1; i1++)
@@ -338,7 +338,7 @@ void FFT3DMPIWithPFFT::sum_wavenumbers_complex(
       sum_loc += sum_tmp/2.;
     else
       sum_loc += sum_tmp;
-  
+
     // other modes
     for (i0=0; i0<nK0loc; i0++)
       for (i1=1; i1<nK1loc-1; i1++)
@@ -382,7 +382,7 @@ void FFT3DMPIWithPFFT::fft(myreal *fieldX, mycomplex *fieldK)
 #else
   pfft_execute(plan_r2c);
 #endif
-  
+
   for (i0=0; i0<nK0loc; i0++)
     for (i1=0; i1<nK1loc; i1++)
       for (i2=0; i2<nK2; i2++)
@@ -445,9 +445,8 @@ bool FFT3DMPIWithPFFT::are_parameters_bad()
   if ((N0*N1)/nb_proc == 0)
     {
       if (rank == 0)
-        cout << "bad parameters N0 or N1 or N2" << endl;
+        cout << "ebad paramters N0=" << N0 << " or N1=" << N1 << " or N2=" << N2 << endl;
       return 1;
     }
   return 0;
 }
-
