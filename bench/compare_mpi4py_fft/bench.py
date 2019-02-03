@@ -1,28 +1,34 @@
+import sys
 import numpy as np
+import perf
 from mpi4py import MPI
 from mpi4py_fft.mpifft import PFFT, Function
-from time import time
 
 
-N = np.array([128, 128, 128], dtype=int)
-fft = PFFT(MPI.COMM_WORLD, N, axes=(0, 1, 2), dtype=np.float)
-u = Function(fft, False)
-u[:] = np.random.random(u.shape).astype(u.dtype)
+def init2d(N=1024, slab=True):
+    return PFFT(MPI.COMM_WORLD, (N, N), slab=slab, axes=(0, 1), dtype=np.float)
 
-nb_iter = 20
-tstart = time()
-for _ in range(nb_iter):
-    u_hat = fft.forward(u)
-tend = time()
 
-print(f"Avg time for fft =", (tend-tstart)/nb_iter)
+def init3d(N=128, slab=True):
+    return PFFT(MPI.COMM_WORLD, (N, N, N), slab=slab, axes=(0, 1, 2), dtype=np.float)
 
-uj = np.zeros_like(u)
-tstart = time()
-for _ in range(nb_iter):
-    uj = fft.backward(u_hat, uj)
-tend = time()
 
-print(f"Avg time for ifft =", (tend-tstart)/nb_iter)
-assert np.allclose(uj, u)
-print(MPI.COMM_WORLD.Get_rank(), u.shape, u.dtype, u_hat.dtype)
+def create_arrayX(o):
+    u = Function(o, False)
+    u[:] = np.random.random(u.shape).astype(u.dtype)
+    return u
+
+
+def create_arrayK(o):
+    u_hat = Function(o, True)
+    u_hat[:] = np.random.random(u_hat.shape).astype(u_hat.dtype)
+    return u_hat
+
+
+def fft(o, u, u_hat):
+    o.forward(u, u_hat)
+
+
+def ifft(o, u, u_hat):
+    o.backward(u_hat, u)
+
