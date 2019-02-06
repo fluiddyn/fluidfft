@@ -1,0 +1,37 @@
+# ml load buildenv-intel/2018a-eb FFTW/3.3.6-nsc1
+[fftw3]
+use = True
+dir = $EBROOTFFTW
+include_dir = 
+library_dir = 
+
+[fftw3_mpi]
+use = True
+dir = $EBROOTFFTW
+include_dir = 
+library_dir = 
+
+[cufft]
+use = False
+dir = 
+include_dir = 
+library_dir = 
+
+[pfft]
+use = False
+dir =
+# dir = $HOME/opt/pfft-1.0.8-alpha
+include_dir = 
+library_dir = 
+
+[p3dfft]
+use = False
+dir =
+# dir = $HOME/opt/p3dfft-2.7.6 
+include_dir = 
+library_dir = 
+
+[environ]
+MPICXX = mpiicc
+LDSHARED = mpiicc -shared
+# CXX = clang++
