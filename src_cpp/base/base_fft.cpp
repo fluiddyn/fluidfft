@@ -16,6 +16,8 @@ typedef double myreal;
 myreal EPS = 5e-13;
 #endif
 
+char* dealiasing_coeff_char = getenv("FLUIDFFT_DEALIASING_COEFF");
+
 myreal compute_time_in_second(struct timeval start_time,
 			      struct timeval end_time)
 {
@@ -60,12 +62,17 @@ void BaseFFT::_init()
     // if (rank == 0)
     throw invalid_argument("Invalid arguments");
 
+  if (dealiasing_coeff_char != NULL)
+    dealiasing_coeff = atof(dealiasing_coeff_char);
+  if ((dealiasing_coeff == 0) || (dealiasing_coeff < 0) || (dealiasing_coeff > 1))
+    dealiasing_coeff = 1;
+
   if (rank == 0)
-    {
-      cout << endl << "--------" << endl;
-      if (nb_proc > 1)
-	cout << "nb_proc: " << nb_proc << endl;
-    }
+  {
+    cout << endl << "--------" << endl;
+    if (nb_proc > 1)
+      cout << "nb_proc: " << nb_proc << endl;
+  }
 }
 
 bool BaseFFT::are_parameters_bad()

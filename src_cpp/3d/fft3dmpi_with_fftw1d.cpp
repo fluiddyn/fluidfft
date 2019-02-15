@@ -15,22 +15,23 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2):
 
   this->_init();
 
+  if (rank == 0)
+    cout << "dealiasing coeff = " << dealiasing_coeff << endl;
+
   /* z corresponds to dim 0 in physical space */
   /* y corresponds to dim 1 in physical space */
   /* x corresponds to dim 2 in physical space */
   nz = N0;
   ny = N1;
   nx = N2;
-
   nX0 = N0;
   nX1 = N1;
   nX2 = N2;
   nX0loc = N0/nb_proc;
   nX1loc = N1;
   nX2loc = N2;
-
   nKx = nx/2;
-  nKxloc = (nKx)/nb_proc;
+  nKxloc = nKx/nb_proc;
   nKy = ny;
   nKz = nz;
 
@@ -79,7 +80,7 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2):
       arrayX, NULL,
       1, N2,
       flags);
-  howmany = nX0loc*(nKx+1);
+  howmany = nX0loc*(nKx*dealiasing_coeff+1);
   sign = FFTW_FORWARD;
   plan_c2c1_fwd = fftw_plan_many_dft(
       1, &N1, howmany,
@@ -127,7 +128,9 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2):
 	   this->get_classname(), total_usecs);
 
   for (iX0=0;iX0<nX0loc;iX0++)
+  {
     arrayK_pR[iX0*(nKx+1)+nKx] = 0.;
+  }
 
 
   MPI_Type_contiguous( 2, MPI_DOUBLE, &MPI_type_complex );
@@ -279,6 +282,10 @@ void FFT3DMPIWithFFTW1D::fft(myreal *fieldX, mycomplex *fieldK)
  // memcpy(arrayX, fieldX, nX0loc*nX1*nX2*sizeof(myreal));
 
   fftw_execute_dft_r2c(plan_r2c, fieldX, reinterpret_cast<mycomplex_fftw*>(arrayK_pR));
+
+  for (ii=nX0loc*N1*(nKx+1)*dealiasing_coeff;ii<nX0loc*N1*(nKx+1);ii++)
+    arrayK_pR[ii] = 0.0;
+
   fftw_execute(plan_c2c1_fwd);
 
   MPI_Alltoall(arrayK_pR, 1, MPI_type_block2,
@@ -308,6 +315,7 @@ void FFT3DMPIWithFFTW1D::ifft(mycomplex *fieldK, myreal *fieldX)
     arrayK_pR[N1*nX0loc*nKx + ii] = 0.;
 
   fftw_execute(plan_c2c1_bwd);
+
   fftw_execute_dft_c2r(plan_c2r, reinterpret_cast<mycomplex_fftw*>(arrayK_pR), fieldX);
 }
 

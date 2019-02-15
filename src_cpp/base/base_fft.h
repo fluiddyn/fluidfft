@@ -75,6 +75,8 @@ class BaseFFT
 
   myreal coef_norm;
 
+  double dealiasing_coeff = 1;
+
 protected:
   /* X and K denote physical and Fourier spaces. */
   /* in physical space: */
