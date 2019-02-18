@@ -1,3 +1,5 @@
+# cython: embedsignature=True
+# cython: language_level=3
 
 include 'base.pyx'
 
