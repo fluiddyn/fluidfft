@@ -48,3 +48,6 @@ _report_coverage:
 	@echo "file://${PWD}/.coverage/index.html"
 
 coverage: _tests_coverage _report_coverage
+
+clang-format:
+	find src_cpp/ -iname '*.h' -o -iname '*.cpp' | xargs clang-format -i

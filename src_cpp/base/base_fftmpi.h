@@ -7,11 +7,9 @@
 
 #include <base_fft.h>
 
-class BaseFFTMPI: virtual public BaseFFT
-{
- public:
+class BaseFFTMPI : virtual public BaseFFT {
+public:
   void _init_parallel();
-
 };
 
 #endif
