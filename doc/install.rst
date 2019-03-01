@@ -9,13 +9,14 @@ Dependencies
 We explain how to install the dependencies here: `Get a good scientific Python
 environment <http://fluiddyn.readthedocs.io/en/latest/get_good_Python_env.html>`_
 
-- Python 2.7 or >= 3.5
+- Python >= 3.6
 
 - a C++11 compiler (for example GCC 4.9 or clang)
 
 - Numpy
 
-  Make sure to correctly install numpy before anything, with ``pip`` or ``conda``.
+  Make sure to correctly install numpy before anything, with ``pip`` or
+  ``conda``.
 
   .. warning::
 
@@ -38,13 +39,13 @@ environment <http://fluiddyn.readthedocs.io/en/latest/get_good_Python_env.html>`
 
   .. note::
 
-     Some notes how to build OpenBlas and numpy from source (not very useful now
-     that we have good numpy wheels):
+      Some notes how to build OpenBlas and numpy from source (not very useful now
+      that we have good numpy wheels):
 
-     .. toctree::
-	:maxdepth: 0
+      .. toctree::
+        :maxdepth: 0
 
-	install/blas_libs
+        install/blas_libs
 
 - Cython (optional, but necessary to use the fluidfft C++ FFT classes)
 

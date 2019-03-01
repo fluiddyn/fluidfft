@@ -23,8 +23,8 @@ computations can be distributed on several processes.
 
 FluidFFT provides an unified API to use all these libraries. FluidFFT is not
 limited to just performing Fourier transforms. It is a complete development
-framework for codes using (distributed) FFT. A simple API allows the developers to
-easily perform operations on data in real and spectral spaces (gradient,
+framework for codes using (distributed) FFT. A simple API allows the developers
+to easily perform operations on data in real and spectral spaces (gradient,
 divergence, rotational, sum over wavenumbers, computation of spectra, etc.) and
 deal with the data distribution (gather the data on one process and scatter the
 data to many processes) without having to consider the internal organization of
@@ -42,26 +42,39 @@ FluidFFT has been created to be:
 
 - Highly efficient.
 
-  The architecture of the code and the tools used (C++ classes, Cython wrapper and
-  `Pythran <https://github.com/serge-sans-paille/pythran>`_ computational
-  functions) leads to very good performances.
+  The architecture of the code and the tools used (C++ classes, Cython wrapper
+  and `Pythran <https://github.com/serge-sans-paille/pythran>`_ / `Transonic
+  <https://transonic.readthedocs.io>`_ computational functions) leads to very
+  good performances.
 
   Moreover, Python developers can easily measure the performance cost of using
-  Python compared to coding in pure C++.  This cost has to be compared to the cost
-  of the FFT in pure C++, which of course strongly varies with the size of the
-  arrays.  From our experience with real cases, the "Python cost" goes from very
-  small (for small cases) to completely negligible (for medium and large cases).
+  Python compared to coding in pure C++. This cost has to be compared to the
+  cost of the FFT in pure C++, which of course strongly varies with the size of
+  the arrays. From our experience with real cases, the "Python cost" goes from
+  very small (for small cases) to completely negligible (for medium and large
+  cases).
 
   A great advantage of FluidFFT is that it allows the user to find (see
   :ref:`bench`) and to choose the most efficient solution for a particular
   case.  Since the fastest library depends on the case and on the hardware, it
   is really a useful feature for performance!
 
-FluidFFT is therefore a very useful tool to write HPC applications using FFT, as
-for example pseudo-spectral simulation codes.  For an example of how FluidFFT can
-be used in a real application, see `the code
-<https://bitbucket.org/fluiddyn/fluidsim>`_ of the `Computational Fluid Dynamics
-(CFD) framework FluidSim <http://fluidsim.readthedocs.org>`_.
+FluidFFT is therefore a very useful tool to write HPC applications using FFT,
+as for example pseudo-spectral simulation codes. For an example of how FluidFFT
+can be used in a real application, see `the code
+<https://bitbucket.org/fluiddyn/fluidsim>`_ of the `Computational Fluid
+Dynamics (CFD) framework FluidSim <http://fluidsim.readthedocs.org>`_.
+
+**Metapapers and citations**
+
+Our metapapers presenting
+`Fluidfft
+<http://www.legi.grenoble-inp.fr/people/Pierre.Augier/docs/fluidfft_paper.pdf>`__
+and the `FluidDyn project
+<http://www.legi.grenoble-inp.fr/people/Pierre.Augier/docs/fluiddyn_metapaper.pdf>`__
+have been accepted by the `Journal of Open Research Software (JORS)
+<https://openresearchsoftware.metajnl.com/>`_. If you use FluidFFT to produce
+scientific articles, please cite them!
 
 
 User Guide
@@ -123,8 +136,9 @@ Links
 - Unittest coverage |coverage|
 - Continuous integration with travis-ci.org |travis|
 - Continuous integration with Bitbucket Pipelines |pipelines|
-- `FluidDyn user chat room
-  <https://riot.im/app/#/room/#fluiddyn-users:matrix.org>`_
+- FluidDyn user chat room in `Riot
+  <https://riot.im/app/#/room/#fluiddyn-users:matrix.org>`_ or `Slack
+  <https://fluiddyn.slack.com>`_
 - `FluidDyn mailing list <https://www.freelists.org/list/fluiddyn>`_
 - `FluidDyn on Twitter <https://twitter.com/pyfluiddyn>`_
 
