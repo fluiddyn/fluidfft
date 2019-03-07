@@ -25,13 +25,13 @@ black:
 	black -l 82 fluidfft
 
 tests:
-	python -m unittest discover
+	pytest -s
 
 tests_mpi:
-	mpirun -np 2 python -m unittest discover -v
+	mpirun -np 2 pytest -s
 
 tests_mpi4:
-	mpirun -np 4 python -m unittest discover
+	mpirun -np 4 pytest -s
 
 _tests_coverage:
 	mkdir -p .coverage

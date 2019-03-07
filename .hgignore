@@ -37,6 +37,7 @@ __pycache__
 *egg-info*
 dist*
 *.egg/*
+.eggs
 
 *OAR.*
 
@@ -51,12 +52,12 @@ doc/install/OpenBLAS*
 */fake_mod_fft*d_for_doc.py
 
 site.cfg
-.coverage/*
 
-.tox/*
-
-.cache/*
-.mypy_cache/*
+.pytest_cache
+.coverage
+.tox
+.cache
+.mypy_cache
 **/__pythran__/*
 
 bench/operator2d/*/__init__.py
@@ -74,5 +75,3 @@ doc/ipynb/executed/.ipynb_checkpoints
 doc/ipynb/**.rst
 doc/ipynb/*.nbconvert.ipynb
 doc/tmp/*
-
-.eggs/*

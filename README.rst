@@ -36,11 +36,11 @@ in particular
 
 - `fftw3 <http://www.fftw.org/>`_ and `fftw3-mpi
   <http://www.fftw.org/fftw3_doc/Distributed_002dmemory-FFTW-with-MPI.html>`_
-  
+
 - `pfft <https://github.com/mpip/pfft>`_
 
 - `p3dfft <https://github.com/sdsc/p3dfft>`_
-    
+
 - `cufft <https://developer.nvidia.com/cufft>`_ (fft library by CUDA
   running on GPU)
 
@@ -60,7 +60,6 @@ provided you have the optional FFT libaries, that you need, installed and
 discoverable in your path (see environment variables ``LIBRARY_PATH``,
 ``LD_LIBRARY_PATH``, ``CPATH``) it should be sufficient to run::
 
-  pip install fluiddyn mako cython [--user]
   pip install fluidfft [--user]
 
 Add ``--user`` flag if you are installing without setting up a virtual
@@ -81,7 +80,7 @@ the links to know more:
 4. `A C++11 compiler and BLAS
    libraries <https://github.com/serge-sans-paille/pythran#installation>`__ and
    `configure
-   <https://fluidfft.readthedocs.io/en/latest/install.html#dependencies>`__ 
+   <https://fluidfft.readthedocs.io/en/latest/install.html#dependencies>`__
    ``~/.pythranrc`` to customize compilation of Pythran extensions
 5. `Configure
    <https://fluidfft.readthedocs.io/en/latest/install.html#basic-installation-with-pip>`__
@@ -110,8 +109,8 @@ From the root directory::
 
 Or, from the root directory or any of the "test" directories::
 
-  python -m unittest discover
-  mpirun -np 2 python -m unittest discover
+  pytest -s
+  mpirun -np 2 pytest -s
 
 
 How does it work?
