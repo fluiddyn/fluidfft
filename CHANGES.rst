@@ -1,4 +1,11 @@
 
+0.2.9 (2019-03-07)
+------------------
+
+- Minimal support for Windows
+- Slightly better logging of bad parameters
+- Optimization with dealiasing coeff for fft3dmpi_with_fftw1d
+
 0.2.8 (2019-01-27)
 ------------------
 

@@ -301,12 +301,13 @@ class FluidFFTBuildExt(build_ext, PythranBuildExt):
         to_be_removed = ["-Wstrict-prototypes"]
         starts_forbiden = ["-axMIC_", "-diag-disable:"]
 
-        self.compiler.compiler_so = [
-            key
-            for key in self.compiler.compiler_so
-            if key not in to_be_removed
-            and all([not key.startswith(s) for s in starts_forbiden])
-        ]
+        if hasattr(self.compiler, "compiler_so"):
+            self.compiler.compiler_so = [
+                key
+                for key in self.compiler.compiler_so
+                if key not in to_be_removed
+                and all([not key.startswith(s) for s in starts_forbiden])
+            ]
 
         pool = Pool(num_procs)
         pool.map(self.build_extension, self.extensions)
