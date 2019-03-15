@@ -11,5 +11,5 @@ requires = [
     # Will only work when Mako supplies wheels / pip supports
     # installation from source
     # "mako",
-    "jinja2", "transonic>=0.1.8"
+    "jinja2", "transonic>=0.2.0"
 ]

@@ -18,8 +18,6 @@ from fluiddyn.util import mpi
 from fluidfft import create_fft_object, empty_aligned
 from fluidfft.util import _rescale_random
 
-# transonic import numpy as np
-
 Ac = "complex128[:,:]"
 Af = "float64[:,:]"
 

@@ -18,8 +18,6 @@ from fluidfft import create_fft_object, empty_aligned
 from fluidfft.util import _rescale_random
 from fluidfft.fft2d.operators import _make_str_length
 
-# transonic import numpy as np
-
 Ac = "complex128[:,:,:]"
 Af = "float64[:,:,:]"
 A = Array[Type(np.float64, np.complex128), "3d"]

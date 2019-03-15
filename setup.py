@@ -15,7 +15,7 @@ except ImportError:
 
 
 # Bootstrapping dependencies required for the setup
-setup_requires = ["numpy", "cython", "jinja2", "transonic"]
+setup_requires = ["numpy", "cython", "jinja2", "transonic>=0.2.0"]
 on_tox = os.getenv("TOXENV")
 if on_tox is not None:
     setup_requires.append("mpi4py")

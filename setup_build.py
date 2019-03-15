@@ -189,10 +189,7 @@ class FluidFFTBuildExt(build_ext, PythranBuildExt):
 
         here = Path(__file__).parent.absolute()
         paths = ["fluidfft/fft2d/operators.py", "fluidfft/fft3d/operators.py"]
-        make_backend_files(
-            [here / path for path in paths],
-            mocked_modules=("fluiddyn.util", "fluiddyn.util.mpi"),
-        )
+        make_backend_files([here / path for path in paths])
 
         config, lib_flags_dict, lib_dirs_dict = parse_config()
 
