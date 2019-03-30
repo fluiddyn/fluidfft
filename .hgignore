@@ -75,3 +75,5 @@ doc/ipynb/executed/.ipynb_checkpoints
 doc/ipynb/**.rst
 doc/ipynb/*.nbconvert.ipynb
 doc/tmp/*
+
+.vscode

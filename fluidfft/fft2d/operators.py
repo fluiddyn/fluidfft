@@ -1,4 +1,5 @@
 """Operators 2d (:mod:`fluidfft.fft2d.operators`)
+
 =================================================
 
 .. autoclass:: OperatorsPseudoSpectral2D
@@ -14,9 +15,11 @@ import numpy as np
 
 from transonic import boost
 from fluiddyn.util import mpi
+from fluiddyn.util.compat import cached_property
 
 from fluidfft import create_fft_object, empty_aligned
 from fluidfft.util import _rescale_random
+
 
 Ac = "complex128[:,:]"
 Af = "float64[:,:]"
@@ -129,7 +132,6 @@ class OperatorsPseudoSpectral2D(object):
                     )
                     % fft
                 )
-
         elif isinstance(fft, type):
             opfft = fft(ny, nx)
         else:
@@ -137,6 +139,12 @@ class OperatorsPseudoSpectral2D(object):
 
         self.opfft = opfft
         self.type_fft = opfft.__class__.__module__
+
+        # NOTE: Overwrites the value of `np` in the present scope
+        if "with_dask" in self.type_fft:
+            import dask.array as np
+        else:
+            import numpy as np
 
         self.is_transposed = opfft.get_is_transposed()
 
@@ -231,10 +239,6 @@ class OperatorsPseudoSpectral2D(object):
         self.K8 = self.K4 ** 2
         self.K = np.sqrt(self.K2)
 
-        self.K_not0 = self.K.copy()
-        self.K2_not0 = self.K2.copy()
-        self.K4_not0 = self.K4.copy()
-
         self.is_sequential = opfft.get_shapeK_loc() == opfft.get_shapeK_seq()
 
         self.rank = mpi.rank
@@ -246,14 +250,6 @@ class OperatorsPseudoSpectral2D(object):
         if not self.is_sequential:
             self.gather_Xspace = self.opfft.gather_Xspace
             self.scatter_Xspace = self.opfft.scatter_Xspace
-
-        if mpi.rank == 0 or self.is_sequential:
-            self.K_not0[0, 0] = 10.0e-10
-            self.K2_not0[0, 0] = 10.0e-10
-            self.K4_not0[0, 0] = 10.0e-10
-
-        self.KX_over_K2 = self.KX / self.K2_not0
-        self.KY_over_K2 = self.KY / self.K2_not0
 
         self.nkx_seq = nx // 2 + 1
         self.nky_seq = ny
@@ -282,7 +278,7 @@ class OperatorsPseudoSpectral2D(object):
         CONDKX = abs(self.KX) >= self.kxmax_dealiasing
         CONDKY = abs(self.KY) >= self.kymax_dealiasing
         where_dealiased = np.logical_or(CONDKX, CONDKY)
-        self.where_dealiased = np.array(where_dealiased, dtype=np.uint8)
+        self.where_dealiased = np.array(where_dealiased, dtype="uint8")
         self.indexes_dealiased = np.argwhere(where_dealiased)
 
         # for spectra
@@ -304,6 +300,37 @@ class OperatorsPseudoSpectral2D(object):
         x_loc = x_loc * self.deltax
 
         self.XX, self.YY = np.meshgrid(x_loc, y_loc)
+
+    # Some arrays below are made cached_property mainly because setting them are
+    # possible only using numpy arrays and not as dask array. There is also the
+    # added advantage of making the class somewhat lightweight
+
+    def _get_Kn_not0(self, Kn):
+        Kn_not0 = np.copy(Kn)
+        if mpi.rank == 0 or self.is_sequential:
+            Kn_not0[0, 0] = 10.0e-10
+
+        return Kn_not0
+
+    @cached_property
+    def K_not0(self):
+        return self._get_Kn_not0(self.K)
+
+    @cached_property
+    def K2_not0(self):
+        return self._get_Kn_not0(self.K2)
+
+    @cached_property
+    def K4_not0(self):
+        return self._get_Kn_not0(self.K4)
+
+    @cached_property
+    def KX_over_K2(self):
+        return self.KX / self.K2_not0
+
+    @cached_property
+    def KY_over_K2(self):
+        return self.KY / self.K2_not0
 
     def mean_global(self, field):
         """Compute the global average over all processes"""
