@@ -106,6 +106,26 @@ class FFT2DWithDASK(FFTW2DReal2Complex):
         result = da.mean(abs(ff) ** 2) / 2
         return result.compute()
 
+    def byte_align(self, array, n=None, dtype=None):
+        # Does nothing
+        return array
+
+    def create_arrayX(self, value=None, shape=None):
+        """Return a constant array in real space."""
+        if value is not None:
+            field = da.ones(shape) * value
+        else:
+            field = self.empty_aligned(shape)
+        return field
+
+    def create_arrayK(self, value=None, shape=None):
+        """Return a constant array in real space."""
+        if value is not None:
+            field = da.ones(shape) * value
+        else:
+            field = self.empty_aligned(shape, dtype=np.complex128)
+        return field
+
     compute_energy_from_K = compute_energy_from_Fourier
     compute_energy_from_X = compute_energy_from_spatial
 

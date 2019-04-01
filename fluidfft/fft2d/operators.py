@@ -18,7 +18,7 @@ from fluiddyn.util import mpi
 from fluiddyn.util.compat import cached_property
 
 from fluidfft import create_fft_object, empty_aligned
-from fluidfft.util import _rescale_random
+from fluidfft.base import OperatorsBase
 
 
 Ac = "complex128[:,:]"
@@ -64,7 +64,7 @@ def get_simple_2d_mpi_method():
 
 
 @boost
-class OperatorsPseudoSpectral2D(object):
+class OperatorsPseudoSpectral2D(OperatorsBase):
     """Perform 2D FFT and operations on data.
 
     Parameters
@@ -296,6 +296,7 @@ class OperatorsPseudoSpectral2D(object):
         x_loc = x_loc * self.deltax
 
         self.XX, self.YY = np.meshgrid(x_loc, y_loc)
+        super().__init__()
 
     # Some arrays below are made cached_property mainly because setting them are
     # possible only using numpy arrays and not as dask array. There is also the
@@ -716,27 +717,23 @@ class OperatorsPseudoSpectral2D(object):
     def create_arrayX(self, value=None, shape="loc"):
         """Return a constant array in real space."""
         shapeX = self._get_shapeX(shape)
-        field = empty_aligned(shapeX)
-        if value is not None:
-            field.fill(value)
-        return field
+        return self.opfft.create_arrayX(value, shapeX)
 
     def create_arrayK(self, value=None, shape="loc"):
         """Return a constant array in spectral space."""
         shapeK = self._get_shapeK(shape)
-        field = empty_aligned(shapeK, dtype=np.complex128)
-        if value is not None:
-            field.fill(value)
-        return field
+        return self.opfft.create_arrayK(value, shapeK)
 
     def create_arrayX_random(self, shape="loc", min_val=None, max_val=None):
         """Return a random array in real space."""
         shape = self._get_shapeX(shape)
+        np = self._numpy_api
         values = np.random.random(shape)
-        return _rescale_random(values, min_val, max_val)
+        return self._rescale_random(values, min_val, max_val)
 
     def create_arrayK_random(self, shape="loc", min_val=None, max_val=None):
         """Return a random array in real space."""
         shape = self._get_shapeK(shape)
+        np = self._numpy_api
         values = np.random.random(shape) + 1j * np.random.random(shape)
-        return _rescale_random(values, min_val, max_val)
+        return self._rescale_random(values, min_val, max_val)

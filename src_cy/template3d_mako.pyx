@@ -465,16 +465,22 @@ cdef class ${class_name}:
         """Compute the sum over all wavenumbers."""
         raise NotImplementedError
 
-    def create_arrayX(self, value=None):
+    def create_arrayX(self, value=None, shape=None):
         """Return a constant array in real space."""
-        field = empty_aligned(self._shapeX_loc)
+        if shape is None:
+            shape = self._shapeX_loc
+
+        field = empty_aligned(shape)
         if value is not None:
             field.fill(value)
         return field
 
-    def create_arrayK(self, value=None):
+    def create_arrayK(self, value=None, shape=None):
         """Return a constant array in real space."""
-        field = empty_aligned(self._shapeK_loc, dtype=np.complex128)
+        if shape is None:
+            shape = self._shapeK_loc
+
+        field = empty_aligned(shape, dtype=np.complex128)
         if value is not None:
             field.fill(value)
         return field

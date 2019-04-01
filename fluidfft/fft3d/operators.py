@@ -318,6 +318,7 @@ class OperatorsPseudoSpectral3D:
             2, int(self.kmax_spectra3d / self.deltak_spectra3d)
         )
         self.k_spectra3d = self.deltak_spectra3d * np.arange(self.nk_spectra3d)
+        super().__init__()
 
     # self.tmp_fields_fft = tuple(self.create_arrayK() for n in range(6))
 

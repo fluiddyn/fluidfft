@@ -7,7 +7,7 @@ from fluidfft.fft2d.test_2d import complete_class
 
 
 def get_oper(fft):
-    nx = ny = 128
+    nx = ny = 2
     lx = ly = 2 * pi
     return OperatorsPseudoSpectral2D(nx, ny, lx, ly, fft=fft)
 
@@ -20,21 +20,28 @@ complete_class("with_dask", FFTclass, TestDask)
 
 
 if __name__ == "__main__":
-    oper = get_oper("fft2d.with_dask")
+    oper_dask = get_oper("fft2d.with_dask")
     oper_pyfftw = get_oper("fft2d.with_pyfftw")
+    oper_fftw = get_oper("fft2d.with_fftw2d")
 
-    oper.opfft.run_tests()
-    print("Basic tests pass for dask")
+    for op in (oper_dask, oper_pyfftw, oper_fftw):
+        print('=' * 50)
+        print(op.type_fft)
+        print('=' * 50)
+        op.opfft.run_tests()
+        print("Basic tests pass")
 
-    print("Testing _numpy_api property... expecting dask")
-    np = oper._numpy_api
-    print(type(np.ones(2)))
-    print("Testing _numpy_api property... expecting numpy")
-    np = oper_pyfftw._numpy_api
-    print(type(np.ones(2)))
+        print("Testing _numpy_api property... expecting dask")
+        np = op._numpy_api
+        print(type(np.ones(2)))
 
-    print("Benchmarking...")
-    oper.opfft.run_benchs()
-    oper_pyfftw.opfft.run_benchs()
+        print("Create array methods")
+        print(op.create_arrayX(value=2.0))
+        print(op.create_arrayK(value=2.0))
+        print(op.create_arrayX_random())
+        print(op.create_arrayK_random())
+
+        print("Benchmarking...")
+        op.opfft.run_benchs()
 
     unittest.main()
