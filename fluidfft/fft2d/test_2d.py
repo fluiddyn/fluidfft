@@ -12,7 +12,7 @@ from fluidfft.fft2d.operators import OperatorsPseudoSpectral2D
 try:
     import fluidfft.fft2d.with_fftw2d
 except ImportError:
-    # If this one does not work it is a bad sign so we want to know what appends.
+    # If this one does not work it is a bad sign so we want to know what happened.
     traceback.print_exc()
 
 
@@ -171,7 +171,7 @@ class Tests2D(unittest.TestCase):
     pass
 
 
-def complete_class(name, cls):
+def complete_class(name, cls, Tests2D=Tests2D):
 
     if cls is not None:
         setattr(Tests2D, "test_{}".format(name), make_test_function(cls))

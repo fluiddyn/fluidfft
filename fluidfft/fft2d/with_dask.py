@@ -1,3 +1,4 @@
+
 """Class using Dask (:mod:`fluidfft.fft2d.with_dask`)
 =====================================================
 
@@ -7,6 +8,9 @@
 TODO: Find a mechanism for setting chunksize
 
 """
+import warnings
+
+
 import numpy as np
 import dask.array as da
 from pyfftw.interfaces import dask_fft, cache
@@ -16,6 +20,10 @@ from fluiddyn.calcul.easypyfft import FFTW2DReal2Complex
 
 class FFT2DWithDASK(FFTW2DReal2Complex):
     def __init__(self, nx, ny):
+        warnings.warn(
+                "The `with_dask` FFT class is a prototype and not fully "
+                "functional yet."
+        )
         shapeX = (ny, nx)
 
         shapeK = list(shapeX)
@@ -43,14 +51,14 @@ class FFT2DWithDASK(FFTW2DReal2Complex):
 
     def fft(self, fieldX):
         if isinstance(fieldX, np.ndarray):
-            fieldX = da.from_array(fieldX, self.chunks)
+            fieldX = da.asarray(fieldX)
 
         fieldK = dask_fft.rfft2(fieldX)
         return fieldK / self.coef_norm
 
     def ifft(self, fieldK):
         if isinstance(fieldK, np.ndarray):
-            fieldK = da.from_array(fieldK, self.chunks)
+            fieldK = da.asarray(fieldK)
 
         fieldX = dask_fft.irfft2(fieldK)
         return fieldX
