@@ -51,7 +51,14 @@ except ImportError:
 methods_seq = ["fftw3d", "pyfftw"]
 methods_seq = ["fft3d.with_" + method for method in methods_seq]
 
-methods_mpi = ["fftw1d", "fftwmpi3d", "p3dfft", "pfft"]
+methods_mpi = [
+    "fftw1d",
+    "fftwmpi3d",
+    "p3dfft",
+    "pfft",
+    # "mpi4pyfft",
+    # "mpi4pyfft_slab",
+]
 methods_mpi = ["fft3d.mpi_with_" + method for method in methods_mpi]
 
 
