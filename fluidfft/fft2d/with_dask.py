@@ -71,6 +71,7 @@ class FFT2DWithDASK(FFTW2DReal2Complex):
 
     @property
     def _numpy_api(self):
+        """A ``@property`` which imports and returns a NumPy-like array backend."""
         import dask.array as np
         return np
 

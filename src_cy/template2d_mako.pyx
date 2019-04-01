@@ -65,6 +65,7 @@ cdef class ${class_name}:
 
     @property
     def _numpy_api(self):
+        """A ``@property`` which imports and returns a NumPy-like array backend."""
         import ${numpy_api} as np
         return np
 
