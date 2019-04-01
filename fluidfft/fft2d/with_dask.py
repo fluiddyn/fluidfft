@@ -21,7 +21,7 @@ DaskOrNumpyArray = Union[da.core.Array, np.ndarray]
 
 
 class FFT2DWithDASK(FFTW2DReal2Complex):
-    """Perform Fast Fourier Transform in 2d using ``dask.array`` interface of
+    """Perform Fast Fourier Transform in 2d using ``dask.array.fft`` interface of
     pyFFTW.
 
     Parameters
@@ -38,12 +38,13 @@ class FFT2DWithDASK(FFTW2DReal2Complex):
       to the x direction.
 
     """
+
     def __init__(self, n0=2, n1=2):
         warnings.warn(
-                "The `with_dask` FFT class is a prototype and not fully "
-                "functional yet."
+            "The `with_dask` FFT class is a prototype and not fully "
+            "functional yet."
         )
-        shapeX = (n1, n0)
+        shapeX = (n0, n1)
 
         shapeK = list(shapeX)
         shapeK[-1] = shapeK[-1] // 2 + 1
@@ -51,7 +52,7 @@ class FFT2DWithDASK(FFTW2DReal2Complex):
 
         self.shapeX = shapeX
         self.shapeK = self.shapeK_seq = self.shapeK_loc = shapeK
-        self.coef_norm = da.prod(da.asarray(shapeX))
+        self.coef_norm = np.prod(shapeX)
         self.inv_coef_norm = 1.0 / self.coef_norm
 
         self.chunks = "auto"
