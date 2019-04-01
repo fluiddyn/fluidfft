@@ -69,6 +69,11 @@ class FFT2DWithDASK(FFTW2DReal2Complex):
         self.ifft_as_arg_destroy = self.ifft_as_arg
         self.empty_aligned = da.empty
 
+    @property
+    def _numpy_api(self):
+        import dask.array as np
+        return np
+
     def fft(self, fieldX: DaskOrNumpyArray) -> da.core.Array:
         if isinstance(fieldX, np.ndarray):
             fieldX = da.asarray(fieldX)

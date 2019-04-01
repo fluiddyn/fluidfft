@@ -67,7 +67,7 @@ def get_path_files(module_name):
     return path_pyx, path_pxd
 
 
-def make_file(module_name, class_name, templates):
+def make_file(module_name, class_name, numpy_api, templates):
 
     if module_name.startswith("fft2d"):
         t_pyx = templates["fft2d_pyx"]
@@ -78,43 +78,38 @@ def make_file(module_name, class_name, templates):
 
     path_pyx, path_pxd = get_path_files(module_name)
 
-    if not os.path.exists(path_pyx):
-        hastomake = True
-    else:
-        if modification_date(path_pyx) < modification_date(t_pyx.filename):
+    # Generate pyx and pxd files
+    for path, template in zip(get_path_files(module_name), (t_pyx, t_pxd)):
+        if not os.path.exists(path):
             hastomake = True
         else:
-            hastomake = False
+            hastomake = modification_date(path) < modification_date(
+                template.filename
+            )
 
-    if hastomake:
-        with open(path_pyx, "w") as f:
-            f.write(t_pyx.render(module_name=module_name, class_name=class_name))
-
-    if not os.path.exists(path_pxd):
-        hastomake = True
-    else:
-        if modification_date(path_pxd) < modification_date(t_pxd.filename):
-            hastomake = True
-        else:
-            hastomake = False
-
-    if hastomake:
-        with open(path_pxd, "w") as f:
-            f.write(t_pxd.render(module_name=module_name, class_name=class_name))
+        if hastomake:
+            with open(path, "w") as f:
+                f.write(
+                    template.render(
+                        module_name=module_name,
+                        class_name=class_name,
+                        numpy_api=numpy_api,
+                    )
+                )
 
 
 variables = (
-    ("fft2d_with_fftw1d", "FFT2DWithFFTW1D"),
-    ("fft2d_with_fftw2d", "FFT2DWithFFTW2D"),
-    ("fft2d_with_cufft", "FFT2DWithCUFFT"),
-    ("fft2dmpi_with_fftw1d", "FFT2DMPIWithFFTW1D"),
-    ("fft2dmpi_with_fftwmpi2d", "FFT2DMPIWithFFTWMPI2D"),
-    ("fft3d_with_fftw3d", "FFT3DWithFFTW3D"),
-    ("fft3dmpi_with_fftw1d", "FFT3DMPIWithFFTW1D"),
-    ("fft3dmpi_with_fftwmpi3d", "FFT3DMPIWithFFTWMPI3D"),
-    ("fft3dmpi_with_pfft", "FFT3DMPIWithPFFT"),
-    ("fft3dmpi_with_p3dfft", "FFT3DMPIWithP3DFFT"),
-    ("fft3d_with_cufft", "FFT3DWithCUFFT"),
+    ("fft2d_with_fftw1d", "FFT2DWithFFTW1D", "numpy"),
+    ("fft2d_with_fftw2d", "FFT2DWithFFTW2D", "numpy"),
+    ("fft2d_with_cufft", "FFT2DWithCUFFT", "cupy"),
+    ("fft2dmpi_with_fftw1d", "FFT2DMPIWithFFTW1D", "numpy"),
+    ("fft2dmpi_with_fftwmpi2d", "FFT2DMPIWithFFTWMPI2D", "numpy"),
+    ("fft3d_with_fftw3d", "FFT3DWithFFTW3D", "numpy"),
+    ("fft3dmpi_with_fftw1d", "FFT3DMPIWithFFTW1D", "numpy"),
+    ("fft3dmpi_with_fftwmpi3d", "FFT3DMPIWithFFTWMPI3D", "numpy"),
+    ("fft3dmpi_with_pfft", "FFT3DMPIWithPFFT", "numpy"),
+    ("fft3dmpi_with_p3dfft", "FFT3DMPIWithP3DFFT", "numpy"),
+    ("fft3d_with_cufft", "FFT3DWithCUFFT", "cupy"),
 )
 
 
@@ -128,8 +123,8 @@ def make_pyx_files():
     templates["fft3d_pyx"] = load_template("template3d_mako.pyx")
     templates["fft3d_pxd"] = load_template("template3d_mako.pxd")
 
-    for module_name, class_name in variables:
-        make_file(module_name, class_name, templates)
+    for module_name, class_name, numpy_api in variables:
+        make_file(module_name, class_name, numpy_api, templates)
 
 
 def _remove(path):
@@ -138,7 +133,7 @@ def _remove(path):
 
 
 def clean_files():
-    for module_name, class_name in variables:
+    for module_name, class_name, _ in variables:
         path_pyx, path_pxd = get_path_files(module_name)
         _remove(path_pyx)
         _remove(path_pxd)

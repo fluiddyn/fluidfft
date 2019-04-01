@@ -16,5 +16,10 @@ class FFT2DWithPYFFTW(FFTW2DReal2Complex):
     def __init__(self, n0, n1):
         super(FFTclass, self).__init__(n1, n0)
 
+    @property
+    def _numpy_api(self):
+        import numpy as np
+        return np
+
 
 FFTclass = FFT2DWithPYFFTW

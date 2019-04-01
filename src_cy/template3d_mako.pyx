@@ -92,6 +92,11 @@ cdef class ${class_name}:
             self.thisptr.destroy()
         del self.thisptr
 
+    @property
+    def _numpy_api(self):
+        import ${numpy_api} as np
+        return np
+
     def get_short_name(self):
         """Get a short name of the class."""
         return self.__class__.__name__.lower()

@@ -22,5 +22,10 @@ class FFT3DWithPYFFTW(FFTW3DReal2Complex):
     def scatter_Xspace(self, arr, root=None):
         return arr
 
+    @property
+    def _numpy_api(self):
+        import numpy as np
+        return np
+
 
 FFTclass = FFT3DWithPYFFTW

@@ -139,12 +139,8 @@ class OperatorsPseudoSpectral2D(object):
 
         self.opfft = opfft
         self.type_fft = opfft.__class__.__module__
-
         # NOTE: Overwrites the value of `np` in the present scope
-        if "with_dask" in self.type_fft:
-            import dask.array as np
-        else:
-            import numpy as np
+        self._numpy_api = np = opfft._numpy_api
 
         self.is_transposed = opfft.get_is_transposed()
 
