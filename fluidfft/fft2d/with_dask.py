@@ -1,4 +1,3 @@
-
 """Class using Dask (:mod:`fluidfft.fft2d.with_dask`)
 =====================================================
 
@@ -9,7 +8,7 @@ TODO: Find a mechanism for setting chunksize
 
 """
 import warnings
-
+from typing import Union
 
 import numpy as np
 import dask.array as da
@@ -18,13 +17,33 @@ from pyfftw.interfaces import dask_fft, cache
 from fluiddyn.calcul.easypyfft import FFTW2DReal2Complex
 
 
+DaskOrNumpyArray = Union[da.core.Array, np.ndarray]
+
+
 class FFT2DWithDASK(FFTW2DReal2Complex):
-    def __init__(self, nx, ny):
+    """Perform Fast Fourier Transform in 2d using ``dask.array`` interface of
+    pyFFTW.
+
+    Parameters
+    ----------
+
+    n0 : int
+
+      Global size over the first dimension in spatial space. This corresponds
+      to the y direction.
+
+    n1 : int
+
+      Global size over the second dimension in spatial space. This corresponds
+      to the x direction.
+
+    """
+    def __init__(self, n0=2, n1=2):
         warnings.warn(
                 "The `with_dask` FFT class is a prototype and not fully "
                 "functional yet."
         )
-        shapeX = (ny, nx)
+        shapeX = (n1, n0)
 
         shapeK = list(shapeX)
         shapeK[-1] = shapeK[-1] // 2 + 1
@@ -32,7 +51,7 @@ class FFT2DWithDASK(FFTW2DReal2Complex):
 
         self.shapeX = shapeX
         self.shapeK = self.shapeK_seq = self.shapeK_loc = shapeK
-        self.coef_norm = da.prod(np.array(shapeX))
+        self.coef_norm = da.prod(da.asarray(shapeX))
         self.inv_coef_norm = 1.0 / self.coef_norm
 
         self.chunks = "auto"
@@ -49,59 +68,39 @@ class FFT2DWithDASK(FFTW2DReal2Complex):
         self.ifft_as_arg_destroy = self.ifft_as_arg
         self.empty_aligned = da.empty
 
-    def fft(self, fieldX):
+    def fft(self, fieldX: DaskOrNumpyArray) -> da.core.Array:
         if isinstance(fieldX, np.ndarray):
             fieldX = da.asarray(fieldX)
 
         fieldK = dask_fft.rfft2(fieldX)
-        return fieldK / self.coef_norm
+        return fieldK * self.inv_coef_norm
 
-    def ifft(self, fieldK):
+    def ifft(self, fieldK: DaskOrNumpyArray) -> da.core.Array:
         if isinstance(fieldK, np.ndarray):
             fieldK = da.asarray(fieldK)
 
         fieldX = dask_fft.irfft2(fieldK)
-        return fieldX
+        return fieldX * self.coef_norm
 
-    def fft_as_arg(self, field, field_fft):
+    def fft_as_arg(self, field: DaskOrNumpyArray, field_fft: np.ndarray) -> None:
         field_fft[:] = self.fft(field)
 
-    def ifft_as_arg(self, field_fft, field):
+    def ifft_as_arg(self, field_fft: DaskOrNumpyArray, field: np.ndarray) -> None:
         field[:] = self.ifft(field_fft)
 
-    def compute_energy_from_Fourier(self, ff_fft):
+    def compute_energy_from_Fourier(self, ff_fft: DaskOrNumpyArray) -> float:
         result = (
             da.sum(abs(ff_fft[:, 0]) ** 2 + abs(ff_fft[:, -1]) ** 2)
             + 2 * da.sum(abs(ff_fft[:, 1:-1]) ** 2)
         ) / 2
-        return result
+        return result.compute()
 
-    def compute_energy_from_spatial(self, ff):
+    def compute_energy_from_spatial(self, ff: DaskOrNumpyArray) -> float:
         result = da.mean(abs(ff) ** 2) / 2
-        return result
-
-    def run_tests(self):
-        arr = da.random.random_sample(self.shapeX)
-        arr_fft = self.fft(arr)
-        arr = self.ifft(arr_fft)
-        arr_fft = self.fft(arr)
-
-        nrj = self.compute_energy_from_spatial(arr)
-        nrj_fft = self.compute_energy_from_Fourier(arr_fft)
-
-        assert da.allclose(nrj, nrj_fft).compute()
-
-        arr2_fft = np.zeros(self.shapeK, dtype=np.complex128)
-        self.fft_as_arg(arr, arr2_fft)
-        nrj2_fft = self.compute_energy_from_Fourier(arr2_fft)
-        assert da.allclose(nrj, nrj2_fft).compute()
-
-        arr2 = np.empty(self.shapeX)
-        self.ifft_as_arg(arr_fft, arr2)
-        nrj2 = self.compute_energy_from_spatial(arr2)
-        assert da.allclose(nrj, nrj2).compute()
+        return result.compute()
 
     compute_energy_from_K = compute_energy_from_Fourier
+    compute_energy_from_X = compute_energy_from_spatial
 
 
 FFTclass = FFT2DWithDASK
