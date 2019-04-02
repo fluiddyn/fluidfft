@@ -21,6 +21,7 @@ class FFT2DWithPYFFTW(FFTW2DReal2Complex):
     def _numpy_api(self):
         """A ``@property`` which imports and returns a NumPy-like array backend."""
         import numpy as np
+
         return np
 
     def create_arrayX(self, value=None, shape=None):

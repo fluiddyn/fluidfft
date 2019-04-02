@@ -21,6 +21,7 @@ class FFT3DWithPYFFTW(FFTW3DReal2Complex):
     def _numpy_api(self):
         """A ``@property`` which imports and returns a NumPy-like array backend."""
         import numpy as np
+
         return np
 
     def gather_Xspace(self, arr, root=None):

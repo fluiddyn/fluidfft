@@ -14,7 +14,7 @@ import fluidfft
 class OperatorsBase:
     """An abstract base class for sharing methods across operator classes."""
 
-    def empty_aligned(self, shape, dtype='float64', order='C', n=None):
+    def empty_aligned(self, shape, dtype="float64", order="C", n=None):
         try:
             return self.opfft.empty_aligned(shape, dtype)
         except AttributeError:
@@ -25,7 +25,6 @@ class OperatorsBase:
             return self.opfft.byte_align(array, dtype)
         except AttributeError:
             return fluidfft.byte_align(array, n, dtype)
-
 
     def _rescale_random(self, values, min_val=None, max_val=None):
         byte_align = self.byte_align

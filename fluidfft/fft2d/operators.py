@@ -340,7 +340,14 @@ class OperatorsPseudoSpectral2D(OperatorsBase):
 
     def sum_wavenumbers(self, field_fft):
         """Compute the sum over all wavenumbers."""
-        return self.opfft.sum_wavenumbers(np.ascontiguousarray(field_fft))
+        np = self._numpy_api
+        try:
+            return self.opfft.sum_wavenumbers(np.ascontiguousarray(field_fft))
+        except AttributeError:
+            # Dask does not implement ascontiguousarray. Although the above
+            # expression works as is, if numpy is used as np, it computes
+            # field_fft from a lazy dask array into a numpy array
+            return self.opfft.sum_wavenumbers(field_fft)
 
     def sum_wavenumbers_versatile(self, field_fft):
         """Compute the sum over all wavenumbers (versatile version).
@@ -382,7 +389,37 @@ class OperatorsPseudoSpectral2D(OperatorsBase):
 
     def compute_1dspectra(self, energy_fft):
         """Compute the 1D spectra. Return a dictionary."""
-        if self.is_sequential and not self.is_transposed:
+        if self.type_fft == "fluidfft.fft2d.with_dask":
+            # Alternate algorithm since dask does not support array mutation
+            # https://github.com/dask/dask/issues/4399#issuecomment-462080036
+            # https://stackoverflow.com/questions/36142892/item-assignment-to-python-dask-array-objects
+            np = self._numpy_api
+            # computation of E_kx
+            E_kx = 2.0 * energy_fft.sum(self.dim_ky) / self.deltakx
+            # concatenate instead of mutation
+            begin = E_kx[0:1] / 2
+            middle = E_kx[1:-1]
+            end = E_kx[-1:]
+            if self.nx_seq % 2 == 0:
+                end /= 2
+            E_kx = np.concatenate([begin, middle, end], axis=0)
+            E_kx = E_kx[: self.nkxE].compute()
+            # computation of E_ky
+            E_ky_tmp = energy_fft[:, 0].copy()
+            E_ky_tmp += 2 * energy_fft[:, 1 : self.nkxE2].sum(1)
+            if self.nx_seq % 2 == 0:
+                E_ky_tmp += energy_fft[:, self.nkxE - 1]
+            nkyE = self.nkyE
+            E_ky = E_ky_tmp[:nkyE]
+            # concatenate
+            begin = E_ky[0:1]
+            middle = (
+                E_ky[1 : self.nkyE2] + E_ky_tmp[self.nkyE : self.nky_seq][::-1]
+            )
+            end = E_ky[self.nkyE2 :]
+            E_ky = np.concatenate([begin, middle, end])
+            E_ky = (E_ky / self.deltaky).compute()
+        elif self.is_sequential and not self.is_transposed:
             # In this case, self.dim_ky == 0 and self.dim_kx == 1
             # note that only the kx >= 0 are in the spectral variables
             #

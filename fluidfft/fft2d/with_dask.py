@@ -55,7 +55,8 @@ class FFT2DWithDASK(FFTW2DReal2Complex):
         self.coef_norm = np.prod(shapeX)
         self.inv_coef_norm = 1.0 / self.coef_norm
 
-        self.chunks = "auto"
+        # TODO:
+        # self.chunks = "auto"
 
         # The cache temporarily stores a copy of any interim pyfftw.FFTW
         # objects that are created
@@ -73,6 +74,7 @@ class FFT2DWithDASK(FFTW2DReal2Complex):
     def _numpy_api(self):
         """A ``@property`` which imports and returns a NumPy-like array backend."""
         import dask.array as np
+
         return np
 
     def fft(self, fieldX: DaskOrNumpyArray) -> da.core.Array:
@@ -96,14 +98,17 @@ class FFT2DWithDASK(FFTW2DReal2Complex):
         field[:] = self.ifft(field_fft)
 
     def compute_energy_from_Fourier(self, ff_fft: DaskOrNumpyArray) -> float:
-        result = (
-            da.sum(abs(ff_fft[:, 0]) ** 2 + abs(ff_fft[:, -1]) ** 2)
-            + 2 * da.sum(abs(ff_fft[:, 1:-1]) ** 2)
-        ) / 2
+        if isinstance(ff_fft, np.ndarray):
+            ff_fft = da.asarray(ff_fft)
+
+        result = super().compute_energy_from_Fourier(ff_fft)
         return result.compute()
 
     def compute_energy_from_spatial(self, ff: DaskOrNumpyArray) -> float:
-        result = da.mean(abs(ff) ** 2) / 2
+        if isinstance(ff, np.ndarray):
+            ff = da.asarray(ff)
+
+        result = super().compute_energy_from_spatial(ff)
         return result.compute()
 
     def byte_align(self, array, n=None, dtype=None):
