@@ -7,7 +7,6 @@
 """
 
 # to get a clear ImportError in case...
-import numpy as np
 import pyfftw
 
 from fluiddyn.calcul.easypyfft import FFTW3DReal2Complex
