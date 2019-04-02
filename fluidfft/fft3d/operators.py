@@ -15,7 +15,7 @@ from transonic import boost, Array, Type
 from fluiddyn.util import mpi
 
 from fluidfft import create_fft_object, empty_aligned
-from fluidfft.util import _rescale_random
+from fluidfft.base import OperatorsBase
 from fluidfft.fft2d.operators import _make_str_length
 
 Ac = "complex128[:,:,:]"
@@ -94,7 +94,7 @@ def get_simple_3d_mpi_method():
 
 
 @boost
-class OperatorsPseudoSpectral3D:
+class OperatorsPseudoSpectral3D(OperatorsBase):
     """Perform 2D FFT and operations on data.
 
     Parameters
@@ -169,6 +169,7 @@ class OperatorsPseudoSpectral3D:
         else:
             op_fft = fft
 
+        # FIXME: discrepancy with fft2d operator where self.opfft is used
         self._op_fft = op_fft
         self.type_fft = op_fft.__class__.__module__
 
@@ -318,7 +319,6 @@ class OperatorsPseudoSpectral3D:
             2, int(self.kmax_spectra3d / self.deltak_spectra3d)
         )
         self.k_spectra3d = self.deltak_spectra3d * np.arange(self.nk_spectra3d)
-        super().__init__()
 
     # self.tmp_fields_fft = tuple(self.create_arrayK() for n in range(6))
 
@@ -382,30 +382,24 @@ class OperatorsPseudoSpectral3D:
     def create_arrayX(self, value=None, shape="loc"):
         """Return a constant array in real space."""
         shapeX = self._get_shapeX(shape)
-        field = empty_aligned(shapeX)
-        if value is not None:
-            field.fill(value)
-        return field
+        return self._op_fft.create_arrayX(value, shapeX)
 
     def create_arrayK(self, value=None, shape="loc"):
-        """Return a constant array in real space."""
+        """Return a constant array in spectral space."""
         shapeK = self._get_shapeK(shape)
-        field = empty_aligned(shapeK, dtype=np.complex128)
-        if value is not None:
-            field.fill(value)
-        return field
+        return self._op_fft.create_arrayK(value, shapeK)
 
     def create_arrayX_random(self, shape="loc", min_val=None, max_val=None):
         """Return a random array in real space."""
         shape = self._get_shapeX(shape)
         values = np.random.random(shape)
-        return _rescale_random(values, min_val, max_val)
+        return self._rescale_random(values, min_val, max_val)
 
     def create_arrayK_random(self, shape="loc", min_val=None, max_val=None):
         """Return a random array in real space."""
         shape = self._get_shapeK(shape)
         values = np.random.random(shape) + 1j * np.random.random(shape)
-        return _rescale_random(values, min_val, max_val)
+        return self._rescale_random(values, min_val, max_val)
 
     def sum_wavenumbers_versatile(self, field_fft):
         """Compute the sum over all wavenumbers (versatile version).

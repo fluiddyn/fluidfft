@@ -121,7 +121,7 @@ class FFT2DWithDASK(FFTW2DReal2Complex):
     def create_arrayK(self, value=None, shape=None):
         """Return a constant array in real space."""
         if value is not None:
-            field = da.ones(shape) * value
+            field = da.ones(shape, dtype=np.complex128) * value
         else:
             field = self.empty_aligned(shape, dtype=np.complex128)
         return field

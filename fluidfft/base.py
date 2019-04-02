@@ -8,22 +8,23 @@
 
 """
 import numpy as np
-import pyfftw
+import fluidfft
 
 
 class OperatorsBase:
     """An abstract base class for sharing methods across operator classes."""
 
-    def __init__(self):
+    def empty_aligned(self, shape, dtype='float64', order='C', n=None):
         try:
-            self.empty_aligned = self.opfft.empty_aligned
+            return self.opfft.empty_aligned(shape, dtype)
         except AttributeError:
-            self.empty_aligned = pyfftw.empty_aligned
+            return fluidfft.empty_aligned(shape, dtype, order, n)
 
+    def byte_align(self, array, n=None, dtype=None):
         try:
-            self.byte_align = self.opfft.byte_align
+            return self.opfft.byte_align(array, dtype)
         except AttributeError:
-            self.byte_align = pyfftw.byte_align
+            return fluidfft.byte_align(array, n, dtype)
 
 
     def _rescale_random(self, values, min_val=None, max_val=None):

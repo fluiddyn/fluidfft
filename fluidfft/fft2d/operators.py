@@ -296,7 +296,6 @@ class OperatorsPseudoSpectral2D(OperatorsBase):
         x_loc = x_loc * self.deltax
 
         self.XX, self.YY = np.meshgrid(x_loc, y_loc)
-        super().__init__()
 
     # Some arrays below are made cached_property mainly because setting them are
     # possible only using numpy arrays and not as dask array. There is also the

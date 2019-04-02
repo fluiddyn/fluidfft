@@ -31,7 +31,7 @@ if __name__ == "__main__":
         op.opfft.run_tests()
         print("Basic tests pass")
 
-        print("Testing _numpy_api property... expecting dask")
+        print("Testing _numpy_api property...")
         np = op._numpy_api
         print(type(np.ones(2)))
 
