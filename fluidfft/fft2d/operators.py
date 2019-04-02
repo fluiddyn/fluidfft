@@ -342,12 +342,13 @@ class OperatorsPseudoSpectral2D(OperatorsBase):
         """Compute the sum over all wavenumbers."""
         np = self._numpy_api
         try:
-            return self.opfft.sum_wavenumbers(np.ascontiguousarray(field_fft))
+            field_fft = np.ascontiguousarray(field_fft)
         except AttributeError:
             # Dask does not implement ascontiguousarray. Although the above
             # expression works as is, if numpy is used as np, it computes
             # field_fft from a lazy dask array into a numpy array
-            return self.opfft.sum_wavenumbers(field_fft)
+            pass
+        return self.opfft.sum_wavenumbers(field_fft)
 
     def sum_wavenumbers_versatile(self, field_fft):
         """Compute the sum over all wavenumbers (versatile version).

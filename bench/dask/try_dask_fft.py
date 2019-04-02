@@ -7,7 +7,7 @@ from fluidfft.fft2d.test_2d import complete_class
 
 
 def get_oper(fft):
-    nx = ny = 2
+    nx = ny = 16
     lx = ly = 2 * pi
     return OperatorsPseudoSpectral2D(nx, ny, lx, ly, fft=fft)
 
@@ -36,10 +36,10 @@ if __name__ == "__main__":
         print(type(np.ones(2)))
 
         print("Create array methods")
-        print(op.create_arrayX(value=2.0))
-        print(op.create_arrayK(value=2.0))
-        print(op.create_arrayX_random())
-        print(op.create_arrayK_random())
+        print(op.create_arrayX(value=2.0).dtype)
+        print(op.create_arrayK(value=2.0).dtype)
+        print(op.create_arrayX_random().dtype)
+        print(op.create_arrayK_random().dtype)
 
         print("Benchmarking...")
         op.opfft.run_benchs()
