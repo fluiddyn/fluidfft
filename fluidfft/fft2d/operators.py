@@ -389,11 +389,11 @@ class OperatorsPseudoSpectral2D(OperatorsBase):
 
     def compute_1dspectra(self, energy_fft):
         """Compute the 1D spectra. Return a dictionary."""
+        np = self._numpy_api
         if self.type_fft == "fluidfft.fft2d.with_dask":
             # Alternate algorithm since dask does not support array mutation
             # https://github.com/dask/dask/issues/4399#issuecomment-462080036
             # https://stackoverflow.com/questions/36142892/item-assignment-to-python-dask-array-objects
-            np = self._numpy_api
             # computation of E_kx
             E_kx = 2.0 * energy_fft.sum(self.dim_ky) / self.deltakx
             # concatenate instead of mutation
