@@ -95,7 +95,6 @@ class BaseFFTMPI(BaseFFT):
 
     def get_local_size_X(self):
         """Get the local size in real space."""
-        # assuming no padding
         shape = self.get_shapeX_loc()
         return shape[0] * shape[1] * shape[2]
 
@@ -391,18 +390,34 @@ class BaseFFTMPI(BaseFFT):
 
     def compute_energy_from_spatial(self, fieldX):
         """Compute the mean energy from a real space array."""
-        energy = fieldX ** 2 / 2
+        energy = fieldX ** 2
 
         if not self._is_mpi_lib:
-            return energy.mean()
+            return energy.mean() / 2
 
         energy_sum = energy.sum()
         energy_sum = mpi.comm.allreduce(energy_sum, op=mpi.MPI.SUM)
-        return energy_sum / self.get_local_size_X()
+        return energy_sum / np.prod(self.get_shapeX_seq()) / 2
 
     def compute_energy_from_Fourier(self, fieldK):
         """Compute the mean energy from a Fourier space array."""
-        return self.sum_wavenumbers(abs(fieldK) ** 2 / 2)
+        return self.sum_wavenumbers(abs(fieldK) ** 2) / 2
 
     compute_energy_from_X = compute_energy_from_spatial
     compute_energy_from_K = compute_energy_from_Fourier
+
+    def print_summary_for_debug(self):
+        from fluiddyn.util.mpi import print_sorted as print
+
+        print("get_dim_first_fft()", self.get_dim_first_fft())
+        print("dimK_first_fft", self.dimK_first_fft)
+
+        print("get_k_adim_loc()", self.get_k_adim_loc())
+
+        print("get_local_size_X()", self.get_local_size_X())
+        print("get_seq_indices_first_K()", self.get_seq_indices_first_K())
+        print("get_seq_indices_first_X()", self.get_seq_indices_first_X())
+
+        print("get_shapeX_loc()", self.get_shapeX_loc())
+        print("get_shapeK_loc()", self.get_shapeK_loc())
+        print("get_dimX_K():", self.get_dimX_K())

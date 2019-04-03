@@ -49,11 +49,11 @@ class FFT3dMPIWithMPI4PyFFT(BaseFFTMPI):
 
     def create_arrayX(self, value=None):
         """Return a constant array in real space."""
-        return newDistArray(self._mpifft, False, value=value)
+        return newDistArray(self._mpifft, False, val=value)
 
     def create_arrayK(self, value=None):
         """Return a constant array in real space."""
-        return newDistArray(self._mpifft, True, value=value)
+        return newDistArray(self._mpifft, True, val=value)
 
     def fft_as_arg(self, fieldX, fieldK):
         """Perform FFT and put result in second argument."""
@@ -67,15 +67,11 @@ class FFT3dMPIWithMPI4PyFFT(BaseFFTMPI):
 
     def fft(self, fieldX):
         """Perform FFT and return the result."""
-        fieldK = newDistArray(self._mpifft, True)
-        self._mpifft.forward(input_array=fieldX, output_array=fieldK)
-        return fieldK
+        return self._mpifft.forward(input_array=fieldX)
 
     def ifft(self, fieldK):
         """Perform iFFT and return the result."""
-        fieldX = newDistArray(self._mpifft, False)
-        self._mpifft.backward(input_array=fieldK, output_array=fieldX)
-        return fieldX
+        return self._mpifft.backward(input_array=fieldK)
 
     def get_shapeX_loc(self):
         """Get the shape of the array in real space for this mpi process."""
@@ -95,8 +91,9 @@ class FFT3dMPIWithMPI4PyFFT(BaseFFTMPI):
 
     def get_dimX_K(self):
         """Get the indices of the real space dimension in Fourier space."""
+        # no transpose
         # why?
-        return (1, 0, 2)
+        return (0, 1, 2)
 
     def get_seq_indices_first_K(self):
         """Get the "sequential" indices of the first number in Fourier space."""
@@ -134,3 +131,12 @@ class FFT3dMPIWithMPI4PyFFT(BaseFFTMPI):
 
 
 FFTclass = FFT3dMPIWithMPI4PyFFT
+
+
+if __name__ == "__main__":
+    # mpirun -np 2 python -m fluidfft.fft3d.mpi_with_mpi4pyfft
+
+    offt = FFTclass(6, 14, 4)
+    offt.print_summary_for_debug()
+    offt.run_tests()
+    offt.run_benchs()
