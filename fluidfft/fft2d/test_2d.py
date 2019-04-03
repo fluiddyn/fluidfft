@@ -98,8 +98,6 @@ def make_testop_functions(name, cls):
 
             nrja = op.compute_energy_from_X(a)
             nrjafft = op.compute_energy_from_K(afft)
-            if n0 % 2 == 1:
-                breakpoint()
             self.assertAlmostEqual(nrja, nrjafft)
 
             nrja_mean_global = op.mean_global(0.5 * a ** 2)
