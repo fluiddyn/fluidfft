@@ -56,8 +56,8 @@ methods_mpi = [
     "fftwmpi3d",
     "p3dfft",
     "pfft",
-    # "mpi4pyfft",
-    # "mpi4pyfft_slab",
+    "mpi4pyfft",
+    "mpi4pyfft_slab",
 ]
 methods_mpi = ["fft3d.mpi_with_" + method for method in methods_mpi]
 

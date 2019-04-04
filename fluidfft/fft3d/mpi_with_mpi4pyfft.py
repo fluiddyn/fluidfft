@@ -47,11 +47,11 @@ class FFT3dMPIWithMPI4PyFFT(BaseFFTMPI):
 
         super().__init__(n0, n1, n2)
 
-    def create_arrayX(self, value=None):
+    def create_arrayX(self, value=None, shape=None):
         """Return a constant array in real space."""
         return newDistArray(self._mpifft, False, val=value)
 
-    def create_arrayK(self, value=None):
+    def create_arrayK(self, value=None, shape=None):
         """Return a constant array in real space."""
         return newDistArray(self._mpifft, True, val=value)
 
