@@ -14,7 +14,7 @@ import numpy as np
 from transonic import boost, Array, Type
 from fluiddyn.util import mpi
 
-from fluidfft import create_fft_object, empty_aligned
+from fluidfft import create_fft_object
 from fluidfft.base import OperatorsBase
 from fluidfft.fft2d.operators import _make_str_length
 

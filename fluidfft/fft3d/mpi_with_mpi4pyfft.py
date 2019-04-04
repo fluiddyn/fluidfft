@@ -6,7 +6,7 @@ from mpi4py_fft import PFFT, newDistArray
 from .base import BaseFFTMPI
 
 
-class FFT3dMPIWithMPI4PyFFT(BaseFFTMPI):
+class FFT3DMPIWithMPI4PYFFT(BaseFFTMPI):
     """Perform Fast Fourier Transform in 3D.
 
     Parameters
@@ -131,7 +131,7 @@ class FFT3dMPIWithMPI4PyFFT(BaseFFTMPI):
     # compute_energy_from_K = compute_energy_from_Fourier
 
 
-FFTclass = FFT3dMPIWithMPI4PyFFT
+FFTclass = FFT3DMPIWithMPI4PYFFT
 
 
 if __name__ == "__main__":

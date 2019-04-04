@@ -1,9 +1,7 @@
-from .mpi_with_mpi4pyfft import FFT3dMPIWithMPI4PyFFT
+from .mpi_with_mpi4pyfft import FFT3DMPIWithMPI4PYFFT
 
 
-class FFT3dMPIWithMPI4PyFFTSlab(FFT3dMPIWithMPI4PyFFT):
-    _slab = True
-
+class FFT3DMPIWithMPI4PYFFTSlab(FFT3DMPIWithMPI4PYFFT):
     """Perform Fast Fourier Transform in 3D.
 
     Parameters
@@ -26,8 +24,10 @@ class FFT3dMPIWithMPI4PyFFTSlab(FFT3dMPIWithMPI4PyFFT):
 
     """
 
+    _slab = True
 
-FFTclass = FFT3dMPIWithMPI4PyFFTSlab
+
+FFTclass = FFT3DMPIWithMPI4PYFFTSlab
 
 if __name__ == "__main__":
     # mpirun -np 2 python -m fluidfft.fft3d.mpi_with_mpi4pyfft_slab
