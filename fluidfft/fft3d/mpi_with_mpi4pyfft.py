@@ -91,9 +91,10 @@ class FFT3dMPIWithMPI4PyFFT(BaseFFTMPI):
 
     def get_dimX_K(self):
         """Get the indices of the real space dimension in Fourier space."""
-        # no transpose
-        # why?
-        return (0, 1, 2)
+        # "mpi4py-fft never transposes axes. Not to transpose is one of the
+        # main selling points for the algorithm, transposing is complicated!""
+        # Mikael Mortensen
+        return 0, 1, 2
 
     def get_seq_indices_first_K(self):
         """Get the "sequential" indices of the first number in Fourier space."""
