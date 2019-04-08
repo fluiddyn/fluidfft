@@ -46,12 +46,38 @@ except ImportError:
         return values
 
 
+__citation__ = """
+@article{fluiddyn,
+doi = {10.5334/jors.237},
+year = {2019},
+publisher = {Ubiquity Press,  Ltd.},
+volume = {7},
+author = {Pierre Augier and Ashwin Vishnu Mohanan and Cyrille Bonamy},
+title = {{FluidDyn}: A Python Open-Source Framework for Research and Teaching in Fluid Dynamics
+    by Simulations,  Experiments and Data Processing},
+journal = {Journal of Open Research Software}
+}
+
+@article{fluidfft,
+doi = {10.5334/jors.238},
+year = {2019},
+publisher = {Ubiquity Press,  Ltd.},
+volume = {7},
+author = {Ashwin Vishnu Mohanan and Cyrille Bonamy and Pierre Augier},
+title = {{FluidFFT}: Common {API} (C$\mathplus\mathplus$ and Python)
+    for Fast Fourier Transform {HPC} Libraries},
+journal = {Journal of Open Research Software}
+}
+"""
+
+
 __all__ = [
     "__version__",
     "import_fft_class",
     "create_fft_object",
     "empty_aligned",
     "byte_align",
+    "__citation__",
 ]
 
 

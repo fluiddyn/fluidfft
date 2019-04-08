@@ -139,3 +139,36 @@ Fluidfft is distributed under the CeCILL_ License, a GPL compatible
 french license.
 
 .. _CeCILL: http://www.cecill.info/index.en.html
+
+Metapapers and citations
+------------------------
+
+If you use FluidFFT to produce scientific articles, please cite our metapapers
+presenting the `FluidDyn project
+<https://openresearchsoftware.metajnl.com/articles/10.5334/jors.237/>`__
+and `Fluidfft
+<https://openresearchsoftware.metajnl.com/articles/10.5334/jors.238/>`__:
+
+.. code ::
+
+    @article{fluiddyn,
+    doi = {10.5334/jors.237},
+    year = {2019},
+    publisher = {Ubiquity Press,  Ltd.},
+    volume = {7},
+    author = {Pierre Augier and Ashwin Vishnu Mohanan and Cyrille Bonamy},
+    title = {{FluidDyn}: A Python Open-Source Framework for Research and Teaching in Fluid Dynamics
+        by Simulations,  Experiments and Data Processing},
+    journal = {Journal of Open Research Software}
+    }
+
+    @article{fluidfft,
+    doi = {10.5334/jors.238},
+    year = {2019},
+    publisher = {Ubiquity Press,  Ltd.},
+    volume = {7},
+    author = {Ashwin Vishnu Mohanan and Cyrille Bonamy and Pierre Augier},
+    title = {{FluidFFT}: Common {API} (C$\mathplus\mathplus$ and Python)
+        for Fast Fourier Transform {HPC} Libraries},
+    journal = {Journal of Open Research Software}
+    }
