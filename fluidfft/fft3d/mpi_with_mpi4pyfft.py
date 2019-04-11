@@ -40,6 +40,7 @@ class FFT3DMPIWithMPI4PYFFT(BaseFFTMPI):
             axes=(0, 1, 2),
             dtype=np.float,
             slab=self._slab,
+            # backend='pyfftw',  # no segfault with the pyfftw backend
         )
 
         self.shapeX = self.get_shapeX_loc()
