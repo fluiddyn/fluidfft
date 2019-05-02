@@ -46,7 +46,7 @@ except ImportError:
         return values
 
 
-__citation__ = """
+__citation__ = r"""
 @article{fluiddyn,
 doi = {10.5334/jors.237},
 year = {2019},

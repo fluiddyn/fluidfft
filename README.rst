@@ -26,6 +26,10 @@
 .. |travis| image:: https://travis-ci.org/fluiddyn/fluidfft.svg?branch=master
     :target: https://travis-ci.org/fluiddyn/fluidfft
 
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/s75as4ikeetrk6f3/branch/default?svg=true
+   :target: https://ci.appveyor.com/project/fluiddyn/fluiddyn
+   :alt: AppVeyor status
+
 .. |binder| image:: https://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/fluiddyn/fluidfft/master?urlpath=lab/tree/doc/ipynb
    :alt: Binder notebook
