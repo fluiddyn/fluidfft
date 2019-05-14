@@ -12,6 +12,8 @@ are:
 - :class:`fluidfft3d.mpi_with_fftwmpi3d.FFT3DMPIWithFFTW1D`
 - :class:`fluidfft3d.mpi_with_pfft.FFT3DMPIWithPFFT`
 - :class:`fluidfft3d.mpi_with_p3dfft.FFT3DMPIWithP3DFFT`
+- :class:`fluidfft3d.mpi_with_mpi4pyfft.FFT3DMPIWithMPI4PYFFT`
+- :class:`fluidfft3d.mpi_with_mpi4pyfft_slab.FFT3DMPIWithMPI4PYFFTSlab`
 
 To use the FFT classes in real codes, it is simpler and recommended to use the
 class :class:`fluidfft.fft3d.operators.OperatorsPseudoSpectral3D` defined in

@@ -1,3 +1,9 @@
+# Trying to understand a segfault
+
+See https://bitbucket.org/fluiddyn/fluidfft/pull-requests/10 and
+https://bitbucket.org/mpi4py/mpi4py-fft/issues/6/possible-incompatibility-with-fftw3_mpi
+
+## Using pyfftw (with an old version) prevents the segfault!
 
 ```
 pyenv shell 3.7.2
@@ -30,6 +36,9 @@ cd /tmp/tmp_debug/fluidfft
 mpirun -np 2 pytest -s
 
 ```
+
+There is no segfault when commit 483:46d5880b5022 is used and there is the
+segfault with 484:6665eea446f7.
 
 ```
 hg log -G -r 483::484
@@ -80,7 +89,12 @@ pyfftw_no_segfault/pyfftw.cpython-37m-x86_64-linux-gnu.so:
 	...
 ```
 
-This seems to indicate that it is a problem with libfftw3_threads / libfftw3_omp.
+This seems to indicate that it is a problem with libfftw3_threads / libfftw3_omp. However, I really don't understand why the second version prevents the segfault...
+
+For an introduction on the differences between POSIX Threads and OMP, see
+https://stackoverflow.com/questions/3949901/pthreads-vs-openmp
+
+mpi4py_fft uses MPI + libfftw3_threads:
 
 ```
 ldd mpi4py_fft/fftw/fftw_xfftn.cpython-37m-x86_64-linux-gnu.so
@@ -89,6 +103,12 @@ ldd mpi4py_fft/fftw/fftw_xfftn.cpython-37m-x86_64-linux-gnu.so
 	libfftw3_threads.so.3 => /usr/lib/x86_64-linux-gnu/libfftw3_threads.so.3 (0x00007fbe64998000)
     ...
 ```
+
+The FFTW3 documentation on this subject:
+http://www.fftw.org/fftw3_doc/Combining-MPI-and-Threads.html
+
+pyfftw also uses PThreads or OMP, see
+https://github.com/pyFFTW/pyFFTW/issues/174
 
 ```
 ldd fluidfft/fft3d/mpi_with_fftwmpi3d.cpython-37m-x86_64-linux-gnu.so
