@@ -461,10 +461,6 @@ cdef class ${class_name}:
         return <float> self.thisptr.compute_energy_from_K(
             <mycomplex*> &fieldK[0, 0, 0])
 
-    def sum_wavenumbers(self, view3df_t fieldK):
-        """Compute the sum over all wavenumbers."""
-        raise NotImplementedError
-
     def create_arrayX(self, value=None, shape=None):
         """Return a constant array in real space."""
         if shape is None:

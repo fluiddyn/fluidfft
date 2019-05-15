@@ -45,13 +45,16 @@ in particular
 
 - `p3dfft <https://github.com/sdsc/p3dfft>`_
 
+- `mpi4py-fft <https://bitbucket.org/mpi4py/mpi4py-fft>`_
+
 - `cufft <https://developer.nvidia.com/cufft>`_ (fft library by CUDA
   running on GPU)
 
-`pfft <https://github.com/mpip/pfft>`_ and `p3dfft
-<https://github.com/sdsc/p3dfft>`_ are specialized in computing FFT efficiently
-on several cores of big clusters. The data is split in pencils and can be
-distributed on several processes.
+`pfft <https://github.com/mpip/pfft>`_, `p3dfft
+<https://github.com/sdsc/p3dfft>`_ and `mpi4py-fft
+<https://bitbucket.org/mpi4py/mpi4py-fft>`_ are specialized in computing FFT
+efficiently on several cores of big clusters. The data can be split in pencils
+and can be distributed on several processes.
 
 **Documentation**: https://fluidfft.readthedocs.io
 

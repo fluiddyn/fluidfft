@@ -17,7 +17,7 @@ from transonic import boost
 from fluiddyn.util import mpi
 from fluiddyn.util.compat import cached_property
 
-from fluidfft import create_fft_object, empty_aligned
+from fluidfft import create_fft_object
 from fluidfft.base import OperatorsBase
 
 
