@@ -73,6 +73,37 @@ def loop_spectra3d(spectrum_k0k1k2: Af, ks: "float[]", K2: Af):
     return spectrum3d
 
 
+@boost
+def loop_spectra_kzkh(
+    spectrum_k0k1k2: Af, khs: "float[]", KH: Af, kzs: "float[]", KZ: Af
+):
+    """Compute the kz-kh spectrum."""
+    deltakh = khs[1]
+    deltakz = kzs[1]
+    nkh = len(khs)
+    nkz = len(kzs)
+    spectrum_kzkh = np.zeros((nkz, nkh))
+    nk0, nk1, nk2 = spectrum_k0k1k2.shape
+    for ik0 in range(nk0):
+        for ik1 in range(nk1):
+            for ik2 in range(nk2):
+                value = spectrum_k0k1k2[ik0, ik1, ik2]
+                kappa = KH[ik0, ik1, ik2]
+                ikh = int(kappa / deltakh)
+                kz = abs(KZ[ik0, ik1, ik2])
+                ikz = int(kz / deltakz)
+                if ikz >= nkz - 1:
+                    ikz = nkz - 1
+                if ikh >= nkh - 1:
+                    ikh = nkh - 1
+                    spectrum_kzkh[ikz, ikh] += value
+                else:
+                    coef_share = (kappa - khs[ikh]) / deltakh
+                    spectrum_kzkh[ikz, ikh] += (1 - coef_share) * value
+                    spectrum_kzkh[ikz, ikh + 1] += coef_share * value
+    return spectrum_kzkh
+
+
 def get_simple_3d_seq_method():
     try:
         import pyfftw
@@ -319,6 +350,11 @@ class OperatorsPseudoSpectral3D(OperatorsBase):
             2, int(self.kmax_spectra3d / self.deltak_spectra3d)
         )
         self.k_spectra3d = self.deltak_spectra3d * np.arange(self.nk_spectra3d)
+
+        self.deltakh = max(self.deltakx, self.deltaky)
+        self.khmax_spectra = min(self.kxmax_spectra, self.kymax_spectra)
+        self.nkh_spectra = max(2, int(self.khmax_spectra / self.deltakh))
+        self.kh_spectra = self.deltakh * np.arange(self.nkh_spectra)
 
     # self.tmp_fields_fft = tuple(self.create_arrayK() for n in range(6))
 
@@ -651,6 +687,19 @@ class OperatorsPseudoSpectral3D(OperatorsBase):
         if self._is_mpi_lib:
             spectrum3d = mpi.comm.allreduce(spectrum3d, op=mpi.MPI.SUM)
         return spectrum3d / self.deltak_spectra3d
+
+    def compute_spectrum_kzkh(self, energy_fft):
+        """Compute the kz-kh spectrum.
+
+        """
+        khs = self.kh_spectra
+        KH = np.sqrt(self.Kx ** 2 + self.Ky ** 2)
+        kzs = self.deltakz * np.arange(self.nkz_spectra)
+        spectrum_k0k1k2 = self._compute_spectrum3d_loc(energy_fft)
+        spectrum = loop_spectra_kzkh(spectrum_k0k1k2, khs, KH, kzs, self.Kz)
+        if self._is_mpi_lib:
+            spectrum = mpi.comm.allreduce(spectrum, op=mpi.MPI.SUM)
+        return spectrum / (self.deltakz * self.deltakh)
 
     def compute_spectra_2vars(self, energy_fft):
         """Compute spectra vs 2 variables.

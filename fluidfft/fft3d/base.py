@@ -150,9 +150,11 @@ class BaseFFTMPI(BaseFFT):
         if tuple(o2d.shapeX_seq) != tuple(o2d.shapeX_loc):
             raise ValueError("2d fft is with distributed memory...")
 
-        ind0seq_first, ind1seq_first, ind2seq_first = (
-            self.get_seq_indices_first_K()
-        )
+        (
+            ind0seq_first,
+            ind1seq_first,
+            ind2seq_first,
+        ) = self.get_seq_indices_first_K()
 
         if (nX1loc, nX2loc) == o2d.shapeX_loc:
             arr3d_loc_2dslice = arr2d
@@ -179,9 +181,11 @@ class BaseFFTMPI(BaseFFT):
         if o2d.shapeX_seq != o2d.shapeX_loc:
             raise ValueError("2d fft is with distributed memory...")
 
-        ind0seq_first, ind1seq_first, ind2seq_first = (
-            self.get_seq_indices_first_K()
-        )
+        (
+            ind0seq_first,
+            ind1seq_first,
+            ind2seq_first,
+        ) = self.get_seq_indices_first_K()
         dimX_K = self.get_dimX_K()
 
         arr3d = np.zeros([nK0loc, nK1loc, nK2loc], dtype=np.complex128)
