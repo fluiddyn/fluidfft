@@ -5,8 +5,8 @@ include_dir =
 library_dir =
 
 [fftw3_mpi]
-# https://github.com/conda-forge/fftw-feedstock/pull/52
-use = True
+# https://github.com/conda-forge/fftw-feedstock/pull/52 windows only has nompi
+use = False
 dir = $CONDA_PREFIX
 include_dir =
 library_dir =

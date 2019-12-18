@@ -96,12 +96,11 @@ def make_testop_functions(name, cls):
                 self.assertEqual(E_ky.shape[0], op.nky_spectra)
                 self.assertEqual(E_kz.shape[0], op.nkz_spectra)
 
-            try:
-                E_k = op.compute_3dspectrum(energy_fft)
-            except NotImplementedError:
-                pass
-            else:
-                self.assertAlmostEqual(nrja, E_k.sum() * op.deltak_spectra3d)
+            E_k = op.compute_3dspectrum(energy_fft)
+            self.assertAlmostEqual(nrja, E_k.sum() * op.deltak_spectra3d)
+
+            E_kz_kh = op.compute_spectrum_kzkh(energy_fft)
+            self.assertAlmostEqual(nrja, E_kz_kh.sum() * op.deltakh * op.deltakz)
 
             try:
                 E_kx_kyz, E_ky_kzx, E_kz_kxy = op.compute_spectra_2vars(

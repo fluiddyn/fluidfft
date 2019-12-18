@@ -1,3 +1,8 @@
+0.3.0 (2019-09-21)
+------------------
+
+- classes using mpi4py-fft
+- compatibility transonic 0.4.0
 
 0.2.9 (2019-03-07)
 ------------------

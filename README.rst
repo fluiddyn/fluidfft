@@ -26,6 +26,10 @@
 .. |travis| image:: https://travis-ci.org/fluiddyn/fluidfft.svg?branch=master
     :target: https://travis-ci.org/fluiddyn/fluidfft
 
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/s75as4ikeetrk6f3/branch/default?svg=true
+   :target: https://ci.appveyor.com/project/fluiddyn/fluiddyn
+   :alt: AppVeyor status
+
 .. |binder| image:: https://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/fluiddyn/fluidfft/master?urlpath=lab/tree/doc/ipynb
    :alt: Binder notebook
@@ -41,13 +45,16 @@ in particular
 
 - `p3dfft <https://github.com/sdsc/p3dfft>`_
 
+- `mpi4py-fft <https://bitbucket.org/mpi4py/mpi4py-fft>`_
+
 - `cufft <https://developer.nvidia.com/cufft>`_ (fft library by CUDA
   running on GPU)
 
-`pfft <https://github.com/mpip/pfft>`_ and `p3dfft
-<https://github.com/sdsc/p3dfft>`_ are specialized in computing FFT efficiently
-on several cores of big clusters. The data is split in pencils and can be
-distributed on several processes.
+`pfft <https://github.com/mpip/pfft>`_, `p3dfft
+<https://github.com/sdsc/p3dfft>`_ and `mpi4py-fft
+<https://bitbucket.org/mpi4py/mpi4py-fft>`_ are specialized in computing FFT
+efficiently on several cores of big clusters. The data can be split in pencils
+and can be distributed on several processes.
 
 **Documentation**: https://fluidfft.readthedocs.io
 
