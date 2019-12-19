@@ -27,8 +27,13 @@ public:
   ptrdiff_t local_X0_start, local_K0_start;
 
 private:
+#ifdef SINGLE_PREC
+  fftwf_plan plan_r2c, plan_c2c_fwd, plan_c2r, plan_c2c_bwd;
+  fftwf_plan plan_c2c1_fwd, plan_c2c1_bwd;
+#else
   fftw_plan plan_r2c, plan_c2c_fwd, plan_c2r, plan_c2c_bwd;
   fftw_plan plan_c2c1_fwd, plan_c2c1_bwd;
+#endif
   myreal *arrayX;
   mycomplex *arrayK_pR, *arrayK_pC;
 

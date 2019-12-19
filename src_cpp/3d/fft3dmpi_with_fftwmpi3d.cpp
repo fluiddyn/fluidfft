@@ -83,18 +83,18 @@ FFT3DMPIWithFFTWMPI3D::FFT3DMPIWithFFTWMPI3D(int argN0, int argN1, int argN2)
 
 #ifdef SINGLE_PREC
   arrayX = fftwf_alloc_real(2 * alloc_local);
-  arrayK = fftwf_alloc_complex(alloc_local);
+  arrayK = reinterpret_cast<mycomplex *>(fftwf_alloc_complex(alloc_local));
 
   gettimeofday(&start_time, NULL);
 #ifdef OMP
   fftwf_plan_with_nthreads(omp_get_max_threads());
 #endif
   plan_r2c =
-      fftwf_mpi_plan_dft_r2c_3d(N0, N1, N2, arrayX, arrayK, MPI_COMM_WORLD,
+      fftwf_mpi_plan_dft_r2c_3d(N0, N1, N2, arrayX, reinterpret_cast<mycomplex_fftw *>(arrayK), MPI_COMM_WORLD,
                                 flags | FFTW_MPI_TRANSPOSED_OUT);
 
   plan_c2r =
-      fftwf_mpi_plan_dft_c2r_3d(N0, N1, N2, arrayK, arrayX, MPI_COMM_WORLD,
+      fftwf_mpi_plan_dft_c2r_3d(N0, N1, N2, reinterpret_cast<mycomplex_fftw *>(arrayK), arrayX, MPI_COMM_WORLD,
                                 flags | FFTW_MPI_TRANSPOSED_IN);
 #else
   arrayX = fftw_alloc_real(2 * alloc_local);
@@ -232,8 +232,8 @@ void FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_complex(mycomplex *fieldK,
   for (i0 = 0; i0 < nK0loc; i0++)
     for (i1 = 0; i1 < nK1; i1++)
       energy_tmp += fieldK[(i1 + i0 * nK1) * nK2];
-
-  energy_loc = energy_tmp / 2.;
+  energy_tmp /= 2.;
+  energy_loc = energy_tmp;
 
   // modes i2 = iKx = last = nK2 - 1
   i2 = nK2 - 1;
@@ -243,9 +243,8 @@ void FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_complex(mycomplex *fieldK,
       energy_tmp += fieldK[i2 + (i1 + i0 * nK1) * nK2];
 
   if (N2 % 2 == 0)
-    energy_loc += energy_tmp / 2.;
-  else
-    energy_loc += energy_tmp;
+    energy_tmp /= 2.;
+  energy_loc += energy_tmp;
 
   // other modes
   for (i0 = 0; i0 < nK0loc; i0++)
@@ -255,7 +254,8 @@ void FFT3DMPIWithFFTWMPI3D::sum_wavenumbers_complex(mycomplex *fieldK,
 
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_COMPLEX, MPI_SUM, MPI_COMM_WORLD);
   // ERREUR PTET LA... COMPLEX OU DOUBLE COMPLEX???
-  *result = energy * 2.;
+  energy *= 2.;
+  *result = energy;
 }
 
 void FFT3DMPIWithFFTWMPI3D::fft(myreal *fieldX, mycomplex *fieldK) {

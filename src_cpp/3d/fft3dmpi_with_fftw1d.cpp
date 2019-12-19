@@ -54,16 +54,31 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2)
   flags = FFTW_MEASURE;
   /*    flags = FFTW_ESTIMATE;*/
   /*    flags = FFTW_PATIENT;*/
-
+#ifdef SINGLE_PREC
+  arrayX = (myreal *)fftwf_malloc(sizeof(myreal) * nX0loc * N1 * N2);
+  arrayK_pR =
+      (mycomplex *)fftwf_malloc(sizeof(mycomplex) * nX0loc * (nKx + 1) * nKy);
+  arrayK_pC = (mycomplex *)fftwf_malloc(sizeof(mycomplex) * nKxloc * nK2 * N1);
+#else
   arrayX = (myreal *)fftw_malloc(sizeof(myreal) * nX0loc * N1 * N2);
   arrayK_pR =
       (mycomplex *)fftw_malloc(sizeof(mycomplex) * nX0loc * (nKx + 1) * nKy);
   arrayK_pC = (mycomplex *)fftw_malloc(sizeof(mycomplex) * nKxloc * nK2 * N1);
-
+#endif
   gettimeofday(&start_time, NULL);
 
   howmany = nX0loc * N1;
 
+#ifdef SINGLE_PREC
+  plan_r2c =
+      fftwf_plan_many_dft_r2c(1, &N2, howmany, arrayX, NULL, 1, N2,
+                             reinterpret_cast<mycomplex_fftw *>(arrayK_pR),
+                             NULL, N1 * nX0loc, 1, flags);
+
+  plan_c2r = fftwf_plan_many_dft_c2r(
+      1, &N2, howmany, reinterpret_cast<mycomplex_fftw *>(arrayK_pR), NULL,
+      N1 * nX0loc, 1, arrayX, NULL, 1, N2, flags);
+#else
   plan_r2c =
       fftw_plan_many_dft_r2c(1, &N2, howmany, arrayX, NULL, 1, N2,
                              reinterpret_cast<mycomplex_fftw *>(arrayK_pR),
@@ -72,31 +87,60 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2)
   plan_c2r = fftw_plan_many_dft_c2r(
       1, &N2, howmany, reinterpret_cast<mycomplex_fftw *>(arrayK_pR), NULL,
       N1 * nX0loc, 1, arrayX, NULL, 1, N2, flags);
+#endif
   howmany = nX0loc * (nKx * dealiasing_coeff + 1);
   sign = FFTW_FORWARD;
+#ifdef SINGLE_PREC
+  plan_c2c1_fwd = fftwf_plan_many_dft(
+      1, &N1, howmany, reinterpret_cast<mycomplex_fftw *>(arrayK_pR), NULL, 1,
+      N1, reinterpret_cast<mycomplex_fftw *>(arrayK_pR), NULL, 1, N1, sign,
+      flags);
+#else
   plan_c2c1_fwd = fftw_plan_many_dft(
       1, &N1, howmany, reinterpret_cast<mycomplex_fftw *>(arrayK_pR), NULL, 1,
       N1, reinterpret_cast<mycomplex_fftw *>(arrayK_pR), NULL, 1, N1, sign,
       flags);
+#endif
 
   sign = FFTW_BACKWARD;
+#ifdef SINGLE_PREC
+  plan_c2c1_bwd = fftwf_plan_many_dft(
+      1, &N1, howmany, reinterpret_cast<mycomplex_fftw *>(arrayK_pR), NULL, 1,
+      N1, reinterpret_cast<mycomplex_fftw *>(arrayK_pR), NULL, 1, N1, sign,
+      flags);
+#else
   plan_c2c1_bwd = fftw_plan_many_dft(
       1, &N1, howmany, reinterpret_cast<mycomplex_fftw *>(arrayK_pR), NULL, 1,
       N1, reinterpret_cast<mycomplex_fftw *>(arrayK_pR), NULL, 1, N1, sign,
       flags);
+#endif
 
   howmany = nKxloc * N1;
   sign = FFTW_FORWARD;
+#ifdef SINGLE_PREC
+  plan_c2c_fwd = fftwf_plan_many_dft(
+      1, &N0, howmany, reinterpret_cast<mycomplex_fftw *>(arrayK_pC), &N0,
+      istride, N0, reinterpret_cast<mycomplex_fftw *>(arrayK_pC), &N0, ostride,
+      N0, sign, flags);
+#else
   plan_c2c_fwd = fftw_plan_many_dft(
       1, &N0, howmany, reinterpret_cast<mycomplex_fftw *>(arrayK_pC), &N0,
       istride, N0, reinterpret_cast<mycomplex_fftw *>(arrayK_pC), &N0, ostride,
       N0, sign, flags);
+#endif
 
   sign = FFTW_BACKWARD;
+#ifdef SINGLE_PREC
+  plan_c2c_bwd = fftwf_plan_many_dft(
+      1, &N0, howmany, reinterpret_cast<mycomplex_fftw *>(arrayK_pC), &N0,
+      istride, N0, reinterpret_cast<mycomplex_fftw *>(arrayK_pC), &N0, ostride,
+      N0, sign, flags);
+#else
   plan_c2c_bwd = fftw_plan_many_dft(
       1, &N0, howmany, reinterpret_cast<mycomplex_fftw *>(arrayK_pC), &N0,
       istride, N0, reinterpret_cast<mycomplex_fftw *>(arrayK_pC), &N0, ostride,
       N0, sign, flags);
+#endif
 
   gettimeofday(&end_time, NULL);
 
@@ -111,17 +155,30 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2)
     arrayK_pR[iX0 * (nKx + 1) + nKx] = 0.;
   }
 
+#ifdef SINGLE_PREC
+  MPI_Type_contiguous(2, MPI_FLOAT, &MPI_type_complex);
+#else
   MPI_Type_contiguous(2, MPI_DOUBLE, &MPI_type_complex);
+#endif
   MPI_Type_commit(&MPI_type_complex);
 
   MPI_Type_vector(nX0loc, 1, nKy, MPI_type_complex, &(MPI_type_column));
   MPI_Type_commit(&(MPI_type_column));
 
+#ifdef SINGLE_PREC
+  MPI_Type_create_hvector(N1, 1, 8, MPI_type_column, &(MPI_type_block1));
+#else
   MPI_Type_create_hvector(N1, 1, 16, MPI_type_column, &(MPI_type_block1));
+#endif
   MPI_Type_commit(&(MPI_type_block1));
 
+#ifdef SINGLE_PREC
+  MPI_Type_create_hvector(nKxloc, 1, N1 * nX0loc * 8, MPI_type_block1,
+                          &(MPI_type_block2));
+#else
   MPI_Type_create_hvector(nKxloc, 1, N1 * nX0loc * 16, MPI_type_block1,
                           &(MPI_type_block2));
+#endif
   MPI_Type_commit(&(MPI_type_block2));
 
   MPI_Type_vector(nKxloc * N1, nX0loc, N0, MPI_type_complex, &(MPI_type_block));
@@ -132,6 +189,17 @@ FFT3DMPIWithFFTW1D::FFT3DMPIWithFFTW1D(int argN0, int argN1, int argN2)
 
 void FFT3DMPIWithFFTW1D::destroy(void) {
   // cout << "Object is being destroyed" << endl;
+#ifdef SINGLE_PREC
+  fftwf_destroy_plan(plan_r2c);
+  fftwf_destroy_plan(plan_c2c_fwd);
+  fftwf_destroy_plan(plan_c2c_bwd);
+  fftwf_destroy_plan(plan_c2c1_fwd);
+  fftwf_destroy_plan(plan_c2c1_bwd);
+  fftwf_destroy_plan(plan_c2r);
+  fftwf_free(arrayX);
+  fftwf_free(arrayK_pR);
+  fftwf_free(arrayK_pC);
+#else
   fftw_destroy_plan(plan_r2c);
   fftw_destroy_plan(plan_c2c_fwd);
   fftw_destroy_plan(plan_c2c_bwd);
@@ -141,6 +209,7 @@ void FFT3DMPIWithFFTW1D::destroy(void) {
   fftw_free(arrayX);
   fftw_free(arrayK_pR);
   fftw_free(arrayK_pC);
+#endif
   MPI_Type_free(&(MPI_type_column));
   MPI_Type_free(&(MPI_type_block));
   MPI_Type_free(&(MPI_type_block1));
@@ -160,10 +229,9 @@ myreal FFT3DMPIWithFFTW1D::compute_energy_from_K(mycomplex *fieldK) {
     for (i2 = 0; i2 < nK2; i2++)
       energy_tmp += square_abs(fieldK[i1 * nK2 + i2]);
 
+  energy_loc = energy_tmp;
   if (rank == 0) // i.e. if iKx == 0
-    energy_loc = energy_tmp / 2.;
-  else
-    energy_loc = energy_tmp;
+    energy_loc /= 2.;
 
   // other modes
   for (i0 = 1; i0 < nK0loc; i0++)
@@ -171,7 +239,11 @@ myreal FFT3DMPIWithFFTW1D::compute_energy_from_K(mycomplex *fieldK) {
       for (i2 = 0; i2 < nK2; i2++)
         energy_loc += square_abs(fieldK[i2 + i1 * nK2 + i0 * nK1 * nK2]);
 
+#ifdef SINGLE_PREC
+  MPI_Allreduce(&energy_loc, &energy, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+#else
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+#endif
   // cout << "energy" << energy << endl;
 
   return energy;
@@ -189,10 +261,9 @@ myreal FFT3DMPIWithFFTW1D::sum_wavenumbers_double(myreal *fieldK) {
     for (i2 = 0; i2 < nK2; i2++)
       sum_tmp += fieldK[i2 + i1 * nK2];
 
+  sum_loc = sum_tmp;
   if (rank == 0) // i.e. if iKx == 0
-    sum_loc = sum_tmp / 2.;
-  else
-    sum_loc = sum_tmp;
+    sum_loc /= 2.;
 
   // other modes
   for (i0 = 1; i0 < nK0loc; i0++)
@@ -200,10 +271,15 @@ myreal FFT3DMPIWithFFTW1D::sum_wavenumbers_double(myreal *fieldK) {
       for (i2 = 0; i2 < nK2; i2++)
         sum_loc += fieldK[i2 + i1 * nK2 + i0 * nK1 * nK2];
 
+#ifdef SINGLE_PREC
+  MPI_Allreduce(&sum_loc, &sum_tot, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+#else
   MPI_Allreduce(&sum_loc, &sum_tot, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+#endif
   // cout << "mean= " << sum_tot << endl;
 
-  return sum_tot * 2.;
+  sum_tot *= 2.;
+  return sum_tot;
 }
 
 void FFT3DMPIWithFFTW1D::sum_wavenumbers_complex(mycomplex *fieldK,
@@ -219,10 +295,9 @@ void FFT3DMPIWithFFTW1D::sum_wavenumbers_complex(mycomplex *fieldK,
     for (i2 = 0; i2 < nK2; i2++)
       sum_tmp += fieldK[i2 + i1 * nK2];
 
+  sum_loc = sum_tmp;
   if (rank == 0) // i.e. if iKx == 0
-    sum_loc = sum_tmp / 2.;
-  else
-    sum_loc = sum_tmp;
+    sum_loc /= 2.;
 
   // other modes
   for (i0 = 1; i0 < nK0loc; i0++)
@@ -232,8 +307,8 @@ void FFT3DMPIWithFFTW1D::sum_wavenumbers_complex(mycomplex *fieldK,
 
   MPI_Allreduce(&sum_loc, &sum_tot, 1, MPI_COMPLEX, MPI_SUM, MPI_COMM_WORLD);
   // cout << "mean= " << sum_tot << endl;
-
-  *result = sum_tot * 2.;
+  sum_tot *= 2.;
+  *result = sum_tot;
 }
 
 void FFT3DMPIWithFFTW1D::fft(myreal *fieldX, mycomplex *fieldK) {
@@ -242,19 +317,32 @@ void FFT3DMPIWithFFTW1D::fft(myreal *fieldX, mycomplex *fieldK) {
   /*use memcpy(void * destination, void * source, size_t bytes); */
   // memcpy(arrayX, fieldX, nX0loc*nX1*nX2*sizeof(myreal));
 
+#ifdef SINGLE_PREC
+  fftwf_execute_dft_r2c(plan_r2c, fieldX,
+                       reinterpret_cast<mycomplex_fftw *>(arrayK_pR));
+#else
   fftw_execute_dft_r2c(plan_r2c, fieldX,
                        reinterpret_cast<mycomplex_fftw *>(arrayK_pR));
+#endif
 
   for (ii = nX0loc * N1 * (nKx + 1) * dealiasing_coeff;
        ii < nX0loc * N1 * (nKx + 1); ii++)
     arrayK_pR[ii] = 0.0;
 
+#ifdef SINGLE_PREC
+  fftwf_execute(plan_c2c1_fwd);
+#else
   fftw_execute(plan_c2c1_fwd);
+#endif
 
   MPI_Alltoall(arrayK_pR, 1, MPI_type_block2, arrayK_pC, 1, MPI_type_block,
                MPI_COMM_WORLD);
 
+#ifdef SINGLE_PREC
+  fftwf_execute(plan_c2c_fwd);
+#else
   fftw_execute(plan_c2c_fwd);
+#endif
 
   for (ii = 0; ii < nKxloc * nKy * nKz; ii++)
     fieldK[ii] = arrayK_pC[ii] * inv_coef_norm;
@@ -264,7 +352,11 @@ void FFT3DMPIWithFFTW1D::ifft(mycomplex *fieldK, myreal *fieldX) {
   int ii;
   // cout << "FFT3DMPIWithFFTW1D::ifft" << endl;
   memcpy(arrayK_pC, fieldK, nKxloc * nKy * nKz * sizeof(mycomplex));
+#ifdef SINGLE_PREC
+  fftwf_execute(plan_c2c_bwd);
+#else
   fftw_execute(plan_c2c_bwd);
+#endif
 
   MPI_Alltoall(arrayK_pC, 1, MPI_type_block, arrayK_pR, 1, MPI_type_block2,
                MPI_COMM_WORLD);
@@ -273,17 +365,28 @@ void FFT3DMPIWithFFTW1D::ifft(mycomplex *fieldK, myreal *fieldX) {
   for (ii = 0; ii < N1 * nX0loc; ++ii)
     arrayK_pR[N1 * nX0loc * nKx + ii] = 0.;
 
+#ifdef SINGLE_PREC
+  fftwf_execute(plan_c2c1_bwd);
+
+  fftwf_execute_dft_c2r(plan_c2r, reinterpret_cast<mycomplex_fftw *>(arrayK_pR),
+                       fieldX);
+#else
   fftw_execute(plan_c2c1_bwd);
 
   fftw_execute_dft_c2r(plan_c2r, reinterpret_cast<mycomplex_fftw *>(arrayK_pR),
                        fieldX);
+#endif
 }
 
 void FFT3DMPIWithFFTW1D::ifft_destroy(mycomplex *fieldK, myreal *fieldX) {
   int ii;
   // todo: we are allowed to destroy the input here! No copy!
   memcpy(arrayK_pC, fieldK, nKxloc * nKy * nKz * sizeof(mycomplex));
+#ifdef SINGLE_PREC
+  fftwf_execute(plan_c2c_bwd);
+#else
   fftw_execute(plan_c2c_bwd);
+#endif
 
   MPI_Alltoall(arrayK_pC, 1, MPI_type_block, arrayK_pR, 1, MPI_type_block2,
                MPI_COMM_WORLD);
@@ -292,9 +395,15 @@ void FFT3DMPIWithFFTW1D::ifft_destroy(mycomplex *fieldK, myreal *fieldX) {
   for (ii = 0; ii < N1 * nX0loc; ++ii)
     arrayK_pR[N1 * nX0loc * nKx + ii] = 0.;
 
+#ifdef SINGLE_PREC
+  fftwf_execute(plan_c2c1_bwd);
+  fftwf_execute_dft_c2r(plan_c2r, reinterpret_cast<mycomplex_fftw *>(arrayK_pR),
+                       fieldX);
+#else
   fftw_execute(plan_c2c1_bwd);
   fftw_execute_dft_c2r(plan_c2r, reinterpret_cast<mycomplex_fftw *>(arrayK_pR),
                        fieldX);
+#endif
 }
 
 void FFT3DMPIWithFFTW1D::get_dimX_K(int *d0, int *d1, int *d2) {

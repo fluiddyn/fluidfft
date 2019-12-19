@@ -46,8 +46,11 @@ myreal BaseFFT3DMPI::compute_mean_from_X(myreal *fieldX) {
 
   for (ii = 0; ii < nX0loc * nX1loc * nX2loc; ii++)
     local_mean += fieldX[ii];
-
+#ifdef SINGLE_PREC
+  MPI_Allreduce(&local_mean, &mean, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+#else
   MPI_Allreduce(&local_mean, &mean, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+#endif
 
   return mean * inv_coef_norm;
 }
@@ -57,18 +60,26 @@ myreal BaseFFT3DMPI::compute_mean_from_K(mycomplex *fieldK) {
   if (rank == 0)
     mean = real(fieldK[0]);
 
+#ifdef SINGLE_PREC
+  MPI_Bcast(&mean, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
+#else
   MPI_Bcast(&mean, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+#endif
   return mean;
 }
 
 myreal BaseFFT3DMPI::compute_energy_from_X(myreal *fieldX) {
   int ii;
-  double energy_loc = 0;
-  double energy;
+  myreal energy_loc = 0;
+  myreal energy;
 
   for (ii = 0; ii < nX0loc * nX1loc * nX2loc; ii++)
     energy_loc += (double)pow(fieldX[ii], 2);
+#ifdef SINGLE_PREC
+  MPI_Allreduce(&energy_loc, &energy, 1, MPI_FLOAT, MPI_SUM, MPI_COMM_WORLD);
+#else
   MPI_Allreduce(&energy_loc, &energy, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+#endif
 
   return (myreal)energy / 2 * inv_coef_norm;
 }

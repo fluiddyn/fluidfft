@@ -46,7 +46,7 @@ FFT3DWithFFTW3D::FFT3DWithFFTW3D(int argN0, int argN1, int argN2)
 
 #ifdef SINGLE_PREC
   arrayX = fftwf_alloc_real(nX0 * nX1 * nX2);
-  arrayK = fftwf_alloc_complex(nK0 * nK1 * nK2);
+  arrayK = reinterpret_cast<mycomplex *>(fftwf_alloc_complex(nK0 * nK1 * nK2));
 #else
   arrayX = fftw_alloc_real(nX0 * nX1 * nX2);
   arrayK = reinterpret_cast<mycomplex *>(fftw_alloc_complex(nK0 * nK1 * nK2));
@@ -209,7 +209,8 @@ void FFT3DWithFFTW3D::sum_wavenumbers_complex(mycomplex *fieldK,
     for (i1 = 0; i1 < nK1; i1++)
       sum_tmp += fieldK[(i1 + i0 * nK1) * nK2];
 
-  sum = sum_tmp / 2.;
+  sum = sum_tmp;
+  sum *= 0.5;
 
   // modes i2 = iKx = last = nK2 - 1
   i2 = nK2 - 1;
@@ -219,17 +220,16 @@ void FFT3DWithFFTW3D::sum_wavenumbers_complex(mycomplex *fieldK,
       sum_tmp += fieldK[i2 + (i1 + i0 * nK1) * nK2];
 
   if (N2 % 2 == 0)
-    sum += sum_tmp / 2.;
-  else
-    sum += sum_tmp;
+    sum_tmp /= 2.0;
+  sum += sum_tmp;
 
   // other modes
   for (i0 = 0; i0 < nK0; i0++)
     for (i1 = 0; i1 < nK1; i1++)
       for (i2 = 1; i2 < nK2 - 1; i2++)
         sum += fieldK[i2 + (i1 + i0 * nK1) * nK2];
-
-  *result = sum * 2.;
+  sum *= 2.0;
+  *result = sum;
 }
 
 myreal FFT3DWithFFTW3D::compute_mean_from_K(mycomplex *fieldK) {

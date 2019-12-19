@@ -9,7 +9,7 @@ using namespace std;
 
 #ifdef SINGLE_PREC
 typedef float myreal;
-myreal EPS = 1e-6;
+myreal EPS = 5e-6;
 #else
 typedef double myreal;
 myreal EPS = 5e-13;
