@@ -121,9 +121,8 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex *fieldK) {
           (double)square_abs(fieldK[i2 + (i1 + i0 * nK1loc) * nK2loc]);
 
   if ((local_K2_start == 0) || (nK2loc == 1 and local_K2_start + nK2loc == nK2))
-    energy_loc = energy_tmp / 2.;
-  else
-    energy_loc = energy_tmp;
+    energy_tmp /= 2.;
+  energy_loc = energy_tmp;
 
   if (nK2loc > 1) {
     //  modes i1_seq iKx = last = nK1 - 1
@@ -135,9 +134,8 @@ myreal FFT3DMPIWithP3DFFT::compute_energy_from_K(mycomplex *fieldK) {
             (double)square_abs(fieldK[i2 + (i1 + i0 * nK1loc) * nK2loc]);
 
     if (local_K2_start + nK2loc == nK2)
-      energy_loc += energy_tmp / 2.;
-    else
-      energy_loc += energy_tmp;
+      energy_tmp /= 2.;
+    energy_loc += energy_tmp;
 
     for (i0 = 0; i0 < nK0loc; i0++)
       for (i1 = 0; i1 < nK1loc; i1++)
@@ -168,9 +166,8 @@ myreal FFT3DMPIWithP3DFFT::sum_wavenumbers_double(myreal *fieldK) {
       sum_tmp += (double)fieldK[i2 + (i1 + i0 * nK1loc) * nK2loc];
 
   if ((local_K2_start == 0) || (nK2loc == 1 and local_K2_start + nK2loc == nK2))
-    sum_loc = sum_tmp / 2.;
-  else
-    sum_loc = sum_tmp;
+    sum_tmp /= 2.;
+  sum_loc = sum_tmp;
 
   if (nK2loc != 1) {
     //  modes i1_seq iKx = last = nK1 - 1
@@ -181,9 +178,8 @@ myreal FFT3DMPIWithP3DFFT::sum_wavenumbers_double(myreal *fieldK) {
         sum_tmp += (double)fieldK[i2 + (i1 + i0 * nK1loc) * nK2loc];
 
     if (local_K2_start + nK2loc == nK2)
-      sum_loc += sum_tmp / 2.;
-    else
-      sum_loc += sum_tmp;
+      sum_tmp /= 2.;
+    sum_loc += sum_tmp;
 
     for (i0 = 0; i0 < nK0loc; i0++)
       for (i1 = 0; i1 < nK1loc; i1++)
@@ -197,8 +193,9 @@ myreal FFT3DMPIWithP3DFFT::sum_wavenumbers_double(myreal *fieldK) {
   }
 
   MPI_Allreduce(&sum_loc, &sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
-
-  return (myreal)sum * 2.;
+  sum *= 2.;
+  
+  return (myreal)sum;
 }
 
 void FFT3DMPIWithP3DFFT::sum_wavenumbers_complex(mycomplex *fieldK,
@@ -215,9 +212,8 @@ void FFT3DMPIWithP3DFFT::sum_wavenumbers_complex(mycomplex *fieldK,
       sum_tmp += fieldK[i2 + (i1 + i0 * nK1loc) * nK2loc];
 
   if ((local_K2_start == 0) || (nK2loc == 1 and local_K2_start + nK2loc == nK2))
-    sum_loc = sum_tmp / 2.;
-  else
-    sum_loc = sum_tmp;
+    sum_tmp /= 2.;
+  sum_loc = sum_tmp;
 
   if (nK2loc != 1) {
     //  modes i1_seq iKx = last = nK1 - 1
@@ -228,9 +224,8 @@ void FFT3DMPIWithP3DFFT::sum_wavenumbers_complex(mycomplex *fieldK,
         sum_tmp += fieldK[i2 + (i1 + i0 * nK1loc) * nK2loc];
 
     if (local_K2_start + nK2loc == nK2)
-      sum_loc += sum_tmp / 2.;
-    else
-      sum_loc += sum_tmp;
+      sum_tmp /= 2.;
+    sum_loc += sum_tmp;
 
     for (i0 = 0; i0 < nK0loc; i0++)
       for (i1 = 0; i1 < nK1loc; i1++)
@@ -245,7 +240,8 @@ void FFT3DMPIWithP3DFFT::sum_wavenumbers_complex(mycomplex *fieldK,
 
   MPI_Allreduce(&sum_loc, &sum, 1, MPI_COMPLEX, MPI_SUM, MPI_COMM_WORLD);
 
-  *result = sum * 2.;
+  sum *= 2.;
+  *result = sum;
 }
 
 myreal FFT3DMPIWithP3DFFT::compute_mean_from_K(mycomplex *fieldK) {
