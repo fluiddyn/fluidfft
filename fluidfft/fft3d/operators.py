@@ -91,7 +91,7 @@ def loop_spectra_kzkh(
                 kappa = KH[ik0, ik1, ik2]
                 ikh = int(kappa / deltakh)
                 kz = abs(KZ[ik0, ik1, ik2])
-                ikz = int(kz / deltakz)
+                ikz = int(round(kz / deltakz))
                 if ikz >= nkz - 1:
                     ikz = nkz - 1
                 if ikh >= nkh - 1:
