@@ -317,10 +317,10 @@ class OperatorsPseudoSpectral3D(OperatorsBase):
 
         self.coef_dealiasing = coef_dealiasing
 
-        CONDKX = abs(self.Kx) >= self.coef_dealiasing * self.k2.max()
-        CONDKY = abs(self.Ky) >= self.coef_dealiasing * self.k1.max()
-        CONDKZ = abs(self.Kz) >= self.coef_dealiasing * self.k0.max()
-        where_dealiased = np.logical_or(CONDKX, CONDKY, CONDKZ)
+        CONDKX = abs(self.Kx) >= self.coef_dealiasing * deltakx * nx / 2
+        CONDKY = abs(self.Ky) >= self.coef_dealiasing * deltaky * ny / 2
+        CONDKZ = abs(self.Kz) >= self.coef_dealiasing * deltakz * nz / 2
+        where_dealiased = CONDKX | CONDKY | CONDKZ
         self.where_dealiased = np.array(where_dealiased, dtype=np.uint8)
 
         self.gather_Xspace = op_fft.gather_Xspace
