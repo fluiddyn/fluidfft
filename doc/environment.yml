@@ -3,15 +3,15 @@ channels:
   - conda-forge
 
 dependencies:
-  - python=3.6
-  - numpy
-  - cython
-  - h5py
-  - jupyter
-  - matplotlib
-  - pandas
-  - pyfftw
+  - python=3.7
   - pip:
+    - pyfftw
+    - numpy
+    - cython
+    - h5py
+    - jupyter
+    - matplotlib
+    - pandas
     - sphinx
     - numpydoc
     - mako
