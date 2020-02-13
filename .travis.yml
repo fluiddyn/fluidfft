@@ -96,7 +96,7 @@ install:
       fi
       pip install -U transonic  # To be removed when tox support pyproject.toml
       pip install -U pipenv tox==3.6 tox-pipenv coverage fluiddevops
-      pip install -e "hg+https://bitbucket.org/fluiddyn/fluiddyn#egg=fluiddyn"
+      pip install -e "hg+https://foss.heptapod.net/fluiddyn/fluiddyn#egg=fluiddyn"
 
 before_script:
     - |

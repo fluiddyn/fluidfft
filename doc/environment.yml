@@ -16,4 +16,4 @@ dependencies:
     - numpydoc
     - mako
     - sphinx_rtd_theme
-    - hg+https://bitbucket.org/fluiddyn/fluiddyn#egg=fluiddyn
+    - hg+https://foss.heptapod.net/fluiddyn/fluiddyn#egg=fluiddyn

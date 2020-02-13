@@ -26,7 +26,7 @@ python setup.py develop
 ls -l mpi4py_fft/fftw
 
 cd $BASE
-hg clone ssh://hg@bitbucket.org/paugier/fluidfft
+hg clone ssh://hg@foss.heptapod.net/fluiddyn/fluidfft
 cd fluidfft
 hg up a50bbec26559
 cp $CWD/site.cfg.debug site.cfg

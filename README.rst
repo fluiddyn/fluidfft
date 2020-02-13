@@ -1,11 +1,18 @@
+.. warning ::
+
+   Our repositories in Bitbucket.org will soon be deleted! Our new home:
+   https://foss.heptapod.net/fluiddyn (`more details
+   <https://fluiddyn.readthedocs.io/en/latest/advice_developers.html>`_).
+
 ======
 |logo|
 ======
+
 *efficient and easy Fast Fourier Transform for Python*
 
 |release| |pyversions| |docs| |coverage| |travis|
 
-.. |logo| image:: https://bitbucket.org/fluiddyn/fluidfft/raw/default/doc/logo.svg
+.. |logo| image:: https://foss.heptapod.net/fluiddyn/fluidfft/raw/default/doc/logo.png
    :alt: FluidFFT
 
 .. |release| image:: https://img.shields.io/pypi/v/fluidfft.svg
@@ -19,8 +26,8 @@
    :target: http://fluidfft.readthedocs.org
    :alt: Documentation status
 
-.. |coverage| image:: https://codecov.io/bb/fluiddyn/fluidfft/branch/default/graph/badge.svg
-   :target: https://codecov.io/bb/fluiddyn/fluidfft
+.. |coverage| image:: https://codecov.io/gh/fluiddyn/fluidfft/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/fluiddyn/fluidfft
    :alt: Code coverage
 
 .. |travis| image:: https://travis-ci.org/fluiddyn/fluidfft.svg?branch=master

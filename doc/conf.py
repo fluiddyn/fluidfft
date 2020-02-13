@@ -19,8 +19,10 @@ import getpass
 from subprocess import call
 
 import matplotlib as mpl
-mpl.use('Agg')
+
+mpl.use("Agg")
 import matplotlib.pyplot as plt
+
 plt.ioff()
 
 from fluiddoc.ipynb_maker import ipynb_to_rst
@@ -31,10 +33,9 @@ import fluidfft.bench_analysis
 from fluidfft.bench_analysis import plot_scaling
 
 
-
 here = os.path.dirname(__file__)
-here_tmp = os.path.join(here, 'tmp')
-html = os.path.join(here, '_build/html')
+here_tmp = os.path.join(here, "tmp")
+html = os.path.join(here, "_build/html")
 
 if not os.path.exists(here_tmp):
     os.mkdir(here_tmp)
@@ -43,77 +44,80 @@ if not os.path.exists(html):
     os.makedirs(html)
 
 
-path_tmp = os.path.join('/tmp', getpass.getuser())
+path_tmp = os.path.join("/tmp", getpass.getuser())
 if not os.path.exists(path_tmp):
     os.mkdir(path_tmp)
 
-repo_fluidfft_bench_results = \
-    'https://bitbucket.org/fluiddyn/fluidfft-bench-results'
-path_fluidfft_bench_results = os.path.join(path_tmp, 'fluidfft-bench-results')
+repo_fluidfft_bench_results = (
+    "https://foss.heptapod.net/fluiddyn/fluidfft-bench-results"
+)
+path_fluidfft_bench_results = os.path.join(path_tmp, "fluidfft-bench-results")
 
 if os.path.exists(path_fluidfft_bench_results):
     os.chdir(path_fluidfft_bench_results)
-    call(['hg', 'pull', '-u'])
+    call(["hg", "pull", "-u"])
 else:
     os.chdir(path_tmp)
-    call(['hg', 'clone', repo_fluidfft_bench_results])
+    call(["hg", "clone", repo_fluidfft_bench_results])
 
 os.chdir(here)
 
 
 def save_fig_scaling(dir_name, dim, n0, n1, n2=None):
     path_dir = os.path.join(path_fluidfft_bench_results, dir_name)
-    path_fig = os.path.join(here_tmp, 'fig_' + dir_name + '.png')
+    path_fig = os.path.join(here_tmp, "fig_" + dir_name + ".png")
 
-    if not os.path.exists(path_fig) or \
-       modification_date(path_dir) > modification_date(path_fig):
-        print('make fig', path_fig)
+    if not os.path.exists(path_fig) or modification_date(
+        path_dir
+    ) > modification_date(path_fig):
+        print("make fig", path_fig)
         fig = plot_scaling(path_dir, None, dim, n0, n1, n2, show=False)
         fig.savefig(path_fig)
 
 
 ipynb_to_rst()
-ipynb_to_rst('ipynb/executed', executed=True)
+ipynb_to_rst("ipynb/executed", executed=True)
 
-save_fig_scaling('legi_cluster8_320x640x640', '3d', 320, 640, 640)
-save_fig_scaling('legi_cluster8_2160x2160', '2d', 2160, 2160)
-save_fig_scaling('occigen_384x1152x1152', '3d', 384, 1152, 1152)
-save_fig_scaling('beskow_384x1152x1152', '3d', 384, 1152, 1152)
-save_fig_scaling('occigen_1152x1152x1152', '3d', 1152, 1152, 1152)
-save_fig_scaling('beskow_1152x1152x1152', '3d', 1152, 1152, 1152)
+save_fig_scaling("legi_cluster8_320x640x640", "3d", 320, 640, 640)
+save_fig_scaling("legi_cluster8_2160x2160", "2d", 2160, 2160)
+save_fig_scaling("occigen_384x1152x1152", "3d", 384, 1152, 1152)
+save_fig_scaling("beskow_384x1152x1152", "3d", 384, 1152, 1152)
+save_fig_scaling("occigen_1152x1152x1152", "3d", 1152, 1152, 1152)
+save_fig_scaling("beskow_1152x1152x1152", "3d", 1152, 1152, 1152)
 
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath('../scripts'))
-sys.path.insert(0, os.path.abspath('./'))
+sys.path.insert(0, os.path.abspath("../scripts"))
+sys.path.insert(0, os.path.abspath("./"))
 
 # Generate doxygen doc
 try:
-    subprocess.call(['doxygen', 'doxygen/Doxyfile'])
+    subprocess.call(["doxygen", "doxygen/Doxyfile"])
 except OSError:
-    print(
-        'Can not find doxygen to generate the documentation of the cpp code.')
+    print("Can not find doxygen to generate the documentation of the cpp code.")
 
-run_path('../src_cy/create_fake_mod_for_doc.py')
+run_path("../src_cy/create_fake_mod_for_doc.py")
 
 
 # -- General configuration ----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-#needs_sphinx = '1.0'
+# needs_sphinx = '1.0'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc', 'sphinx.ext.doctest',
-    'sphinx.ext.todo',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.doctest",
+    "sphinx.ext.todo",
     # 'sphinx.ext.pngmath',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.viewcode', 'sphinx.ext.autosummary',
-    'numpydoc',
+    "sphinx.ext.mathjax",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.autosummary",
+    "numpydoc",
     # 'fluiddoc.mathmacro',
     # 'breathe'
 ]
@@ -122,20 +126,20 @@ extensions = [
 # breathe_default_project = "fluidfft_cpp"
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The encoding of source files.
-#source_encoding = 'utf-8-sig'
+# source_encoding = 'utf-8-sig'
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # General information about the project.
-project = u'FluidFFT'
-copyright = u'2016, Pierre Augier'
+project = u"FluidFFT"
+copyright = u"2016, Pierre Augier"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -145,76 +149,76 @@ copyright = u'2016, Pierre Augier'
 # The full version, including alpha/beta/rc tags.
 release = fluidfft.__version__
 # The short X.Y version.
-version = release.split('.')
-version = '{}.{}.{}'.format(version[0], version[1], version[2])
+version = release.split(".")
+version = "{}.{}.{}".format(version[0], version[1], version[2])
 
 # The language for content autogenerated by Sphinx. Refer to documentation
 # for a list of supported languages.
-#language = None
+# language = None
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
-#today = ''
+# today = ''
 # Else, today_fmt is used as the format for a strftime call.
-#today_fmt = '%B %d, %Y'
+# today_fmt = '%B %d, %Y'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build']
+exclude_patterns = ["_build"]
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
-#default_role = None
+# default_role = None
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
-#add_function_parentheses = True
+# add_function_parentheses = True
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
-#add_module_names = True
+# add_module_names = True
 
 # If true, sectionauthor and moduleauthor directives will be shown in the
 # output. They are ignored by default.
-#show_authors = False
+# show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # A list of ignored prefixes for module index sorting.
-#modindex_common_prefix = []
+# modindex_common_prefix = []
 
 
 # -- Options for HTML output --------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#html_theme = 'default'
-html_theme = 'sphinx_rtd_theme'
+# html_theme = 'default'
+html_theme = "sphinx_rtd_theme"
 
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+# html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
+# html_theme_path = []
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-#html_title = None
+# html_title = None
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-html_short_title = 'FluidFFT ' + release
+html_short_title = "FluidFFT " + release
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-#html_logo = None
+# html_logo = None
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-#html_favicon = None
+# html_favicon = None
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -223,88 +227,91 @@ html_static_path = []
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
-#html_last_updated_fmt = '%b %d, %Y'
+# html_last_updated_fmt = '%b %d, %Y'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
-#html_use_smartypants = True
+# html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+# html_sidebars = {}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.
-#html_additional_pages = {}
+# html_additional_pages = {}
 
 # If false, no module index is generated.
-#html_domain_indices = True
+# html_domain_indices = True
 
 # If false, no index is generated.
-#html_use_index = True
+# html_use_index = True
 
 # If true, the index is split into individual pages for each letter.
-#html_split_index = False
+# html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-#html_show_sourcelink = True
+# html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
-#html_show_sphinx = True
+# html_show_sphinx = True
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
-#html_show_copyright = True
+# html_show_copyright = True
 
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.  The value of this option must be the
 # base URL from which the finished HTML is served.
-#html_use_opensearch = ''
+# html_use_opensearch = ''
 
 # This is the file name suffix for HTML files (e.g. ".xhtml").
-#html_file_suffix = None
+# html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'fluidfftdoc'
+htmlhelp_basename = "fluidfftdoc"
 
 
 # -- Options for LaTeX output --------------------------------------------------
 
 latex_elements = {
-# The paper size ('letterpaper' or 'a4paper').
-#'papersize': 'letterpaper',
-
-# The font size ('10pt', '11pt' or '12pt').
-#'pointsize': '10pt',
-
-# Additional stuff for the LaTeX preamble.
-#'preamble': '',
+    # The paper size ('letterpaper' or 'a4paper').
+    #'papersize': 'letterpaper',
+    # The font size ('10pt', '11pt' or '12pt').
+    #'pointsize': '10pt',
+    # Additional stuff for the LaTeX preamble.
+    #'preamble': '',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'fluidfft.tex', u'fluidfft Documentation',
-   u'Pierre Augier', 'manual'),
+    (
+        "index",
+        "fluidfft.tex",
+        u"fluidfft Documentation",
+        u"Pierre Augier",
+        "manual",
+    ),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
-#latex_logo = None
+# latex_logo = None
 
 # For "manual" documents, if this is true, then toplevel headings are parts,
 # not chapters.
-#latex_use_parts = False
+# latex_use_parts = False
 
 # If true, show page references after internal links.
-#latex_show_pagerefs = False
+# latex_show_pagerefs = False
 
 # If true, show URL addresses after external links.
-#latex_show_urls = False
+# latex_show_urls = False
 
 # Documents to append as an appendix to all manuals.
-#latex_appendices = []
+# latex_appendices = []
 
 # If false, no module index is generated.
-#latex_domain_indices = True
+# latex_domain_indices = True
 
 
 # -- Options for manual page output --------------------------------------------
@@ -312,12 +319,11 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'FluidFFT', u'FluidFFT Documentation',
-     [u'Pierre Augier'], 1)
+    ("index", "FluidFFT", u"FluidFFT Documentation", [u"Pierre Augier"], 1)
 ]
 
 # If true, show URL addresses after external links.
-#man_show_urls = False
+# man_show_urls = False
 
 
 # -- Options for Texinfo output ------------------------------------------------
@@ -326,20 +332,25 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'FluidFFT', u'FluidFFT Documentation',
-   u'Pierre Augier', 'FluidFFT', 'One line description of project.',
-   'Miscellaneous'),
+    (
+        "index",
+        "FluidFFT",
+        u"FluidFFT Documentation",
+        u"Pierre Augier",
+        "FluidFFT",
+        "One line description of project.",
+        "Miscellaneous",
+    ),
 ]
 
 # Documents to append as an appendix to all manuals.
-#texinfo_appendices = []
+# texinfo_appendices = []
 
 # If false, no module index is generated.
-#texinfo_domain_indices = True
+# texinfo_domain_indices = True
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
-#texinfo_show_urls = 'footnote'
-
+# texinfo_show_urls = 'footnote'
 
 
 # -- Other options ---------------------------------------------------------
@@ -349,6 +360,6 @@ numpydoc_show_class_members = False
 autosummary_generate = True
 
 autodoc_default_options = {"show-inheritance": None}
-autodoc_member_order = 'bysource'
+autodoc_member_order = "bysource"
 
 todo_include_todos = True

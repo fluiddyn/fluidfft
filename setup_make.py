@@ -347,7 +347,7 @@ def make_command_obj_from_cpp(
     try:
         includepy = conf_vars["INCLUDEPY"]
     except KeyError:
-        # Again! For Pypy (see: https://bitbucket.org/pypy/pypy/issues/2478)
+        # Again! For Pypy (see: https://foss.heptapod.net/pypy/pypy/issues/2478)
         includepy = sysconfig.get_config_var("INCLUDEPY")
 
     includedir = os.path.split(includepy)[0]

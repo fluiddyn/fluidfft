@@ -18,7 +18,7 @@ git checkout 67dfed980115108c76abb7e865860b5da98674f9
 python setup.py develop
 
 cd $BASE
-hg clone ssh://hg@bitbucket.org/paugier/fluidfft
+hg clone ssh://hg@foss.heptapod.net/fluiddyn/fluidfft
 cd fluidfft
 hg up a50bbec26559
 cp $CWD/site.cfg.debug site.cfg

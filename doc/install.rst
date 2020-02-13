@@ -130,7 +130,7 @@ However, it is often useful to configure the installation of FluidFFT by creatin
 the file ``~/.fluidfft-site.cfg`` and modify it to fit your requirements before
 the installation with pip::
 
-  wget https://bitbucket.org/fluiddyn/fluidfft/raw/default/site.cfg.default -O ~/.fluidfft-site.cfg
+  wget https://foss.heptapod.net/fluiddyn/fluidfft/raw/default/site.cfg.default -O ~/.fluidfft-site.cfg
 
 .. note::
 
@@ -162,17 +162,16 @@ Get the source code
 ~~~~~~~~~~~~~~~~~~~
 
 For FluidFFT, we use the revision control software Mercurial and the main
-repository is hosted `here <https://bitbucket.org/fluiddyn/fluidfft>`_ in
-Bitbucket. Download the source with something like::
+repository is hosted `here <https://foss.heptapod.net/fluiddyn/fluidfft>`_ in
+Heptapod. Download the source with something like::
 
-  hg clone https://bitbucket.org/fluiddyn/fluidfft
+  hg clone https://foss.heptapod.net/fluiddyn/fluidfft
 
-If you are new with Mercurial and Bitbucket, you can also read `this short
+If you are new with Mercurial and Heptapod, you can also read `this short
 tutorial
-<http://fluiddyn.readthedocs.org/en/latest/mercurial_bitbucket.html>`_.
+<http://fluiddyn.readthedocs.org/en/latest/mercurial_heptapod.html>`_.
 
-You can also just manually download the package from `the Bitbucket page
-<https://bitbucket.org/fluiddyn/fluidfft>`_ or from `the PyPI page
+You can also just manually download the package from `the PyPI page
 <https://pypi.org/project/fluidfft/>`_.
 
 Configuration file

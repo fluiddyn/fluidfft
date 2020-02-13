@@ -1,6 +1,6 @@
 # Issue #14
 
-https://bitbucket.org/fluiddyn/fluidfft/issues/14/segmentation-fault-with-fft2d
+https://foss.heptapod.net/fluiddyn/fluidfft/issues/14
 
 1. investigate_segfault.py: the main bug.
 

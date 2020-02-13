@@ -1,6 +1,6 @@
 # Trying to understand a segfault
 
-See https://bitbucket.org/fluiddyn/fluidfft/pull-requests/10 and
+See https://foss.heptapod.net/fluiddyn/fluidfft/pull-requests/10 and
 https://bitbucket.org/mpi4py/mpi4py-fft/issues/6/possible-incompatibility-with-fftw3_mpi
 
 ## Using pyfftw (with an old version) prevents the segfault!

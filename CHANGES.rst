@@ -28,7 +28,7 @@
 ------------------
 
 - Bugfix classes using fftw_mpi (see `issue #14
-  <https://bitbucket.org/fluiddyn/fluidfft/issues/14>`_)
+  <https://foss.heptapod.net/fluiddyn/fluidfft/issues/14>`_)
 - New function mean_global
 
 0.2.4 (2018-07-01)

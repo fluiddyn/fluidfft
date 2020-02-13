@@ -46,7 +46,7 @@ import warnings
 # cdef int _simd_alignment = 16 # cpu.simd_alignment()
 
 # pa (2018/05/10): problem solved by Ashwin
-# (https://bitbucket.org/fluiddyn/fluidfft/commits/ab5988880d37)
+# (https://foss.heptapod.net/fluiddyn/fluidfft/commits/ab5988880d37)
 cdef int _simd_alignment = cpu.simd_alignment()
 
 #: The optimum SIMD alignment in bytes, found by inspecting the CPU.

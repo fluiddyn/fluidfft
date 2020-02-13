@@ -64,7 +64,7 @@ For pfft:
 
 Finally, we can install fluidfft::
 
-  hg clone http://bitbucket.org/fluiddyn/fluidfft
+  hg clone https://foss.heptapod.net/fluiddyn/fluidfft
   cd fluidfft
 
 There are two different ``site.cfg`` files for occigen, one to use fftw3 and

@@ -14,7 +14,7 @@ Load necessary modules::
    module load gcc/6.1.0
    module swap PrgEnv-cray PrgEnv-intel
    module swap intel intel/18.0.0.128
-   module load mercurial 
+   module load mercurial
    module load cray-hdf5-parallel
 
 Ensure that ``gcc`` is loaded before ``intel``. This is important so that Intel
@@ -40,7 +40,7 @@ necessary python packages as described here:
 
    pip install cython
    export CRAYPE_LINK_TYPE=dynamic
-   module load craype-hugepages2M 
+   module load craype-hugepages2M
    CC=cc MPICC=cc pip install mpi4py -v --no-deps --no-binary mpi4py
    module rm craype-hugepages2M
 
@@ -117,7 +117,7 @@ For pfft:
 Ensure that the stowed library location has been prepended to
 ``LD_LIBRARY_PATH``. Finally, we can install fluidfft::
 
-  hg clone http://bitbucket.org/fluiddyn/fluidfft
+  hg clone https://foss.heptapod.net/fluiddyn/fluidfft
   cd fluidfft
 
 Activate the virutal environment. Copy ``site.cfg.default`` to ``site.cfg``
@@ -132,7 +132,7 @@ mentioned above set like::
 Install FluidFFT with::
 
    export CRAYPE_LINK_TYPE=dynamic
-   module load craype-hugepages2M 
+   module load craype-hugepages2M
    MPICXX=CC LDSHARED="CC -shared" python setup.py develop
    module rm craype-hugepages2M
 

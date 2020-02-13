@@ -3,6 +3,12 @@
 FluidFFT documentation
 ======================
 
+.. warning ::
+
+   Our repositories in Bitbucket.org will soon be deleted! Our new home:
+   https://foss.heptapod.net/fluiddyn (`more details
+   <https://fluiddyn.readthedocs.io/en/latest/advice_developers.html>`_).
+
 This package provides C++ classes and their Python wrapper classes useful to
 perform Fast Fourier Transform (FFT) with different libraries, in particular
 
@@ -65,7 +71,7 @@ FluidFFT has been created to be:
 FluidFFT is therefore a very useful tool to write HPC applications using FFT,
 as for example pseudo-spectral simulation codes. For an example of how FluidFFT
 can be used in a real application, see `the code
-<https://bitbucket.org/fluiddyn/fluidsim>`_ of the `Computational Fluid
+<https://foss.heptapod.net/fluiddyn/fluidsim>`_ of the `Computational Fluid
 Dynamics (CFD) framework FluidSim <http://fluidsim.readthedocs.org>`_.
 
 **Metapapers and citations**
@@ -144,22 +150,19 @@ Links
    :target: https://pypi.org/project/fluidfft/
    :alt: Latest version
 
-.. |coverage| image:: https://codecov.io/bb/fluiddyn/fluidfft/branch/default/graph/badge.svg
-   :target: https://codecov.io/bb/fluiddyn/fluidfft
+.. |coverage| image:: https://codecov.io/gh/fluiddyn/fluidfft/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/fluiddyn/fluidfft
    :alt: Code coverage
 
 .. |travis| image:: https://travis-ci.org/fluiddyn/fluidfft.svg?branch=master
    :target: https://travis-ci.org/fluiddyn/fluidfft
 
-.. |pipelines| image:: https://img.shields.io/bitbucket/pipelines/fluiddyn/fluidfft.svg
-   :target: https://bitbucket.org/fluiddyn/fluidfft/addon/pipelines/home#!/
 
 - `FluidDyn documentation <http://fluiddyn.readthedocs.io>`_
-- `FluidFFT forge on Bitbucket <https://bitbucket.org/fluiddyn/fluidfft>`_
+- `FluidFFT forge on Heptapod <https://foss.heptapod.net/fluiddyn/fluidfft>`_
 - FluidFFT in PyPI |release|
 - Unittest coverage |coverage|
 - Continuous integration with travis-ci.org |travis|
-- Continuous integration with Bitbucket Pipelines |pipelines|
 - FluidDyn user chat room in `Riot
   <https://riot.im/app/#/room/#fluiddyn-users:matrix.org>`_ or `Slack
   <https://fluiddyn.slack.com>`_
