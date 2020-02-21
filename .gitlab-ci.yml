@@ -1,0 +1,15 @@
+variables:
+  CODECOV_TOKEN: 4ebf45ff-904a-4a74-aa03-d9fba26cc145
+
+tests:
+  image: fluiddyn/python3-stable
+  script:
+    - cp site.cfg.default site.cfg
+    - pip install -U tox numpy cython mako --user
+    - tox -e py36,codecov
+
+tests_pythran_mpi:
+  image: fluiddyn/python3-stable:20200918
+  script:
+    - pip install -U tox numpy cython mako mpi4py --user
+    - tox -vv -e py36-pythran-mpi,codecov
