@@ -305,6 +305,8 @@ class OperatorsPseudoSpectral3D(OperatorsBase):
         self.K2 = K0 ** 2 + K1 ** 2 + K2 ** 2
         self.K8 = self.K2 ** 4
 
+        self.is_sequential = op_fft.get_shapeK_loc() == op_fft.get_shapeK_seq()
+
         self.seq_indices_first_K = op_fft.get_seq_indices_first_K()
         self.seq_indices_first_X = op_fft.get_seq_indices_first_X()
 
