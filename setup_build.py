@@ -39,7 +39,7 @@ try:
 except ImportError:
     # fix a bug... Useful when there is already a module with the same name
     # imported.
-    parse_config = run_path(here / "setup_config.py")["parse_config"]
+    parse_config = run_path(str(here / "setup_config.py"))["parse_config"]
 
 
 class Extension(object):

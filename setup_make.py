@@ -51,7 +51,7 @@ config_vars = dsysconfig.get_config_vars()
 
 here = Path(__file__).parent.absolute()
 
-_d = run_path(here / "fluidfft" / "util.py")
+_d = run_path(str(here / "fluidfft" / "util.py"))
 can_import = _d["can_import"]
 
 
