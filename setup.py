@@ -11,7 +11,7 @@ try:
 except ImportError:
     # fix a bug... Useful when there is already a module with the same name
     # imported.
-    FluidFFTBuildExt = run_path(here / "setup_build.py")["FluidFFTBuildExt"]
+    FluidFFTBuildExt = run_path(str(here / "setup_build.py"))["FluidFFTBuildExt"]
 
 
 # Bootstrapping dependencies required for the setup
