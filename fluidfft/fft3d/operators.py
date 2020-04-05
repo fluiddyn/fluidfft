@@ -200,8 +200,7 @@ class OperatorsPseudoSpectral3D(OperatorsBase):
         else:
             op_fft = fft
 
-        # FIXME: discrepancy with fft2d operator where self.opfft is used
-        self._op_fft = op_fft
+        self.oper_fft = self._op_fft = op_fft
         self.type_fft = op_fft.__class__.__module__
 
         try:

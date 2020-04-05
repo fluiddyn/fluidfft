@@ -137,7 +137,7 @@ class OperatorsPseudoSpectral2D(OperatorsBase):
         else:
             opfft = fft
 
-        self.opfft = opfft
+        self.oper_fft = self.opfft = opfft
         self.type_fft = opfft.__class__.__module__
         # NOTE: Overwrites the value of `np` in the present scope
         self._numpy_api = np = opfft._numpy_api
