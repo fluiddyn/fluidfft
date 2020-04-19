@@ -130,7 +130,7 @@ However, it is often useful to configure the installation of FluidFFT by creatin
 the file ``~/.fluidfft-site.cfg`` and modify it to fit your requirements before
 the installation with pip::
 
-  wget https://foss.heptapod.net/fluiddyn/fluidfft/raw/default/site.cfg.default -O ~/.fluidfft-site.cfg
+  wget https://foss.heptapod.net/fluiddyn/fluidfft/raw/branch/default/site.cfg.default -O ~/.fluidfft-site.cfg
 
 .. note::
 
