@@ -19,7 +19,7 @@ cleancython:
 cleanmako:
 	python -c "from src_cy.make_files_with_mako import clean_files as c; c()"
 
-cleanall: clean cleanso cleanmako cleancython
+cleanall: clean cleanso cleanmako cleancython cleanpythran
 
 black:
 	black -l 82 fluidfft
