@@ -94,9 +94,8 @@ install:
         pip install -U numpy cython mako # To be removed when tox support pyproject.toml
         pip install -U mpi4py
       fi
-      pip install -U transonic  # To be removed when tox support pyproject.toml
-      pip install -U pipenv tox tox-pipenv coverage fluiddevops
-      pip install -e "hg+https://foss.heptapod.net/fluiddyn/fluiddyn#egg=fluiddyn"
+      pip install -U pip
+      pip install -U tox fluiddevops
 
 before_script:
     - |
