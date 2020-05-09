@@ -1,3 +1,8 @@
+0.3.1 (2020-05-09)
+------------------
+
+- Various bugfixes and improvements + compatibility Python 3.8
+
 0.3.0 (2019-09-21)
 ------------------
 
