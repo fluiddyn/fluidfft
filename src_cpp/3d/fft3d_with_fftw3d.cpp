@@ -48,8 +48,8 @@ FFT3DWithFFTW3D::FFT3DWithFFTW3D(int argN0, int argN1, int argN2)
   arrayX = fftwf_alloc_real(nX0 * nX1 * nX2);
   arrayK = reinterpret_cast<mycomplex *>(fftwf_alloc_complex(nK0 * nK1 * nK2));
 #else
-  arrayX = fftw_alloc_real(nX0 * nX1 * nX2);
-  arrayK = reinterpret_cast<mycomplex *>(fftw_alloc_complex(nK0 * nK1 * nK2));
+  arrayX = (myreal *)fftw_malloc(sizeof(myreal) * nX0 * nX1 * nX2);
+  arrayK = reinterpret_cast<mycomplex *>(fftw_malloc(sizeof(mycomplex) * nK0 * nK1 * nK2));
 #endif
 
   gettimeofday(&start_time, NULL);

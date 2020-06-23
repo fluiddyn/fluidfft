@@ -73,8 +73,8 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1)
   plan_c2r = fftwf_mpi_plan_dft_c2r_2d(N0, N1, arrayK, arrayX, MPI_COMM_WORLD,
                                        flags | FFTW_MPI_TRANSPOSED_IN);
 #else
-  arrayX = fftw_alloc_real(2 * alloc_local);
-  arrayK = reinterpret_cast<mycomplex *>(fftw_alloc_complex(alloc_local));
+  arrayX = (myreal *)fftw_malloc(sizeof(myreal) * 2 * alloc_local);
+  arrayK = reinterpret_cast<mycomplex *>(fftw_malloc(sizeof(mycomplex) * alloc_local));
 
   gettimeofday(&start_time, NULL);
 

@@ -97,8 +97,8 @@ FFT3DMPIWithFFTWMPI3D::FFT3DMPIWithFFTWMPI3D(int argN0, int argN1, int argN2)
       fftwf_mpi_plan_dft_c2r_3d(N0, N1, N2, reinterpret_cast<mycomplex_fftw *>(arrayK), arrayX, MPI_COMM_WORLD,
                                 flags | FFTW_MPI_TRANSPOSED_IN);
 #else
-  arrayX = fftw_alloc_real(2 * alloc_local);
-  arrayK = reinterpret_cast<mycomplex *>(fftw_alloc_complex(alloc_local));
+  arrayX = (myreal *)fftw_malloc(sizeof(myreal) * 2 * alloc_local);
+  arrayK = reinterpret_cast<mycomplex *>(fftw_malloc(sizeof(mycomplex) * alloc_local));
 
   gettimeofday(&start_time, NULL);
 #ifdef OMP

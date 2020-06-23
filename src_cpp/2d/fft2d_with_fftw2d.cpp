@@ -34,15 +34,12 @@ FFT2DWithFFTW2D::FFT2DWithFFTW2D(int argN0, int argN1)
   arrayX = fftwf_alloc_real(nX0 * nX1);
   arrayK = fftwf_alloc_complex(nK0 * nK1);
   gettimeofday(&start_time, NULL);
-
   plan_r2c = fftwf_plan_dft_r2c_2d(N0, N1, arrayX, arrayK, flags);
-
   plan_c2r = fftwf_plan_dft_c2r_2d(N0, N1, arrayK, arrayX, flags);
 #else
-  arrayX = fftw_alloc_real(nX0 * nX1);
-  arrayK = reinterpret_cast<mycomplex *>(fftw_alloc_complex(nK0 * nK1));
+  arrayX = (myreal *)fftw_malloc(sizeof(myreal) * nX0 * nX1);
+  arrayK = reinterpret_cast<mycomplex *>(fftw_malloc(sizeof(mycomplex) * nK0 * nK1));
   gettimeofday(&start_time, NULL);
-
   plan_r2c = fftw_plan_dft_r2c_2d(
       N0, N1, arrayX, reinterpret_cast<mycomplex_fftw *>(arrayK), flags);
 
