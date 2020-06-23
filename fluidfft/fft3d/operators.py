@@ -495,12 +495,13 @@ class OperatorsPseudoSpectral3D(OperatorsBase):
         return field_fft
 
     @boost
-    def project_perpk3d(self, vx_fft: A, vy_fft: A, vz_fft: A):
+    def project_perpk3d_noloop(self, vx_fft: A, vy_fft: A, vz_fft: A):
         """Project (inplace) a vector perpendicular to the wavevector.
 
         The resulting vector is divergence-free.
 
         """
+        # function important for the performance of 3d fluidsim solvers
         tmp = (
             self.Kx * vx_fft + self.Ky * vy_fft + self.Kz * vz_fft
         ) * self.inv_K_square_nozero
@@ -508,6 +509,29 @@ class OperatorsPseudoSpectral3D(OperatorsBase):
         vx_fft -= self.Kx * tmp
         vy_fft -= self.Ky * tmp
         vz_fft -= self.Kz * tmp
+
+    @boost
+    def project_perpk3d(self, vx_fft: A, vy_fft: A, vz_fft: A):
+        """Project (inplace) a vector perpendicular to the wavevector.
+
+        The resulting vector is divergence-free.
+
+        """
+        # function important for the performance of 3d fluidsim solvers
+        # this version with loop is really faster than `project_perpk3d_noloop`
+        n0, n1, n2 = vx_fft.shape
+        for i0 in range(n0):
+            for i1 in range(n1):
+                for i2 in range(n2):
+                    tmp = (
+                        self.Kx[i0, i1, i2] * vx_fft[i0, i1, i2]
+                        + self.Ky[i0, i1, i2] * vy_fft[i0, i1, i2]
+                        + self.Kz[i0, i1, i2] * vz_fft[i0, i1, i2]
+                    ) * self.inv_K_square_nozero[i0, i1, i2]
+
+                    vx_fft[i0, i1, i2] -= self.Kx[i0, i1, i2] * tmp
+                    vy_fft[i0, i1, i2] -= self.Ky[i0, i1, i2] * tmp
+                    vz_fft[i0, i1, i2] -= self.Kz[i0, i1, i2] * tmp
 
     @boost
     def divfft_from_vecfft(self, vx_fft: Ac, vy_fft: Ac, vz_fft: Ac):
@@ -535,9 +559,30 @@ class OperatorsPseudoSpectral3D(OperatorsBase):
         rotzfft: Ac,
     ):
         """Return the curl of a vector in spectral space."""
-        rotxfft[:] = 1j * (self.Ky * vz_fft - self.Kz * vy_fft)
-        rotyfft[:] = 1j * (self.Kz * vx_fft - self.Kx * vz_fft)
-        rotzfft[:] = 1j * (self.Kx * vy_fft - self.Ky * vx_fft)
+        # function important for the performance of 3d fluidsim solvers
+
+        # cleaner but slightly slower
+        # rotxfft[:] = 1j * (self.Ky * vz_fft - self.Kz * vy_fft)
+        # rotyfft[:] = 1j * (self.Kz * vx_fft - self.Kx * vz_fft)
+        # rotzfft[:] = 1j * (self.Kx * vy_fft - self.Ky * vx_fft)
+
+        # seems faster (at least for small cases)
+        n0, n1, n2 = vx_fft.shape
+        for i0 in range(n0):
+            for i1 in range(n1):
+                for i2 in range(n2):
+                    rotxfft[i0, i1, i2] = 1j * (
+                        self.Ky[i0, i1, i2] * vz_fft[i0, i1, i2]
+                        - self.Kz[i0, i1, i2] * vy_fft[i0, i1, i2]
+                    )
+                    rotyfft[i0, i1, i2] = 1j * (
+                        self.Kz[i0, i1, i2] * vx_fft[i0, i1, i2]
+                        - self.Kx[i0, i1, i2] * vz_fft[i0, i1, i2]
+                    )
+                    rotzfft[i0, i1, i2] = 1j * (
+                        self.Kx[i0, i1, i2] * vy_fft[i0, i1, i2]
+                        - self.Ky[i0, i1, i2] * vx_fft[i0, i1, i2]
+                    )
 
     def div_vb_fft_from_vb(self, vx, vy, vz, b):
         r"""Compute :math:`\nabla \cdot (\boldsymbol{v} b)` in spectral space.
