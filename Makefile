@@ -35,9 +35,9 @@ tests_mpi4:
 
 _tests_coverage:
 	mkdir -p .coverage
-	coverage run -p -m unittest discover
-	TRANSONIC_NO_REPLACE=1 coverage run -p -m unittest discover
-	TRANSONIC_NO_REPLACE=1 mpirun -np 2 coverage run -p -m unittest discover
+	coverage run -p -m pytest -s
+	TRANSONIC_NO_REPLACE=1 coverage run -p -m pytest -s
+	TRANSONIC_NO_REPLACE=1 mpirun -np 2 coverage run -p -m pytest -s
 
 _report_coverage:
 	coverage combine
