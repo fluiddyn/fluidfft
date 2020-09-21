@@ -2,7 +2,7 @@ variables:
   CODECOV_TOKEN: 4ebf45ff-904a-4a74-aa03-d9fba26cc145
 
 tests:
-  image: fluiddyn/python3-stable
+  image: fluiddyn/python3-stable:20200918
   script:
     - cp site.cfg.default site.cfg
     - pip install -U tox numpy cython mako --user
