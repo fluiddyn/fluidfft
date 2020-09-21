@@ -208,11 +208,10 @@ class CommandsRunner(object):
                     if len(lines_err) > 40:
                         log_err = b"\n".join(lines_err[:40])
                         file_name = (
-                            "/tmp/fluidfft_build_error_log_"
-                            + "pid{}".format(process.pid)
+                            "/tmp/fluidfft_build_error_log_" + f"pid{process.pid}"
                         )
-                        with open(file_name, "w") as f:
-                            f.write(process.stderr_log.decode())
+                        with open(file_name, "w") as file:
+                            file.write(process.stderr_log.decode())
                         log_err += (
                             b"\n[...]\n\nend of error log in "
                             + file_name.encode()
@@ -405,7 +404,7 @@ def make_extensions(
     include_dirs=None,
     lib_dirs_dict=None,
     lib_flags_dict=None,
-    **options
+    **options,
 ):
 
     if all(

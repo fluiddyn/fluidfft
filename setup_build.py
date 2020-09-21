@@ -1,4 +1,5 @@
 import os
+import sys
 from concurrent.futures import ThreadPoolExecutor as Pool
 from runpy import run_path
 from pathlib import Path
@@ -306,10 +307,8 @@ class FluidFFTBuildExt(build_ext, PythranBuildExt):
                 and all([not key.startswith(s) for s in starts_forbiden])
             ]
 
-        pool = Pool(num_procs)
-        pool.map(self.build_extension, self.extensions)
-        try:
-            pool.shutdown()
-        except AttributeError:
-            pool.close()
-            pool.join()
+        # Quick fix to avoid an unexplained bug...
+        if sys.version_info[:2] < (3, 7):
+            num_procs = 1
+        with Pool(num_procs) as pool:
+            pool.map(self.build_extension, self.extensions)
