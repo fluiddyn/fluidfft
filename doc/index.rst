@@ -3,12 +3,6 @@
 FluidFFT documentation
 ======================
 
-.. warning ::
-
-   Our repositories in Bitbucket.org will soon be deleted! Our new home:
-   https://foss.heptapod.net/fluiddyn (`more details
-   <https://fluiddyn.readthedocs.io/en/latest/advice_developers.html>`_).
-
 This package provides C++ classes and their Python wrapper classes useful to
 perform Fast Fourier Transform (FFT) with different libraries, in particular
 
