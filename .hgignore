@@ -59,6 +59,9 @@ site.cfg
 .cache
 .mypy_cache
 **/__pythran__/*
+**/__numba__/*
+**/__cython__/*
+**/__python__/*
 
 bench/operator2d/*/__init__.py
 bench/operator2d/util.py

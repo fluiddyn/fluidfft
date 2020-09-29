@@ -309,6 +309,8 @@ class FluidFFTBuildExt(build_ext, PythranBuildExt):
 
         # Quick fix to avoid an unexplained bug...
         if sys.version_info[:2] < (3, 7):
-            num_procs = 1
-        with Pool(num_procs) as pool:
+            num_procs_ = 1
+        else:
+            num_procs_ = num_procs
+        with Pool(num_procs_) as pool:
             pool.map(self.build_extension, self.extensions)
