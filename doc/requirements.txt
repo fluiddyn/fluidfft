@@ -1,6 +1,7 @@
 Sphinx>=1.1
 numpy
 numpydoc
+nbsphinx
 cython
 mako
 psutil
