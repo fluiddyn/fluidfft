@@ -38,7 +38,7 @@ _tests_coverage:
 	coverage run -p -m pytest -s
 	TRANSONIC_NO_REPLACE=1 coverage run -p -m pytest -s
 	# Using TRANSONIC_NO_REPLACE with mpirun in docker can block the tests
-	TRANSONIC_NO_REPLACE=0 mpirun -np 2 coverage run -p -m pytest -s
+	mpirun -np 2 coverage run -p -m unittest discover
 
 _report_coverage:
 	coverage combine
