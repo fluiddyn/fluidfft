@@ -14,7 +14,6 @@
 import sys
 import os
 from pathlib import Path
-from datetime import datetime
 import subprocess
 from runpy import run_path
 import getpass
@@ -27,41 +26,15 @@ import matplotlib.pyplot as plt
 
 plt.ioff()
 
+from fluiddoc.ipynb_maker import execute_notebooks
 from fluiddyn.util import modification_date
 
 import fluidfft
 import fluidfft.bench_analysis
 from fluidfft.bench_analysis import plot_scaling
 
-
-def modification_date(filename):
-    t = os.path.getmtime(filename)
-    return datetime.fromtimestamp(t)
-
-
-def call_bash(commands):
-    subprocess.call(["/bin/bash", "-c", commands])
-
-
-def execute_notebooks(path_dir):
-    """Execute notebooks in a directory"""
-    paths_ipynb = Path(path_dir).glob("*.ipynb")
-    paths_ipynb = [
-        path for path in paths_ipynb if not path.name.endswith(".executed.ipynb")
-    ]
-    for path in paths_ipynb:
-        path_executed = path.with_suffix(".executed.ipynb")
-        if not os.path.exists(path_executed) or modification_date(
-            path
-        ) > modification_date(path_executed):
-            call_bash(
-                "jupyter-nbconvert --ExecutePreprocessor.timeout=200 "
-                + f"--to notebook --execute {path} --output={path_executed.name}"
-            )
-
-
 execute_notebooks("ipynb")
-nbsphinx_execute = 'never'
+nbsphinx_execute = "never"
 
 here = os.path.dirname(__file__)
 here_tmp = os.path.join(here, "tmp")
@@ -192,11 +165,15 @@ version = "{}.{}.{}".format(version[0], version[1], version[2])
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = [
-    "_build",
-    "ipynb/tuto_fft2d_seq.ipynb",
-    "ipynb/tuto_fft3d_seq.ipynb",
-]
+exclude_patterns = ["_build"]
+paths_notebooks = Path("ipynb").glob("*.ipynb")
+exclude_patterns.extend(
+    [
+        f"ipynb/{path.name}"
+        for path in paths_notebooks
+        if not path.name.endswith(".executed.ipynb")
+    ]
+)
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
