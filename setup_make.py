@@ -378,6 +378,10 @@ def make_command_ext_from_objs(
     cxx = config_vars["CXX"]
     ldshared = os.getenv("LDSHARED", config_vars["LDSHARED"])
 
+    if "mpi_with_p3dfft" in ext_file or "mpi_with_pfft" in ext_file:
+        # remove an option incompatible with these libraries
+        ldshared = ldshared.replace("-Wl,--as-needed", "-Wl,--no-as-needed")
+
     command = [w for w in ldshared.split() if w not in ["-g"]]
 
     if can_import_mpi4py:
