@@ -28,11 +28,9 @@ Notes
 
 """
 
-
 import sys
 from time import sleep
 import os
-from runpy import run_path
 from datetime import datetime
 import sysconfig
 from distutils import sysconfig as dsysconfig
@@ -44,22 +42,14 @@ from pathlib import Path
 
 from setuptools import Extension as SetuptoolsExtension
 
-
-DEBUG = os.getenv("FLUIDDYN_DEBUG", False)
+from setup_configure import build_needs_mpi4py, num_procs, TRANSONIC_BACKEND
 
 config_vars = dsysconfig.get_config_vars()
 
 here = Path(__file__).parent.absolute()
 
-_d = run_path(str(here / "fluidfft" / "util.py"))
-can_import = _d["can_import"]
 
-
-can_import_pythran = can_import("pythran")
-can_import_mpi4py = can_import("mpi4py", "2.0.0")
-
-
-if can_import_mpi4py:
+if build_needs_mpi4py:
     mpicxx_compile_words = []
     try:
         # does not work with mpich2 (used by default by anaconda)
@@ -83,11 +73,6 @@ if can_import_mpi4py:
             )
 
 
-PARALLEL_COMPILE = True
-
-if DEBUG:
-    PARALLEL_COMPILE = False
-
 short_version = sysconfig.get_python_version()
 platform_pyversion = "-".join([sysconfig.get_platform(), short_version])
 
@@ -96,21 +81,7 @@ path_lib_python = os.path.join(
 )
 
 path_tmp = "build/temp." + platform_pyversion
-
 path_lib = "build/lib." + platform_pyversion
-
-
-def check_and_print(pkg="", result=None):
-    if result is None:
-        result = can_import(pkg)
-
-    print("{} installed: ".format(pkg).rjust(25) + repr(result))
-
-
-print("*" * 50)
-check_and_print("mpi4py", can_import_mpi4py)
-check_and_print("pythran", can_import_pythran)
-print("*" * 50)
 
 
 def modification_date(filename):
@@ -146,22 +117,6 @@ def has_to_build(output_file, input_files):
         if mod_date_output < modification_date(input_file):
             return True
     return False
-
-
-if "READTHEDOCS" in os.environ:
-    num_procs = 1
-    print("On READTHEDOCS, num_procs =", num_procs)
-else:
-    try:
-        num_procs = int(os.environ["FLUIDDYN_NUM_PROCS_BUILD"])
-    except KeyError:
-        try:
-            num_procs = os.cpu_count()
-        except AttributeError:
-            num_procs = multiprocessing.cpu_count()
-
-if not PARALLEL_COMPILE:
-    num_procs = 1
 
 
 class CommandsRunner(object):
@@ -274,7 +229,7 @@ def make_function_cpp_from_pyx(
         output_file=cpp_file,
         cplus=True,
         compiler_directives=compiler_directives,
-        compile_time_env={"MPI4PY": can_import_mpi4py},
+        compile_time_env={"MPI4PY": build_needs_mpi4py},
     )
 
     # return (func, args, kwargs)
@@ -332,7 +287,7 @@ def make_command_obj_from_cpp(
         if w not in ["-g", "-DNDEBUG", "-Wstrict-prototypes"]
     ]
 
-    if can_import_mpi4py:
+    if build_needs_mpi4py:
         if cpp_file.endswith(".cu"):
             for word in set(mpicxx_compile_words).difference(command):
                 if word == "-pthread":
@@ -384,7 +339,7 @@ def make_command_ext_from_objs(
 
     command = [w for w in ldshared.split() if w not in ["-g"]]
 
-    if can_import_mpi4py:
+    if build_needs_mpi4py:
         command[0] = os.getenv("MPICXX", "mpicxx")
     else:
         command[0] = cxx.split()[0]
@@ -550,8 +505,7 @@ def make_pythran_extensions():
 
     import numpy as np
 
-    if not can_import_pythran:
-        print("Pythran extensions will not be built: ", modules)
+    if TRANSONIC_BACKEND != "pythran":
         return []
 
     from pythran.dist import PythranExtension
@@ -570,8 +524,10 @@ def make_pythran_extensions():
             or modification_date(bin_file) < modification_date(py_file)
         ):
             pext = PythranExtension(mod, [py_file])
-            pext.include_dirs.append(np.get_include())
             # bug pythran extension...
+            pext.include_dirs.append(np.get_include())
+            # by default, compile with -march=native
+            # TODO: change that!
             compile_arch = os.getenv("CARCH", "native")
             pext.extra_compile_args.extend(
                 ["-O3", "-march={}".format(compile_arch)]

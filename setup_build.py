@@ -9,7 +9,13 @@ from distutils import sysconfig as dsysconfig
 
 from setuptools.command.build_ext import build_ext
 
-from setup_make import make_extensions, make_pythran_extensions, num_procs
+from setup_make import make_extensions, make_pythran_extensions
+from setup_configure import (
+    configuration,
+    lib_flags_dict,
+    lib_dirs_dict,
+    num_procs,
+)
 
 
 config_vars = dsysconfig.get_config_vars()
@@ -27,20 +33,6 @@ except ImportError:
 
     PythranBuildExt = object
     PythranExtension = object
-
-
-DEBUG = os.getenv("FLUIDDYN_DEBUG", False)
-
-if DEBUG:
-    PARALLEL_COMPILE = False
-
-
-try:
-    from setup_config import parse_config
-except ImportError:
-    # fix a bug... Useful when there is already a module with the same name
-    # imported.
-    parse_config = run_path(str(here / "setup_config.py"))["parse_config"]
 
 
 class Extension(object):
@@ -192,13 +184,11 @@ class FluidFFTBuildExt(build_ext, PythranBuildExt):
         paths = ["fluidfft/fft2d/operators.py", "fluidfft/fft3d/operators.py"]
         make_backend_files([here / path for path in paths])
 
-        config, lib_flags_dict, lib_dirs_dict = parse_config()
+        base_names = base_names_from_config(configuration)
 
-        base_names = base_names_from_config(config)
-
-        # handle environ (variables) in config
-        if "environ" in config:
-            os.environ.update(config["environ"])
+        # handle environ (variables) in configuration
+        if "environ" in configuration:
+            os.environ.update(configuration["environ"])
 
         from src_cy.make_files_with_mako import make_pyx_files
 
@@ -231,7 +221,7 @@ class FluidFFTBuildExt(build_ext, PythranBuildExt):
             include_dirs.append(mpi4py.get_include())
 
         def update_with_config(key):
-            cfg = config[key]
+            cfg = configuration[key]
             if len(cfg["dir"]) > 0:
                 path = os.path.join(cfg["dir"], "include")
                 if path not in include_dirs:
@@ -241,7 +231,7 @@ class FluidFFTBuildExt(build_ext, PythranBuildExt):
                 if path not in include_dirs:
                     include_dirs.append(path)
 
-        if config["fftw3"]["use"]:
+        if configuration["fftw3"]["use"]:
             update_with_config("fftw3")
 
         keys = ["pfft", "p3dfft", "cufft"]

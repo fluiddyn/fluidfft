@@ -4,14 +4,46 @@ site.cfg.default to site.cfg and modify this file.
 """
 import os
 import sys
-
-try:  # python 3
-    from configparser import ConfigParser
-except ImportError:  # python 2.7
-    from ConfigParser import ConfigParser
+from configparser import ConfigParser
+import multiprocessing
 
 sections_libs = ["fftw3", "fftw3_mpi", "cufft", "pfft", "p3dfft"]
 sections = sections_libs + ["environ"]
+
+
+TRANSONIC_BACKEND = os.environ.get("FLUIDFFT_TRANSONIC_BACKEND", "pythran")
+
+build_dependencies_backends = {
+    "pythran": ["pythran>=0.9.7"],
+    "cython": ["cython"],
+    "python": [],
+    "numba": [],
+}
+
+if TRANSONIC_BACKEND not in build_dependencies_backends:
+    raise ValueError(
+        f"FLUIDSIM_TRANSONIC_BACKEND={TRANSONIC_BACKEND} "
+        f"not in {list(build_dependencies_backends.keys())}"
+    )
+
+
+DEBUG = os.getenv("FLUIDDYN_DEBUG", False)
+PARALLEL_COMPILE = not DEBUG
+
+if "READTHEDOCS" in os.environ:
+    num_procs = 1
+    print("On READTHEDOCS, num_procs =", num_procs)
+else:
+    try:
+        num_procs = int(os.environ["FLUIDDYN_NUM_PROCS_BUILD"])
+    except KeyError:
+        try:
+            num_procs = os.cpu_count()
+        except AttributeError:
+            num_procs = multiprocessing.cpu_count()
+
+if not PARALLEL_COMPILE:
+    num_procs = 1
 
 
 def get_default_config():
@@ -146,5 +178,7 @@ def parse_config():
     return config, lib_flags_dict, lib_dirs_dict
 
 
-if __name__ == "__main__":
-    make_site_cfg_default_file()
+configuration, lib_flags_dict, lib_dirs_dict = parse_config()
+
+libs_mpi = ["fftw3_mpi", "pfft", "p3dfft"]
+build_needs_mpi4py = any([configuration[lib]["use"] for lib in libs_mpi])

@@ -1,40 +1,33 @@
-import os
 from runpy import run_path
 from pathlib import Path
+import sys
 
 from setuptools import setup, find_packages, Extension
 
 here = Path(__file__).parent.absolute()
+sys.path.insert(0, ".")
 
-try:
-    from setup_build import FluidFFTBuildExt
-except ImportError:
-    # fix a bug... Useful when there is already a module with the same name
-    # imported.
-    FluidFFTBuildExt = run_path(str(here / "setup_build.py"))["FluidFFTBuildExt"]
-
-
-# Bootstrapping dependencies required for the setup
-setup_requires = ["numpy", "cython", "jinja2", "transonic>=0.2.0"]
-on_tox = os.getenv("TOXENV")
-if on_tox is not None:
-    setup_requires.append("mpi4py")
+from setup_configure import (
+    TRANSONIC_BACKEND,
+    build_needs_mpi4py,
+    build_dependencies_backends,
+)
+from setup_build import FluidFFTBuildExt
 
 # Get the long description from the relevant file
-with open("README.rst") as f:
-    long_description = f.read()
-lines = long_description.splitlines(True)
+with open("README.rst") as file:
+    lines = file.readlines()
 for i, line in enumerate(lines):
     if line.endswith(":alt: Code coverage\n"):
         iline_coverage = i
         break
-
 long_description = "".join(lines[iline_coverage + 2 :])
 
 # Get the version from the relevant file
 d = run_path("fluidfft/_version.py")
 __version__ = d["__version__"]
 
+# Set entry points
 entry_points = {
     "console_scripts": [
         "fluidfft-bench = fluidfft.bench:run",
@@ -42,6 +35,13 @@ entry_points = {
     ]
 }
 
+# Set setup_requires and install_requires depending on the configuration
+install_requires = ["fluiddyn >= 0.2.3", "transonic >= 0.4"]
+setup_requires = []
+setup_requires.extend(build_dependencies_backends[TRANSONIC_BACKEND])
+if build_needs_mpi4py:
+    setup_requires.append("mpi4py")
+    install_requires.append("mpi4py")
 
 setup(
     version=__version__,
@@ -51,6 +51,7 @@ setup(
     ),
     entry_points=entry_points,
     setup_requires=setup_requires,
+    install_requires=install_requires,
     # To trick build into running build_ext (taken from h5py)
     ext_modules=[Extension("trick.x", ["trick.c"])],
     cmdclass={"build_ext": FluidFFTBuildExt},
