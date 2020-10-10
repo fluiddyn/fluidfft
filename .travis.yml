@@ -2,7 +2,7 @@ os: linux
 language: python
 
 python:
-  - 3.6
+  - 3.7
 
 env:
   - TOXENV=py-mpi,codecov-travis OMPI_CC=/usr/bin/gcc-6 OMPI_CXX=/usr/bin/g++-6 SITE_CFG=linux
@@ -10,15 +10,15 @@ env:
 matrix:
   fast_finish: true
   include:
-    - python: 3.6
+    - python: 3.7
       env:
         - OMPI_CC=/usr/bin/gcc-6
         - OMPI_CXX=/usr/bin/g++-6
         - TOXENV=py-pythran-mpi,codecov-travis
         - SITE_CFG=linux
-      dist: xenial
-      sudo: required
-    - python: 3.7
+      dist: xenial     # required for Python 3.7 (travis-ci/travis-ci#9069)
+      sudo: required   # required for Python 3.7 (travis-ci/travis-ci#9069)
+    - python: 3.8
       env:
         - OMPI_CC=/usr/bin/gcc-6
         - OMPI_CXX=/usr/bin/g++-6
@@ -85,13 +85,12 @@ before_install:
 # with the release of pip==10.0.0
 install:
     - |
+      pip install -U pip tox fluiddevops
       if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         # All dependencies inside tox.ini - since tox does not officially
         # allow conda install
         conda install -q -y virtualenv cython mako mpi4py pyfftw pandas fftw openmpi fluiddyn
       fi
-      pip install -U pip
-      pip install -U tox fluiddevops
 
 before_script:
     - |
