@@ -69,6 +69,8 @@ The fluidfft build is also sensible to environment variables.
 
   "pythran" by default, it can be set to "python", "numba" or "cython".
 
+- ``FLUIDFFT_DISABLE_MPI`` can be set to disable all MPI libs.
+
 Warning about re-installing fluidfft with new build options
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

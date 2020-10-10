@@ -11,5 +11,5 @@ tests:
 tests_pythran_mpi:
   image: fluiddyn/python3-stable:heptapod
   script:
-    - pip install -U tox numpy cython mako mpi4py --user
+    - pip install -U tox --user
     - tox -vv -e py36-pythran-mpi,codecov

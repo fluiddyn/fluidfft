@@ -41,8 +41,11 @@ if "PYTHRAN" in os.environ:
 DEBUG = os.getenv("FLUIDDYN_DEBUG", False)
 PARALLEL_COMPILE = not DEBUG
 
+DISABLE_MPI = os.environ.get("FLUIDFFT_DISABLE_MPI", False)
+
 if "READTHEDOCS" in os.environ:
     num_procs = 1
+    TRANSONIC_BACKEND = "python"
     print("On READTHEDOCS, num_procs =", num_procs)
 else:
     try:
@@ -193,3 +196,8 @@ configuration, lib_flags_dict, lib_dirs_dict = parse_config()
 
 libs_mpi = ["fftw3_mpi", "pfft", "p3dfft"]
 build_needs_mpi4py = any([configuration[lib]["use"] for lib in libs_mpi])
+
+if DISABLE_MPI:
+    build_needs_mpi4py = False
+    for lib in libs_mpi:
+        configuration[lib]["use"] = False

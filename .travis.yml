@@ -89,10 +89,6 @@ install:
         # All dependencies inside tox.ini - since tox does not officially
         # allow conda install
         conda install -q -y virtualenv cython mako mpi4py pyfftw pandas fftw openmpi fluiddyn
-      else
-        pip install -U pip colorlog
-        pip install -U numpy cython mako # To be removed when tox support pyproject.toml
-        pip install -U mpi4py
       fi
       pip install -U pip
       pip install -U tox fluiddevops
