@@ -17,11 +17,8 @@ from setup_configure import (
     num_procs,
 )
 
-
 config_vars = dsysconfig.get_config_vars()
-
 here = Path(__file__).parent.absolute()
-
 
 try:
     # pythran > 0.8.6

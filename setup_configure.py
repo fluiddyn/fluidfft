@@ -6,10 +6,10 @@ import os
 import sys
 from configparser import ConfigParser
 import multiprocessing
+from distutils.util import strtobool
 
 sections_libs = ["fftw3", "fftw3_mpi", "cufft", "pfft", "p3dfft"]
 sections = sections_libs + ["environ"]
-
 
 TRANSONIC_BACKEND = os.environ.get("FLUIDFFT_TRANSONIC_BACKEND", "pythran")
 
@@ -19,13 +19,24 @@ build_dependencies_backends = {
     "python": [],
     "numba": [],
 }
-
 if TRANSONIC_BACKEND not in build_dependencies_backends:
     raise ValueError(
         f"FLUIDSIM_TRANSONIC_BACKEND={TRANSONIC_BACKEND} "
         f"not in {list(build_dependencies_backends.keys())}"
     )
 
+if "PYTHRAN" in os.environ:
+    PYTHRAN = strtobool(os.environ["PYTHRAN"])
+
+    if (
+        "FLUIDFFT_TRANSONIC_BACKEND" in os.environ
+        and not PYTHRAN
+        and TRANSONIC_BACKEND == "pythran"
+    ):
+        raise ValueError
+
+    if not PYTHRAN:
+        TRANSONIC_BACKEND = "python"
 
 DEBUG = os.getenv("FLUIDDYN_DEBUG", False)
 PARALLEL_COMPILE = not DEBUG

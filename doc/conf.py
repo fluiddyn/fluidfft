@@ -165,7 +165,7 @@ version = "{}.{}.{}".format(version[0], version[1], version[2])
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ["_build"]
+exclude_patterns = ["_build", "install/blas_libs.rst"]
 paths_notebooks = Path("ipynb").glob("*.ipynb")
 exclude_patterns.extend(
     [
