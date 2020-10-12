@@ -2,11 +2,11 @@
 |logo|
 ======
 
-*efficient and easy Fast Fourier Transform for Python*
+*Efficient and easy Fast Fourier Transform for Python*
 
-|release| |pyversions| |docs| |coverage| |travis|
+|release| |pyversions| |docs| |coverage| |heptapod_ci| |travis|
 
-.. |logo| image:: https://foss.heptapod.net/fluiddyn/fluidfft/raw/default/doc/logo.png
+.. |logo| image:: https://foss.heptapod.net/fluiddyn/fluidfft/-/blob/branch/default/doc/logo.svg
    :alt: FluidFFT
 
 .. |release| image:: https://img.shields.io/pypi/v/fluidfft.svg
@@ -20,11 +20,15 @@
    :target: http://fluidfft.readthedocs.org
    :alt: Documentation status
 
-.. |coverage| image:: https://codecov.io/gh/fluiddyn/fluidfft/branch/master/graph/badge.svg
+.. |coverage| image:: https://codecov.io/gh/fluiddyn/fluidfft/branch/branch%2Fdefault/graph/badge.svg
    :target: https://codecov.io/gh/fluiddyn/fluidfft
    :alt: Code coverage
 
-.. |travis| image:: https://travis-ci.org/fluiddyn/fluidfft.svg?branch=master
+.. |heptapod_ci| image:: https://foss.heptapod.net/fluiddyn/fluidfft/badges/branch/default/pipeline.svg
+   :target: https://foss.heptapod.net/fluiddyn/fluidfft/-/pipelines
+   :alt: Heptapod CI
+
+.. |travis| image:: https://travis-ci.org/fluiddyn/fluidfft.svg?branch=branch%2Fdefault
     :target: https://travis-ci.org/fluiddyn/fluidfft
 
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/s75as4ikeetrk6f3/branch/default?svg=true
@@ -32,7 +36,7 @@
    :alt: AppVeyor status
 
 .. |binder| image:: https://mybinder.org/badge_logo.svg
-   :target: https://mybinder.org/v2/gh/fluiddyn/fluidfft/master?urlpath=lab/tree/doc/ipynb
+   :target: https://mybinder.org/v2/gh/fluiddyn/fluidfft/branch%2Fdefault?urlpath=lab/tree/doc/ipynb
    :alt: Binder notebook
 
 Fluidfft provides C++ classes and their Python wrapper classes written in

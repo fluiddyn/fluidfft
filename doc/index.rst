@@ -144,11 +144,11 @@ Links
    :target: https://pypi.org/project/fluidfft/
    :alt: Latest version
 
-.. |coverage| image:: https://codecov.io/gh/fluiddyn/fluidfft/branch/master/graph/badge.svg
+.. |coverage| image:: https://codecov.io/gh/fluiddyn/fluidfft/branch/branch%2Fdefault/graph/badge.svg
    :target: https://codecov.io/gh/fluiddyn/fluidfft
    :alt: Code coverage
 
-.. |travis| image:: https://travis-ci.org/fluiddyn/fluidfft.svg?branch=master
+.. |travis| image:: https://travis-ci.org/fluiddyn/fluidfft.svg?branch=branch%2Fdefault
    :target: https://travis-ci.org/fluiddyn/fluidfft
 
 
