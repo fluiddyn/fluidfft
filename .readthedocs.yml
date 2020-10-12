@@ -2,6 +2,3 @@ version: 2
 
 conda:
   file: doc/environment.yml
-
-formats:
-  - none
