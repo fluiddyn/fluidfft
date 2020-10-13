@@ -25,17 +25,17 @@ if TRANSONIC_BACKEND not in build_dependencies_backends:
         f"not in {list(build_dependencies_backends.keys())}"
     )
 
-if "PYTHRAN" in os.environ:
-    PYTHRAN = strtobool(os.environ["PYTHRAN"])
+if "DISABLE_PYTHRAN" in os.environ:
+    DISABLE_PYTHRAN = strtobool(os.environ["DISABLE_PYTHRAN"])
 
     if (
         "FLUIDFFT_TRANSONIC_BACKEND" in os.environ
-        and not PYTHRAN
+        and DISABLE_PYTHRAN
         and TRANSONIC_BACKEND == "pythran"
     ):
         raise ValueError
 
-    if not PYTHRAN:
+    if DISABLE_PYTHRAN:
         TRANSONIC_BACKEND = "python"
 
 DEBUG = os.getenv("FLUIDDYN_DEBUG", False)

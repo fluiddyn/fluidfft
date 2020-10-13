@@ -60,10 +60,9 @@ The fluidfft build is also sensible to environment variables.
 
 - ``FLUIDDYN_DEBUG`` disables parallel build.
 
-- ``PYTHRAN``
+- ``DISABLE_PYTHRAN``
 
-  Setting ``PYTHRAN`` to ``"0"`` (with something like ``export PYTHRAN=0``)
-  disables compilation with Pythran.
+  ``DISABLE_PYTHRAN`` disables compilation with Pythran at build time.
 
 - ``FLUIDFFT_TRANSONIC_BACKEND``
 
