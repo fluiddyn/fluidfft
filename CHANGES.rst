@@ -1,3 +1,10 @@
+0.3.2 (2020-10-15)
+------------------
+
+- Few optimizations in 3D operators
+- pyproject.toml and isolated build
+- Various bugfixes (in particular, problems with `-Wl,--as-needed`)
+
 0.3.1 (2020-05-09)
 ------------------
 
