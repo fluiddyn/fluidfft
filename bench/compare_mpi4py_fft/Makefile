@@ -1,4 +1,4 @@
-TIMEIT:=python -m perf timeit --fast -s
+TIMEIT:=python -m pyperf timeit --fast -s
 # TIMEIT:=python -m perf timeit -q -s
 NPROC:=2
 
