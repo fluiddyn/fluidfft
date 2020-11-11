@@ -3,32 +3,32 @@
 # Result on Pierre's machine at LEGI (Intel(R) Xeon(R) CPU E5-1603 v3 @ 2.80GHz, 4 cores).
 
 ## numpy
-python -m perf timeit -s 'import numpy as np; a = np.ones([1000, 1000]); from mymod import myfunc' 'myfunc(a)'
+python -m pyperf timeit -s 'import numpy as np; a = np.ones([1000, 1000]); from mymod import myfunc' 'myfunc(a)'
 .....................
 Mean +- std dev: 47.6 ms +- 0.2 ms
 
 ## default
-python -m perf timeit -s 'import numpy as np; a = np.ones([1000, 1000]); from mymod_default import myfunc' 'myfunc(a)'
+python -m pyperf timeit -s 'import numpy as np; a = np.ones([1000, 1000]); from mymod_default import myfunc' 'myfunc(a)'
 .....................
 Mean +- std dev: 5.15 ms +- 0.01 ms
 
 ## native
-python -m perf timeit -s 'import numpy as np; a = np.ones([1000, 1000]); from mymod_native import myfunc' 'myfunc(a)'
+python -m pyperf timeit -s 'import numpy as np; a = np.ones([1000, 1000]); from mymod_native import myfunc' 'myfunc(a)'
 .....................
 Mean +- std dev: 5.15 ms +- 0.01 ms
 
 ## native_openmp
-python -m perf timeit -s 'import numpy as np; a = np.ones([1000, 1000]); from mymod_native_openmp import myfunc' 'myfunc(a)'
+python -m pyperf timeit -s 'import numpy as np; a = np.ones([1000, 1000]); from mymod_native_openmp import myfunc' 'myfunc(a)'
 .....................
 Mean +- std dev: 1.41 ms +- 0.11 ms
 
 ## openmp
-python -m perf timeit -s 'import numpy as np; a = np.ones([1000, 1000]); from mymod_openmp import myfunc' 'myfunc(a)'
+python -m pyperf timeit -s 'import numpy as np; a = np.ones([1000, 1000]); from mymod_openmp import myfunc' 'myfunc(a)'
 .....................
 Mean +- std dev: 1.40 ms +- 0.06 ms
 
 ## simd
-python -m perf timeit -s 'import numpy as np; a = np.ones([1000, 1000]); from mymod_simd import myfunc' 'myfunc(a)'
+python -m pyperf timeit -s 'import numpy as np; a = np.ones([1000, 1000]); from mymod_simd import myfunc' 'myfunc(a)'
 .....................
 Mean +- std dev: 5.16 ms +- 0.01 ms
 
@@ -38,7 +38,7 @@ see no effect of the flags -march=native or -DUSE_BOOST_SIMD. Why?
 
 
 # Update (2018-10-01)
-The following are the results, in Ashwin's laptop after a `sudo python -m perf system tune`.
+The following are the results, in Ashwin's laptop after a `sudo python -m pyperf system tune`.
 (Intel(R) Core(TM) i7-5500U CPU @ 2.40GHz, 2 cores).
 
 ### branch master (6f2a8f6)
@@ -86,7 +86,7 @@ Mean +- std dev: 6.07 ms +- 0.07 ms
 # default 2d (explicit loops)
 Mean +- std dev: 4.45 ms +- 0.14 ms
 # simd 2d (no loop)
-python -m perf timeit -s \
+python -m pyperf timeit -s \
 Mean +- std dev: 5.49 ms +- 0.14 ms
 # simd 2d (explicit loops)
 Mean +- std dev: 4.40 ms +- 0.15 ms

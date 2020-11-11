@@ -29,102 +29,102 @@ arrays=a0, a1, a2, a3, a4, a5
 perf: perfpython perfdefault perfdefault1 perfsimd
 
 perfnative:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)_native as func, $(arrays)' $(code)
 
 perfdefault:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)_default as func, $(arrays)' $(code)
 
 perffft:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)_fft as func, $(arrays)' $(code)
 
 perfomp:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)_omp as func, $(arrays)' $(code)
-	OMP_NUM_THREADS=1 python -m perf timeit -s \
+	OMP_NUM_THREADS=1 python -m pyperf timeit -s \
 	  'from bench import $(name)_omp as func, $(arrays)' $(code) \
 	  --inherit-environ=OMP_NUM_THREADS
 
 perfpython:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)_py as func, $(arrays)' $(code)
 
 perfsimd:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)_simd as func, $(arrays)' $(code)
 
 perfsimd1:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)1_simd as func, $(arrays)' $(code)
 
 perfsimd2:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)2_simd as func, $(arrays)' $(code)
 
 perfsimd3:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)3_simd as func, $(arrays)' $(code)
 
 
 perfnative1:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)1_native as func, $(arrays)' $(code)
 
 perfdefault1:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)1_default as func, $(arrays)' $(code)
 
 perfomp1:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)1_omp as func, $(arrays)' $(code)
-	OMP_NUM_THREADS=1 python -m perf timeit -s \
+	OMP_NUM_THREADS=1 python -m pyperf timeit -s \
 	  'from bench import $(name)1_omp as func, $(arrays)' $(code) \
 	  --inherit-environ=OMP_NUM_THREADS
 
 perfpython1:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)1_py as func, $(arrays)' $(code)
 
 
 perfnative2:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)2_native as func, $(arrays)' $(code)
 
 perfdefault2:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)2_default as func, $(arrays)' $(code)
 
 perfomp2:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)2_omp as func, $(arrays)' $(code)
-	OMP_NUM_THREADS=1 python -m perf timeit -s \
+	OMP_NUM_THREADS=1 python -m pyperf timeit -s \
 	  'from bench import $(name)2_omp as func, $(arrays)' $(code) \
 	  --inherit-environ=OMP_NUM_THREADS
 
 perfpython2:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)2_py as func, $(arrays)' $(code)
 
 
 perfnative3:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)3_native as func, $(arrays)' $(code)
 
 perfdefault3:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)3_default as func, $(arrays)' $(code)
 
 perfomp3:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)3_omp as func, $(arrays)' $(code)
-	OMP_NUM_THREADS=1 python -m perf timeit -s \
+	OMP_NUM_THREADS=1 python -m pyperf timeit -s \
 	  'from bench import $(name)3_omp as func, $(arrays)' $(code) \
 	  --inherit-environ=OMP_NUM_THREADS
 
 perfpython3:
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import $(name)2_py as func, $(arrays)' $(code)
 
 

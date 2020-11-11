@@ -1,5 +1,5 @@
 TIMEIT:=python -m pyperf timeit --fast -s
-# TIMEIT:=python -m perf timeit -q -s
+# TIMEIT:=python -m pyperf timeit -q -s
 NPROC:=2
 
 FFT:='from bench import fft as transform;'
