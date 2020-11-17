@@ -1,8 +1,9 @@
 import sys
 import numpy as np
-import perf
+import pyperf
 from mpi4py import MPI
-from mpi4py_fft.mpifft import PFFT, Function
+from mpi4py_fft.mpifft import PFFT
+from mpi4py_fft.distarray import newDistArray
 
 
 def init2d(N=1024, slab=True):
@@ -10,17 +11,19 @@ def init2d(N=1024, slab=True):
 
 
 def init3d(N=128, slab=True):
-    return PFFT(MPI.COMM_WORLD, (N, N, N), slab=slab, axes=(0, 1, 2), dtype=np.float)
+    return PFFT(
+        MPI.COMM_WORLD, (N, N, N), slab=slab, axes=(0, 1, 2), dtype=np.float
+    )
 
 
 def create_arrayX(o):
-    u = Function(o, False)
+    u = newDistArray(o, False)
     u[:] = np.random.random(u.shape).astype(u.dtype)
     return u
 
 
 def create_arrayK(o):
-    u_hat = Function(o, True)
+    u_hat = newDistArray(o, True)
     u_hat[:] = np.random.random(u_hat.shape).astype(u_hat.dtype)
     return u_hat
 
@@ -31,4 +34,3 @@ def fft(o, u, u_hat):
 
 def ifft(o, u, u_hat):
     o.backward(u_hat, u)
-

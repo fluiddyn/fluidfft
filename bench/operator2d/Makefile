@@ -39,14 +39,14 @@ openmp/$(name)_openmp$(extbin): $(name).py
 
 # perf:
 # 	## numpy
-# 	python -m perf timeit -s '$(setup) from $(name) import myfunc' 'myfunc(a)'
+# 	python -m pyperf timeit -s '$(setup) from $(name) import myfunc' 'myfunc(a)'
 # 	## default
-# 	python -m perf timeit -s '$(setup) from $(name)_default import myfunc' 'myfunc(a)'
+# 	python -m pyperf timeit -s '$(setup) from $(name)_default import myfunc' 'myfunc(a)'
 # 	## native
-# 	python -m perf timeit -s '$(setup) from $(name)_native import myfunc' 'myfunc(a)'
+# 	python -m pyperf timeit -s '$(setup) from $(name)_native import myfunc' 'myfunc(a)'
 # 	## native_openmp
-# 	python -m perf timeit -s '$(setup) from $(name)_native_openmp import myfunc' 'myfunc(a)'
+# 	python -m pyperf timeit -s '$(setup) from $(name)_native_openmp import myfunc' 'myfunc(a)'
 # 	## openmp
-# 	python -m perf timeit -s '$(setup) from $(name)_openmp import myfunc' 'myfunc(a)'
+# 	python -m pyperf timeit -s '$(setup) from $(name)_openmp import myfunc' 'myfunc(a)'
 # 	## simd
-# 	python -m perf timeit -s '$(setup) from $(name)_simd import myfunc' 'myfunc(a)'
+# 	python -m pyperf timeit -s '$(setup) from $(name)_simd import myfunc' 'myfunc(a)'

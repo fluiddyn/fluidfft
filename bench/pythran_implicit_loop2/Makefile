@@ -2,8 +2,8 @@
 name=mymod
 nameso=$(name)_thran.so
 
-# TIMEIT=python -m perf timeit --fast -q -s
-TIMEIT=python -m perf timeit -q -s
+# TIMEIT=python -m pyperf timeit --fast -q -s
+TIMEIT=python -m pyperf timeit -q -s
 
 # PYTHRAN=pythran -march=native -DUSE_BOOST_SIMD
 PYTHRAN=pythran

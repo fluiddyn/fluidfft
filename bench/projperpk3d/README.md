@@ -5,21 +5,21 @@
 See the files proj.py, proj1.py and proj2.py
 
 pierre@pierre-KTH:~/Dev/fluidfft/bench/compare_projperpk3d$ make perfdefault
-python -m perf timeit -s \
+python -m pyperf timeit -s \
   'from bench import proj_default as func, arr_c, arr' 'func(arr_c, arr_c, arr_c, arr, arr, arr, arr)'
 .....................
 Mean +- std dev: 23.8 ms +- 1.3 ms
 
 
 pierre@pierre-KTH:~/Dev/fluidfft/bench/compare_projperpk3d$ make perfdefault1
-python -m perf timeit -s \
+python -m pyperf timeit -s \
   'from bench import proj1_default as func, arr_c, arr' 'func(arr_c, arr_c, arr_c, arr, arr, arr, arr)'
 .....................
 Mean +- std dev: 26.6 ms +- 1.1 ms
 
 
 pierre@pierre-KTH:~/Dev/fluidfft/bench/compare_projperpk3d$ make perfdefault2 
-python -m perf timeit -s \
+python -m pyperf timeit -s \
   'from bench import proj2_default as func, arr_c, arr' 'func(arr_c, arr_c, arr_c, arr, arr, arr, arr)'
 .....................
 Mean +- std dev: 23.9 ms +- 1.5 ms
@@ -30,7 +30,7 @@ Mean +- std dev: 23.9 ms +- 1.5 ms
 Small difference but it is reproducible...
 
 pierre@pierre-KTH:~/Dev/fluidfft/bench/compare_projperpk3d$ make perfnative 
-python -m perf timeit -s \
+python -m pyperf timeit -s \
   'from bench import proj_native as func, arr_c, arr' 'func(arr_c, arr_c, arr_c, arr, arr, arr, arr)'
 .....................
 Mean +- std dev: 24.8 ms +- 1.3 ms

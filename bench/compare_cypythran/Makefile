@@ -9,30 +9,30 @@ perf: perfpython perfcython perfpythran perfsimd perfomp
 
 perfpython:
 	# python
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import grad_py as g, f_fft, KX, KY' 'g(f_fft, KX, KY)'
 
 perfcython:
 	# cython with @cython.boundscheck(False) @cython.wraparound(False)
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import grad_cy_nocheck as g, f_fft, KX, KY' 'g(f_fft, KX, KY)'
 
 perfcythoncheck:
 	# cython without @cython.boundscheck(False) @cython.wraparound(False)
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	'from bench import grad_cy_check as g, f_fft, KX, KY' 'g(f_fft, KX, KY)'
 
 perfpythran:
 	# pythran
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import grad_pythran as g, f_fft, KX, KY' 'g(f_fft, KX, KY)'
 
 perfsimd:
 	# SIMD
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import grad_simd as g, f_fft, KX, KY' 'g(f_fft, KX, KY)'
 
 perfomp:
 	# OpenMP
-	python -m perf timeit -s \
+	python -m pyperf timeit -s \
 	  'from bench import grad_omp as g, f_fft, KX, KY' 'g(f_fft, KX, KY)'
