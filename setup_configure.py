@@ -2,10 +2,12 @@
 site.cfg.default to site.cfg and modify this file.
 
 """
+import multiprocessing
 import os
 import sys
+import sysconfig
 from configparser import ConfigParser
-import multiprocessing
+from distutils import sysconfig as dsysconfig
 from distutils.util import strtobool
 
 sections_libs = ["fftw3", "fftw3_mpi", "cufft", "pfft", "p3dfft"]
@@ -192,10 +194,54 @@ def parse_config():
     return config, lib_flags_dict, lib_dirs_dict
 
 
+def get_distconfig():
+    """Get configuration for building extensions -- collected from
+    distutils.sysconfig, sysconfig, and fluidfft's site.cfg.
+
+    """
+    global configuration  # site.cfg
+
+    site_cfg = configuration["environ"]
+    distutil_sysconfig = dsysconfig.get_config_vars()
+
+    short_version = sysconfig.get_python_version()
+    platform_pyversion = "-".join([sysconfig.get_platform(), short_version])
+
+    def site_dist_default(key, default):
+        return site_cfg.get(key, distutil_sysconfig.get(key, default))
+
+    distconfig = dict(
+        #  PATH_LIB_PYTHON=os.path.join(
+        #      sys.prefix, "lib", "python" + short_version, "site-packages"
+        #  ),
+        PATH_TMP="build/temp." + platform_pyversion,
+        PATH_LIB="build/lib." + platform_pyversion,
+        EXT_SUFFIX=sysconfig.get_config_var("EXT_SUFFIX") or ".so",
+        MPICXX=site_cfg.get("MPICXX", "mpicxx"),
+        CXX=site_dist_default("CXX", "cxx"),
+        LDSHARED=site_dist_default("LDSHARED", "cxx -shared"),
+        CFLAGS=site_dist_default("CFLAGS", ""),
+        INCLUDEPY=distutil_sysconfig.get(
+            "INCLUDEPY",
+            # Again! For Pypy (see: https://foss.heptapod.net/pypy/pypy/issues/2478)
+            sysconfig.get_config_var("INCLUDEPY"),
+        ),
+    )
+
+    # make_command_obj_from_cpp
+    for key in ("OPT", "BASECFLAGS", "CCSHARED"):
+        distconfig[key] = distutil_sysconfig.get(key, "")
+
+    return distconfig
+
+
 configuration, lib_flags_dict, lib_dirs_dict = parse_config()
 
 libs_mpi = ["fftw3_mpi", "pfft", "p3dfft"]
-build_needs_mpi4py = any([configuration[lib]["use"] for lib in libs_mpi])
+# The site.cfg MPICXX acts as an override to properly compile extensions like
+# fft2d.mpi_with_fftw1d and fft3d.mpi_with_fftw1d when MPI and fftw libraries
+# are available but fftw3-mpi library is not.
+build_needs_mpi4py = any([configuration[lib]["use"] for lib in libs_mpi]) or configuration["environ"].get("MPICXX", False)
 
 if DISABLE_MPI:
     build_needs_mpi4py = False

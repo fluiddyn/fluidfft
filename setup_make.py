@@ -32,8 +32,6 @@ import sys
 from time import sleep
 import os
 from datetime import datetime
-import sysconfig
-from distutils import sysconfig as dsysconfig
 import subprocess
 from copy import copy
 import multiprocessing
@@ -42,10 +40,10 @@ from pathlib import Path
 
 from setuptools import Extension as SetuptoolsExtension
 
-from setup_configure import build_needs_mpi4py, num_procs, TRANSONIC_BACKEND
+from setup_configure import build_needs_mpi4py, get_distconfig, num_procs, TRANSONIC_BACKEND
 
-config_vars = dsysconfig.get_config_vars()
 
+distconfig = get_distconfig()
 here = Path(__file__).parent.absolute()
 
 
@@ -71,17 +69,6 @@ if build_needs_mpi4py:
                 "Unable to find MPI compile flags."
                 "Setting mpicxx_compile_words=[]"
             )
-
-
-short_version = sysconfig.get_python_version()
-platform_pyversion = "-".join([sysconfig.get_platform(), short_version])
-
-path_lib_python = os.path.join(
-    sys.prefix, "lib", "python" + short_version, "site-packages"
-)
-
-path_tmp = "build/temp." + platform_pyversion
-path_lib = "build/lib." + platform_pyversion
 
 
 def modification_date(filename):
@@ -251,24 +238,13 @@ def make_command_obj_from_cpp(
     if not has_to_build(obj_file, (cpp_file,)):
         return
 
-    keys = ["CXX", "OPT", "BASECFLAGS", "CFLAGS", "CCSHARED"]
+    _distconfig = copy(distconfig)
 
-    conf_vars = copy(config_vars)
-
-    # for k in keys:
-    #     print(k, conf_vars[k])
-
-    # problem: it replaces the value (add it better?)
     if options is not None:
-        for k, v in options.items():
-            if v is not None:
-                conf_vars[k] = v
+        _distconfig.update({k: v for k, v in options.items() if v is not None})
 
-    # for Pypy
-    if "BASECFLAGS" not in conf_vars:
-        keys.remove("BASECFLAGS")
-
-    command = " ".join([conf_vars[k] for k in keys])
+    keys = ["CXX", "OPT", "BASECFLAGS", "CFLAGS", "CCSHARED"]
+    command = " ".join([_distconfig[k] for k in keys])
 
     if cpp_file.endswith(".cu"):
         NVCC = os.getenv("NVCC", "nvcc")
@@ -294,15 +270,11 @@ def make_command_obj_from_cpp(
                     continue
                 command.append(word)
         else:
-            mpicxx = os.getenv("MPICXX", "mpicxx").split()
+            mpicxx = _distconfig["MPICXX"].split()
             mpicxx.extend(command[1:])
             command = mpicxx
 
-    try:
-        includepy = conf_vars["INCLUDEPY"]
-    except KeyError:
-        # Again! For Pypy (see: https://foss.heptapod.net/pypy/pypy/issues/2478)
-        includepy = sysconfig.get_config_var("INCLUDEPY")
+    includepy = _distconfig["INCLUDEPY"]
 
     includedir = os.path.split(includepy)[0]
     if os.path.split(includedir)[-1] == "include":
@@ -330,8 +302,8 @@ def make_command_ext_from_objs(
     if not os.path.exists(path_dir):
         os.makedirs(path_dir)
 
-    cxx = config_vars["CXX"]
-    ldshared = os.getenv("LDSHARED", config_vars["LDSHARED"])
+    cxx = distconfig["CXX"]
+    ldshared = distconfig["LDSHARED"]
 
     if "mpi_with_p3dfft" in ext_file or "mpi_with_pfft" in ext_file:
         # remove an option incompatible with these libraries
@@ -378,7 +350,7 @@ def make_extensions(
     ):
         return []
 
-    path_base_output = path_lib
+    path_base_output = distconfig["PATH_LIB"]
 
     sources = set()
     for ext in extensions:
@@ -446,7 +418,7 @@ def make_extensions(
     # compile .cpp files if needed
     commands = []
     for path in files["cpp"]:
-        result = os.path.join(path_tmp, os.path.splitext(path)[0] + ".o")
+        result = os.path.join(distconfig["PATH_TMP"], os.path.splitext(path)[0] + ".o")
         command = make_command_obj_from_cpp(result, path, include_dirs, options)
         if command is not None:
             commands.append(command)
@@ -460,12 +432,12 @@ def make_extensions(
     files["so"] = []
     commands = []
     for ext in extensions:
-        suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
+        suffix = distconfig["EXT_SUFFIX"]
         result = os.path.join(
             path_base_output, ext.name.replace(".", os.path.sep) + suffix
         )
         objects = [
-            os.path.join(path_tmp, os.path.splitext(source)[0] + ".o")
+            os.path.join(distconfig["PATH_TMP"], os.path.splitext(source)[0] + ".o")
             for source in ext.sources
         ]
 
@@ -516,7 +488,7 @@ def make_pythran_extensions():
         base_file = mod.replace(".", os.path.sep)
         py_file = base_file + ".py"
         # warning: does not work on Windows (?)
-        suffix = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
+        suffix = distconfig["EXT_SUFFIX"]
         bin_file = base_file + suffix
         if (
             not develop
