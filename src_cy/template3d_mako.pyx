@@ -127,7 +127,7 @@ cdef class ${class_name}:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    cpdef fft_as_arg(self, view3df_t fieldX,
+    cpdef fft_as_arg(self, const view3df_t fieldX,
                      view3dc_t fieldK):
         """Perform FFT and put result in second argument."""
 
@@ -139,9 +139,15 @@ cdef class ${class_name}:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    cpdef ifft_as_arg(self, view3dc_t fieldK,
+    cpdef ifft_as_arg(self, const view3dc_t fieldK,
                       view3df_t fieldX):
-        """Perform iFFT and put result in second argument."""
+        """Perform iFFT and put result in second argument.
+
+        .. note::
+            The values in the input array would be retained by making a copy to
+            an intermediate input array. This can have a performance impact.
+
+        """
         self.thisptr.ifft(<mycomplex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
 
     @cython.boundscheck(False)
@@ -149,14 +155,20 @@ cdef class ${class_name}:
     # @cython.initializedcheck(False)
     cpdef ifft_as_arg_destroy(self, view3dc_t fieldK,
                               view3df_t fieldX):
-        """Perform iFFT and put result in second argument."""
+        """Perform iFFT and put result in second argument.
+
+        .. note::
+            The values in the input array would be destroyed for the better
+            performance.
+
+        """
         self.thisptr.ifft_destroy(
             <mycomplex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    cpdef fft(self, view3df_t fieldX):
+    cpdef fft(self, const view3df_t fieldX):
         """Perform FFT and return the result."""
         cdef np.ndarray[DTYPEc_t, ndim=3] fieldK
         fieldK = np.empty(self._shapeK_loc, dtype=DTYPEc, order='C')
@@ -166,7 +178,7 @@ cdef class ${class_name}:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    cpdef ifft(self, view3dc_t fieldK):
+    cpdef ifft(self, const view3dc_t fieldK):
         """Perform iFFT and return the result."""
         cdef np.ndarray[DTYPEf_t, ndim=3] fieldX
         fieldX = np.empty(self.get_shapeX_loc(), dtype=DTYPEf, order='C')
@@ -452,11 +464,11 @@ cdef class ${class_name}:
 
         return arr3d
 
-    def compute_energy_from_X(self, view3df_t fieldX):
+    def compute_energy_from_X(self, const view3df_t fieldX):
         """Compute the mean energy from a real space array."""
         return <float> self.thisptr.compute_energy_from_X(&fieldX[0, 0, 0])
 
-    def compute_energy_from_K(self, view3dc_t fieldK):
+    def compute_energy_from_K(self, const view3dc_t fieldK):
         """Compute the mean energy from a Fourier space array."""
         return <float> self.thisptr.compute_energy_from_K(
             <mycomplex*> &fieldK[0, 0, 0])

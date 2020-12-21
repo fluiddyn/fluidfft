@@ -91,7 +91,7 @@ cdef class ${class_name}:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    cpdef fft_as_arg(self, view2df_t fieldX,
+    cpdef fft_as_arg(self, const view2df_t fieldX,
                      view2dc_t fieldK):
         """Perform the fft and copy the result in the second argument."""
         self.thisptr.fft(&fieldX[0, 0], <mycomplex*> &fieldK[0, 0])
@@ -99,7 +99,7 @@ cdef class ${class_name}:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    cpdef ifft_as_arg(self, view2dc_t fieldK,
+    cpdef ifft_as_arg(self, const view2dc_t fieldK,
                       view2df_t fieldX):
         """Perform the ifft and copy the result in the second argument."""
         self.thisptr.ifft(<mycomplex*> &fieldK[0, 0], &fieldX[0, 0])
@@ -107,7 +107,7 @@ cdef class ${class_name}:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    cpdef fft(self, view2df_t fieldX):
+    cpdef fft(self, const view2df_t fieldX):
         """Perform the fft and returns the result."""
         cdef np.ndarray[DTYPEc_t, ndim=2] fieldK
         fieldK = np.empty(self._shapeK_loc, dtype=DTYPEc, order='C')
@@ -117,7 +117,7 @@ cdef class ${class_name}:
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
-    cpdef ifft(self, view2dc_t fieldK):
+    cpdef ifft(self, const view2dc_t fieldK):
         """Perform the ifft and returns the result."""
         cdef np.ndarray[DTYPEf_t, ndim=2] fieldX
         fieldX = np.empty(self._shapeX_loc, dtype=DTYPEf, order='C')
@@ -221,16 +221,16 @@ cdef class ${class_name}:
 
         return x0loc, x1loc
 
-    def compute_energy_from_X(self, view2df_t fieldX):
+    def compute_energy_from_X(self, const view2df_t fieldX):
         """Compute the mean energy from a real space array."""
         return <float> self.thisptr.compute_energy_from_X(&fieldX[0, 0])
 
-    def compute_energy_from_K(self, view2dc_t fieldK):
+    def compute_energy_from_K(self, const view2dc_t fieldK):
         """Compute the mean energy from a Fourier space array."""
         return <float> self.thisptr.compute_energy_from_K(
             <mycomplex*> &fieldK[0, 0])
 
-    def sum_wavenumbers(self, view2df_t fieldK):
+    def sum_wavenumbers(self, const view2df_t fieldK):
         """Compute the sum over all wavenumbers."""
         return <float> self.thisptr.sum_wavenumbers(&fieldK[0, 0])
 

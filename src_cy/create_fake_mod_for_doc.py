@@ -32,7 +32,7 @@ def get_doc(lines, indent='    '):
 
 strings_to_be_deleted = [
     ' int ', ' view3df_t ', ' view3dc_t ',
-    ' view2df_t ', ' view2dc_t ']
+    ' view2df_t ', ' view2dc_t ', 'const ']
 
 
 def get_function_code(lines):
