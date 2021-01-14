@@ -33,6 +33,8 @@ library_dir =
 ## extensions.
 
 ## To modify compiler used to build Cython extensions:
+# CXX =
+# CFLAGS =
 # MPICXX =
 # LDSHARED =
 

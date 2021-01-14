@@ -1,28 +1,25 @@
 import os
 import sys
 from concurrent.futures import ThreadPoolExecutor as Pool
-from runpy import run_path
 from pathlib import Path
+from runpy import run_path
 from warnings import warn
-
-from distutils import sysconfig as dsysconfig
 
 from setuptools.command.build_ext import build_ext
 
-from setup_make import make_extensions, make_pythran_extensions
 from setup_configure import (
     configuration,
-    lib_flags_dict,
     lib_dirs_dict,
+    lib_flags_dict,
     num_procs,
 )
+from setup_make import make_extensions, make_pythran_extensions
 
-config_vars = dsysconfig.get_config_vars()
 here = Path(__file__).parent.absolute()
 
 try:
     # pythran > 0.8.6
-    from pythran.dist import PythranExtension, PythranBuildExt
+    from pythran.dist import PythranBuildExt, PythranExtension
 
     can_import_pythran = True
 except ImportError:
