@@ -41,7 +41,7 @@ except ImportError:
 
     empty_aligned = np.empty
 
-    def byte_align(values):
+    def byte_align(values, *args):
         """False byte_align function used when pyfftw can not be imported"""
         return values
 
