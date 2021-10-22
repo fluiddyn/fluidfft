@@ -27,6 +27,9 @@ FFTs. We can see how the data is distributed in blocks and which MPI
 communications are needed to do the computations of the 1D FFTs over the 3
 dimensions.
 
+Our paper describing Fluidfft can also be useful :
+https://openresearchsoftware.metajnl.com/articles/10.5334/jors.238/
+
 ### GHOST
 
 Another code to run pseudo-spectral simulations based on FFT is
