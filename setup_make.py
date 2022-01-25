@@ -307,7 +307,10 @@ def make_command_ext_from_objs(
 
     if "mpi_with_p3dfft" in ext_file or "mpi_with_pfft" in ext_file:
         # remove an option incompatible with these libraries
-        ldshared = ldshared.replace("-Wl,--as-needed", "-Wl,--no-as-needed")
+        if "-Wl,--as-needed" in ldshared:
+            ldshared = ldshared.replace("-Wl,--as-needed", "-Wl,--no-as-needed")
+        else:
+            ldshared += " -Wl,--no-as-needed"
 
     command = [w for w in ldshared.split() if w not in ["-g"]]
 
