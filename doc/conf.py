@@ -119,6 +119,7 @@ extensions = [
     "sphinx.ext.autosummary",
     "numpydoc",
     "nbsphinx",
+    "sphinx_copybutton",
     # 'fluiddoc.mathmacro',
     # 'breathe'
 ]

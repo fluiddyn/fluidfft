@@ -46,7 +46,8 @@ build() {
   libtoolize && aclocal && autoconf && automake --add-missing
   ## If the above fails, use:
   # autoreconf -fvi
-
+  export FCFLAGS="-fallow-argument-mismatch"
+  export FFLAGS="-fallow-argument-mismatch"
   CC=${CC} CCLD=${FC} ./configure \
     --prefix=${pkgdir} \
     --enable-fftw --with-fftw=${fftwdir}

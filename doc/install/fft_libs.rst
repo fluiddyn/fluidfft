@@ -31,7 +31,7 @@ MKL library (FFT by intel)
 There are wrappers to use the MKL library (FFT by intel) using the FFTW
 API. See the file ``site.cfg.mkl``.
 
-`pfft <https://github.com/mpip/pfft>`_ 
+`pfft <https://github.com/mpip/pfft>`_
 --------------------------------------
 
 *"PFFT is a software library for computing massively parallel, fast Fourier
@@ -44,6 +44,10 @@ related to IBM clusters can be found `here <https://www-user.tu-chemnitz.de/~pot
 
 .. literalinclude:: install_pfft.sh
    :language: shell
+
+This script can be downloaded with::
+
+  wget https://foss.heptapod.net/fluiddyn/fluidfft/-/raw/branch/default/doc/install/install_pfft.sh
 
 `p3dfft <https://www.p3dfft.net/>`_
 -----------------------------------
@@ -81,6 +85,10 @@ You may adapt the shell script given below to automate this process :
 
 .. literalinclude:: install_p3dfft.sh
    :language: shell
+
+This script can be downloaded with::
+
+  wget https://foss.heptapod.net/fluiddyn/fluidfft/-/raw/branch/default/doc/install/install_p3dfft.sh
 
 See also how we build p3dfft with intel compiler for the :doc:`occigen`.
 
