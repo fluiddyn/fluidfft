@@ -7,8 +7,15 @@ import os
 import sys
 import sysconfig
 from configparser import ConfigParser
-from distutils import sysconfig as dsysconfig
-from distutils.util import strtobool
+
+
+def strtobool(arg):
+    if arg in ("y", "yes", "t", "true", "on", "1"):
+        return True
+    elif arg in ("false", "values", "n", "no", "f", "false", "off", "0"):
+        return False
+    raise ValueError
+
 
 sections_libs = ["fftw3", "fftw3_mpi", "cufft", "pfft", "p3dfft"]
 sections = sections_libs + ["environ"]
@@ -196,24 +203,22 @@ def parse_config():
 
 def get_distconfig():
     """Get configuration for building extensions -- collected from
-    distutils.sysconfig, sysconfig, and fluidfft's site.cfg.
+    sysconfig, and fluidfft's site.cfg.
 
     """
     global configuration  # site.cfg
 
     site_cfg = configuration["environ"]
-    distutil_sysconfig = dsysconfig.get_config_vars()
+    config_vars = sysconfig.get_config_vars()
 
-    short_version = sysconfig.get_python_version()
-    platform_pyversion = "-".join([sysconfig.get_platform(), short_version])
+    platform_pyversion = (
+        sysconfig.get_platform() + "-" + sys.implementation.cache_tag
+    )
 
     def site_dist_default(key, default):
-        return site_cfg.get(key, distutil_sysconfig.get(key, default))
+        return site_cfg.get(key, config_vars.get(key, default))
 
     distconfig = dict(
-        #  PATH_LIB_PYTHON=os.path.join(
-        #      sys.prefix, "lib", "python" + short_version, "site-packages"
-        #  ),
         PATH_TMP="build/temp." + platform_pyversion,
         PATH_LIB="build/lib." + platform_pyversion,
         EXT_SUFFIX=sysconfig.get_config_var("EXT_SUFFIX") or ".so",
@@ -221,7 +226,7 @@ def get_distconfig():
         CXX=site_dist_default("CXX", "cxx"),
         LDSHARED=site_dist_default("LDSHARED", "cxx -shared"),
         CFLAGS=site_dist_default("CFLAGS", ""),
-        INCLUDEPY=distutil_sysconfig.get(
+        INCLUDEPY=config_vars.get(
             "INCLUDEPY",
             # Again! For Pypy (see: https://foss.heptapod.net/pypy/pypy/issues/2478)
             sysconfig.get_config_var("INCLUDEPY"),
@@ -230,7 +235,7 @@ def get_distconfig():
 
     # make_command_obj_from_cpp
     for key in ("OPT", "BASECFLAGS", "CCSHARED"):
-        distconfig[key] = distutil_sysconfig.get(key, "")
+        distconfig[key] = config_vars.get(key, "")
 
     return distconfig
 
@@ -241,7 +246,9 @@ libs_mpi = ["fftw3_mpi", "pfft", "p3dfft"]
 # The site.cfg MPICXX acts as an override to properly compile extensions like
 # fft2d.mpi_with_fftw1d and fft3d.mpi_with_fftw1d when MPI and fftw libraries
 # are available but fftw3-mpi library is not.
-build_needs_mpi4py = any([configuration[lib]["use"] for lib in libs_mpi]) or configuration["environ"].get("MPICXX", False)
+build_needs_mpi4py = any(
+    [configuration[lib]["use"] for lib in libs_mpi]
+) or configuration["environ"].get("MPICXX", False)
 
 if DISABLE_MPI:
     build_needs_mpi4py = False
