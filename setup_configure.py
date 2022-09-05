@@ -9,12 +9,14 @@ import sysconfig
 from configparser import ConfigParser
 
 
-def strtobool(arg):
-    if arg in ("y", "yes", "t", "true", "on", "1"):
-        return True
-    elif arg in ("false", "values", "n", "no", "f", "false", "off", "0"):
-        return False
-    raise ValueError
+def strtobool(val):
+    val = val.lower()
+    if val in ("y", "yes", "t", "true", "on", "1"):
+        return 1
+    elif val in ("n", "no", "f", "false", "off", "0"):
+        return 0
+    else:
+        raise ValueError("invalid truth value %r" % (val,))
 
 
 sections_libs = ["fftw3", "fftw3_mpi", "cufft", "pfft", "p3dfft"]
@@ -216,21 +218,23 @@ def get_distconfig():
     )
 
     def site_dist_default(key, default):
-        return site_cfg.get(key, config_vars.get(key, default))
+        for d in [site_cfg, os.environ, config_vars]:
+            try:
+                return d[key]
+            except KeyError:
+                pass
+
+        return default
 
     distconfig = dict(
         PATH_TMP="build/temp." + platform_pyversion,
         PATH_LIB="build/lib." + platform_pyversion,
         EXT_SUFFIX=sysconfig.get_config_var("EXT_SUFFIX") or ".so",
-        MPICXX=site_cfg.get("MPICXX", "mpicxx"),
+        MPICXX=site_dist_default("MPICXX", "mpicxx"),
         CXX=site_dist_default("CXX", "cxx"),
         LDSHARED=site_dist_default("LDSHARED", "cxx -shared"),
         CFLAGS=site_dist_default("CFLAGS", ""),
-        INCLUDEPY=config_vars.get(
-            "INCLUDEPY",
-            # Again! For Pypy (see: https://foss.heptapod.net/pypy/pypy/issues/2478)
-            sysconfig.get_config_var("INCLUDEPY"),
-        ),
+        INCLUDEPY=site_dist_default("INCLUDEPY", ""),
     )
 
     # make_command_obj_from_cpp
