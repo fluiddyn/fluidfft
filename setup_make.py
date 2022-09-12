@@ -40,7 +40,12 @@ from pathlib import Path
 
 from setuptools import Extension as SetuptoolsExtension
 
-from setup_configure import build_needs_mpi4py, get_distconfig, num_procs, TRANSONIC_BACKEND
+from setup_configure import (
+    build_needs_mpi4py,
+    get_distconfig,
+    num_procs,
+    TRANSONIC_BACKEND,
+)
 
 
 distconfig = get_distconfig()
@@ -349,11 +354,10 @@ def make_extensions(
             "develop",
             "bdist_wheel",
             "bdist_egg",
+            "editable_wheel",
         ]
     ):
         return []
-
-    path_base_output = distconfig["PATH_LIB"]
 
     sources = set()
     for ext in extensions:
@@ -421,7 +425,9 @@ def make_extensions(
     # compile .cpp files if needed
     commands = []
     for path in files["cpp"]:
-        result = os.path.join(distconfig["PATH_TMP"], os.path.splitext(path)[0] + ".o")
+        result = os.path.join(
+            distconfig["PATH_TMP"], os.path.splitext(path)[0] + ".o"
+        )
         command = make_command_obj_from_cpp(result, path, include_dirs, options)
         if command is not None:
             commands.append(command)
@@ -432,6 +438,7 @@ def make_extensions(
     extensions_out = []
 
     # link .o files to produce the .so files if needed
+    path_base_output = distconfig["PATH_LIB"]
     files["so"] = []
     commands = []
     for ext in extensions:
@@ -440,7 +447,9 @@ def make_extensions(
             path_base_output, ext.name.replace(".", os.path.sep) + suffix
         )
         objects = [
-            os.path.join(distconfig["PATH_TMP"], os.path.splitext(source)[0] + ".o")
+            os.path.join(
+                distconfig["PATH_TMP"], os.path.splitext(source)[0] + ".o"
+            )
             for source in ext.sources
         ]
 
@@ -485,7 +494,7 @@ def make_pythran_extensions():
 
     from pythran.dist import PythranExtension
 
-    develop = "develop" in sys.argv
+    develop = "develop" in sys.argv or "editable_wheel" in sys.argv
     extensions = []
     for mod in modules:
         base_file = mod.replace(".", os.path.sep)

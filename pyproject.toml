@@ -3,7 +3,7 @@
 # Further build requirements - like pythran and mpi4py - come from setup.py via
 # the PEP 517 interface.
 requires = [
-    "setuptools>=62.0.0", "wheel",
+    "setuptools>=65.3.0", "wheel",
     "numpy", "cython", "mako",
     "transonic>=0.4"
 ]

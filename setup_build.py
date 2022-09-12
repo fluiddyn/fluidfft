@@ -4,6 +4,8 @@ from concurrent.futures import ThreadPoolExecutor as Pool
 from pathlib import Path
 from runpy import run_path
 from warnings import warn
+import sysconfig
+import shutil
 
 from setuptools.command.build_ext import build_ext
 
@@ -271,6 +273,16 @@ class FluidFFTBuildExt(build_ext, PythranBuildExt):
         super().finalize_options()
 
     def build_extension(self, ext):
+        if len(ext.sources) == 1:
+            # we now need to copy Cython ext where setuptools want them
+            source = ext.sources[0]
+            EXT_SUFFIX = sysconfig.get_config_var("EXT_SUFFIX") or ".so"
+            if source.endswith(EXT_SUFFIX) and source.startswith("build"):
+                relative_path = os.path.sep.join(Path(source).parts[2:])
+                abs_path_copy = Path(self.build_lib) / relative_path
+                abs_path_copy.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(source, abs_path_copy)
+
         if isinstance(ext, PythranExtension):
             return PythranBuildExt.build_extension(self, ext)
         else:
