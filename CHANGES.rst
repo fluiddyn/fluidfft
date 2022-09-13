@@ -1,3 +1,12 @@
+0.3.3 (2022-09-13)
+------------------
+
+- Support for `editable_wheel (PEP 660) <https://peps.python.org/pep-0660/>`__ and setuptools>=65.3
+
+- CI on Github Actions for Linux, Windows and macOS
+
+- Support for Python 3.8, 3.9 and 3.10
+
 0.3.2 (2020-10-15)
 ------------------
 
