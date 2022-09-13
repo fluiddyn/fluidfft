@@ -1,0 +1,30 @@
+name: CI-macos
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  tests:
+    runs-on: macos-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      matrix:
+        python-version: [3.9, "3.10"]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: conda-incubator/setup-miniconda@v2
+      with:
+        environment-file: .github/environment-windows.yml
+        miniforge-variant: Mambaforge
+        miniforge-version: latest
+        activate-environment: test
+        use-mamba: true
+    - name: Install
+      run: |
+        pip install -e . -v
+    - name: Tests
+      run: |
+        pytest -v
