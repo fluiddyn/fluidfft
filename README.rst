@@ -4,7 +4,7 @@
 
 *Efficient and easy Fast Fourier Transform for Python*
 
-|release| |pyversions| |docs| |coverage| |heptapod_ci| |travis|
+|release| |pyversions| |docs| |coverage| |heptapod_ci| |github_actions_linux| |github_actions_windows| |github_actions_macos|
 
 .. |logo| image:: https://foss.heptapod.net/fluiddyn/fluidfft/-/blob/branch/default/doc/logo.svg
    :alt: FluidFFT
@@ -28,12 +28,17 @@
    :target: https://foss.heptapod.net/fluiddyn/fluidfft/-/pipelines
    :alt: Heptapod CI
 
-.. |travis| image:: https://travis-ci.org/fluiddyn/fluidfft.svg?branch=branch%2Fdefault
-    :target: https://travis-ci.org/fluiddyn/fluidfft
+.. |github_actions_linux| image:: https://github.com/fluiddyn/fluidfft/actions/workflows/ci-linux.yml/badge.svg?branch=branch/default
+   :target: https://github.com/fluiddyn/fluidfft/actions/workflows/ci-linux.yml
+   :alt: Github Actions Linux
 
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/s75as4ikeetrk6f3/branch/default?svg=true
-   :target: https://ci.appveyor.com/project/fluiddyn/fluiddyn
-   :alt: AppVeyor status
+.. |github_actions_windows| image:: https://github.com/fluiddyn/fluidfft/actions/workflows/ci-windows.yml/badge.svg?branch=branch/default
+   :target: https://github.com/fluiddyn/fluidfft/actions/workflows/ci-windows.yml
+   :alt: Github Actions Windows
+
+.. |github_actions_macos| image:: https://github.com/fluiddyn/fluidfft/actions/workflows/ci-macos.yml/badge.svg?branch=branch/default
+   :target: https://github.com/fluiddyn/fluidfft/actions/workflows/ci-macos.yml
+   :alt: Github Actions macOS
 
 .. |binder| image:: https://mybinder.org/badge_logo.svg
    :target: https://mybinder.org/v2/gh/fluiddyn/fluidfft/branch%2Fdefault?urlpath=lab/tree/doc/ipynb
