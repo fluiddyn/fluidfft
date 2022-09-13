@@ -28,5 +28,5 @@ jobs:
         pip install tox tox-gh-actions
     - name: Test with tox
       run: |
-        cp .github/workflows/.fluidfft-site.cfg $HOME
+        cp .github/fluidfft-site.cfg $HOME/.fluidfft-site.cfg
         tox
