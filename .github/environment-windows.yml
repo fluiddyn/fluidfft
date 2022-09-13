@@ -2,10 +2,11 @@ name:
   test
 dependencies:
   - cxx-compiler
-  - fluiddyn
-  - pandas
   - transonic
   - pythran
   - cython
   - fftw
   - pyfftw
+  - fluiddyn
+  - pandas
+  - pytest

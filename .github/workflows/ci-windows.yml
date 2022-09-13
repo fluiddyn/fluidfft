@@ -10,6 +10,8 @@ jobs:
     defaults:
       run:
         shell: bash -l {0}
+    env:
+      FLUIDDYN_NO_XSIMD: "1"
     strategy:
       matrix:
         python-version: [3.8, 3.9, "3.10"]
@@ -23,9 +25,9 @@ jobs:
         miniforge-version: latest
         activate-environment: test
         use-mamba: true
-    - name: Install dependencies
+    - name: Install
       run: |
-        pip install tox tox-gh-actions
-    - name: Test with tox
+        pip install -e .
+    - name: Install
       run: |
-        tox -c tox-windows.ini
+        pytest -v
