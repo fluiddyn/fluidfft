@@ -24,6 +24,7 @@ jobs:
         use-mamba: true
     - name: Install
       run: |
+        cp .github/fluidfft-site-macos.cfg $HOME/.fluidfft-site.cfg
         pip install -e . -v
     - name: Tests
       run: |
