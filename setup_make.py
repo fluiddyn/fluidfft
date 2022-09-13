@@ -510,12 +510,15 @@ def make_pythran_extensions():
             pext = PythranExtension(mod, [py_file])
             # bug pythran extension...
             pext.include_dirs.append(np.get_include())
+            pext.extra_compile_args.append("-O3")
+
             # by default, compile with -march=native
-            # TODO: change that!
-            compile_arch = os.getenv("CARCH", "native")
-            pext.extra_compile_args.extend(
-                ["-O3", "-march={}".format(compile_arch)]
-            )
+            if not os.getenv("FLUIDFFT_NO_CARCH", False):
+                compile_arch = os.getenv("CARCH", "native")
+                pext.extra_compile_args.append(f"-march={compile_arch}")
+            else:
+                print("FLUIDFFT_NO_CARCH")
+
             if not os.getenv("FLUIDDYN_NO_XSIMD", False):
                 pext.extra_compile_args.append("-DUSE_XSIMD")
             else:

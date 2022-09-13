@@ -11,7 +11,8 @@ jobs:
       run:
         shell: bash -l {0}
     env:
-      FLUIDDYN_NO_XSIMD: "1"
+      FLUIDDYN_NO_XSIMD: true
+      FLUIDFFT_NO_CARCH: true
     strategy:
       matrix:
         python-version: [3.8, 3.9, "3.10"]
@@ -28,7 +29,7 @@ jobs:
     - name: Install
       run: |
         cp .github/pythranrc-windows $HOME/.pythranrc
-        pip install -e .
+        pip install -e . -v
     - name: Tests
       run: |
         pytest -v
