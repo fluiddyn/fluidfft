@@ -11,6 +11,7 @@ jobs:
       run:
         shell: bash -l {0}
     env:
+      FLUIDFFT_TRANSONIC_BACKEND: "python"
       FLUIDDYN_NO_XSIMD: true
       FLUIDFFT_NO_CARCH: true
     strategy:
