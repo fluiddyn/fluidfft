@@ -44,8 +44,8 @@ class Extension(object):
 
 src_cpp_dir = "src_cpp"
 src_cy_dir = "src_cy"
-src_cy_dir2d = "fluidfft/fft2d"
-src_cy_dir3d = "fluidfft/fft3d"
+src_cy_dir2d = "src/fluidfft/fft2d"
+src_cy_dir3d = "src/fluidfft/fft3d"
 src_base = "src_cpp/base"
 src_cpp_3d = "src_cpp/3d"
 src_cpp_2d = "src_cpp/2d"
@@ -178,7 +178,7 @@ class FluidFFTBuildExt(build_ext, PythranBuildExt):
 
         here = Path(__file__).parent.absolute()
         paths = ["fluidfft/fft2d/operators.py", "fluidfft/fft3d/operators.py"]
-        make_backend_files([here / path for path in paths])
+        make_backend_files([here / "src" / path for path in paths])
 
         base_names = base_names_from_config(configuration)
 

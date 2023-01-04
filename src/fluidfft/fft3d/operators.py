@@ -301,8 +301,8 @@ class OperatorsPseudoSpectral3D(OperatorsBase):
             print("order =", order)
             raise NotImplementedError
 
-        self.K2 = K0 ** 2 + K1 ** 2 + K2 ** 2
-        self.K8 = self.K2 ** 4
+        self.K2 = K0**2 + K1**2 + K2**2
+        self.K8 = self.K2**4
 
         self.is_sequential = op_fft.get_shapeK_loc() == op_fft.get_shapeK_seq()
 
@@ -585,9 +585,7 @@ class OperatorsPseudoSpectral3D(OperatorsBase):
                     )
 
     def div_vb_fft_from_vb(self, vx, vy, vz, b):
-        r"""Compute :math:`\nabla \cdot (\boldsymbol{v} b)` in spectral space.
-
-        """
+        r"""Compute :math:`\nabla \cdot (\boldsymbol{v} b)` in spectral space."""
         fft3d = self.fft3d
 
         vxbfft = fft3d(vx * b)
@@ -602,9 +600,7 @@ class OperatorsPseudoSpectral3D(OperatorsBase):
         return 1j * (self.Kx * vy_fft - self.Ky * vx_fft)
 
     def get_XYZ_loc(self):
-        """Compute the local 3d arrays with the x, y, and y values.
-
-        """
+        """Compute the local 3d arrays with the x, y, and y values."""
 
         if self.shapeX_seq != self.shapeX_loc:
             i0_seq_start, i1_seq_start, i2_seq_start = self.seq_indices_first_X
@@ -735,11 +731,9 @@ class OperatorsPseudoSpectral3D(OperatorsBase):
         return spectrum3d / self.deltak_spectra3d
 
     def compute_spectrum_kzkh(self, energy_fft):
-        """Compute the kz-kh spectrum.
-
-        """
+        """Compute the kz-kh spectrum."""
         khs = self.kh_spectra
-        KH = np.sqrt(self.Kx ** 2 + self.Ky ** 2)
+        KH = np.sqrt(self.Kx**2 + self.Ky**2)
         kzs = self.deltakz * np.arange(self.nkz_spectra)
         spectrum_k0k1k2 = self._compute_spectrum3d_loc(energy_fft)
         spectrum = loop_spectra_kzkh(spectrum_k0k1k2, khs, KH, kzs, self.Kz)

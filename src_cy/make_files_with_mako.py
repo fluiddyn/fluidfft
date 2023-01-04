@@ -4,7 +4,7 @@ from datetime import datetime
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-path_fluidfft = os.path.abspath(os.path.join(here, "..", "fluidfft"))
+path_fluidfft = os.path.abspath(os.path.join(here, "..", "src", "fluidfft"))
 path2d = os.path.join(path_fluidfft, "fft2d")
 path3d = os.path.join(path_fluidfft, "fft3d")
 

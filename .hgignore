@@ -20,15 +20,10 @@ syntax: glob
 src_cy/fft*_cy.pyx
 src_cy/fft*_pxd.pxd
 
-fluidfft/fft2d/*.pyx
-fluidfft/fft2d/*.pxd
-fluidfft/fft2d/*.cpp
-fluidfft/fft2d/*.cu
-
-fluidfft/fft3d/*.pyx
-fluidfft/fft3d/*.pxd
-fluidfft/fft3d/*.cpp
-fluidfft/fft3d/*.cu
+src/**/*.pyx
+src/**/*.pxd
+src/**/*.cpp
+src/**/*.cu
 
 __pycache__
 

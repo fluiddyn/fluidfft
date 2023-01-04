@@ -217,8 +217,7 @@ class BaseFFTMPI(BaseFFT):
         return arr3d
 
     def gather_Xspace(self, ff_loc, root=0):
-        """Gather an array in real space for a parallel run.
-        """
+        """Gather an array in real space for a parallel run."""
 
         if not self._is_mpi_lib:
             return ff_loc
@@ -292,9 +291,7 @@ class BaseFFTMPI(BaseFFT):
         return ff_seq
 
     def scatter_Xspace(self, ff_seq, root=0):
-        """Scatter an array in real space for a parallel run.
-
-        """
+        """Scatter an array in real space for a parallel run."""
 
         if not self._is_mpi_lib:
             return ff_seq
@@ -343,8 +340,7 @@ class BaseFFTMPI(BaseFFT):
         return ff_loc
 
     def sum_wavenumbers(self, field_fft):
-        """Compute the sum over all wavenumbers (versatile version).
-        """
+        """Compute the sum over all wavenumbers (versatile version)."""
         spectrum3d_loc = self._compute_spectrum3d_loc(field_fft)
         result = spectrum3d_loc.sum()
 
@@ -394,7 +390,7 @@ class BaseFFTMPI(BaseFFT):
 
     def compute_energy_from_spatial(self, fieldX):
         """Compute the mean energy from a real space array."""
-        energy = fieldX ** 2
+        energy = fieldX**2
 
         if not self._is_mpi_lib:
             return energy.mean() / 2

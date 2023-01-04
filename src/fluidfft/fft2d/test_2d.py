@@ -100,7 +100,7 @@ def make_testop_functions(name, cls):
             nrjafft = op.compute_energy_from_K(afft)
             self.assertAlmostEqual(nrja, nrjafft)
 
-            nrja_mean_global = op.mean_global(0.5 * a ** 2)
+            nrja_mean_global = op.mean_global(0.5 * a**2)
             self.assertAlmostEqual(nrja, nrja_mean_global)
 
             # print('energy', nrja)

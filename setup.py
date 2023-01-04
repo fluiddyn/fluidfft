@@ -2,7 +2,7 @@ from runpy import run_path
 from pathlib import Path
 import sys
 
-from setuptools import setup, find_packages, Extension
+from setuptools import setup, Extension
 
 here = Path(__file__).parent.absolute()
 sys.path.insert(0, ".")
@@ -24,16 +24,8 @@ for i, line in enumerate(lines):
 long_description = "".join(lines[iline_coverage + 2 :])
 
 # Get the version from the relevant file
-d = run_path("fluidfft/_version.py")
+d = run_path("src/fluidfft/_version.py")
 __version__ = d["__version__"]
-
-# Set entry points
-entry_points = {
-    "console_scripts": [
-        "fluidfft-bench = fluidfft.bench:run",
-        "fluidfft-bench-analysis = fluidfft.bench_analysis:run",
-    ]
-}
 
 # Set setup_requires and install_requires depending on the configuration
 install_requires = ["fluiddyn >= 0.2.3", "transonic >= 0.4"]
@@ -46,10 +38,6 @@ if build_needs_mpi4py:
 setup(
     version=__version__,
     long_description=long_description,
-    packages=find_packages(
-        exclude=["doc", "include", "scripts", "src_cpp", "src_cy"]
-    ),
-    entry_points=entry_points,
     setup_requires=setup_requires,
     install_requires=install_requires,
     # To trick build into running build_ext (taken from h5py)

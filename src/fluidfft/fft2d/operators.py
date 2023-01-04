@@ -228,11 +228,11 @@ class OperatorsPseudoSpectral2D(OperatorsBase):
 
         assert self.KX.shape == self.shapeK_loc
 
-        self.KX2 = self.KX ** 2
-        self.KY2 = self.KY ** 2
+        self.KX2 = self.KX**2
+        self.KY2 = self.KY**2
         self.K2 = self.KX2 + self.KY2
-        self.K4 = self.K2 ** 2
-        self.K8 = self.K4 ** 2
+        self.K4 = self.K2**2
+        self.K8 = self.K4**2
         self.K = np.sqrt(self.K2)
 
         self.is_sequential = opfft.get_shapeK_loc() == opfft.get_shapeK_seq()

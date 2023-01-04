@@ -480,12 +480,12 @@ def make_extensions(
 def make_pythran_extensions():
 
     modules = []
-    for root, dirs, files in os.walk("fluidfft"):
+    for root, dirs, files in os.walk("src/fluidfft"):
         path_dir = Path(root)
         for name in files:
             if path_dir.name == "__pythran__" and name.endswith(".py"):
                 path = os.path.join(root, name)
-                modules.append(path.replace(os.path.sep, ".").split(".py")[0])
+                modules.append(path[4:].replace(os.path.sep, ".").split(".py")[0])
 
     import numpy as np
 
@@ -498,7 +498,7 @@ def make_pythran_extensions():
     extensions = []
     for mod in modules:
         base_file = mod.replace(".", os.path.sep)
-        py_file = base_file + ".py"
+        py_file = "src/" + base_file + ".py"
         # warning: does not work on Windows (?)
         suffix = distconfig["EXT_SUFFIX"]
         bin_file = base_file + suffix

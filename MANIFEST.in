@@ -8,3 +8,5 @@ recursive-include src_cy *.py
 recursive-include src_cpp *.h
 recursive-include src_cpp *.cpp
 recursive-include include *.h
+prune bench
+prune doc
