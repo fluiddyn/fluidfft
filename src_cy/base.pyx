@@ -34,8 +34,8 @@ IF MPI4PY:
 # we define python and c types for physical and Fourier spaces
 DTYPEb = np.uint8
 ctypedef np.uint8_t DTYPEb_t
-DTYPEi = np.int
-ctypedef np.int_t DTYPEi_t
+DTYPEi = np.int32
+ctypedef np.int32_t DTYPEi_t
 DTYPEf = np.float64
 ctypedef np.float64_t DTYPEf_t
 DTYPEc = np.complex128
