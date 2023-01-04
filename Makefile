@@ -54,11 +54,11 @@ clang-format:
 
 list-sessions:
 	@nox --version 2>/dev/null || pip install nox
-	@$(NOX) -l
+	@nox -l
 
 requirements: 'pip-compile(main)' 'pip-compile(doc)' 'pip-compile(test)' 'pip-compile(dev)'
 
 # Catch-all target: route all unknown targets to nox sessions
-%: Makefile
+%:
 	@nox --version 2>/dev/null || pip install nox
 	@nox -s $@

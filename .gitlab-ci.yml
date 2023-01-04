@@ -14,8 +14,7 @@ tests:
 tests_pythran_mpi:
   image: fluiddyn/python3-stable:lastest
   script:
-    # - tox -vv -e py38-pythran-mpi
     - python -m venv venv
     - source venv/bin/activate
     - pip install -U pip nox
-    - nox -s tests-cov
+    - nox -s tests-full

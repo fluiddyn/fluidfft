@@ -34,7 +34,7 @@ else:
 
 TEST_ENV_VARS = {}
 
-EXTRA_REQUIRES = ("main", "doc", "test", "dev")
+EXTRA_REQUIRES = ("main", "doc", "test", "dev", "mpi")
 
 
 @nox.session(name="pip-compile", reuse_venv=True)
@@ -99,6 +99,8 @@ def tests(session):
     """Execute unit-tests using pytest"""
 
     session.install("-r", "requirements/test.txt")
+    session.install("-e", ".", "--no-deps")
+
     session.run(
         "python",
         "-m",
@@ -115,7 +117,7 @@ def tests_cov(session):
         "tests",
         [
             "--cov",
-            # "--cov-config=setup.cfg",
+            "--cov-config=setup.cfg",
             "--no-cov-on-fail",
             "--cov-report=term-missing",
             *session.posargs,
@@ -132,3 +134,32 @@ def coverage_html(session, nox=False):
 
     print("Code coverage analysis complete. View detailed report:")
     print(f"file://{report}")
+
+
+@nox.session(name="tests-full")
+def tests_full(session):
+    """Execute all unit-tests using pytest"""
+
+    session.install("-r", "requirements/test.txt")
+    session.install("-r", "requirements/mpi.txt")
+    session.install("-e", ".", "--no-deps")
+
+    cov_path = Path.cwd() / ".coverage"
+    cov_path.mkdir(exist_ok=True)
+
+    def run_command(command, **kwargs):
+        words = command.split()
+        session.run(
+            *words,
+            **kwargs,
+        )
+
+    run_command("coverage run -p -m pytest -s src")
+    run_command(
+        "coverage run -p -m pytest -s src", env={"TRANSONIC_NO_REPLACE": "1"}
+    )
+    # Using TRANSONIC_NO_REPLACE with mpirun in docker can block the tests
+    run_command(
+        "mpirun -np 2 --oversubscribe coverage run -p -m unittest discover src",
+        external=True,
+    )
