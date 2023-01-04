@@ -99,12 +99,15 @@ def tests(session):
     """Execute unit-tests using pytest"""
 
     session.install("-r", "requirements/test.txt")
-    session.install("-e", ".", "--no-deps")
+    session.install("-v", "-e", ".", "--force-reinstall", "--no-deps", silent=False)
+    session.run("ls", "src/fluidfft/fft3d", silent=False, external=True)
 
     session.run(
         "python",
         "-m",
         "pytest",
+        "-v",
+        "-s",
         *session.posargs,
         env=TEST_ENV_VARS,
     )
@@ -142,7 +145,8 @@ def tests_full(session):
 
     session.install("-r", "requirements/test.txt")
     session.install("-r", "requirements/mpi.txt")
-    session.install("-e", ".", "--no-deps")
+    session.install("-v", "-e", ".", "--force-reinstall", "--no-deps", silent=False)
+    session.run("ls", "src/fluidfft/fft3d", silent=False, external=True)
 
     cov_path = Path.cwd() / ".coverage"
     cov_path.mkdir(exist_ok=True)

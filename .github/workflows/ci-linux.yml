@@ -42,6 +42,7 @@ jobs:
 
     - name: Run tests
       run: |
+        cp .github/fluidfft-site.cfg $HOME/.fluidfft-site.cfg
         nox --session tests-cov -- -v --cov-report=xml
         nox --session tests-full
 
