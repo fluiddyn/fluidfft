@@ -5,11 +5,11 @@ tests:
   image: fluiddyn/python3-stable:lastest
   script:
     - cp site.cfg.default site.cfg
-    - pip install -U tox --user
+    - pip install -U tox pip --user
     - tox -e py38,codecov
 
 tests_pythran_mpi:
   image: fluiddyn/python3-stable:lastest
   script:
-    - pip install -U tox --user
+    - pip install -U tox pip --user
     - tox -vv -e py38-pythran-mpi,codecov
