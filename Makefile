@@ -1,5 +1,4 @@
-
-.PHONY: clean cleanall cleanmako cleancython develop build_ext_inplace
+.PHONY: clean cleanall cleanmako cleancython develop build_ext_inplace list-sessions requirements
 
 develop:
 	pip install -v -e .[dev] | grep -v link
@@ -52,3 +51,14 @@ coverage: _tests_coverage _report_coverage
 
 clang-format:
 	find src_cpp/ -iname '*.h' -o -iname '*.cpp' | xargs clang-format -i
+
+list-sessions:
+	@nox --version 2>/dev/null || pip install nox
+	@$(NOX) -l
+
+requirements: 'pip-compile(main)' 'pip-compile(doc)' 'pip-compile(test)' 'pip-compile(dev)'
+
+# Catch-all target: route all unknown targets to nox sessions
+%: Makefile
+	@nox --version 2>/dev/null || pip install nox
+	@nox -s $@

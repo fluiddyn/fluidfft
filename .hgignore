@@ -51,6 +51,7 @@ site.cfg
 .pytest_cache
 .coverage
 .tox
+.nox
 .cache
 .mypy_cache
 **/__pythran__/*

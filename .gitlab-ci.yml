@@ -5,11 +5,17 @@ tests:
   image: fluiddyn/python3-stable:lastest
   script:
     - cp site.cfg.default site.cfg
-    - pip install -U tox pip --user
-    - tox -e py38,codecov
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install -U pip nox
+    - nox -s tests-cov
+
 
 tests_pythran_mpi:
   image: fluiddyn/python3-stable:lastest
   script:
-    - pip install -U tox pip --user
-    - tox -vv -e py38-pythran-mpi,codecov
+    # - tox -vv -e py38-pythran-mpi
+    - python -m venv venv
+    - source venv/bin/activate
+    - pip install -U pip nox
+    - nox -s tests-cov
