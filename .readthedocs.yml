@@ -12,8 +12,10 @@ build:
     python: "3.10"
 
 sphinx:
-   configuration: doc/conf.py
+  configuration: doc/conf.py
 
 python:
-   install:
-   - requirements: requirements/doc.txt
+  install:
+  - requirements: requirements/doc.txt
+  - method: pip
+    path: .
