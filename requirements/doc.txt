@@ -212,6 +212,7 @@ numpy==1.24.1
     #   h5py
     #   matplotlib
     #   pandas
+    #   pyfftw
     #   transonic
 numpydoc==1.5.0
     # via fluidfft (setup.cfg)
@@ -261,6 +262,8 @@ pycodestyle==2.10.0
     # via autopep8
 pycparser==2.21
     # via cffi
+pyfftw==0.13.0
+    # via fluidfft (setup.cfg)
 pygments==2.14.0
     # via
     #   ipython
