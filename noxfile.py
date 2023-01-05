@@ -60,6 +60,10 @@ def pip_compile(session, extra):
         in_extra = f"--extra {extra}"
         in_file = req / "vcs_packages.in"
 
+    env = None
+    if extra == "doc":
+        env = {"FLUIDFFT_DISABLE_MPI": "1"}
+
     out_file = req / f"{extra}.txt"
 
     session.run(
@@ -69,6 +73,7 @@ def pip_compile(session, extra):
             f"-o {out_file}"
         ),
         *session.posargs,
+        env=env
     )
 
     session.log(f"Removing absolute paths from {out_file}")

@@ -174,8 +174,6 @@ matplotlib-inline==0.1.6
     #   ipython
 mistune==2.0.4
     # via nbconvert
-mpi4py==3.1.4
-    # via fluidfft (setup.cfg)
 nbclassic==0.4.8
     # via notebook
 nbclient==0.7.2
