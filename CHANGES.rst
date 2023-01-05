@@ -1,3 +1,11 @@
+0.3.4 (2023-01-05)
+------------------
+
+- Support for Numpy 1.24 and Python 3.11
+- Internal: switch to `src layout
+  <https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/>`__
+  and to `Nox <https://nox.thea.codes>`__
+
 0.3.3 (2022-09-13)
 ------------------
 
