@@ -56,7 +56,6 @@ def _get_short_name(name):
 
 
 def load_bench(path_dir, hostname, dim):
-
     dicts = []
     for path in glob(path_dir + "/result_bench{}*.json".format(dim)):
         with open(path) as f:
@@ -88,7 +87,6 @@ def filter_by_shape(df, n0, n1):
 def plot_scaling(
     path_dir, hostname, dim, n0, n1, n2=None, show=True, for_latex=False
 ):
-
     df = load_bench(path_dir, hostname, dim)
     df = filter_by_shape(df, n0, n1)
 

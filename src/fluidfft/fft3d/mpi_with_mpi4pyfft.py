@@ -33,7 +33,6 @@ class FFT3DMPIWithMPI4PYFFT(BaseFFTMPI):
     _axes = (0, 1, 2)
 
     def __init__(self, n0=2, n1=2, n2=4):
-
         self._mpifft = PFFT(
             MPI.COMM_WORLD,
             (n0, n1, n2),

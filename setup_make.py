@@ -198,7 +198,6 @@ def make_function_cpp_from_pyx(
     compiler_directives=None,
     full_module_name=None,
 ):
-
     if compiler_directives is None:
         compiler_directives = {}
 
@@ -235,7 +234,6 @@ def make_function_cpp_from_pyx(
 def make_command_obj_from_cpp(
     obj_file, cpp_file, include_dirs=None, options=None
 ):
-
     path_dir = os.path.split(obj_file)[0]
     if not os.path.exists(path_dir):
         os.makedirs(path_dir)
@@ -299,7 +297,6 @@ def make_command_obj_from_cpp(
 def make_command_ext_from_objs(
     ext_file, obj_files, lib_flags=None, lib_dirs=None
 ):
-
     if not has_to_build(ext_file, obj_files):
         return
 
@@ -345,7 +342,6 @@ def make_extensions(
     lib_flags_dict=None,
     **options,
 ):
-
     if all(
         command not in sys.argv
         for command in [
@@ -478,7 +474,6 @@ def make_extensions(
 
 
 def make_pythran_extensions():
-
     modules = []
     for root, dirs, files in os.walk("src/fluidfft"):
         path_dir = Path(root)

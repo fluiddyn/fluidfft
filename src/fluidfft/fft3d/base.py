@@ -28,7 +28,6 @@ def compute_k_adim_seq(nk, axis, dim_first_fft=2):
 
 
 class BaseFFTMPI(BaseFFT):
-
     _dim_first_fft = 2
     _dtype_spatial = np.float64
     _dtype_spectral = np.complex128

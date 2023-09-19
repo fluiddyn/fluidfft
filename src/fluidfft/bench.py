@@ -41,7 +41,6 @@ def _format_times(times):
 
 
 def bench_like_cpp_as_arg(obj, nb_exec=20):
-
     fieldX = obj.create_arrayX(1)
     fieldK = obj.create_arrayK(1)
 
@@ -69,7 +68,6 @@ def bench_like_cpp_as_arg(obj, nb_exec=20):
 
 
 def bench_like_cpp_return(obj, nb_exec=20):
-
     fieldX = obj.create_arrayX(1)
     fieldK = obj.create_arrayK(1)
 
@@ -101,7 +99,6 @@ def pourc(t_slow, t_fast):
 
 
 def compare_benchs(o, nb_exec=20):
-
     t_start = time()
     o.run_benchs(1)
     results_cpp = o.run_benchs(nb_exec)
@@ -150,7 +147,6 @@ def bench_all(
     skip_patterns=None,
     nb_exec=None,
 ):
-
     if n1 is None:
         n1 = n0
 
@@ -260,7 +256,6 @@ class MyValueError(ValueError):
 
 
 def parse_args_dim(parser):
-
     args = parser.parse_args()
 
     dim = args.dim

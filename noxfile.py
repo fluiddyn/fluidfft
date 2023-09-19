@@ -73,7 +73,7 @@ def pip_compile(session, extra):
             f"-o {out_file}"
         ),
         *session.posargs,
-        env=env
+        env=env,
     )
 
     session.log(f"Removing absolute paths from {out_file}")
@@ -104,7 +104,9 @@ def tests(session):
     """Execute unit-tests using pytest"""
 
     session.install("-r", "requirements/test.txt")
-    session.install("-v", "-e", ".", "--force-reinstall", "--no-deps", silent=False)
+    session.install(
+        "-v", "-e", ".", "--force-reinstall", "--no-deps", silent=False
+    )
     session.run("ls", "src/fluidfft/fft3d", silent=False, external=True)
 
     session.run(
@@ -150,7 +152,9 @@ def tests_full(session):
 
     session.install("-r", "requirements/test.txt")
     session.install("-r", "requirements/mpi.txt")
-    session.install("-v", "-e", ".", "--force-reinstall", "--no-deps", silent=False)
+    session.install(
+        "-v", "-e", ".", "--force-reinstall", "--no-deps", silent=False
+    )
     session.run("ls", "src/fluidfft/fft3d", silent=False, external=True)
 
     cov_path = Path.cwd() / ".coverage"

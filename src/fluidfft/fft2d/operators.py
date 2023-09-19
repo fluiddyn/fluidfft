@@ -106,7 +106,6 @@ class OperatorsPseudoSpectral2D(OperatorsBase):
     nK1_loc: int
 
     def __init__(self, nx, ny, lx, ly, fft=None, coef_dealiasing=1.0):
-
         self.nx_seq = self.nx = nx = int(nx)
         self.ny_seq = self.ny = ny = int(ny)
         self.lx = lx = float(lx)
@@ -670,7 +669,6 @@ class OperatorsPseudoSpectral2D(OperatorsBase):
             E_kykx = self.comm.allreduce(E_kykx, op=MPI.SUM)
 
         elif not self.is_transposed:
-
             raise NotImplementedError
 
         return E_kykx

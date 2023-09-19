@@ -52,7 +52,6 @@ src_cpp_2d = "src_cpp/2d"
 
 
 def create_ext(base_name):
-
     if base_name.startswith("fft2d"):
         dim = "2d"
         src_cy_dir_dim = src_cy_dir2d
@@ -117,7 +116,6 @@ def create_ext(base_name):
 
 
 def base_names_from_config(config):
-
     from numpy.__config__ import get_info
 
     try:
@@ -170,7 +168,6 @@ def base_names_from_config(config):
 
 class FluidFFTBuildExt(build_ext, PythranBuildExt):
     def fluid_make_ext_modules(self):
-
         # make a python module from cython files
         run_path("src_cy/create_fake_mod_for_doc.py")
 
@@ -254,7 +251,6 @@ class FluidFFTBuildExt(build_ext, PythranBuildExt):
         return ext_modules
 
     def finalize_options(self):
-
         # todo: it is not the right place to compile.
         # However, we need to modify self.distribution.ext_modules here.
         # We would have to split this process in

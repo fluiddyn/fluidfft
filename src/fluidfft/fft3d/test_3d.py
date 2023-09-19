@@ -35,7 +35,6 @@ if nb_proc > 1:
 
 
 def make_testop_functions(name, cls):
-
     tests = {}
     shapes = {"even": (4, 8, 12)}
     if nb_proc == 1:
@@ -173,7 +172,6 @@ class Tests3D(unittest.TestCase):
 
 
 def complete_class(name, cls):
-
     tests = make_testop_functions(name, cls)
 
     for key, test in tests.items():

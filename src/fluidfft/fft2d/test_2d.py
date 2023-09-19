@@ -59,7 +59,6 @@ def make_test_function(cls):
 
 
 def make_testop_functions(name, cls):
-
     tests = {}
     shapes = {"even": (24, 16)}
     if nb_proc == 1:
@@ -172,7 +171,6 @@ class Tests2D(unittest.TestCase):
 
 
 def complete_class(name, cls, Tests2D=Tests2D):
-
     if cls is not None:
         setattr(Tests2D, "test_{}".format(name), make_test_function(cls))
 
