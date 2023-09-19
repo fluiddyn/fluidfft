@@ -116,17 +116,22 @@ def create_ext(base_name):
 
 
 def base_names_from_config(config):
-    from numpy.__config__ import get_info
-
     try:
-        blas_libs = get_info("blas_opt")["libraries"]
-        use_mkl_intel = "mkl_intel_lp64" in blas_libs or "mkl_rt" in blas_libs
-        # Note: No symbol clash occurs if 'mkl_rt' appears in numpy libraries
-        #       instead.
-        # P.S.: If 'mkl_rt' is detected, use FFTW libraries, not Intel's MKL/FFTW
-        #       implementation.
-    except KeyError:
+        # only works with old Numpy (<1.26.0)
+        from numpy.__config__ import get_info
+        # see https://stackoverflow.com/a/68991641
+    except ImportError:
         use_mkl_intel = False
+    else:
+        try:
+            blas_libs = get_info("blas_opt")["libraries"]
+            use_mkl_intel = "mkl_intel_lp64" in blas_libs or "mkl_rt" in blas_libs
+            # Note: No symbol clash occurs if 'mkl_rt' appears in numpy libraries
+            #       instead.
+            # P.S.: If 'mkl_rt' is detected, use FFTW libraries, not Intel's MKL/FFTW
+            #       implementation.
+        except KeyError:
+            use_mkl_intel = False
 
     base_names = []
     if config["fftw3"]["use"]:

@@ -1,15 +1,11 @@
 # OMP_NUM_THREADS=1 python check_openmp.py
 # OMP_NUM_THREADS=$(nproc) python check_openmp.py
-import sys
+
 import timeit
 
-from numpy.distutils.system_info import get_info
+import numpy as np
 
-
-info = get_info('blas_opt')
-print('BLAS info:')
-for kk, vv in info.items():
-    print(' * ' + kk + ' ' + str(vv))
+np.show_config()
 
 
 setup = (
