@@ -1,22 +1,26 @@
+FFTW:=no
 SINGLE_PREC:=no
 OMP:=no
-CUDA:=yes
+CUDA:=no
+HIP:=yes
 PFFT:=no
 P3DFFT:=no
 
-LD:=mpic++
-CC:=mpic++
+LD:=CC
+CC:=CC
 FLAGS:=
 LDFLAGS:=
 LIBS:= -ldl -lhwloc -lm -lgfortran
 
 LIB_DIR:=$(LDEV_PATH)
-INC_DIR:=-I. -I../base $(IDEV_PATH)  
+INC_DIR:=-I. -I../base $(IDEV_PATH)
 
 
-SOURCES_CPP := $(wildcard base*.cpp)
-SOURCES_CPP += fft2d_with_fftw1d.cpp fft2d_with_fftw2d.cpp fft2dmpi_with_fftwmpi2d.cpp test_bench.cpp
+SOURCES_CPP := $(wildcard base*.cpp) test_bench.cpp
 
+ifeq "$(FFTW)" "yes"
+SOURCES_CPP += fft2d_with_fftw1d.cpp fft2d_with_fftw2d.cpp fft2dmpi_with_fftwmpi2d.cpp
+endif
 
 ifeq "$(CUDA)" "yes"
 SOURCES_CU := $(wildcard *.cu)
@@ -27,6 +31,15 @@ LD:=nvcc
 LIBS+=-lcufft -lmpi_cxx -lmpi -lmpi_f77
 INC_DIR_CU:=-I/usr/lib/openmpi/include -I/usr/lib/openmpi/include/openmpi
 INC_DIR+=-I/opt/cuda/NVIDIA_CUDA-6.0_Samples/common/inc/
+endif
+
+ifeq "$(HIP)" "yes"
+SOURCES_CPP += $(wildcard *hipfft.cpp)
+LD:=hipcc
+LIBS_HIP:=-L${FFTW_DIR} -L/opt/rocm/lib -lhipfft -lrocfft
+LIBS:=${LIBS_HIP}
+FLAGS_HIP:=${LIBS_HIP}
+INC_DIR_HIP:=-I${FFTW_INC}
 endif
 
 ifeq "$(OMP)" "yes"
@@ -123,6 +136,10 @@ test_bench.out: $(OBJECTS) $(OBJECTS_CPP_BASE)
 %.o: ../base/%.cpp
 	# make $@ from $<
 	$(CC) $(FLAGS) $(INC_DIR) -c $< -o build/$@
+
+%hipfft.o: %hipfft.cpp
+	# make $@ from $<
+	hipcc $(FLAGS_HIP) $(INC_DIR) $(INC_DIR_HIP) -c $< -o build/$@
 
 test:
 	./test_bench.out --N0=64 --N1=32 --N2=16

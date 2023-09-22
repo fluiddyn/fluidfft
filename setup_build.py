@@ -107,6 +107,9 @@ def create_ext(base_name):
         libraries.append("p3dfft")
     elif "cufft" in base_name:
         libraries.extend(["cufft", "mpi_cxx"])
+    elif "hipfft" in base_name:
+        # TODO: should be possible to use cufft as backend instead of rocfft
+        libraries.extend(["hipfft", "rocfft"])
 
     return Extension(
         name="fluidfft.fft" + dim + "." + base_name,
@@ -161,6 +164,10 @@ def base_names_from_config(config):
     if config["cufft"]["use"]:
         base_names.extend(["fft2d_with_cufft"])
         base_names.extend(["fft3d_with_cufft"])
+
+    if config["hipfft"]["use"]:
+        base_names.extend(["fft2d_with_hipfft"])
+        base_names.extend(["fft3d_with_hipfft"])
 
     if config["pfft"]["use"] and not use_mkl_intel:
         base_names.extend(["fft3dmpi_with_pfft"])
@@ -232,7 +239,7 @@ class FluidFFTBuildExt(build_ext, PythranBuildExt):
         if configuration["fftw3"]["use"]:
             update_with_config("fftw3")
 
-        keys = ["pfft", "p3dfft", "cufft"]
+        keys = ["pfft", "p3dfft", "cufft", "hipfft"]
 
         ext_modules = []
 
