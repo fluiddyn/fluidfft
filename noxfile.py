@@ -31,73 +31,68 @@ no_venv_session = partial(nox.session, venv_backend="none")
 
 
 @nox.session
-def tests(session):
+def validate_code(session):
+    session.run_always(
+        "pdm", "sync", "--clean", "-G", "lint", "--no-self", external=True
+    )
+    session.run("pdm", "validate_code", external=True)
+
+
+@nox.parametrize("with_mpi", [True, False])
+@nox.parametrize("with_cov", [True, False])
+@nox.session
+def tests(session, with_mpi, with_cov):
     """Execute unit-tests using pytest"""
 
-    session.run_always(
-        "pdm", "sync", "-G", "test", "--clean", "--no-self", external=True
-    )
-    session.install("-v", "-e", ".", "--force-reinstall", "--no-deps", silent=False)
+    command = "pdm sync --clean --no-self -G test"
+    if with_mpi:
+        command += " -G mpi"
+    session.run_always(*command.split(), external=True)
+
+    session.install("-e", ".", "--no-deps", "-v", silent=False)
     session.run("ls", "src/fluidfft/fft3d", silent=False, external=True)
-
-    session.run(
-        "python",
-        "-m",
-        "pytest",
-        "-v",
-        "-s",
-        *session.posargs,
-    )
-
-
-@no_venv_session(name="tests-cov")
-def tests_cov(session):
-    """Execute unit-tests using pytest+pytest-cov"""
-    session.notify(
-        "tests",
-        [
-            "--cov",
-            "--cov-config=setup.cfg",
-            "--no-cov-on-fail",
-            "--cov-report=term-missing",
-            *session.posargs,
-        ],
-    )
-
-
-@nox.session(name="coverage-html")
-def coverage_html(session, nox=False):
-    """Generate coverage report in HTML. Requires `tests-cov` session."""
-    report = Path.cwd() / ".coverage" / "html" / "index.html"
-    session.install("coverage[toml]", "cython")
-    session.run("coverage", "html")
-
-
-@nox.session(name="tests-full")
-def tests_full(session):
-    """Execute all unit-tests using pytest"""
-
-    session.run_always(
-        "pdm", "sync", "-G", "test", "-G", "mpi", "--clean", "--no-self", external=True
-    )
-
-    session.install("-v", "-e", ".", "--force-reinstall", "--no-deps", silent=False)
-    session.run("ls", "src/fluidfft/fft3d", silent=False, external=True)
-
-    cov_path = Path.cwd() / ".coverage"
-    cov_path.mkdir(exist_ok=True)
 
     def run_command(command, **kwargs):
-        words = command.split()
-        session.run(
-            *words,
-            **kwargs,
+        session.run(*command.split(), **kwargs)
+
+    if with_cov:
+        cov_path = Path.cwd() / ".coverage"
+        cov_path.mkdir(exist_ok=True)
+
+    command = "pytest -v -s"
+    if with_cov:
+        command += (
+            " --cov --cov-config=setup.cfg --no-cov-on-fail --cov-report=term-missing"
         )
 
-    run_command("coverage run -p -m pytest -s src")
-    run_command("coverage run -p -m pytest -s src", env={"TRANSONIC_NO_REPLACE": "1"})
-    # Using TRANSONIC_NO_REPLACE with mpirun in docker can block the tests
-    run_command(
-        "mpirun -np 2 --oversubscribe coverage run -p -m unittest discover src",
-        external=True,
+    run_command(command, *session.posargs)
+    run_command(command, *session.posargs, env={"TRANSONIC_NO_REPLACE": "1"})
+
+    if with_mpi:
+        if with_cov:
+            command = (
+                "mpirun -np 2 --oversubscribe coverage run -p -m pytest --exitfirst src"
+            )
+
+        else:
+            command = "mpirun -np 2 --oversubscribe pytest src"
+
+        # Using TRANSONIC_NO_REPLACE with mpirun in docker can block the tests
+        run_command(command, external=True)
+
+    if with_cov:
+        if with_mpi:
+            run_command("coverage combine")
+        run_command("coverage report")
+
+
+@nox.session
+def doc(session):
+    session.run_always("pdm", "sync", "-G", "doc", "--no-self", external=True)
+    session.install(
+        "-e", ".", "--no-deps", env={"FLUIDFFT_TRANSONIC_BACKEND": "python"}
     )
+
+    session.chdir("doc")
+    session.run("make", "cleanall", external=True)
+    session.run("make", external=True)

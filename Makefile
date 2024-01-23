@@ -1,7 +1,10 @@
 .PHONY: clean cleanall cleanmako cleancython develop build_ext_inplace list-sessions requirements
 
-develop:
-	pip install -v -e .[dev] | grep -v link
+develop: sync
+	pdm run pip install -e . --no-deps --no-build-isolation -v
+
+sync:
+	pdm sync --clean --no-self
 
 clean:
 	rm -rf build
@@ -21,7 +24,7 @@ cleanmako:
 cleanall: clean cleanso cleanmako cleancython cleanpythran
 
 black:
-	black -l 82 src *.py
+	pdm run black
 
 tests:
 	pytest -s src
@@ -56,7 +59,8 @@ list-sessions:
 	@nox --version 2>/dev/null || pip install nox
 	@nox -l
 
-requirements: 'pip-compile(main)' 'pip-compile(doc)' 'pip-compile(test)' 'pip-compile(dev)'
+lock:
+	pdm lock -G :all
 
 # Catch-all target: route all unknown targets to nox sessions
 %:

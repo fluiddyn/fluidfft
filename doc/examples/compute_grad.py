@@ -4,7 +4,7 @@ from fluidfft.fft2d.operators import OperatorsPseudoSpectral2D
 nx = ny = 100
 lx = ly = 2 * np.pi
 
-oper = OperatorsPseudoSpectral2D(nx, ny, lx, ly, fft='fft2d.with_fftw2d')
+oper = OperatorsPseudoSpectral2D(nx, ny, lx, ly, fft="fft2d.with_fftw2d")
 
 u = np.sin(oper.XX + oper.YY)
 u_fft = oper.fft(u)

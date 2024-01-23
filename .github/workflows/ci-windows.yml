@@ -30,7 +30,7 @@ jobs:
     - name: Install
       run: |
         cp .github/pythranrc-windows $HOME/.pythranrc
-        pip install -e . -v
+        pip install -e . -v --no-build-isolation --no-deps
     - name: Tests
       run: |
         pytest -v

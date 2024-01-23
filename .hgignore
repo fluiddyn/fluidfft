@@ -52,6 +52,7 @@ site.cfg
 .coverage
 .tox
 .nox
+.venv
 .cache
 .mypy_cache
 **/__pythran__/*

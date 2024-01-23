@@ -12,7 +12,7 @@ jobs:
         shell: bash -l {0}
     strategy:
       matrix:
-        python-version: [3.9, "3.10"]
+        python-version: [3.9, "3.11"]
     steps:
     - uses: actions/checkout@v2
     - uses: conda-incubator/setup-miniconda@v2
@@ -25,7 +25,7 @@ jobs:
     - name: Install
       run: |
         cp .github/fluidfft-site-macos.cfg $HOME/.fluidfft-site.cfg
-        pip install -e . -v
+        pip install -e . -v --no-build-isolation --no-deps
     - name: Tests
       run: |
         pytest -v

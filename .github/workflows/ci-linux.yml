@@ -30,13 +30,17 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip nox
+        python -m pip install --upgrade pip
+        python -m pip install nox pdm
+        # cython is for coverage
+        python -m pip install coverage cython
 
     - name: Run tests
       run: |
         cp .github/fluidfft-site.cfg $HOME/.fluidfft-site.cfg
-        nox --session tests-cov -- -v --cov-report=xml
-        nox --session tests-full
+        nox --session "tests(with_cov=True, with_mpi=False)"
+        nox --session "tests(with_cov=True, with_mpi=True)"
+        coverage xml
 
     - name: Upload coverage to codecov
       if: ${{ success() }}

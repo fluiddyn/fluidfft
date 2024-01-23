@@ -68,7 +68,6 @@ def get_path_files(module_name):
 
 
 def make_file(module_name, class_name, numpy_api, templates):
-
     if module_name.startswith("fft2d"):
         t_pyx = templates["fft2d_pyx"]
         t_pxd = templates["fft2d_pxd"]
@@ -114,7 +113,6 @@ variables = (
 
 
 def make_pyx_files():
-
     templates = {}
 
     templates["fft2d_pyx"] = load_template("template2d_mako.pyx")

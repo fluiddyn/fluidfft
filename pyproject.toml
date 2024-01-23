@@ -1,7 +1,7 @@
 
 [build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
+requires = ["setuptools", "transonic", "pythran", "jinja2", "cython"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "fluidfft"
@@ -58,23 +58,17 @@ distribution = true
 package-dir = "src"
 
 [tool.pdm.dev-dependencies]
+build = ["setuptools", "transonic", "pythran", "wheel", "jinja2", "cython"]
+
 test = [
-    "coverage",
-    "cython", # needed at run time for coverage
-    "ipython",
-    "pyfftw >= 0.10.4",
     "pytest",
+    "coverage",
     "pytest-cov",
+    "cython", # needed at run time for coverage
 ]
 dev = [
-    "coverage",
+    "pip",
     "ipython",
-    "jupyter",
-    "mpi4py",
-    "nbsphinx",
-    "numpydoc",
-    "pandas",
-    "pyfftw >= 0.10.4",
 ]
 doc = [
     "jupyter",
@@ -86,3 +80,10 @@ doc = [
     "sphinx_copybutton",
     "sphinx_rtd_theme",
 ]
+lint = ["black", "pylint"]
+
+[tool.pdm.scripts]
+black = 'black -l 82 src doc src_cy --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
+lint = {shell="pylint -rn --rcfile=pylintrc --jobs=$(nproc) src --exit-zero"}
+black_check = 'black --check -l 82 src doc src_cy --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
+validate_code = {composite = ["black_check", "lint"]}

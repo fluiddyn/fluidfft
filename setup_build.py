@@ -119,6 +119,7 @@ def base_names_from_config(config):
     try:
         # only works with old Numpy (<1.26.0)
         from numpy.__config__ import get_info
+
         # see https://stackoverflow.com/a/68991641
     except ImportError:
         use_mkl_intel = False
