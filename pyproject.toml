@@ -1,10 +1,88 @@
 
 [build-system]
-# Further build requirements - like pythran and mpi4py - come from setup.py via
-# the PEP 517 interface.
-requires = [
-    "setuptools>=65.3.0", "wheel",
-    "numpy", "cython", "mako",
-    "transonic>=0.4"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project]
+name = "fluidfft"
+version = "0.3.5"
+description = "Efficient and easy Fast Fourier Transform (FFT) for Python."
+authors = [
+    {name = "Pierre Augier", email = "pierre.augier@legi.cnrs.fr"},
 ]
-build-backend = "setuptools.build_meta"
+dependencies = [
+    "fluiddyn >= 0.2.3",
+    "mpi4py",
+    "transonic >= 0.4",
+]
+requires-python = ">= 3.9"
+readme = "README.rst"
+license = {text = "CeCILL License"}
+keywords = [
+    "Fast Fourier Transform",
+    "FFT",
+    "spectral code",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+    "Programming Language :: C",
+    "Programming Language :: Cython",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Scientific/Engineering",
+]
+
+[project.urls]
+Homepage = "https://foss.heptapod.net/fluiddyn/fluidfft"
+
+[project.optional-dependencies]
+pyfftw = [
+    "pyfftw >= 0.10.4",
+]
+mpi = [
+    "mpi4py",
+]
+
+[project.scripts]
+fluidfft-bench = "fluidfft.bench:run"
+fluidfft-bench-analysis = "fluidfft.bench_analysis:run"
+
+[tool.pdm]
+distribution = true
+package-dir = "src"
+
+[tool.pdm.dev-dependencies]
+test = [
+    "coverage",
+    "cython", # needed at run time for coverage
+    "ipython",
+    "pyfftw >= 0.10.4",
+    "pytest",
+    "pytest-cov",
+]
+dev = [
+    "coverage",
+    "ipython",
+    "jupyter",
+    "mpi4py",
+    "nbsphinx",
+    "numpydoc",
+    "pandas",
+    "pyfftw >= 0.10.4",
+]
+doc = [
+    "jupyter",
+    "nbsphinx",
+    "numpydoc",
+    "pandas",
+    "pyfftw",
+    "sphinx",
+    "sphinx_copybutton",
+    "sphinx_rtd_theme",
+]

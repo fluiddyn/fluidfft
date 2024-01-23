@@ -76,3 +76,5 @@ doc/ipynb/*.executed.ipynb
 doc/tmp/*
 
 .vscode
+
+.pdm-python
