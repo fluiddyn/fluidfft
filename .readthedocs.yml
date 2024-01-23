@@ -9,12 +9,13 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.10"
+  jobs:
+    post_create_environment:
+      - pip install pdm
+    post_install:
+      - pdm use -f $READTHEDOCS_VIRTUALENV_PATH
+      - pdm sync -G doc --no-self
+      - FLUIDFFT_TRANSONIC_BACKEND="python" pip install . -v --no-deps
 
 sphinx:
   configuration: doc/conf.py
-
-python:
-  install:
-  - requirements: requirements/doc.txt
-  - method: pip
-    path: .
