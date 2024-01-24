@@ -17,13 +17,13 @@ include_dir =
 library_dir =
 
 [pfft]
-use = True
+use = False
 dir = ~/.local
 include_dir =
 library_dir =
 
 [p3dfft]
-use = True
+use = False
 dir = ~/.local
 include_dir =
 library_dir =
