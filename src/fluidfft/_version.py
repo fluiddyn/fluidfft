@@ -1,14 +1,3 @@
-"""
-Module where the version is written.
+from importlib import metadata
 
-It is executed in setup.py and imported in fluidfft/__init__.py.
-
-See:
-
-http://en.wikipedia.org/wiki/Software_versioning
-http://legacy.python.org/dev/peps/pep-0386/
-
-'a' or 'alpha' means alpha version (internal testing),
-'b' or 'beta' means beta version (external testing).
-"""
-__version__ = "0.3.5"
+__version__ = metadata.version(__package__)

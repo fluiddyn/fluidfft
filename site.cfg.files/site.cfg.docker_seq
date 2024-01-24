@@ -5,7 +5,7 @@ include_dir =
 library_dir =
 
 [fftw3_mpi]
-use = True
+use = False
 dir = ~/.local
 include_dir =
 library_dir =
@@ -27,4 +27,3 @@ use = True
 dir = ~/.local
 include_dir =
 library_dir =
-
