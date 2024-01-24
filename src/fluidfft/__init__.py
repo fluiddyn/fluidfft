@@ -29,10 +29,12 @@ fft objects:
 """
 
 import importlib
+import os
 import subprocess
 import sys
 
-from fluiddyn.util.mpi import printby0
+from fluiddyn.util import mpi
+
 
 from fluidfft._version import __version__
 
@@ -119,14 +121,39 @@ def import_fft_class(method, raise_import_error=True):
     if any(method.endswith(postfix) for postfix in ("pfft", "p3dfft")):
         # for few methods, try before real import because importing can lead to
         # a fatal error (Illegal instruction)
-        try:
-            subprocess.check_call([sys.executable, "-c", "import " + method])
-        except subprocess.CalledProcessError as error:
-            if raise_import_error:
-                raise ImportError(method) from error
+        if mpi.rank == 0:
+            if mpi.nb_proc > 1:
+                # We need to filter out the MPI environment variables.
+                # Fragile because it is specific to MPI implementations
+                env = {
+                    key: value
+                    for key, value in os.environ.items()
+                    if not ("MPI" in key or key.startswith("PMI_"))
+                }
+            else:
+                env = os.environ
+            try:
+                subprocess.check_call(
+                    [sys.executable, "-c", "import " + method],
+                    env=env,
+                    shell=False,
+                )
+                failure = False
+            except subprocess.CalledProcessError:
+                failure = True
 
-            printby0("ImportError:", method)
-            return None
+        else:
+            failure = None
+
+        if mpi.nb_proc > 1:
+            failure = mpi.comm.bcast(failure, root=0)
+
+        if failure:
+            if not raise_import_error:
+                mpi.printby0("ImportError:", method)
+                return None
+            else:
+                raise ImportError(method)
 
     try:
         mod = importlib.import_module(method)
@@ -134,7 +161,7 @@ def import_fft_class(method, raise_import_error=True):
         if raise_import_error:
             raise
 
-        printby0("ImportError:", method)
+        mpi.printby0("ImportError:", method)
         return None
 
     return mod.FFTclass
