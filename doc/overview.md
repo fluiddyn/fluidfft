@@ -1,5 +1,4 @@
-Overview
-========
+# Overview
 
 Fast Fourier transforms (FFT) are useful for many applications.  There are many
 good libraries to perform FFT, in particular the standard FFTW.  A new
@@ -24,14 +23,10 @@ There are already tools to perform FFT with Python (scipy.fftpack,
 pyfftw). However, they suffer from drawbacks:
 
 - nearly nothing for parallel FFT with distributed memory (using mpi),
-
 - quite complicated even for the most simple and common cases. To understand how
-  to use them, a novice user has to read at least the `FFTW documentation
-  <http://www.fftw.org/fftw3_doc/>`_.
-
+  to use them, a novice user has to read at least the [FFTW documentation](http://www.fftw.org/fftw3_doc/).
 - no benchmarks between libraries and between the Python solutions and solutions
   based only on a static language (as C, C++ or Fortran).
-
 - just the FFT, no linear operators and utilities to deal with the data
   distribution...
 
@@ -41,10 +36,7 @@ FFT libraries.  FluidFFT has been written to make things easy while being as
 efficient as possible.  It provides:
 
 - tests,
-
 - documentation,
-
 - benchmarks,
-
 - operators for simple tasks (for example, compute the energy or the gradient
   of a field).
