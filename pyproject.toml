@@ -12,7 +12,6 @@ authors = [
 ]
 dependencies = [
     "fluiddyn >= 0.2.3",
-    "mpi4py",
     "transonic >= 0.4",
 ]
 requires-python = ">= 3.9"
