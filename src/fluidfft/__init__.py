@@ -28,7 +28,9 @@ fft objects:
 
 """
 
-from importlib import import_module as _import_module
+import importlib
+import subprocess
+import sys
 
 from fluiddyn.util.mpi import printby0
 
@@ -114,15 +116,26 @@ def import_fft_class(method, raise_import_error=True):
             "not method.startswith('fluidfft.')\nmethod = {}".format(method)
         )
 
-    try:
-        mod = _import_module(method)
-    except ImportError:
-        if raise_import_error:
-            raise ImportError(method)
+    if any(method.endswith(postfix) for postfix in ("pfft", "p3dfft")):
+        # for few methods, try before real import because importing can lead to
+        # a fatal error (Illegal instruction)
+        try:
+            subprocess.check_call([sys.executable, "-c", "import " + method])
+        except subprocess.CalledProcessError as error:
+            if raise_import_error:
+                raise ImportError(method) from error
 
-        else:
             printby0("ImportError:", method)
             return None
+
+    try:
+        mod = importlib.import_module(method)
+    except ImportError:
+        if raise_import_error:
+            raise
+
+        printby0("ImportError:", method)
+        return None
 
     return mod.FFTclass
 
