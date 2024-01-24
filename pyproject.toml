@@ -71,14 +71,14 @@ dev = [
     "ipython",
 ]
 doc = [
-    "jupyter",
-    "nbsphinx",
-    "numpydoc",
-    "pandas",
-    "pyfftw",
     "sphinx",
     "sphinx_copybutton",
     "sphinx_rtd_theme",
+    "jupyter",
+    "myst-nb",
+    "numpydoc",
+    "pandas",
+    "pyfftw",
 ]
 lint = ["black", "pylint"]
 

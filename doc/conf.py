@@ -26,15 +26,11 @@ import matplotlib.pyplot as plt
 
 plt.ioff()
 
-from fluiddoc.ipynb_maker import execute_notebooks
 from fluiddyn.util import modification_date
 
 import fluidfft
 import fluidfft.bench_analysis
 from fluidfft.bench_analysis import plot_scaling
-
-execute_notebooks("ipynb")
-nbsphinx_execute = "never"
 
 here = os.path.dirname(__file__)
 here_tmp = os.path.join(here, "tmp")
@@ -113,13 +109,12 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
     "sphinx.ext.todo",
-    # 'sphinx.ext.pngmath',
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
     "sphinx.ext.autosummary",
     "numpydoc",
-    "nbsphinx",
     "sphinx_copybutton",
+    "myst_nb",
     # 'fluiddoc.mathmacro',
     # 'breathe'
 ]
@@ -168,13 +163,6 @@ version = "{}.{}.{}".format(version[0], version[1], version[2])
 # directories to ignore when looking for source files.
 exclude_patterns = ["_build", "install/blas_libs.rst"]
 paths_notebooks = Path("ipynb").glob("*.ipynb")
-exclude_patterns.extend(
-    [
-        f"ipynb/{path.name}"
-        for path in paths_notebooks
-        if not path.name.endswith(".executed.ipynb")
-    ]
-)
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -373,3 +361,31 @@ autodoc_default_options = {"show-inheritance": None}
 autodoc_member_order = "bysource"
 
 todo_include_todos = True
+
+# Execute ipynb files into with a cache ...
+nb_execution_mode = "cache"
+nb_execution_cache_path = "./_build/jupyter_cache"
+os.makedirs(nb_execution_cache_path, exist_ok=True)
+# ... except these ipynb files
+nb_execution_excludepatterns = ["ipynb/executed/*"]
+
+nb_execution_raise_on_error = True
+nb_execution_show_tb = True
+nb_merge_streams = True
+
+myst_enable_extensions = [
+    "amsmath",
+    # "attrs_inline",
+    "colon_fence",
+    # "deflist",
+    "dollarmath",
+    # "fieldlist",
+    # "linkify",
+    # "replacements",
+    # "smartquotes",
+    # "strikethrough",
+    "substitution",
+    # "tasklist",
+]
+
+suppress_warnings = ["mystnb.unknown_mime_type"]
