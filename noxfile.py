@@ -71,7 +71,7 @@ def tests(session, with_mpi, with_cov):
     if with_mpi:
         if with_cov:
             command = (
-                "mpirun -np 2 --oversubscribe coverage run -p -m pytest --exitfirst src"
+                "mpirun -np 2 --oversubscribe coverage run -p -m pytest -v -s --exitfirst src"
             )
 
         else:

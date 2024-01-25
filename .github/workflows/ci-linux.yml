@@ -37,8 +37,9 @@ jobs:
 
     - name: Run tests
       run: |
-        cp .github/fluidfft-site.cfg $HOME/.fluidfft-site.cfg
+        cp .github/fluidfft-site-seq.cfg $HOME/.fluidfft-site.cfg
         nox --session "tests(with_cov=True, with_mpi=False)"
+        cp .github/fluidfft-site-mpi.cfg $HOME/.fluidfft-site.cfg
         nox --session "tests(with_cov=True, with_mpi=True)"
         coverage xml
 

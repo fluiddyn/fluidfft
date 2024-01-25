@@ -81,7 +81,7 @@ fluidfft-bench-analysis = "fluidfft.bench_analysis:run"
 "fft3d.mpi_with_p3dfft" = "fluidfft.fft3d.mpi_with_p3dfft"
 
 # should be in fluidfft-pfft
-"fft3d.mpi_with_pfft" = "fluidfft.fft3d.mpi_with_pfft"
+# "fft3d.mpi_with_pfft" = "fluidfft.fft3d.mpi_with_pfft"
 
 # should be in fluidfft-mpi4pyfft (a pure Python package)
 "fft3d.mpi_with_mpi4pyfft" = "fluidfft.fft3d.mpi_with_mpi4pyfft"
