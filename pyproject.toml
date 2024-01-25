@@ -52,6 +52,41 @@ mpi = [
 fluidfft-bench = "fluidfft.bench:run"
 fluidfft-bench-analysis = "fluidfft.bench_analysis:run"
 
+[project.entry-points."fluidfft.plugins"]
+"fft2d.fake_mod_fft2d_for_doc" = "fluidfft.fft2d.fake_mod_fft2d_for_doc"
+"fft3d.fake_mod_fft3d_for_doc" = "fluidfft.fft3d.fake_mod_fft3d_for_doc"
+"fft2d.with_pyfftw" = "fluidfft.fft2d.with_pyfftw"
+"fft3d.with_pyfftw" = "fluidfft.fft3d.with_pyfftw"
+"fft2d.with_dask" = "fluidfft.fft2d.with_dask"
+
+# should be in fluidfft-fftw
+"fft2d.with_fftw1d" = "fluidfft.fft2d.with_fftw1d"
+"fft2d.with_fftw2d" = "fluidfft.fft2d.with_fftw2d"
+"fft3d.with_fftw3d" = "fluidfft.fft3d.with_fftw3d"
+
+# should be in fluidfft-cuda
+# (or better HIP?, see https://foss.heptapod.net/fluiddyn/fluidfft/-/merge_requests/46)
+"fft2d.with_cufft" = "fluidfft.fft2d.with_cufft"
+"fft3d.with_cufft" = "fluidfft.fft3d.with_cufft"
+
+# should be in fluidfft-mpi_with_fftw
+"fft2d.mpi_with_fftw1d" = "fluidfft.fft2d.mpi_with_fftw1d"
+"fft3d.mpi_with_fftw1d" = "fluidfft.fft3d.mpi_with_fftw1d"
+
+# should be in fluidfft-fftwmpi
+"fft2d.mpi_with_fftwmpi2d" = "fluidfft.fft2d.mpi_with_fftwmpi2d"
+"fft3d.mpi_with_fftwmpi3d" = "fluidfft.fft3d.mpi_with_fftwmpi3d"
+
+# should be in fluidfft-p3dfft
+"fft3d.mpi_with_p3dfft" = "fluidfft.fft3d.mpi_with_p3dfft"
+
+# should be in fluidfft-pfft
+"fft3d.mpi_with_pfft" = "fluidfft.fft3d.mpi_with_pfft"
+
+# should be in fluidfft-mpi4pyfft (a pure Python package)
+"fft3d.mpi_with_mpi4pyfft" = "fluidfft.fft3d.mpi_with_mpi4pyfft"
+"fft3d.mpi_with_mpi4pyfft_slab" = "fluidfft.fft3d.mpi_with_mpi4pyfft_slab"
+
 [tool.pdm]
 distribution = true
 package-dir = "src"
