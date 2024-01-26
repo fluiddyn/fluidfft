@@ -8,7 +8,7 @@ mpl.use("Agg")
 
 try:
     import pandas
-    from . import bench_analysis
+    from fluidfft import bench_analysis
 
     use_pandas = True
 except ImportError:
@@ -18,7 +18,7 @@ from fluiddyn.io import stdout_redirected
 
 from fluiddyn.util import mpi
 
-from .bench import bench_all, run
+from fluidfft.bench import bench_all, run
 
 
 path_tmp = "/tmp/fluidfft_test_bench" + getpass.getuser()

@@ -13,6 +13,7 @@ authors = [
 dependencies = [
     "fluiddyn >= 0.2.3",
     "transonic >= 0.4",
+    "importlib_metadata; python_version < '3.10'",
 ]
 requires-python = ">= 3.9"
 readme = "README.md"
@@ -81,7 +82,7 @@ fluidfft-bench-analysis = "fluidfft.bench_analysis:run"
 "fft3d.mpi_with_p3dfft" = "fluidfft.fft3d.mpi_with_p3dfft"
 
 # should be in fluidfft-pfft
-# "fft3d.mpi_with_pfft" = "fluidfft.fft3d.mpi_with_pfft"
+"fft3d.mpi_with_pfft" = "fluidfft.fft3d.mpi_with_pfft"
 
 # should be in fluidfft-mpi4pyfft (a pure Python package)
 "fft3d.mpi_with_mpi4pyfft" = "fluidfft.fft3d.mpi_with_mpi4pyfft"
@@ -117,7 +118,7 @@ doc = [
 lint = ["black", "pylint"]
 
 [tool.pdm.scripts]
-black = 'black -l 82 src doc src_cy --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
-lint = {shell="pylint -rn --rcfile=pylintrc --jobs=$(nproc) src --exit-zero"}
-black_check = 'black --check -l 82 src doc src_cy --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
+black = 'black -l 82 src doc src_cy tests --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
+lint = {shell="pylint -rn --rcfile=pylintrc --jobs=$(nproc) src doc tests --exit-zero"}
+black_check = 'black --check -l 82 src doc src_cy tests --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
 validate_code = {composite = ["black_check", "lint"]}

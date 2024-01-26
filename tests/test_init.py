@@ -18,7 +18,7 @@ except ImportError:
 
 from fluiddyn.util.mpi import rank
 
-from . import create_fft_object
+from fluidfft import create_fft_object
 
 
 class TestsCreateFFTObject(unittest.TestCase):

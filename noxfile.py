@@ -59,7 +59,7 @@ def tests(session, with_mpi, with_cov):
         cov_path = Path.cwd() / ".coverage"
         cov_path.mkdir(exist_ok=True)
 
-    command = "pytest -v -s"
+    command = "pytest -v -s tests"
     if with_cov:
         command += (
             " --cov --cov-config=setup.cfg --no-cov-on-fail --cov-report=term-missing"
@@ -71,11 +71,11 @@ def tests(session, with_mpi, with_cov):
     if with_mpi:
         if with_cov:
             command = (
-                "mpirun -np 2 --oversubscribe coverage run -p -m pytest -v -s --exitfirst src"
+                "mpirun -np 2 --oversubscribe coverage run -p -m pytest -v -s --exitfirst tests"
             )
 
         else:
-            command = "mpirun -np 2 --oversubscribe pytest src"
+            command = "mpirun -np 2 --oversubscribe pytest -v -s tests"
 
         # Using TRANSONIC_NO_REPLACE with mpirun in docker can block the tests
         run_command(command, external=True)

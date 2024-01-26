@@ -7,6 +7,7 @@
    :undoc-members:
 
 """
+
 import numpy as np
 import fluidfft
 

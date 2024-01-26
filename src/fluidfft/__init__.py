@@ -32,9 +32,14 @@ import importlib
 import os
 import subprocess
 import sys
+import logging
+
+if sys.version_info < (3, 10):
+    from importlib_metadata import entry_points
+else:
+    from importlib.metadata import entry_points
 
 from fluiddyn.util import mpi
-
 
 from fluidfft._version import __version__
 
@@ -76,16 +81,110 @@ journal = {Journal of Open Research Software}
 
 
 __all__ = [
+    "__citation__",
     "__version__",
-    "import_fft_class",
+    "byte_align",
     "create_fft_object",
     "empty_aligned",
-    "byte_align",
-    "__citation__",
+    "get_module_fullname_from_method",
+    "get_plugins",
+    "import_fft_class",
 ]
 
 
-def import_fft_class(method, raise_import_error=True):
+_plugins = None
+
+
+def get_plugins(reload=False):
+    """Discover the fluidfft plugins installed"""
+    global _plugins
+    if _plugins is None or reload:
+        _plugins = entry_points(group="fluidfft.plugins")
+
+    if not _plugins:
+        raise RuntimeError("No Fluidfft plugins were found.")
+
+    return _plugins
+
+
+def get_module_fullname_from_method(method):
+    """Get the module name from a method string
+
+    Parameters
+    ----------
+
+    method : str
+      Name of module or string characterizing a method.
+
+    """
+    plugins = get_plugins()
+    selected_plugins = plugins.select(name=method)
+    if len(selected_plugins) == 0:
+        raise ValueError(
+            f"Cannot find a fluidfft plugin for {method = }. {plugins}"
+        )
+    elif len(selected_plugins) > 1:
+        logging.warning(
+            f"{len(selected_plugins)} plugins were found for {method = }"
+        )
+
+    return selected_plugins[method].value
+
+
+def _normalize_method_name(method):
+    """Normalize a method name"""
+    if method == "sequential":
+        method = "fft2d.with_fftw2d"
+    elif method.startswith("fluidfft:"):
+        method = method.removeprefix("fluidfft:")
+    return method
+
+
+def _check_failure(module_fullname):
+    """Check if a tiny fft maker can be created"""
+
+    if not any(
+        module_fullname.endswith(postfix) for postfix in ("pfft", "p3dfft")
+    ):
+        return False
+
+    # for few methods, try before real import because importing can lead to
+    # a fatal error (Illegal instruction)
+    if mpi.rank == 0:
+        if mpi.nb_proc > 1:
+            # We need to filter out the MPI environment variables.
+            # Fragile because it is specific to MPI implementations
+            env = {
+                key: value
+                for key, value in os.environ.items()
+                if not ("MPI" in key or key.startswith("PMI_"))
+            }
+        else:
+            env = os.environ
+        try:
+            subprocess.check_call(
+                [
+                    sys.executable,
+                    "-c",
+                    f"from fluidfft import create_fft_object as c; c({module_fullname}, 2, 2, 2, check=0)",
+                ],
+                env=env,
+                shell=False,
+            )
+            failure = False
+        except subprocess.CalledProcessError:
+            failure = True
+
+    else:
+        failure = None
+
+    if mpi.nb_proc > 1:
+        failure = mpi.comm.bcast(failure, root=0)
+
+    return failure
+
+
+def import_fft_class(method, raise_import_error=True, check=True):
     """Import a fft class.
 
     Parameters
@@ -107,67 +206,32 @@ def import_fft_class(method, raise_import_error=True):
     The corresponding FFT class.
 
     """
-    if method == "sequential":
-        method = "fft2d.with_fftw2d"
 
-    if method.startswith("fft2d.") or method.startswith("fft3d."):
-        method = "fluidfft." + method
+    method = _normalize_method_name(method)
+    module_fullname = get_module_fullname_from_method(method)
 
-    if not method.startswith("fluidfft."):
-        raise ValueError(
-            "not method.startswith('fluidfft.')\nmethod = {}".format(method)
-        )
-
-    if any(method.endswith(postfix) for postfix in ("pfft", "p3dfft")):
-        # for few methods, try before real import because importing can lead to
-        # a fatal error (Illegal instruction)
-        if mpi.rank == 0:
-            if mpi.nb_proc > 1:
-                # We need to filter out the MPI environment variables.
-                # Fragile because it is specific to MPI implementations
-                env = {
-                    key: value
-                    for key, value in os.environ.items()
-                    if not ("MPI" in key or key.startswith("PMI_"))
-                }
-            else:
-                env = os.environ
-            try:
-                subprocess.check_call(
-                    [sys.executable, "-c", "import " + method],
-                    env=env,
-                    shell=False,
-                )
-                failure = False
-            except subprocess.CalledProcessError:
-                failure = True
-
-        else:
-            failure = None
-
-        if mpi.nb_proc > 1:
-            failure = mpi.comm.bcast(failure, root=0)
-
+    if check:
+        failure = _check_failure(module_fullname)
         if failure:
             if not raise_import_error:
-                mpi.printby0("ImportError:", method)
+                mpi.printby0("ImportError during check:", module_fullname)
                 return None
             else:
-                raise ImportError(method)
+                raise ImportError(module_fullname)
 
     try:
-        mod = importlib.import_module(method)
+        mod = importlib.import_module(module_fullname)
     except ImportError:
         if raise_import_error:
             raise
 
-        mpi.printby0("ImportError:", method)
+        mpi.printby0("ImportError:", module_fullname)
         return None
 
     return mod.FFTclass
 
 
-def create_fft_object(method, n0, n1, n2=None):
+def create_fft_object(method, n0, n1, n2=None, check=True):
     """Helper for creating fft objects.
 
     Parameters
@@ -189,15 +253,15 @@ def create_fft_object(method, n0, n1, n2=None):
 
     """
 
-    cls = import_fft_class(method)
+    cls = import_fft_class(method, check)
 
     str_module = cls.__module__
 
-    if n2 is None and str_module.startswith("fluidfft.fft3d."):
+    if n2 is None and "fft3d" in str_module:
         raise ValueError("Arguments incompatible")
 
-    elif n2 is not None and str_module.startswith("fluidfft.fft2d."):
-        raise ValueError("Arguments incompatible")
+    if n2 is not None and "fft2d" in str_module:
+        n2 = None
 
     if n2 is None:
         return cls(n0, n1)
