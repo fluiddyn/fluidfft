@@ -54,8 +54,6 @@ fluidfft-bench = "fluidfft.bench:run"
 fluidfft-bench-analysis = "fluidfft.bench_analysis:run"
 
 [project.entry-points."fluidfft.plugins"]
-"fft2d.fake_mod_fft2d_for_doc" = "fluidfft.fft2d.fake_mod_fft2d_for_doc"
-"fft3d.fake_mod_fft3d_for_doc" = "fluidfft.fft3d.fake_mod_fft3d_for_doc"
 "fft2d.with_pyfftw" = "fluidfft.fft2d.with_pyfftw"
 "fft3d.with_pyfftw" = "fluidfft.fft3d.with_pyfftw"
 "fft2d.with_dask" = "fluidfft.fft2d.with_dask"
@@ -118,7 +116,7 @@ doc = [
 lint = ["black", "pylint"]
 
 [tool.pdm.scripts]
-black = 'black -l 82 src doc src_cy tests plugins --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
+black = 'black -l 82 src doc src_cy tests --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
+black_check = 'black --check -l 82 src doc src_cy tests --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
 lint = {shell="pylint -rn --rcfile=pylintrc --jobs=$(nproc) src doc tests plugins --exit-zero"}
-black_check = 'black --check -l 82 src doc src_cy tests plugins --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
 validate_code = {composite = ["black_check", "lint"]}

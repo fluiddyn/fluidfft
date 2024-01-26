@@ -5,6 +5,7 @@ import numpy as np
 
 from fluiddyn.util import mpi
 
+from fluidfft import import_fft_class
 from fluidfft.fft3d import get_classes_seq, get_classes_mpi
 from fluidfft.fft3d.testing import make_testop_functions
 
@@ -15,19 +16,30 @@ except ImportError:
     traceback.print_exc()
 
 
-n = 8
+def test_get_classes():
+    get_classes_seq()
+    get_classes_mpi()
 
-rank = mpi.rank
-nb_proc = mpi.nb_proc
 
-classes_seq = get_classes_seq()
+methods_seq = ["fftw3d", "pyfftw"]
+methods_seq = ["fft3d.with_" + method for method in methods_seq]
+classes_seq = {
+    method: import_fft_class(method, raise_import_error=False)
+    for method in methods_seq
+}
 classes_seq = {name: cls for name, cls in classes_seq.items() if cls is not None}
-
 if not classes_seq:
     raise ImportError("Not sequential 2d classes working!")
 
+methods_mpi = ["fftw1d", "fftwmpi3d", "p3dfft", "pfft"]
+methods_mpi = ["fft3d.mpi_with_" + method for method in methods_mpi]
+
+nb_proc = mpi.nb_proc
 if nb_proc > 1:
-    classes_mpi = get_classes_mpi()
+    classes_mpi = {
+        method: import_fft_class(method, raise_import_error=False)
+        for method in methods_mpi
+    }
     classes_mpi = {
         name: cls for name, cls in classes_mpi.items() if cls is not None
     }

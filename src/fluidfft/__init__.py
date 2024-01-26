@@ -35,9 +35,9 @@ import sys
 import logging
 
 if sys.version_info < (3, 10):
-    from importlib_metadata import entry_points
+    from importlib_metadata import entry_points, EntryPoint
 else:
-    from importlib.metadata import entry_points
+    from importlib.metadata import entry_points, EntryPoint
 
 from fluiddyn.util import mpi
 
@@ -95,7 +95,7 @@ __all__ = [
 _plugins = None
 
 
-def get_plugins(reload=False):
+def get_plugins(reload=False, ndim=None, sequential=None):
     """Discover the fluidfft plugins installed"""
     global _plugins
     if _plugins is None or reload:
@@ -104,7 +104,26 @@ def get_plugins(reload=False):
     if not _plugins:
         raise RuntimeError("No Fluidfft plugins were found.")
 
-    return _plugins
+    if ndim is None and sequential is None:
+        return _plugins
+
+    if ndim is None:
+        index = 6
+        prefix = ""
+    elif ndim in (2, 3):
+        index = 0
+        prefix = f"fft{ndim}d."
+    else:
+        raise ValueError(f"Unsupported value for {ndim = }")
+
+    if sequential is not None and not sequential:
+        prefix += "mpi_"
+    elif sequential:
+        prefix += "with_"
+
+    return tuple(
+        plugin for plugin in _plugins if plugin.name[index:].startswith(prefix)
+    )
 
 
 def get_module_fullname_from_method(method):
@@ -140,12 +159,10 @@ def _normalize_method_name(method):
     return method
 
 
-def _check_failure(module_fullname):
+def _check_failure(method):
     """Check if a tiny fft maker can be created"""
 
-    if not any(
-        module_fullname.endswith(postfix) for postfix in ("pfft", "p3dfft")
-    ):
+    if not any(method.endswith(postfix) for postfix in ("pfft", "p3dfft")):
         return False
 
     # for few methods, try before real import because importing can lead to
@@ -162,11 +179,12 @@ def _check_failure(module_fullname):
         else:
             env = os.environ
         try:
+            # TODO: capture stdout and stderr and include last line in case of failure
             subprocess.check_call(
                 [
                     sys.executable,
                     "-c",
-                    f"from fluidfft import create_fft_object as c; c({module_fullname}, 2, 2, 2, check=0)",
+                    f"from fluidfft import create_fft_object as c; c('{method}', 2, 2, 2, check=False)",
                 ],
                 env=env,
                 shell=False,
@@ -207,11 +225,15 @@ def import_fft_class(method, raise_import_error=True, check=True):
 
     """
 
-    method = _normalize_method_name(method)
-    module_fullname = get_module_fullname_from_method(method)
+    if isinstance(method, EntryPoint):
+        module_fullname = method.value
+        method = method.name
+    else:
+        method = _normalize_method_name(method)
+        module_fullname = get_module_fullname_from_method(method)
 
     if check:
-        failure = _check_failure(module_fullname)
+        failure = _check_failure(method)
         if failure:
             if not raise_import_error:
                 mpi.printby0("ImportError during check:", module_fullname)
@@ -229,6 +251,14 @@ def import_fft_class(method, raise_import_error=True, check=True):
         return None
 
     return mod.FFTclass
+
+
+def _get_classes(ndim, sequential):
+    plugins = get_plugins(ndim=ndim, sequential=sequential)
+    return {
+        plugin.name: import_fft_class(plugin, raise_import_error=False)
+        for plugin in plugins
+    }
 
 
 def create_fft_object(method, n0, n1, n2=None, check=True):
@@ -253,7 +283,7 @@ def create_fft_object(method, n0, n1, n2=None, check=True):
 
     """
 
-    cls = import_fft_class(method, check)
+    cls = import_fft_class(method, check=check)
 
     str_module = cls.__module__
 
