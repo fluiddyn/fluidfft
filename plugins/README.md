@@ -5,7 +5,7 @@ Directory containing the plugins, i.e. Python packages declaring the
 
 We should have
 
-- [ ] fluidfft-mpi4pyfft
+- [x] fluidfft-mpi4pyfft
 - [ ] fluidfft-fftw
 - [ ] fluidfft-mpi_with_fftw
 - [ ] fluidfft-fftwmpi

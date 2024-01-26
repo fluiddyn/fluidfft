@@ -35,6 +35,8 @@ FFT class:
 
 """
 
+import sys
+
 from .. import import_fft_class
 
 __all__ = [
@@ -58,8 +60,6 @@ methods_mpi = [
     "fftwmpi3d",
     "p3dfft",
     "pfft",
-    "mpi4pyfft",
-    "mpi4pyfft_slab",
 ]
 methods_mpi = ["fft3d.mpi_with_" + method for method in methods_mpi]
 
@@ -78,3 +78,9 @@ def get_classes_mpi():
         method: import_fft_class(method, raise_import_error=False)
         for method in methods_mpi
     }
+
+
+if any("pytest" in part for part in sys.argv):
+    import pytest
+
+    pytest.register_assert_rewrite("fluidfft.fft3d.testing")
