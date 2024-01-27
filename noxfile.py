@@ -52,6 +52,8 @@ def tests(session, with_mpi, with_cov):
     session.install("-e", ".", "--no-deps", "-v", silent=False)
     session.run("ls", "src/fluidfft/fft3d", silent=False, external=True)
 
+    session.install("-e", "plugins/fluidfft-pyfftw")
+
     def run_command(command, **kwargs):
         session.run(*command.split(), **kwargs)
 
@@ -70,9 +72,7 @@ def tests(session, with_mpi, with_cov):
 
     if with_mpi:
         if with_cov:
-            command = (
-                "mpirun -np 2 --oversubscribe coverage run -p -m pytest -v -s --exitfirst tests"
-            )
+            command = "mpirun -np 2 --oversubscribe coverage run -p -m pytest -v -s --exitfirst tests"
 
         else:
             command = "mpirun -np 2 --oversubscribe pytest -v -s tests"
@@ -92,6 +92,7 @@ def doc(session):
     session.install(
         "-e", ".", "--no-deps", env={"FLUIDFFT_TRANSONIC_BACKEND": "python"}
     )
+    session.install("-e", "plugins/fluidfft-pyfftw")
 
     session.chdir("doc")
     session.run("make", "cleanall", external=True)

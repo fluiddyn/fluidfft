@@ -5,6 +5,7 @@ develop: sync
 
 sync:
 	pdm sync --clean --no-self
+	pdm run pip install -e plugins/fluidfft-pyfftw
 
 clean:
 	rm -rf build

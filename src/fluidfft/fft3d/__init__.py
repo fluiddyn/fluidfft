@@ -41,8 +41,6 @@ from .. import _get_classes
 
 __all__ = [
     "FFT3dFakeForDoc",
-    "methods_seq",
-    "methods_mpi",
     "get_classes_seq",
     "get_classes_mpi",
 ]

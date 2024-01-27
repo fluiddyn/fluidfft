@@ -26,6 +26,7 @@ jobs:
       run: |
         cp .github/fluidfft-site-seq.cfg $HOME/.fluidfft-site.cfg
         pip install -e . -v --no-build-isolation --no-deps
+        pip install plugins/fluidfft-pyfftw
     - name: Tests
       run: |
-        pytest -v tests
+        pytest -v tests plugins/fluidfft-pyfftw

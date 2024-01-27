@@ -54,8 +54,6 @@ fluidfft-bench = "fluidfft.bench:run"
 fluidfft-bench-analysis = "fluidfft.bench_analysis:run"
 
 [project.entry-points."fluidfft.plugins"]
-"fft2d.with_pyfftw" = "fluidfft.fft2d.with_pyfftw"
-"fft3d.with_pyfftw" = "fluidfft.fft3d.with_pyfftw"
 "fft2d.with_dask" = "fluidfft.fft2d.with_dask"
 
 # should be in fluidfft-fftw

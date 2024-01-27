@@ -1,5 +1,6 @@
 import numpy as np
 
+from fluidfft import import_fft_class
 from .operators import OperatorsPseudoSpectral3D, vector_product
 
 from fluiddyn.util import mpi
@@ -8,7 +9,16 @@ rank = mpi.rank
 nb_proc = mpi.nb_proc
 
 
-def make_testop_functions(name, cls):
+def complete_test_class_3d(method, test_class, cls=None):
+    short_name = method.split(".")[1]
+    if cls is None:
+        cls = import_fft_class(method)
+    tests = make_testop_functions(cls)
+    for key, test in tests.items():
+        setattr(test_class, f"test_operator3d_{short_name}_{key}", test)
+
+
+def make_testop_functions(cls):
     tests = {}
     shapes = {"even": (4, 8, 12)}
     if nb_proc == 1:

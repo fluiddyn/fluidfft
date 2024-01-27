@@ -15,6 +15,7 @@ build:
     post_install:
       - pdm use -f $READTHEDOCS_VIRTUALENV_PATH
       - pdm sync -G doc --no-self
+      - pdm run pip install plugins/fluidfft-pyfftw
       - FLUIDFFT_TRANSONIC_BACKEND="python" pip install . -v --no-deps
 
 sphinx:

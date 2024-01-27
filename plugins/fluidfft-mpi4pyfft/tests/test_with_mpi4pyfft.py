@@ -1,3 +1,5 @@
+import unittest
+
 from fluidfft.fft3d.testing import make_testop_functions
 
 
