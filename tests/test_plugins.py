@@ -1,6 +1,4 @@
-from importlib_metadata import entry_points
-
-from fluidfft import get_plugins
+from fluidfft import get_plugins, get_methods
 
 
 methodss = {
@@ -37,23 +35,15 @@ methodss = {
 }
 
 
-def _methods_from_plugins(plugins):
-    return set(plug.name for plug in plugins)
-
-
-def _get_methods(ndim=None, sequential=None):
-    return _methods_from_plugins(get_plugins(ndim=ndim, sequential=sequential))
-
-
 def test_plugins():
     plugins = get_plugins()
     assert plugins
 
     for ndim in (2, 3):
-        assert _get_methods(ndim=ndim) == methodss[(ndim, True)].union(
+        assert get_methods(ndim=ndim) == methodss[(ndim, True)].union(
             methodss[(ndim, False)]
         )
         for sequential in (True, False):
-            assert methodss[(ndim, sequential)] == _get_methods(
+            assert methodss[(ndim, sequential)] == get_methods(
                 ndim=ndim, sequential=sequential
             )

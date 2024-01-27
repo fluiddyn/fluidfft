@@ -88,6 +88,7 @@ __all__ = [
     "empty_aligned",
     "get_module_fullname_from_method",
     "get_plugins",
+    "get_methods",
     "import_fft_class",
 ]
 
@@ -124,6 +125,12 @@ def get_plugins(reload=False, ndim=None, sequential=None):
     return tuple(
         plugin for plugin in _plugins if plugin.name[index:].startswith(prefix)
     )
+
+
+def get_methods(ndim=None, sequential=None):
+    """Get available methods"""
+    plugins = get_plugins(ndim=ndim, sequential=sequential)
+    return set(plug.name for plug in plugins)
 
 
 def get_module_fullname_from_method(method):

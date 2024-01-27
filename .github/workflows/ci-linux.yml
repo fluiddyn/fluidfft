@@ -14,12 +14,10 @@ jobs:
     steps:
 
     - name: apt install
-      uses: awalsh128/cache-apt-pkgs-action@latest
-      with:
-        packages:
-          make libfftw3-dev libfftw3-mpi-dev libhdf5-openmpi-dev openmpi-bin libopenmpi-dev libopenblas-dev
-        version: 1.0
-        execute_install_scripts: true
+      run: |
+        sudo apt-get install -y make libfftw3-dev libfftw3-mpi-dev \
+          libhdf5-openmpi-dev openmpi-bin libopenmpi-dev \
+          libopenblas-dev
 
     - name: Checkout
       uses: actions/checkout@v3

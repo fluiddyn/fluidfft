@@ -21,12 +21,11 @@ If you really want performance, first benchmark the different methods for an arr
 
 ```{code-cell} ipython3
 import numpy as np
-from fluidfft.fft2d import methods_seq
-from fluidfft import import_fft_class
+from fluidfft import get_methods, import_fft_class
 ```
 
 ```{code-cell} ipython3
-print(methods_seq)
+print(get_methods(ndim=2, sequential=True))
 ```
 
 We import a class and instantiate it:

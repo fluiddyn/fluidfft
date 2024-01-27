@@ -33,4 +33,4 @@ jobs:
         pip install -e . -v --no-build-isolation --no-deps
     - name: Tests
       run: |
-        pytest -v
+        pytest -v tests
