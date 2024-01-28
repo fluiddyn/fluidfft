@@ -35,12 +35,12 @@ FFT class:
 
 """
 
-from .. import import_fft_class
+import sys
+
+from .. import _get_classes
 
 __all__ = [
     "FFT3dFakeForDoc",
-    "methods_seq",
-    "methods_mpi",
     "get_classes_seq",
     "get_classes_mpi",
 ]
@@ -50,31 +50,18 @@ try:
 except ImportError:
     pass
 
-methods_seq = ["fftw3d", "pyfftw"]
-methods_seq = ["fft3d.with_" + method for method in methods_seq]
-
-methods_mpi = [
-    "fftw1d",
-    "fftwmpi3d",
-    "p3dfft",
-    "pfft",
-    "mpi4pyfft",
-    "mpi4pyfft_slab",
-]
-methods_mpi = ["fft3d.mpi_with_" + method for method in methods_mpi]
-
 
 def get_classes_seq():
     """Return all sequential 3d classes."""
-    return {
-        method: import_fft_class(method, raise_import_error=False)
-        for method in methods_seq
-    }
+    return _get_classes(3, sequential=True)
 
 
 def get_classes_mpi():
     """Return all parallel 3d classes."""
-    return {
-        method: import_fft_class(method, raise_import_error=False)
-        for method in methods_mpi
-    }
+    return _get_classes(3, sequential=False)
+
+
+if any("pytest" in part for part in sys.argv):
+    import pytest
+
+    pytest.register_assert_rewrite("fluidfft.fft3d.testing")

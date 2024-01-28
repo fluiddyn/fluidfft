@@ -52,6 +52,8 @@ def tests(session, with_mpi, with_cov):
     session.install("-e", ".", "--no-deps", "-v", silent=False)
     session.run("ls", "src/fluidfft/fft3d", silent=False, external=True)
 
+    session.install("-e", "plugins/fluidfft-pyfftw")
+
     def run_command(command, **kwargs):
         session.run(*command.split(), **kwargs)
 
@@ -59,7 +61,7 @@ def tests(session, with_mpi, with_cov):
         cov_path = Path.cwd() / ".coverage"
         cov_path.mkdir(exist_ok=True)
 
-    command = "pytest -v -s"
+    command = "pytest -v -s tests"
     if with_cov:
         command += (
             " --cov --cov-config=setup.cfg --no-cov-on-fail --cov-report=term-missing"
@@ -70,12 +72,10 @@ def tests(session, with_mpi, with_cov):
 
     if with_mpi:
         if with_cov:
-            command = (
-                "mpirun -np 2 --oversubscribe coverage run -p -m pytest --exitfirst src"
-            )
+            command = "mpirun -np 2 --oversubscribe coverage run -p -m pytest -v -s --exitfirst tests"
 
         else:
-            command = "mpirun -np 2 --oversubscribe pytest src"
+            command = "mpirun -np 2 --oversubscribe pytest -v -s tests"
 
         # Using TRANSONIC_NO_REPLACE with mpirun in docker can block the tests
         run_command(command, external=True)
@@ -92,6 +92,7 @@ def doc(session):
     session.install(
         "-e", ".", "--no-deps", env={"FLUIDFFT_TRANSONIC_BACKEND": "python"}
     )
+    session.install("-e", "plugins/fluidfft-pyfftw")
 
     session.chdir("doc")
     session.run("make", "cleanall", external=True)

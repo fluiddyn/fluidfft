@@ -12,9 +12,10 @@ jobs:
         python-version: [3.9, "3.10", "3.11"]
 
     steps:
+
     - name: apt install
       run: |
-        sudo apt install -y libfftw3-dev libfftw3-mpi-dev \
+        sudo apt-get install -y make libfftw3-dev libfftw3-mpi-dev \
           libhdf5-openmpi-dev openmpi-bin libopenmpi-dev \
           libopenblas-dev
 
@@ -37,8 +38,10 @@ jobs:
 
     - name: Run tests
       run: |
-        cp .github/fluidfft-site.cfg $HOME/.fluidfft-site.cfg
+        cp .github/fluidfft-site-seq.cfg $HOME/.fluidfft-site.cfg
         nox --session "tests(with_cov=True, with_mpi=False)"
+        make cleanall
+        cp .github/fluidfft-site-mpi.cfg $HOME/.fluidfft-site.cfg
         nox --session "tests(with_cov=True, with_mpi=True)"
         coverage xml
 

@@ -13,6 +13,7 @@ authors = [
 dependencies = [
     "fluiddyn >= 0.2.3",
     "transonic >= 0.4",
+    "importlib_metadata; python_version < '3.10'",
 ]
 requires-python = ">= 3.9"
 readme = "README.md"
@@ -52,12 +53,46 @@ mpi = [
 fluidfft-bench = "fluidfft.bench:run"
 fluidfft-bench-analysis = "fluidfft.bench_analysis:run"
 
+[project.entry-points."fluidfft.plugins"]
+# TODO: uncomment when code using pyfftw is back in fluidfft
+# "fft2d.with_pyfftw" = "fluidfft.fft2d.with_pyfftw"
+# "fft3d.with_pyfftw" = "fluidfft.fft3d.with_pyfftw"
+"fft2d.with_dask" = "fluidfft.fft2d.with_dask"
+
+# should be in fluidfft-fftw
+"fft2d.with_fftw1d" = "fluidfft.fft2d.with_fftw1d"
+"fft2d.with_fftw2d" = "fluidfft.fft2d.with_fftw2d"
+"fft3d.with_fftw3d" = "fluidfft.fft3d.with_fftw3d"
+
+# should be in fluidfft-cuda
+# (or better HIP?, see https://foss.heptapod.net/fluiddyn/fluidfft/-/merge_requests/46)
+"fft2d.with_cufft" = "fluidfft.fft2d.with_cufft"
+"fft3d.with_cufft" = "fluidfft.fft3d.with_cufft"
+
+# should be in fluidfft-mpi_with_fftw
+"fft2d.mpi_with_fftw1d" = "fluidfft.fft2d.mpi_with_fftw1d"
+"fft3d.mpi_with_fftw1d" = "fluidfft.fft3d.mpi_with_fftw1d"
+
+# should be in fluidfft-fftwmpi
+"fft2d.mpi_with_fftwmpi2d" = "fluidfft.fft2d.mpi_with_fftwmpi2d"
+"fft3d.mpi_with_fftwmpi3d" = "fluidfft.fft3d.mpi_with_fftwmpi3d"
+
+# should be in fluidfft-p3dfft
+"fft3d.mpi_with_p3dfft" = "fluidfft.fft3d.mpi_with_p3dfft"
+
+# should be in fluidfft-pfft
+"fft3d.mpi_with_pfft" = "fluidfft.fft3d.mpi_with_pfft"
+
 [tool.pdm]
 distribution = true
 package-dir = "src"
 
 [tool.pdm.dev-dependencies]
 build = ["setuptools", "transonic", "pythran", "wheel", "jinja2", "cython"]
+
+# plugins = [
+#     "-e fluidfft-mpi4pyfft @ file:///${PROJECT_ROOT}/plugins/fluidfft-mpi4pyfft",
+# ]
 
 test = [
     "pytest",
@@ -82,7 +117,7 @@ doc = [
 lint = ["black", "pylint"]
 
 [tool.pdm.scripts]
-black = 'black -l 82 src doc src_cy --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
-lint = {shell="pylint -rn --rcfile=pylintrc --jobs=$(nproc) src --exit-zero"}
-black_check = 'black --check -l 82 src doc src_cy --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
+black = 'black -l 82 src doc src_cy tests --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
+black_check = 'black --check -l 82 src doc src_cy tests --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
+lint = {shell="pylint -rn --rcfile=pylintrc --jobs=$(nproc) src doc tests plugins --exit-zero"}
 validate_code = {composite = ["black_check", "lint"]}

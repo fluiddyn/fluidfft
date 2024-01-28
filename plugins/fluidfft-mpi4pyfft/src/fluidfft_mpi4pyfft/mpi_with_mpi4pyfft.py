@@ -3,7 +3,7 @@ import numpy as np
 from mpi4py import MPI
 from mpi4py_fft import PFFT, newDistArray
 
-from .base import BaseFFTMPI
+from fluidfft.fft3d.base import BaseFFTMPI
 
 
 class FFT3DMPIWithMPI4PYFFT(BaseFFTMPI):

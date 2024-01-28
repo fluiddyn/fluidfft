@@ -1,10 +1,11 @@
-.PHONY: clean cleanall cleanmako cleancython develop build_ext_inplace list-sessions requirements
+.PHONY: clean cleanall cleanmako cleancython develop build_ext_inplace list-sessions tests
 
 develop: sync
 	pdm run pip install -e . --no-deps --no-build-isolation -v
 
 sync:
 	pdm sync --clean --no-self
+	pdm run pip install -e plugins/fluidfft-pyfftw
 
 clean:
 	rm -rf build
@@ -27,20 +28,20 @@ black:
 	pdm run black
 
 tests:
-	pytest -s src
+	pytest -s tests
 
 tests_mpi:
-	mpirun -np 2 pytest -s src
+	mpirun -np 2 pytest -s tests
 
 tests_mpi4:
-	mpirun -np 4 pytest -s src
+	mpirun -np 4 pytest -s tests
 
 _tests_coverage:
 	mkdir -p .coverage
-	coverage run -p -m pytest -s src
-	TRANSONIC_NO_REPLACE=1 coverage run -p -m pytest -s src
+	coverage run -p -m pytest -s tests
+	TRANSONIC_NO_REPLACE=1 coverage run -p -m pytest -s tests
 	# Using TRANSONIC_NO_REPLACE with mpirun in docker can block the tests
-	mpirun -np 2 --oversubscribe coverage run -p -m unittest discover src
+	mpirun -np 2 --oversubscribe coverage run -p -m unittest discover tests
 
 _report_coverage:
 	coverage combine
