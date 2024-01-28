@@ -19,7 +19,7 @@ def test_get_classes():
     get_classes_mpi()
 
 
-methods_seq = ["fftw3d"]
+methods_seq = ["fftw3d", "pyfftw"]
 methods_seq = ["fft3d.with_" + method for method in methods_seq]
 classes_seq = {
     method: import_fft_class(method, raise_import_error=False)

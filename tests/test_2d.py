@@ -23,7 +23,7 @@ rank = mpi.rank
 nb_proc = mpi.nb_proc
 
 
-methods_seq = ["fftw1d", "fftw2d", "cufft"]
+methods_seq = ["fftw1d", "fftw2d", "cufft", "pyfftw"]
 methods_seq = ["fft2d.with_" + method for method in methods_seq]
 classes_seq = {
     method: import_fft_class(method, raise_import_error=False)
