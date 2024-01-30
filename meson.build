@@ -14,9 +14,10 @@ fs = import('fs')
 if fs.is_file('site.cfg')
   error('Error: site.cfg file exists and is no longer supported')
 endif
-if fs.is_file('~/.fluidfft-site.cfg')
-  error('Error: ~/.fluidfft-site.cfg file exists and is no longer supported')
-endif
+# TODO : uncomment while Docker file is updated
+# if fs.is_file('~/.fluidfft-site.cfg')
+#   error('Error: ~/.fluidfft-site.cfg file exists and is no longer supported')
+# endif
 
 # https://mesonbuild.com/Python-module.html
 py_mod = import('python')
