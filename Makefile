@@ -20,7 +20,7 @@ cleancython:
 	find src -name "*_cy.cpp" -delete
 
 cleanmako:
-	python -c "from src_cy.make_files_with_mako import clean_files as c; c()"
+	python -c "from fluidfft_build_deps.src_cy.make_files_with_mako import clean_files as c; c()"
 
 cleanall: clean cleanso cleanmako cleancython cleanpythran
 

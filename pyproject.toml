@@ -124,7 +124,7 @@ doc = [
 lint = ["black", "pylint"]
 
 [tool.pdm.scripts]
-black = 'black -l 82 src doc src_cy tests --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
-black_check = 'black --check -l 82 src doc src_cy tests --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
+black = 'black -l 82 src doc plugins tests --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
+black_check = 'black --check -l 82 src doc plugins tests --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
 lint = {shell="pylint -rn --rcfile=pylintrc --jobs=$(nproc) src doc tests plugins --exit-zero"}
 validate_code = {composite = ["black_check", "lint"]}
