@@ -95,7 +95,7 @@ distribution = true
 package-dir = "src"
 
 [tool.pdm.dev-dependencies]
-build = ["setuptools", "transonic", "pythran", "wheel", "jinja2", "cython"]
+build = ["setuptools", "transonic", "pythran", "wheel", "jinja2"]
 
 # plugins = [
 #     "-e fluidfft-mpi4pyfft @ file:///${PROJECT_ROOT}/plugins/fluidfft-mpi4pyfft",
