@@ -19,19 +19,12 @@ jobs:
         python-version: [3.8, 3.9, "3.10"]
 
     steps:
-    - uses: actions/checkout@v2
-    - uses: conda-incubator/setup-miniconda@v2
+    - uses: actions/checkout@v3
+    - uses: prefix-dev/setup-pixi@v0.4.1
       with:
-        environment-file: .github/environment-windows.yml
-        miniforge-variant: Mambaforge
-        miniforge-version: latest
-        activate-environment: test
-        use-mamba: true
-    - name: Install
-      run: |
-        cp .github/pythranrc-windows $HOME/.pythranrc
-        pip install -e . -v --no-build-isolation --no-deps
-        pip install plugins/fluidfft-pyfftw
+        pixi-version: v0.11.1
+        cache: false
     - name: Tests
       run: |
-        pytest -v tests plugins/fluidfft-pyfftw
+        pixi run install-editable
+        pixi run pytest -v tests plugins/fluidfft-pyfftw
