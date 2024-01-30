@@ -94,7 +94,9 @@ try:
 except OSError:
     print("Can not find doxygen to generate the documentation of the cpp code.")
 
-run_path("../src_cy/create_fake_mod_for_doc.py")
+run_path(
+    "../plugins/fluidfft-build-deps/fluidfft_build_deps/src_cy/create_fake_mod_for_doc.py"
+)
 
 
 # -- General configuration ----------------------------------------------------

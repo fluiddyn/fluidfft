@@ -102,8 +102,10 @@ def create_fake_mod(dimension):
         + "\n"
     )
 
-    name = "../src/fluidfft/fft{dim}d/fake_mod_fft{dim}d_for_doc.py".format(
-        dim=dimension
+    name = (
+        "../../../../src/fluidfft/fft{dim}d/fake_mod_fft{dim}d_for_doc.py".format(
+            dim=dimension
+        )
     )
 
     with open(os.path.join(here, name), "w") as f:
