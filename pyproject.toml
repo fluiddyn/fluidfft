@@ -1,7 +1,14 @@
 
 [build-system]
-requires = ["setuptools", "transonic", "pythran", "jinja2", "cython"]
-build-backend = "setuptools.build_meta"
+requires = [
+         "meson-python",
+         "numpy",
+         "transonic>=0.6.0",
+         "pythran>=0.9.7",
+         "jinja2",
+         "cython",
+         ]
+build-backend = 'mesonpy'
 
 [project]
 name = "fluidfft"

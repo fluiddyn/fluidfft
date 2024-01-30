@@ -78,3 +78,5 @@ doc/tmp/*
 .vscode
 
 .pdm-python
+
+src/fluidfft/build_conf.txt
