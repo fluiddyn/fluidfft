@@ -49,7 +49,11 @@ def tests(session, with_mpi, with_cov):
         command += " -G mpi"
     session.run_always(*command.split(), external=True)
 
-    session.install("-e", ".", "--no-deps", "-v", silent=False)
+    session.install(
+        ".", "--no-deps", "-v",
+        "--config-settings=setup-args=-Dtransonic-backend=python",
+        silent=False,
+    )
     session.run("ls", "src/fluidfft/fft3d", silent=False, external=True)
 
     session.install("-e", "plugins/fluidfft-pyfftw")
@@ -91,7 +95,7 @@ def tests(session, with_mpi, with_cov):
 def doc(session):
     session.run_always("pdm", "sync", "-G", "doc", "--no-self", external=True)
     session.install(
-        "-e", ".", "--no-deps", env={"FLUIDFFT_TRANSONIC_BACKEND": "python"}
+        ".", "--no-deps", "--config-settings=setup-args=-Dtransonic-backend=python"
     )
     session.install("-e", "plugins/fluidfft-pyfftw")
 
