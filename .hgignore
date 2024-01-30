@@ -23,7 +23,6 @@ src_cy/fft*_pxd.pxd
 src/**/*.pyx
 src/**/*.pxd
 src/**/*.cpp
-src/**/*.cu
 
 __pycache__
 
