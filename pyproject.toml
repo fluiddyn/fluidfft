@@ -66,11 +66,6 @@ fluidfft-bench-analysis = "fluidfft.bench_analysis:run"
 # "fft3d.with_pyfftw" = "fluidfft.fft3d.with_pyfftw"
 "fft2d.with_dask" = "fluidfft.fft2d.with_dask"
 
-# should be in fluidfft-fftw
-"fft2d.with_fftw1d" = "fluidfft.fft2d.with_fftw1d"
-"fft2d.with_fftw2d" = "fluidfft.fft2d.with_fftw2d"
-"fft3d.with_fftw3d" = "fluidfft.fft3d.with_fftw3d"
-
 # should be in fluidfft-cuda
 # (or better HIP?, see https://foss.heptapod.net/fluiddyn/fluidfft/-/merge_requests/46)
 "fft2d.with_cufft" = "fluidfft.fft2d.with_cufft"
