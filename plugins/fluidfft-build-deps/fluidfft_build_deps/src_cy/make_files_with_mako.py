@@ -2,12 +2,8 @@ import os
 from os.path import join
 from datetime import datetime
 
-here = os.path.abspath(os.path.dirname(__file__))
-
-path_fluidfft = os.path.abspath(os.path.join(here, "..", "src", "fluidfft"))
-path2d = os.path.join(path_fluidfft, "fft2d")
-path3d = os.path.join(path_fluidfft, "fft3d")
-
+HERE = os.path.abspath(os.path.dirname(__file__))
+CURRENT_DIR = os.getcwd()
 
 def load_template(filename):
     """Load template file using Mako or Jinja2.
@@ -42,12 +38,12 @@ def load_template(filename):
             "</%doc>",
             "%",
             "##",
-            loader=FileSystemLoader(here),
+            loader=FileSystemLoader(HERE),
         )
         print("Falling back to Jinja2 as the template library...")
         return env.get_template(filename)
     else:
-        return Template(filename=join(here, filename))
+        return Template(filename=join(HERE, filename))
 
 
 def modification_date(filename):
@@ -56,26 +52,25 @@ def modification_date(filename):
 
 
 def get_path_files(module_name):
-    if module_name.startswith("fft2d"):
-        path_package = path2d
-    elif module_name.startswith("fft3d"):
-        path_package = path3d
-
-    path_pyx = join(path_package, module_name + ".pyx")
-    path_pxd = join(path_package, module_name + ".pxd")
+    path_pyx = join(CURRENT_DIR, module_name + ".pyx")
+    path_pxd = join(CURRENT_DIR, module_name + ".pxd")
 
     return path_pyx, path_pxd
 
 
-def make_file(module_name, class_name, numpy_api, templates):
+def make_file(module_name, class_name, numpy_api):
+    templates = {
+        "fft2d_pyx": load_template("template2d_mako.pyx"),
+        "fft2d_pxd": load_template("template2d_mako.pxd"),
+        "fft3d_pyx": load_template("template3d_mako.pyx"),
+        "fft3d_pxd": load_template("template3d_mako.pxd"),
+    }
     if module_name.startswith("fft2d"):
         t_pyx = templates["fft2d_pyx"]
         t_pxd = templates["fft2d_pxd"]
     elif module_name.startswith("fft3d"):
         t_pyx = templates["fft3d_pyx"]
         t_pxd = templates["fft3d_pxd"]
-
-    path_pyx, path_pxd = get_path_files(module_name)
 
     # Generate pyx and pxd files
     for path, template in zip(get_path_files(module_name), (t_pyx, t_pxd)):
@@ -113,16 +108,8 @@ variables = (
 
 
 def make_pyx_files():
-    templates = {}
-
-    templates["fft2d_pyx"] = load_template("template2d_mako.pyx")
-    templates["fft2d_pxd"] = load_template("template2d_mako.pxd")
-
-    templates["fft3d_pyx"] = load_template("template3d_mako.pyx")
-    templates["fft3d_pxd"] = load_template("template3d_mako.pxd")
-
     for module_name, class_name, numpy_api in variables:
-        make_file(module_name, class_name, numpy_api, templates)
+        make_file(module_name, class_name, numpy_api)
 
 
 def _remove(path):

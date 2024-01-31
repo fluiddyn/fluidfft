@@ -7,6 +7,5 @@ py.install_sources(
   subdir: 'fluidfft-fftw'
 )
 
-subdir('fft1d')
 subdir('fft2d')
 subdir('fft3d')
