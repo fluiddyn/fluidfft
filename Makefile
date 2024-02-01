@@ -2,10 +2,11 @@
 
 develop: sync
 	pdm run pip install -e . --no-deps --no-build-isolation -v
+	pdm run pip install -e plugins/fluidfft-pyfftw
 
 sync:
 	pdm sync --clean --no-self
-	pdm run pip install -e plugins/fluidfft-pyfftw
+	pdm run pip install -e plugins/fluidfft-build-deps
 
 clean:
 	rm -rf build

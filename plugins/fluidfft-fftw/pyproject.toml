@@ -1,21 +1,8 @@
 [build-system]
 requires = [
-         "meson-python",
-         "numpy",
-         "transonic>=0.6.0",
-         "fluidfft_build_deps>=0.0.1",
-         "pythran>=0.9.7",
-         "jinja2",
-         "mako",
-         "cython",
-         ]
-build-backend = 'mesonpy'
-
-dependencies = [
-    "fluidfft >= 0.3.5",
-    "transonic >= 0.4",
-    "importlib_metadata; python_version < '3.10'",
+    "meson-python", "numpy", "fluidfft_build_deps>=0.0.1", "cython"
 ]
+build-backend = 'mesonpy'
 
 [project]
 name = "fluidfft_fftw"
@@ -24,7 +11,7 @@ description = "Fluidfft plugin using fftw"
 authors = [{name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr"}]
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: MIT License"]
-dependencies = ["fluidfft", "pyfftw"]
+dependencies = ["fluidfft"]
 
 [project.urls]
 Home = "https://foss.heptapod.net/fluiddyn/fluidfft"

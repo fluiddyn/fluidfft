@@ -1,13 +1,6 @@
 
 [build-system]
-requires = [
-         "meson-python",
-         "numpy",
-         "transonic>=0.6.0",
-         "pythran>=0.9.7",
-         "jinja2",
-         "cython",
-         ]
+requires = ["meson-python", "numpy", "transonic>=0.6.0", "pythran>=0.9.7"]
 build-backend = 'mesonpy'
 
 [project]
@@ -90,7 +83,7 @@ distribution = true
 package-dir = "src"
 
 [tool.pdm.dev-dependencies]
-build = ["setuptools", "transonic", "pythran", "wheel", "jinja2"]
+build = ["meson-python", "ninja", "numpy", "transonic>=0.6.0", "pythran>=0.9.7"]
 
 # plugins = [
 #     "-e fluidfft-mpi4pyfft @ file:///${PROJECT_ROOT}/plugins/fluidfft-mpi4pyfft",
