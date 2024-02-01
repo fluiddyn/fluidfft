@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "meson-python", "numpy", "fluidfft_build_deps>=0.0.1", "cython"
+    "meson-python", "numpy", "fluidfft_builder>=0.0.1", "cython"
 ]
 build-backend = 'mesonpy'
 

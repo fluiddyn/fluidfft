@@ -18,6 +18,6 @@ py_dep = py.dependency()
 
 libfftw3 = dependency('libfftw3', static: false)
 
-include_path_fluidfft_build_deps = run_command("fluidsim-build-get-include-path")
+include_path_fluidfft_builder = run_command("fluidsim-build-get-include-path")
 
 subdir('src/fluidfft_fftw')
