@@ -30,4 +30,3 @@ py.extension_module(
   install: true,
   subdir: 'fluidfft_fftw/fft2d',
 )
-

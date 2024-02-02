@@ -4,7 +4,7 @@
 include 'base.pyx'
 
 
-from {{ module_name }} cimport (
+from fft3d_{{ module_name }} cimport (
     {{ class_name }} as mycppclass,
     mycomplex)
 
