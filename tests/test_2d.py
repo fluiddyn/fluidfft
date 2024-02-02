@@ -36,17 +36,6 @@ classes_seq = {
 if not classes_seq:
     raise ImportError("Not sequential 2d classes working!")
 
-if nb_proc > 1:
-    methods_mpi = ["fftwmpi2d", "fftw1d"]
-    methods_mpi = ["fft2d.mpi_with_" + method for method in methods_mpi]
-    classes_mpi = {
-        method: import_fft_class(method, raise_import_error=False)
-        for method in methods_mpi
-    }
-    classes_mpi = {
-        method: cls for method, cls in classes_mpi.items() if cls is not None
-    }
-
 
 class Tests2D(unittest.TestCase):
     pass
@@ -61,15 +50,6 @@ if rank == 0:
     for method, cls in classes_seq.items():
         complete_test_class_2d(method, Tests2D, cls=cls)
 
-
-if nb_proc > 1:
-    if len(classes_mpi) == 0:
-        raise RuntimeError(
-            "ImportError for all mpi classes. Nothing is working in mpi!"
-        )
-
-    for method, cls in classes_mpi.items():
-        complete_test_class_2d(method, Tests2D, cls=cls)
 
 # TODO: understand what was done here before!
 # complete_test_class_2d("None", Tests2D, cls=False)

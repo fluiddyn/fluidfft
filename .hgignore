@@ -52,6 +52,7 @@ site.cfg
 .tox
 .nox
 .venv
+.pixi
 .cache
 .mypy_cache
 **/__pythran__/*

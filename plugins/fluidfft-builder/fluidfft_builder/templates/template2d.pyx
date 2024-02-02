@@ -51,7 +51,7 @@ cdef class ${class_name}:
         # info on MPI
         self.nb_proc = nb_proc
         self.rank = rank
-        if nb_proc > 1:
+        if nb_proc > 1 and hasattr(self, "comm"):
             self.comm = comm
 
         self._is_mpi_lib = self._shapeX_seq != self._shapeX_loc

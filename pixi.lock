@@ -161,50 +161,6 @@ package:
   purls:
   - pkg:pypi/asttokens
 - platform: linux-64
-  name: astunparse
-  version: 1.6.3
-  category: main
-  manager: conda
-  dependencies:
-  - python >=3.6
-  - six >=1.6.1,<2.0
-  url: https://conda.anaconda.org/conda-forge/noarch/astunparse-1.6.3-pyhd8ed1ab_0.tar.bz2
-  hash:
-    md5: 000b6f68a0bfaba800ced7500c11780f
-    sha256: e5173d1ed038038e24c0623f0219dc587ee8663cf7efa737e7075128edbc6c60
-  build: pyhd8ed1ab_0
-  arch: x86_64
-  subdir: linux-64
-  build_number: 0
-  license: BSD-3-Clause AND PSF-2.0
-  noarch: python
-  size: 15539
-  timestamp: 1610696401707
-  purls:
-  - pkg:pypi/astunparse
-- platform: win-64
-  name: astunparse
-  version: 1.6.3
-  category: main
-  manager: conda
-  dependencies:
-  - python >=3.6
-  - six >=1.6.1,<2.0
-  url: https://conda.anaconda.org/conda-forge/noarch/astunparse-1.6.3-pyhd8ed1ab_0.tar.bz2
-  hash:
-    md5: 000b6f68a0bfaba800ced7500c11780f
-    sha256: e5173d1ed038038e24c0623f0219dc587ee8663cf7efa737e7075128edbc6c60
-  build: pyhd8ed1ab_0
-  arch: x86_64
-  subdir: win-64
-  build_number: 0
-  license: BSD-3-Clause AND PSF-2.0
-  noarch: python
-  size: 15539
-  timestamp: 1610696401707
-  purls:
-  - pkg:pypi/astunparse
-- platform: linux-64
   name: attr
   version: 2.5.1
   category: main
@@ -9424,20 +9380,19 @@ package:
   - pkg:pypi/traitlets
 - platform: linux-64
   name: transonic
-  version: 0.5.3
+  version: 0.6.0
   category: main
   manager: conda
   dependencies:
-  - astunparse
   - autopep8
-  - beniget
-  - gast
+  - beniget ~=0.4.0
+  - gast ~=0.5.0
   - numpy
-  - python >=3.7
-  url: https://conda.anaconda.org/conda-forge/noarch/transonic-0.5.3-pyhd8ed1ab_0.conda
+  - python >=3.9
+  url: https://conda.anaconda.org/conda-forge/noarch/transonic-0.6.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 433a1ca37756713ae8b4e5bd6d718509
-    sha256: 20cf1e4a71778097e908dffe100b985b27c96c855a4b5f6ddcb8c49bc62df92e
+    md5: bc9b5b295915adaf91b2c33579c4f7b8
+    sha256: 396ea3d91fa729e6b4719c6cd66ea6146a4aa4de523c966a9e5340cbeb28f7ac
   build: pyhd8ed1ab_0
   arch: x86_64
   subdir: linux-64
@@ -9445,24 +9400,23 @@ package:
   license: BSD-3-Clause
   license_family: OTHER
   noarch: python
-  size: 62217
-  timestamp: 1692621180347
+  size: 60442
+  timestamp: 1705484377579
 - platform: win-64
   name: transonic
-  version: 0.5.3
+  version: 0.6.0
   category: main
   manager: conda
   dependencies:
-  - astunparse
   - autopep8
-  - beniget
-  - gast
+  - beniget ~=0.4.0
+  - gast ~=0.5.0
   - numpy
-  - python >=3.7
-  url: https://conda.anaconda.org/conda-forge/noarch/transonic-0.5.3-pyhd8ed1ab_0.conda
+  - python >=3.9
+  url: https://conda.anaconda.org/conda-forge/noarch/transonic-0.6.0-pyhd8ed1ab_0.conda
   hash:
-    md5: 433a1ca37756713ae8b4e5bd6d718509
-    sha256: 20cf1e4a71778097e908dffe100b985b27c96c855a4b5f6ddcb8c49bc62df92e
+    md5: bc9b5b295915adaf91b2c33579c4f7b8
+    sha256: 396ea3d91fa729e6b4719c6cd66ea6146a4aa4de523c966a9e5340cbeb28f7ac
   build: pyhd8ed1ab_0
   arch: x86_64
   subdir: win-64
@@ -9470,8 +9424,8 @@ package:
   license: BSD-3-Clause
   license_family: OTHER
   noarch: python
-  size: 62217
-  timestamp: 1692621180347
+  size: 60442
+  timestamp: 1705484377579
 - platform: linux-64
   name: typing_extensions
   version: 4.9.0
