@@ -3,8 +3,8 @@ cdef extern from "base_fft.h":
     ctypedef struct mycomplex:
         pass
 
-cdef extern from "{{ module_name }}.h":
-    cdef cppclass {{ class_name }}:
+cdef extern from "${module_name}.h":
+    cdef cppclass ${class_name}:
         int test()
         void bench(int, double*)
 
@@ -21,7 +21,7 @@ cdef extern from "{{ module_name }}.h":
         void get_seq_indices_first_X(int*, int*, int*)
         void get_seq_indices_first_K(int*, int*, int*)
 
-        {{ class_name }}(int, int, int) except +
+        ${class_name}(int, int, int) except +
 
         void destroy()
 

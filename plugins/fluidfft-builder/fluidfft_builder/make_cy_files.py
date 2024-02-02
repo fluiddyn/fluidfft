@@ -1,12 +1,12 @@
 import os
 from datetime import datetime
+from importlib import resources
 from pathlib import Path
-
-from jinja2 import Environment, PackageLoader
+from string import Template
 
 
 def load_template(filename):
-    """Load template file using Jinja2.
+    """Load template file.
 
     Parameters
     ----------
@@ -17,17 +17,16 @@ def load_template(filename):
     Returns
     -------
 
-    jinja2.Template object
+    A `string.Template` object
 
     """
 
-    env = Environment(
-        loader=PackageLoader("fluidfft_builder", "templates"),
-        # undefined=jinja2.StrictUndefined,
-        keep_trailing_newline=True,
-    )
+    resource = resources.files("fluidfft_builder.templates")
 
-    return env.get_template(filename)
+    with resources.as_file((resource / filename)) as file:
+        txt = file.read_text()
+
+    return Template(txt)
 
 
 def modification_date(filename):
@@ -52,21 +51,22 @@ def make_file(path_output, class_name, numpy_api="numpy"):
 
     template = load_template(template_name)
 
+    content = template.substitute(
+        {
+            "module_name": module_name,
+            "class_name": class_name,
+            "numpy_api": numpy_api,
+        }
+    )
+
     if not path_output.exists():
         hastomake = True
     else:
-        hastomake = modification_date(path_output) < modification_date(
-            template.filename
-        )
+        content_old = path_output.read_text(encoding="utf8")
+        hastomake = content != content_old
 
     if hastomake:
-        path_output.write_text(
-            template.render(
-                module_name=module_name,
-                class_name=class_name,
-                numpy_api=numpy_api,
-            )
-        )
+        path_output.write_text(content, encoding="utf8")
 
 
 def main():

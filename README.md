@@ -60,7 +60,7 @@ Click on the links to know more:
     P3DFFT, PFFT (for 3D solvers) either using a package manager or
     [from
     source](https://fluidfft.readthedocs.io/en/latest/install/fft_libs.html)
-3.  Python packages `fluiddyn mako cython pyfftw pythran mpi4py`
+3.  Python packages `fluiddyn cython pyfftw pythran mpi4py`
 4.  [A C++11 compiler and BLAS
     libraries](https://github.com/serge-sans-paille/pythran#installation)
     and

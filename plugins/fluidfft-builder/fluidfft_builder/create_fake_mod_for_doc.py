@@ -71,7 +71,7 @@ def get_function_code(lines):
 
 def create_fake_mod(dimension):
     with open(
-        os.path.join(here, "template{dim}d_mako.pyx".format(dim=dimension)), "r"
+        os.path.join(here, "template{dim}d.pyx".format(dim=dimension)), "r"
     ) as f:
         lines_text = f.read().splitlines()
 

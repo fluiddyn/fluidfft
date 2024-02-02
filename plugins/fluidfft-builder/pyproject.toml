@@ -9,7 +9,6 @@ description = "Fluidfft plugin dependencies"
 authors = [{name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr"}]
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: MIT License"]
-dependencies = ["jinja2"]
 
 [project.urls]
 Home = "https://foss.heptapod.net/fluiddyn/fluidfft"
