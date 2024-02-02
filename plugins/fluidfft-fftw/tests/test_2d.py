@@ -7,4 +7,5 @@ class Tests(TestCase):
     pass
 
 
-complete_test_class_2d("fft2d.with_fftw1d", Tests)
+for dim in "12":
+    complete_test_class_2d(f"fft2d.with_fftw{dim}d", Tests)

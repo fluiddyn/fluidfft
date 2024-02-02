@@ -4,29 +4,33 @@ py.install_sources(
   subdir: 'fluidfft_fftw/fft2d',
 )
 
-pyx = custom_target(
-  'with_fftw1d.pyx',
-  output: 'with_fftw1d.pyx',
-  command: ['fluidfft-builder-make-file', '@OUTPUT@', 'FFT2DWithFFTW1D'],
-)
+foreach dim : ['1', '2']
 
-pxd = custom_target(
-  'fft2d_with_fftw1d.pxd',
-  output: 'fft2d_with_fftw1d.pxd',
-  command: ['fluidfft-builder-make-file', '@OUTPUT@', 'FFT2DWithFFTW1D'],
-)
+  pyx = custom_target(
+    f'with_fftw@dim@d.pyx',
+    output: f'with_fftw@dim@d.pyx',
+    command: ['fluidfft-builder-make-file', '@OUTPUT@', f'FFT2DWithFFTW@dim@D'],
+  )
 
-py.extension_module(
-  'with_fftw1d',
-  pyx,
-  pxd,
-  'fft2d_with_fftw1d.cpp',
-  'fft2d_with_fftw1d.h',
-  include_path_fluidfft_builder / 'base_fft2d.cpp',
-  include_path_fluidfft_builder / 'base_fft.cpp',
-  dependencies: fftw_dep,
-  override_options : ['cython_language=cpp'],
-  include_directories: include_path_fluidfft_builder,
-  install: true,
-  subdir: 'fluidfft_fftw/fft2d',
-)
+  pxd = custom_target(
+    f'fft2d_with_fftw@dim@d.pxd',
+    output: f'fft2d_with_fftw@dim@d.pxd',
+    command: ['fluidfft-builder-make-file', '@OUTPUT@', f'FFT2DWithFFTW@dim@D'],
+  )
+
+  py.extension_module(
+    f'with_fftw@dim@d',
+    pyx,
+    pxd,
+    f'fft2d_with_fftw@dim@d.cpp',
+    f'fft2d_with_fftw@dim@d.h',
+    include_path_fluidfft_builder / 'base_fft2d.cpp',
+    include_path_fluidfft_builder / 'base_fft.cpp',
+    dependencies: fftw_dep,
+    override_options : ['cython_language=cpp'],
+    include_directories: include_path_fluidfft_builder,
+    install: true,
+    subdir: 'fluidfft_fftw/fft2d',
+  )
+
+endforeach
