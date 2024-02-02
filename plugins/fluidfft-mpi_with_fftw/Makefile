@@ -6,4 +6,4 @@ clean:
 	rm -rf build
 
 test:
-	pytest -v -s tests
+	mpirun -np 2 pytest --exitfirst -v

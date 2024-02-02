@@ -3,7 +3,7 @@ cdef extern from "base_fft.h":
     ctypedef struct mycomplex:
         pass
 
-cdef extern from "${module_name}.h":
+cdef extern from "${cpp_name}.h":
     cdef cppclass ${class_name}:
         int test()
         void bench(int, double*)

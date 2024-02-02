@@ -4,7 +4,7 @@
 include 'base.pyx'
 ${include_base_mpi_pyx}
 
-from fft3d_${module_name} cimport (
+from ${cpp_name} cimport (
     ${class_name} as mycppclass,
     mycomplex)
 
