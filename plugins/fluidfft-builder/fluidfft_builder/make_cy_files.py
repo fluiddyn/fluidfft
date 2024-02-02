@@ -1,12 +1,12 @@
 import os
-from os.path import join
 from datetime import datetime
+from pathlib import Path
 
-HERE = os.path.abspath(os.path.dirname(__file__))
-CURRENT_DIR = os.getcwd()
+from jinja2 import Environment, PackageLoader
+
 
 def load_template(filename):
-    """Load template file using Mako or Jinja2.
+    """Load template file using Jinja2.
 
     Parameters
     ----------
@@ -17,33 +17,17 @@ def load_template(filename):
     Returns
     -------
 
-    mako.Template or jinja2.Template object
+    jinja2.Template object
 
     """
 
-    try:
-        from mako.template import Template
+    env = Environment(
+        loader=PackageLoader("fluidfft_builder", "templates"),
+        # undefined=jinja2.StrictUndefined,
+        keep_trailing_newline=True,
+    )
 
-    except ImportError:
-        # Use Jinja2 to render Mako style templates
-        # See: http://jinja.pocoo.org/docs/2.10/switching/#mako
-        from jinja2 import Environment, FileSystemLoader
-
-        env = Environment(
-            "<%",
-            "%>",
-            "${",
-            "}",
-            "<%doc>",
-            "</%doc>",
-            "%",
-            "##",
-            loader=FileSystemLoader(HERE),
-        )
-        print("Falling back to Jinja2 as the template library...")
-        return env.get_template(filename)
-    else:
-        return Template(filename=join(HERE, filename))
+    return env.get_template(filename)
 
 
 def modification_date(filename):
@@ -51,80 +35,54 @@ def modification_date(filename):
     return datetime.fromtimestamp(t)
 
 
-def get_path_files(module_name):
-    path_pyx = join(CURRENT_DIR, module_name + ".pyx")
-    path_pxd = join(CURRENT_DIR, module_name + ".pxd")
+def make_file(path_output, class_name, numpy_api="numpy"):
+    if not class_name.startswith("FFT"):
+        raise ValueError('not module_name.startswith("fft")')
 
-    return path_pyx, path_pxd
+    dimension = class_name[3]
 
+    if dimension not in "23":
+        raise ValueError('dimension not in "23"')
 
-def make_file(module_name, class_name, numpy_api):
-    templates = {
-        "fft2d_pyx": load_template("template2d_mako.pyx"),
-        "fft2d_pxd": load_template("template2d_mako.pxd"),
-        "fft3d_pyx": load_template("template3d_mako.pyx"),
-        "fft3d_pxd": load_template("template3d_mako.pxd"),
-    }
-    if module_name.startswith("fft2d"):
-        t_pyx = templates["fft2d_pyx"]
-        t_pxd = templates["fft2d_pxd"]
-    elif module_name.startswith("fft3d"):
-        t_pyx = templates["fft3d_pyx"]
-        t_pxd = templates["fft3d_pxd"]
+    path_output = Path(path_output)
+    name_output = path_output.name
+    module_name, extension = name_output.split(".")
 
-    # Generate pyx and pxd files
-    for path, template in zip(get_path_files(module_name), (t_pyx, t_pxd)):
-        if not os.path.exists(path):
-            hastomake = True
-        else:
-            hastomake = modification_date(path) < modification_date(
-                template.filename
+    template_name = f"template{dimension}d.{extension}"
+
+    template = load_template(template_name)
+
+    if not path_output.exists():
+        hastomake = True
+    else:
+        hastomake = modification_date(path_output) < modification_date(
+            template.filename
+        )
+
+    if hastomake:
+        path_output.write_text(
+            template.render(
+                module_name=module_name,
+                class_name=class_name,
+                numpy_api=numpy_api,
             )
-
-        if hastomake:
-            with open(path, "w") as f:
-                f.write(
-                    template.render(
-                        module_name=module_name,
-                        class_name=class_name,
-                        numpy_api=numpy_api,
-                    )
-                )
+        )
 
 
-variables = (
-    ("fft2d_with_fftw1d", "FFT2DWithFFTW1D", "numpy"),
-    ("fft2d_with_fftw2d", "FFT2DWithFFTW2D", "numpy"),
-    ("fft2d_with_cufft", "FFT2DWithCUFFT", "cupy"),
-    ("fft2dmpi_with_fftw1d", "FFT2DMPIWithFFTW1D", "numpy"),
-    ("fft2dmpi_with_fftwmpi2d", "FFT2DMPIWithFFTWMPI2D", "numpy"),
-    ("fft3d_with_fftw3d", "FFT3DWithFFTW3D", "numpy"),
-    ("fft3dmpi_with_fftw1d", "FFT3DMPIWithFFTW1D", "numpy"),
-    ("fft3dmpi_with_fftwmpi3d", "FFT3DMPIWithFFTWMPI3D", "numpy"),
-    ("fft3dmpi_with_pfft", "FFT3DMPIWithPFFT", "numpy"),
-    ("fft3dmpi_with_p3dfft", "FFT3DMPIWithP3DFFT", "numpy"),
-    ("fft3d_with_cufft", "FFT3DWithCUFFT", "cupy"),
-)
+def main():
+    import argparse
 
+    parser = argparse.ArgumentParser(
+        prog="fluidfft-builder-make-file",
+        description="Make Cython files for fluidfft templates",
+    )
 
-def make_pyx_files():
-    for module_name, class_name, numpy_api in variables:
-        make_file(module_name, class_name, numpy_api)
+    parser.add_argument("name_output", type=str)
 
+    parser.add_argument("class_name", type=str)
 
-def _remove(path):
-    if os.path.exists(path):
-        os.remove(path)
+    args = parser.parse_args()
+    print(args)
+    # raise ValueError(f"{args} {CURRENT_DIR=}")
 
-
-def clean_files():
-    for module_name, class_name, _ in variables:
-        path_pyx, path_pxd = get_path_files(module_name)
-        _remove(path_pyx)
-        _remove(path_pxd)
-        path_cpp = os.path.splitext(path_pyx)[0] + ".cpp"
-        _remove(path_cpp)
-
-
-if __name__ == "__main__":
-    make_pyx_files()
+    make_file(args.name_output, args.class_name)

@@ -1,24 +1,33 @@
 
 py.install_sources(
   '__init__.py',
-  subdir: 'fluidfft-fftw/ftt2d'
+  subdir: 'fluidfft_fftw/fft2d',
 )
 
-with_fftw1d_pyx = custom_target(
+pyx = custom_target(
   'with_fftw1d.pyx',
-  command: ['fluidsim-build-make-pyx', '@OUTPUT@', 'FFT2DWithFFTW1D']
+  output: 'with_fftw1d.pyx',
+  command: ['fluidfft-builder-make-file', '@OUTPUT@', 'FFT2DWithFFTW1D'],
 )
 
-with_fftw1d_pxd = custom_target(
-  'with_fftw1d.pxd',
-  command: ['fluidsim-build-make-pxd', '@OUTPUT@', 'FFT2DWithFFTW1D']
+pxd = custom_target(
+  'fft2d_with_fftw1d.pxd',
+  output: 'fft2d_with_fftw1d.pxd',
+  command: ['fluidfft-builder-make-file', '@OUTPUT@', 'FFT2DWithFFTW1D'],
 )
 
-# see https://mesonbuild.com/Cython.html
 py.extension_module(
   'with_fftw1d',
   pyx,
-  dependencies: libfftw3,
-  install: true
+  pxd,
+  'fft2d_with_fftw1d.cpp',
+  'fft2d_with_fftw1d.h',
+  include_path_fluidfft_builder / 'base_fft2d.cpp',
+  include_path_fluidfft_builder / 'base_fft.cpp',
+  dependencies: fftw_dep,
+  override_options : ['cython_language=cpp'],
+  include_directories: include_path_fluidfft_builder,
+  install: true,
+  subdir: 'fluidfft_fftw/fft2d',
 )
 

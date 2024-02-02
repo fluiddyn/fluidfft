@@ -16,8 +16,11 @@ py_mod = import('python')
 py = py_mod.find_installation('python3', pure: false)
 py_dep = py.dependency()
 
-libfftw3 = dependency('libfftw3', static: false)
+fftw_dep = dependency('fftw3', static: false)
 
-include_path_fluidfft_builder = run_command("fluidsim-build-get-include-path")
+include_path_fluidfft_builder = run_command('fluidfft-builder-print-include-dir').stdout().strip()
+include_path_cy = run_command('fluidfft-builder-print-include-dir-cython').stdout().strip()
+
+add_project_arguments('-I', include_path_cy, language : 'cython')
 
 subdir('src/fluidfft_fftw')

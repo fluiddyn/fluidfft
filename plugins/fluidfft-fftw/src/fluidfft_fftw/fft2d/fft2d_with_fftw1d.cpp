@@ -14,7 +14,7 @@ FFT2DWithFFTW1D::FFT2DWithFFTW1D(int argN0, int argN1)
     : BaseFFT2D::BaseFFT2D(argN0, argN1) {
   struct timeval start_time, end_time;
   myreal total_usecs;
-  int iX0;
+  // int iX0;
   int istride = 1, ostride = 1;
   int howmany, sign;
 

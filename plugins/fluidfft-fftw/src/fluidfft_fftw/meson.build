@@ -4,7 +4,7 @@ python_sources = [
 
 py.install_sources(
   python_sources,
-  subdir: 'fluidfft-fftw'
+  subdir: 'fluidfft_fftw'
 )
 
 subdir('fft2d')

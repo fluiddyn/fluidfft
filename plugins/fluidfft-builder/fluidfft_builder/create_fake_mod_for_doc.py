@@ -110,7 +110,3 @@ def create_fake_mod(dimension):
 
     with open(os.path.join(here, name), "w") as f:
         f.write(code)
-
-
-for dim in range(2, 4):
-    create_fake_mod(dim)

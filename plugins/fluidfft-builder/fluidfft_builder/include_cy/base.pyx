@@ -1,7 +1,7 @@
 # cython: embedsignature=True
 # cython: language_level=3
 
-# DEF MPI4PY = 0
+DEF MPI4PY = 0
 
 cimport cython
 

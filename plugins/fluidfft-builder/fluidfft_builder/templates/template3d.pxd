@@ -3,8 +3,8 @@ cdef extern from "base_fft.h":
     ctypedef struct mycomplex:
         pass
 
-cdef extern from "${module_name}.h":
-    cdef cppclass ${class_name}:
+cdef extern from "{{ module_name }}.h":
+    cdef cppclass {{ class_name }}:
         int test()
         void bench(int, double*)
 
@@ -20,8 +20,8 @@ cdef extern from "${module_name}.h":
         void get_dimX_K(int*, int*, int*)
         void get_seq_indices_first_X(int*, int*, int*)
         void get_seq_indices_first_K(int*, int*, int*)
-        
-        ${class_name}(int, int, int) except +
+
+        {{ class_name }}(int, int, int) except +
 
         void destroy()
 
@@ -33,7 +33,7 @@ cdef extern from "${module_name}.h":
 
         double sum_wavenumbers_double(double* fieldK)
         void sum_wavenumbers_complex(mycomplex* fieldK, mycomplex* result)
-        
+
         double compute_energy_from_X(double* fieldX)
         double compute_energy_from_K(mycomplex* fieldK)
         double compute_mean_from_X(double* fieldX)

@@ -4,13 +4,12 @@
 include 'base.pyx'
 
 
-from ${module_name} cimport (
-    ${class_name} as mycppclass,
+from fft2d_{{ module_name }} cimport (
+    {{ class_name }} as mycppclass,
     mycomplex)
 
 
-
-cdef class ${class_name}:
+cdef class {{ class_name }}:
     """Perform Fast Fourier Transform in 2d.
 
     Parameters
@@ -66,7 +65,7 @@ cdef class ${class_name}:
     @property
     def _numpy_api(self):
         """A ``@property`` which imports and returns a NumPy-like array backend."""
-        import ${numpy_api} as np
+        import {{ numpy_api }} as np
         return np
 
     def get_short_name(self):
@@ -307,4 +306,4 @@ cdef class ${class_name}:
             field.fill(value)
         return field
 
-FFTclass = ${class_name}
+FFTclass = {{ class_name }}

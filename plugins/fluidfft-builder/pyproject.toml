@@ -9,7 +9,12 @@ description = "Fluidfft plugin dependencies"
 authors = [{name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr"}]
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: MIT License"]
-dependencies = ["mako"]
+dependencies = ["jinja2"]
 
 [project.urls]
 Home = "https://foss.heptapod.net/fluiddyn/fluidfft"
+
+[project.scripts]
+fluidfft-builder-make-file = "fluidfft_builder.make_cy_files:main"
+fluidfft-builder-print-include-dir = "fluidfft_builder:print_include_dir"
+fluidfft-builder-print-include-dir-cython = "fluidfft_builder:print_include_dir_cython"

@@ -4,8 +4,8 @@
 include 'base.pyx'
 
 
-from ${module_name} cimport (
-    ${class_name} as mycppclass,
+from {{ module_name }} cimport (
+    {{ class_name }} as mycppclass,
     mycomplex)
 
 
@@ -32,7 +32,7 @@ def compute_k_adim_seq(nk, axis, dim_first_fft=2):
         return np.r_[0:k_adim_max+1, k_adim_min:0]
 
 
-cdef class ${class_name}:
+cdef class {{ class_name }}:
     """Perform Fast Fourier Transform in 3D.
 
     Parameters
@@ -95,7 +95,7 @@ cdef class ${class_name}:
     @property
     def _numpy_api(self):
         """A ``@property`` which imports and returns a NumPy-like array backend."""
-        import ${numpy_api} as np
+        import {{ numpy_api }} as np
         return np
 
     def get_short_name(self):
@@ -493,4 +493,4 @@ cdef class ${class_name}:
             field.fill(value)
         return field
 
-FFTclass = ${class_name}
+FFTclass = {{ class_name }}
