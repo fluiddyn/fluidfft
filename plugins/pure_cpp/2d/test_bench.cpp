@@ -12,9 +12,6 @@ using namespace std;
 #endif
 #include <fft2d_with_fftw1d.h>
 
-#ifdef CUDA
-#include <fft2d_with_cufft.h>
-#endif
 const int N0default = 16, N1default = 16;
 
 void parse_args(int nb_args, char **argv, int &N0, int &N1) {

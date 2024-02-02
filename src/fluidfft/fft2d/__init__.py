@@ -8,7 +8,6 @@ are:
 
 - :class:`fluidfft.fft2d.with_fftw1d.FFT2DWithFFTW1D`
 - :class:`fluidfft.fft2d.with_fftw2d.FFT2DWithFFTW2D`
-- :class:`fluidfft.fft2d.with_cufft.FFT2DWithCUFFT`
 - :class:`fluidfft.fft2d.mpi_with_fftwmpi2d.FFT2DMPIWithFFTW1D`
 - :class:`fluidfft.fft2d.mpi_with_fftwmpi2d.FFT2DMPIWithFFTWMPI2D`
 

@@ -82,14 +82,6 @@ int main(int argc, char **argv) {
     s4.bench(nt, times);
     s4.destroy();
 
-#ifdef CUDA
-    FFT3DWithCUFFT s5(N0, N1, N2);
-    s5.test();
-    s5.bench(nt, times);
-    s5.bench(nt, times);
-    s5.destroy();
-#endif
-  } else {
 #ifdef P3DFFT
     FFT3DMPIWithP3DFFT s2(N0, N1, N2);
     s2.test();

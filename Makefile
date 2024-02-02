@@ -2,7 +2,10 @@
 
 develop: sync
 	pdm run pip install -e . --no-deps --no-build-isolation -v
-	pdm run pip install -e plugins/fluidfft-pyfftw
+	pdm run pip install -e plugins/fluidfft-fftw --no-build-isolation -v
+
+develop_mpi_with_fftw:
+	pdm run pip install -e plugins/fluidfft-mpi_with_fftw --no-build-isolation -v
 
 sync:
 	pdm sync --clean --no-self

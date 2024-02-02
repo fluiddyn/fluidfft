@@ -56,8 +56,10 @@ def tests(session, with_mpi, with_cov):
     )
     session.run("ls", "src/fluidfft/fft3d", silent=False, external=True)
 
-    session.install("-e", "plugins/fluidfft-pyfftw")
     session.install("-e", "plugins/fluidfft-builder")
+    session.install("-e", "plugins/fluidfft-fftw")
+    if with_mpi:
+        session.install("-e", "plugins/fluidfft-mpi_with_fftw")
 
     def run_command(command, **kwargs):
         session.run(*command.split(), **kwargs)

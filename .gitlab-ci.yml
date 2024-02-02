@@ -85,7 +85,6 @@ tests_seq:
     - job: "image:build"
       optional: true
   script:
-    # - cp site.cfg.files/site.cfg.docker_seq site.cfg
     - nox -s "tests(with_cov=True, with_mpi=False)"
 
 
@@ -95,7 +94,6 @@ tests_mpi:
     - job: "image:build"
       optional: true
   script:
-    # - cp site.cfg.files/site.cfg.docker_mpi site.cfg
     - nox -s "tests(with_cov=True, with_mpi=True)"
 
 

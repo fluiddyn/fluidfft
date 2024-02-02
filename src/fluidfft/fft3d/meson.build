@@ -3,6 +3,7 @@ python_sources = [
   'base.py',
   'operators.py',
   'testing.py',
+  'with_pyfftw.py',
 ]
 
 py.install_sources(

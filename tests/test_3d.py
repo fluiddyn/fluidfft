@@ -8,7 +8,7 @@ from fluidfft.fft3d import get_classes_seq, get_classes_mpi
 from fluidfft.fft3d.testing import complete_test_class_3d
 
 try:
-    import fluidfft.fft3d.with_fftw3d
+    import fluidfft_fftw.fft3d.with_fftw3d
 except ImportError:
     # If this one does not work it is a bad sign so we want to know what appends.
     traceback.print_exc()

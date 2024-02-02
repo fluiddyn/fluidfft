@@ -1,6 +1,7 @@
 python_sources = [
   '__init__.py',
   'operators.py',
+  'with_pyfftw.py',
   'with_dask.py',
   'testing.py',
 ]

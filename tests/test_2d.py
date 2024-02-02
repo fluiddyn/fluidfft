@@ -8,7 +8,7 @@ from fluidfft.fft2d import get_classes_seq, get_classes_mpi
 from fluidfft.fft2d.testing import complete_test_class_2d
 
 try:
-    import fluidfft.fft2d.with_fftw2d
+    import fluidfft_fftw.fft2d.with_fftw2d
 except ImportError:
     # If this one does not work it is a bad sign so we want to know what happened.
     traceback.print_exc()
@@ -23,7 +23,7 @@ rank = mpi.rank
 nb_proc = mpi.nb_proc
 
 
-methods_seq = ["fftw1d", "fftw2d", "cufft", "pyfftw"]
+methods_seq = ["fftw1d", "fftw2d", "pyfftw"]
 methods_seq = ["fft2d.with_" + method for method in methods_seq]
 classes_seq = {
     method: import_fft_class(method, raise_import_error=False)
