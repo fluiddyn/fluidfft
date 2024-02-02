@@ -47,8 +47,14 @@ def make_file(path_output, class_name, numpy_api="numpy"):
     name_output = path_output.name
     module_name, extension = name_output.split(".")
 
-    template_name = f"template{dimension}d.{extension}"
+    if name_output.startswith("mpi"):
+        cdef_public_mpi_comm = "cdef public MPI.Comm comm"
+        include_base_mpi_pyx = "include 'base_mpi.pyx'"
+    else:
+        cdef_public_mpi_comm = ""
+        include_base_mpi_pyx = ""
 
+    template_name = f"template{dimension}d.{extension}"
     template = load_template(template_name)
 
     content = template.substitute(
@@ -56,6 +62,8 @@ def make_file(path_output, class_name, numpy_api="numpy"):
             "module_name": module_name,
             "class_name": class_name,
             "numpy_api": numpy_api,
+            "cdef_public_mpi_comm": cdef_public_mpi_comm,
+            "include_base_mpi_pyx": include_base_mpi_pyx,
         }
     )
 

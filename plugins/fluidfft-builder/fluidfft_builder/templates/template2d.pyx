@@ -2,7 +2,7 @@
 # cython: language_level=3
 
 include 'base.pyx'
-
+${include_base_mpi_pyx}
 
 from fft2d_${module_name} cimport (
     ${class_name} as mycppclass,
@@ -31,8 +31,7 @@ cdef class ${class_name}:
     cdef tuple _shapeK_loc, _shapeX_loc, _shapeK_seq, _shapeX_seq
     cdef int _is_mpi_lib
 
-    IF MPI4PY:
-        cdef public MPI.Comm comm
+    ${cdef_public_mpi_comm}
     cdef public int nb_proc, rank
 
     def __cinit__(self, int n0=2, int n1=2):

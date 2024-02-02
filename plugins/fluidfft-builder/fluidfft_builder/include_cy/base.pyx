@@ -1,8 +1,6 @@
 # cython: embedsignature=True
 # cython: language_level=3
 
-DEF MPI4PY = 0
-
 cimport cython
 
 from cython cimport view
@@ -20,16 +18,6 @@ else:
     comm = MPI.COMM_WORLD
     nb_proc = comm.size
     rank = comm.Get_rank()
-
-IF MPI4PY:
-    from mpi4py cimport MPI
-
-    #from mpi4py.mpi_c cimport *
-    # for mpi4py > 2.0
-    from mpi4py.libmpi cimport *
-
-    # fix a bug arising when using a recent version of mpi4py
-    cdef extern from 'mpi-compat.h': pass
 
 # we define python and c types for physical and Fourier spaces
 DTYPEb = np.uint8

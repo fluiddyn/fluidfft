@@ -1,4 +1,4 @@
-.PHONY: clean cleanall cleanmako cleancython develop build_ext_inplace list-sessions tests
+.PHONY: clean cleanall develop build_ext_inplace list-sessions tests
 
 develop: sync
 	pdm run pip install -e . --no-deps --no-build-isolation -v
@@ -17,13 +17,7 @@ cleanso:
 cleanpythran:
 	find src -name __pythran__ -type d -exec rm -rf "{}" +
 
-cleancython:
-	find src -name "*_cy.cpp" -delete
-
-cleanmako:
-	python -c "from fluidfft_builder.src_cy.make_files_with_mako import clean_files as c; c()"
-
-cleanall: clean cleanso cleanmako cleancython cleanpythran
+cleanall: clean cleanso cleanpythran
 
 black:
 	pdm run black
