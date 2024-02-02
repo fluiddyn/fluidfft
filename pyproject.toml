@@ -55,10 +55,6 @@ fluidfft-bench-analysis = "fluidfft.bench_analysis:run"
 "fft3d.with_pyfftw" = "fluidfft.fft3d.with_pyfftw"
 "fft2d.with_dask" = "fluidfft.fft2d.with_dask"
 
-# should be in fluidfft-fftwmpi
-# "fft2d.mpi_with_fftwmpi2d" = "fluidfft.fft2d.mpi_with_fftwmpi2d"
-# "fft3d.mpi_with_fftwmpi3d" = "fluidfft.fft3d.mpi_with_fftwmpi3d"
-
 # should be in fluidfft-p3dfft
 # "fft3d.mpi_with_p3dfft" = "fluidfft.fft3d.mpi_with_p3dfft"
 
