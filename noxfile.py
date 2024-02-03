@@ -44,22 +44,26 @@ def validate_code(session):
 def tests(session, with_mpi, with_cov):
     """Execute unit-tests using pytest"""
 
-    command = "pdm sync --clean --no-self -G test"
+    command = "pdm sync --clean --no-self -G test -G build -G pyfftw"
     if with_mpi:
         command += " -G mpi"
     session.run_always(*command.split(), external=True)
 
     session.install(
-        ".", "--no-deps", "-v",
-        "--config-settings=setup-args=-Dtransonic-backend=python",
+        ".",
+        "--no-deps",
+        "-v",
         silent=False,
     )
     session.run("ls", "src/fluidfft/fft3d", silent=False, external=True)
 
-    session.install("-e", "plugins/fluidfft-builder")
-    session.install("-e", "plugins/fluidfft-fftw")
+    session.install("plugins/fluidfft-builder")
+    session.install("-e", "plugins/fluidfft-fftw", "--no-build-isolation", "-v")
     if with_mpi:
-        session.install("-e", "plugins/fluidfft-mpi_with_fftw")
+        session.install(
+            "-e", "plugins/fluidfft-mpi_with_fftw", "--no-build-isolation", "-v"
+        )
+        session.install("-e", "plugins/fluidfft-fftwmpi", "--no-build-isolation", "-v")
 
     def run_command(command, **kwargs):
         session.run(*command.split(), **kwargs)
@@ -77,6 +81,8 @@ def tests(session, with_mpi, with_cov):
     run_command(command, *session.posargs)
     run_command(command, *session.posargs, env={"TRANSONIC_NO_REPLACE": "1"})
 
+    run_command("pytest -v plugins/fluidfft-fftw")
+
     if with_mpi:
         if with_cov:
             command = "mpirun -np 2 --oversubscribe coverage run -p -m pytest -v -s --exitfirst tests"
@@ -84,8 +90,16 @@ def tests(session, with_mpi, with_cov):
         else:
             command = "mpirun -np 2 --oversubscribe pytest -v -s tests"
 
-        # Using TRANSONIC_NO_REPLACE with mpirun in docker can block the tests
         run_command(command, external=True)
+
+        run_command(
+            "mpirun -np 2 --oversubscribe pytest -v plugins/fluidfft-mpi_with_fftw",
+            external=True,
+        )
+        run_command(
+            "mpirun -np 2 --oversubscribe pytest -v plugins/fluidfft-fftwmpi",
+            external=True,
+        )
 
     if with_cov:
         if with_mpi:

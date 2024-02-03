@@ -47,7 +47,3 @@ class TestsBench(unittest.TestCase):
                 path_dir=path_tmp,
                 skip_patterns=["p3dfft"],
             )
-
-
-if __name__ == "__main__":
-    unittest.main()
