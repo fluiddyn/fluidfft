@@ -27,7 +27,7 @@ py.extension_module(
   include_path_fluidfft_builder / 'base_fft3d.cpp',
   include_path_fluidfft_builder / 'base_fftmpi.cpp',
   include_path_fluidfft_builder / 'base_fft3dmpi.cpp',
-  dependencies: [fftw_dep, mpi_dep],
+  dependencies: dependencies,
   override_options : ['cython_language=cpp'],
   include_directories: include_path_fluidfft_builder,
   install: true,

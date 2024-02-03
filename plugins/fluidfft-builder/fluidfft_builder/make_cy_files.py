@@ -1,3 +1,4 @@
+import argparse
 import os
 from datetime import datetime
 from importlib import resources
@@ -88,7 +89,6 @@ def make_file(path_output, class_name, numpy_api="numpy"):
 
 
 def main():
-    import argparse
 
     parser = argparse.ArgumentParser(
         prog="fluidfft-builder-make-file",

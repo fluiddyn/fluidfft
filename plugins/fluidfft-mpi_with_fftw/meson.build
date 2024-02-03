@@ -18,6 +18,12 @@ py_dep = py.dependency()
 fftw_dep = dependency('fftw3', static: false)
 mpi_dep = dependency('mpi', language: 'cpp')
 
+incdir_numpy = run_command('transonic-get-include', 'numpy', check: true).stdout().strip()
+inc_np = include_directories(incdir_numpy)
+np_dep = declare_dependency(include_directories: inc_np)
+
+dependencies = [fftw_dep, mpi_dep, np_dep]
+
 include_path_fluidfft_builder = run_command('fluidfft-builder-print-include-dir').stdout().strip()
 
 include_path_cy = run_command('fluidfft-builder-print-include-dir-cython').stdout().strip()
