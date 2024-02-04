@@ -38,6 +38,7 @@ jobs:
 
     - name: Run tests
       run: |
+        ls /usr/lib/x86_64-linux-gnu/libfftw3*
         nox --session "tests(with_cov=True, with_mpi=False)"
         make cleanall
         nox --session "tests(with_cov=True, with_mpi=True)"

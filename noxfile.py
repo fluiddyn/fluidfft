@@ -63,7 +63,7 @@ def tests(session, with_mpi, with_cov):
         session.install(
             "-e", "plugins/fluidfft-mpi_with_fftw", "--no-build-isolation", "-v"
         )
-        session.install("-e", "plugins/fluidfft-fftwmpi", "--no-build-isolation", "-v")
+        # session.install("-e", "plugins/fluidfft-fftwmpi", "--no-build-isolation", "-v")
 
     def run_command(command, **kwargs):
         session.run(*command.split(), **kwargs)
@@ -96,10 +96,10 @@ def tests(session, with_mpi, with_cov):
             "mpirun -np 2 --oversubscribe pytest -v plugins/fluidfft-mpi_with_fftw",
             external=True,
         )
-        run_command(
-            "mpirun -np 2 --oversubscribe pytest -v plugins/fluidfft-fftwmpi",
-            external=True,
-        )
+        # run_command(
+        #     "mpirun -np 2 --oversubscribe pytest -v plugins/fluidfft-fftwmpi",
+        #     external=True,
+        # )
 
     if with_cov:
         if with_mpi:

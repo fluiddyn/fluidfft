@@ -25,14 +25,15 @@ workflow:
 
 pixi-test:
   stage: pixi
-  image: $DOCKER_IMAGE_PATH:pixi
+  image: registry.heptapod.net:443/fluiddyn/fluidsim/ci/default:pixi
   script:
     - pixi info
     - pixi run install-editable
     - pixi run pip install plugins/fluidfft-fftw -v --no-build-isolation --no-deps
-    - pixi run pip install plugins/fluidfft-mpi_with_fftw -v --no-build-isolation --no-deps
-    - pixi run pytest -v tests plugins/fluidfft-fftw
-    - pixi run mpirun -np 2 pytest -v plugins/fluidfft-mpi_with_fftw
+    - pixi run pytest -v tests
+    - pixi run pytest -v plugins/fluidfft-fftw
+    # - pixi run pip install plugins/fluidfft-mpi_with_fftw -v --no-build-isolation --no-deps
+    # - pixi run mpirun -np 2 pytest -v plugins/fluidfft-mpi_with_fftw
 
 
 # Build an image for the other tasks; this should be a scheduled job, as
@@ -95,6 +96,7 @@ tests_mpi:
     - job: "image:build"
       optional: true
   script:
+    - ls /usr/lib/x86_64-linux-gnu/libfftw3*
     - nox -s "tests(with_cov=True, with_mpi=True)"
 
 

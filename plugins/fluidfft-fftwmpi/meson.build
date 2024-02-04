@@ -17,7 +17,7 @@ mpi_dep = dependency('mpi', language: 'cpp')
 # fftwmpi_dep = dependency('fftw3-mpi', static: false)
 
 compiler = meson.get_compiler('cpp')
-fftwmpi_dep = compiler.find_library('libfftw_mpi', required: true)
+fftwmpi_dep = compiler.find_library('fftw_mpi', required: true)
 
 py_mod = import('python')
 py = py_mod.find_installation('python3', pure: false)
