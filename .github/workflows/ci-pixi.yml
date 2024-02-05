@@ -10,10 +10,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # os: ["windows-2022", "macos-latest"]
-        # python-version: ["3.9", "3.10", "3.11"]
-        os: ["windows-2022"]
-        python-version: ["3.10"]
+        os: ["windows-2022", "macos-latest"]
+        python-version: ["3.9", "3.10", "3.11"]
     defaults:
       run:
         shell: bash -l {0}
@@ -27,11 +25,7 @@ jobs:
       run: |
         pixi run install-editable
         pixi run pip install plugins/fluidfft-fftw -v --no-build-isolation --no-deps
-    - name: Show meson-log.txt
-      if: always()
-      run: |
-        cat build/cp310/meson-logs/meson-log.txt
-        cat 'D:\a\fluidfft\fluidfft\.pixi\env\Scripts\transonic-get-include'
     - name: Tests
       run: |
-        pixi run pytest -v tests plugins/fluidfft-fftw
+        pixi run pytest -v tests
+        pixi run pytest -v plugins/fluidfft-fftw
