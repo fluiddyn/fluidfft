@@ -72,22 +72,16 @@ times_ifft = {}
 
 for cls in classes:
     src += (
-        "\nnb_procs['"
-        + cls
-        + "'] = "
+        f"\nnb_procs['{cls}'] = "
         + repr(np.array(nb_procs[cls]))
-        + "\ntimes_fft['"
-        + cls
-        + "'] = "
+        + f"\ntimes_fft['{cls}'] = "
         + repr(np.array(times_fft[cls]))
-        + "\ntimes_ifft['"
-        + cls
-        + "'] = "
+        + "\ntimes_ifft['{cls}'] = "
         + repr(np.array(times_ifft[cls]))
     )
 
 if not os.path.exists(output_dir):
     os.mkdir(output_dir)
 
-with open(output_dir + "/bench.py", "w") as f:
-    f.write(src + "\n")
+with open(output_dir + "/bench.py", "w", encoding="utf8") as file:
+    file.write(src + "\n")

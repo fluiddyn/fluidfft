@@ -24,16 +24,22 @@ py_mod = import('python')
 py = py_mod.find_installation('python3', pure: false)
 py_dep = py.dependency()
 
-incdir_numpy = run_command('transonic-get-include', 'numpy', check: true).stdout().strip()
+incdir_numpy = run_command(
+  'transonic-get-include', 'numpy', check: true
+).stdout().strip()
 inc_np = include_directories(incdir_numpy)
 np_dep = declare_dependency(include_directories: inc_np)
 
 dependencies = [fftw_dep, mpi_dep, fftwmpi_dep, np_dep]
 link_args = ['-lfftw3_mpi']
 
-include_path_fluidfft_builder = run_command('fluidfft-builder-print-include-dir').stdout().strip()
+include_path_fluidfft_builder = run_command(
+  'fluidfft-builder-print-include-dir', check: true
+).stdout().strip()
 
-include_path_cy = run_command('fluidfft-builder-print-include-dir-cython').stdout().strip()
+include_path_cy = run_command(
+  'fluidfft-builder-print-include-dir-cython', check: true
+).stdout().strip()
 add_project_arguments('-I', include_path_cy, language : 'cython')
 
 subdir('src/fluidfft_fftwmpi')

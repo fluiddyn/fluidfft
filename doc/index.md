@@ -24,8 +24,6 @@ perform Fast Fourier Transform (FFT) with different libraries, in particular
 - [pfft](https://github.com/mpip/pfft)
 - [p3dfft](https://github.com/sdsc/p3dfft)
 - [mpi4py-fft](https://bitbucket.org/mpi4py/mpi4py-fft)
-- [cufft](https://developer.nvidia.com/cufft) (fft library by CUDA
-  running on GPU)
 
 [pfft](https://github.com/mpip/pfft), [p3dfft](https://github.com/sdsc/p3dfft) and [mpi4py-fft](https://bitbucket.org/mpi4py/mpi4py-fft) are specialized in computing FFT
 efficiently on several cores of big clusters. The data can be split in pencils
@@ -110,6 +108,7 @@ journal = {Journal of Open Research Software}
 
 overview
 install
+plugins
 tutorials
 examples
 bench

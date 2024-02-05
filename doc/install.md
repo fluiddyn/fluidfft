@@ -2,6 +2,14 @@
 
 # Installation and advice
 
+```{danger}
+
+We are working on a very deep reorganization of Fluidfft. Fluidfft 0.4.0, which
+should be released in the beginning of 2024, will work with plugins. This
+documentation is valid for Fluidfft <= 0.3.5. The new documentation should come soon.
+
+```
+
 ## Installation with pip
 
 To install fluidfft, you need a recent Python (>= 3.6) and a C++11 compiler

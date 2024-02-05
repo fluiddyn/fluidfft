@@ -96,7 +96,6 @@ tests_mpi:
     - job: "image:build"
       optional: true
   script:
-    - ls /usr/lib/x86_64-linux-gnu/libfftw3*
     - nox -s "tests(with_cov=True, with_mpi=True)"
 
 
