@@ -36,12 +36,16 @@ jobs:
         # cython is for coverage
         python -m pip install coverage cython
 
-    - name: Run tests
+    - name: Run sequential tests with nox
       run: |
-        ls /usr/lib/x86_64-linux-gnu/libfftw3*
         nox --session "tests(with_cov=True, with_mpi=False)"
-        make cleanall
+
+    - name: Run parallel tests with nox
+      run: |
         nox --session "tests(with_cov=True, with_mpi=True)"
+
+    - name: Produce coverage xml
+      run: |
         coverage xml
 
     - name: Upload coverage to codecov
