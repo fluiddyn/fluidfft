@@ -1,6 +1,7 @@
-.PHONY: clean cleanall develop build_ext_inplace list-sessions tests
+.PHONY: clean cleanall develop list-sessions tests doc
 
 develop: sync
+	pdm run python -c "from fluidfft_builder import create_fake_modules as c; c()"
 	pdm run pip install -e . --no-deps --no-build-isolation -v
 	pdm run pip install -e plugins/fluidfft-fftw --no-build-isolation -v
 
@@ -12,7 +13,6 @@ develop_fftwmpi:
 
 sync:
 	pdm sync --clean --no-self
-	pdm run pip install -e plugins/fluidfft-builder
 
 clean:
 	rm -rf build
@@ -63,6 +63,9 @@ list-sessions:
 
 lock:
 	pdm lock -G :all
+
+doc:
+	nox -s doc
 
 # Catch-all target: route all unknown targets to nox sessions
 %:

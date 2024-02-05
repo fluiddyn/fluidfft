@@ -2,14 +2,7 @@
 ============================================================
 
 This package contains extension modules containing classes for performing Fast
-Fourier Transform with different methods and libraries. The number of classes
-depend on how fluidfft has been compiled. The 2d classes currently implemented
-are:
-
-- :class:`fluidfft.fft2d.with_fftw1d.FFT2DWithFFTW1D`
-- :class:`fluidfft.fft2d.with_fftw2d.FFT2DWithFFTW2D`
-- :class:`fluidfft.fft2d.mpi_with_fftwmpi2d.FFT2DMPIWithFFTW1D`
-- :class:`fluidfft.fft2d.mpi_with_fftwmpi2d.FFT2DMPIWithFFTWMPI2D`
+Fourier Transform with different methods and libraries.
 
 To use the FFT classes in real codes, it is simpler and recommended to use the
 class :class:`fluidfft.fft2d.operators.OperatorsPseudoSpectral2D` defined in
@@ -41,10 +34,8 @@ __all__ = [
     "get_classes_mpi",
 ]
 
-try:
+if "sphinx" in sys.modules:
     from .fake_mod_fft2d_for_doc import FFT2dFakeForDoc
-except ImportError:
-    pass
 
 
 def get_classes_seq():

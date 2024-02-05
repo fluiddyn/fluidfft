@@ -7238,7 +7238,7 @@ package:
   timestamp: 1701352639132
 - platform: linux-64
   name: libxml2
-  version: 2.12.4
+  version: 2.12.5
   category: main
   manager: conda
   dependencies:
@@ -7247,21 +7247,21 @@ package:
   - libiconv >=1.17,<2.0a0
   - libzlib >=1.2.13,<1.3.0a0
   - xz >=5.2.6,<6.0a0
-  url: https://conda.anaconda.org/conda-forge/linux-64/libxml2-2.12.4-h232c23b_1.conda
+  url: https://conda.anaconda.org/conda-forge/linux-64/libxml2-2.12.5-h232c23b_0.conda
   hash:
-    md5: 53e951fab78d7e3bab40745f7b3d1620
-    sha256: f6828b44da29bbfbf367ddbc72902e84ea5f5de933be494d6aac4a35826afed0
-  build: h232c23b_1
+    md5: c442ebfda7a475f5e78f1c8e45f1e919
+    sha256: db9bf97e9e367985204331b58a059ebd5a4e0cb9e1c8754e9ecb23046b7b7bc1
+  build: h232c23b_0
   arch: x86_64
   subdir: linux-64
-  build_number: 1
+  build_number: 0
   license: MIT
   license_family: MIT
-  size: 704907
-  timestamp: 1705355040145
+  size: 704829
+  timestamp: 1707084502281
 - platform: osx-64
   name: libxml2
-  version: 2.12.4
+  version: 2.12.5
   category: main
   manager: conda
   dependencies:
@@ -7269,21 +7269,21 @@ package:
   - libiconv >=1.17,<2.0a0
   - libzlib >=1.2.13,<1.3.0a0
   - xz >=5.2.6,<6.0a0
-  url: https://conda.anaconda.org/conda-forge/osx-64/libxml2-2.12.4-hc0ae0f7_1.conda
+  url: https://conda.anaconda.org/conda-forge/osx-64/libxml2-2.12.5-hc0ae0f7_0.conda
   hash:
-    md5: 6ffac7334d3c1672845bc4b2a9e39835
-    sha256: edccf142e32ee5c6619aebf36c29acdb942bde32fc0585882f5848d86b3e5acd
-  build: hc0ae0f7_1
+    md5: abe27e7ab68b95e8d0e41cd5018ec8ae
+    sha256: a84f355dcf9039ae54e21bf8833c16200f848fd333a5e68c143e142cc55dc07d
+  build: hc0ae0f7_0
   arch: x86_64
   subdir: osx-64
-  build_number: 1
+  build_number: 0
   license: MIT
   license_family: MIT
-  size: 619880
-  timestamp: 1705355303675
+  size: 619351
+  timestamp: 1707084558935
 - platform: win-64
   name: libxml2
-  version: 2.12.4
+  version: 2.12.5
   category: main
   manager: conda
   dependencies:
@@ -7292,18 +7292,18 @@ package:
   - ucrt >=10.0.20348.0
   - vc >=14.2,<15
   - vc14_runtime >=14.29.30139
-  url: https://conda.anaconda.org/conda-forge/win-64/libxml2-2.12.4-hc3477c8_1.conda
+  url: https://conda.anaconda.org/conda-forge/win-64/libxml2-2.12.5-hc3477c8_0.conda
   hash:
-    md5: bc7291fa70257ccf420b564c870a53b2
-    sha256: b3aa51adb9fb9413227cedc0ce7c5d9f9cf99940911cca3da117e940a8b778ce
-  build: hc3477c8_1
+    md5: d8c3c1c8242db352f38cd1dc0bf44f77
+    sha256: 15696b049911b3ea5d37672408e500fb27e375d865f8cceac9cb02f9349e6804
+  build: hc3477c8_0
   arch: x86_64
   subdir: win-64
-  build_number: 1
+  build_number: 0
   license: MIT
   license_family: MIT
-  size: 1570461
-  timestamp: 1705355510142
+  size: 1567894
+  timestamp: 1707084720091
 - platform: linux-64
   name: libzlib
   version: 1.2.13
@@ -13212,19 +13212,19 @@ package:
   - gast ~=0.5.0
   - numpy
   - python >=3.9
-  url: https://conda.anaconda.org/conda-forge/noarch/transonic-0.6.1-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/transonic-0.6.1-pyhd8ed1ab_1.conda
   hash:
-    md5: 54e7b895193629634511d078e7ad7783
-    sha256: 01d7d8e74fcbaaf6c762f97e7f1c846210006f91d0cfc4e0a4eb77c18313f76c
-  build: pyhd8ed1ab_0
+    md5: 0b81f587f958d2a9876359aa2bb24f19
+    sha256: bdfac27c09a3d0941d689c1bd58a781276ce53f44aab030f2563aafafadf4904
+  build: pyhd8ed1ab_1
   arch: x86_64
   subdir: linux-64
-  build_number: 0
+  build_number: 1
   license: BSD-3-Clause
   license_family: OTHER
   noarch: python
-  size: 61018
-  timestamp: 1706981358526
+  size: 60590
+  timestamp: 1707111461010
 - platform: osx-64
   name: transonic
   version: 0.6.1
@@ -13236,19 +13236,19 @@ package:
   - gast ~=0.5.0
   - numpy
   - python >=3.9
-  url: https://conda.anaconda.org/conda-forge/noarch/transonic-0.6.1-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/transonic-0.6.1-pyhd8ed1ab_1.conda
   hash:
-    md5: 54e7b895193629634511d078e7ad7783
-    sha256: 01d7d8e74fcbaaf6c762f97e7f1c846210006f91d0cfc4e0a4eb77c18313f76c
-  build: pyhd8ed1ab_0
+    md5: 0b81f587f958d2a9876359aa2bb24f19
+    sha256: bdfac27c09a3d0941d689c1bd58a781276ce53f44aab030f2563aafafadf4904
+  build: pyhd8ed1ab_1
   arch: x86_64
   subdir: osx-64
-  build_number: 0
+  build_number: 1
   license: BSD-3-Clause
   license_family: OTHER
   noarch: python
-  size: 61018
-  timestamp: 1706981358526
+  size: 60590
+  timestamp: 1707111461010
 - platform: win-64
   name: transonic
   version: 0.6.1
@@ -13260,19 +13260,19 @@ package:
   - gast ~=0.5.0
   - numpy
   - python >=3.9
-  url: https://conda.anaconda.org/conda-forge/noarch/transonic-0.6.1-pyhd8ed1ab_0.conda
+  url: https://conda.anaconda.org/conda-forge/noarch/transonic-0.6.1-pyhd8ed1ab_1.conda
   hash:
-    md5: 54e7b895193629634511d078e7ad7783
-    sha256: 01d7d8e74fcbaaf6c762f97e7f1c846210006f91d0cfc4e0a4eb77c18313f76c
-  build: pyhd8ed1ab_0
+    md5: 0b81f587f958d2a9876359aa2bb24f19
+    sha256: bdfac27c09a3d0941d689c1bd58a781276ce53f44aab030f2563aafafadf4904
+  build: pyhd8ed1ab_1
   arch: x86_64
   subdir: win-64
-  build_number: 0
+  build_number: 1
   license: BSD-3-Clause
   license_family: OTHER
   noarch: python
-  size: 61018
-  timestamp: 1706981358526
+  size: 60590
+  timestamp: 1707111461010
 - platform: linux-64
   name: typing_extensions
   version: 4.9.0
@@ -13918,24 +13918,24 @@ package:
   timestamp: 1684679248466
 - platform: linux-64
   name: xkeyboard-config
-  version: '2.40'
+  version: '2.41'
   category: main
   manager: conda
   dependencies:
   - libgcc-ng >=12
-  - xorg-libx11 >=1.8.6,<2.0a0
-  url: https://conda.anaconda.org/conda-forge/linux-64/xkeyboard-config-2.40-hd590300_0.conda
+  - xorg-libx11 >=1.8.7,<2.0a0
+  url: https://conda.anaconda.org/conda-forge/linux-64/xkeyboard-config-2.41-hd590300_0.conda
   hash:
-    md5: 07c15d846a2e4d673da22cbd85fdb6d2
-    sha256: a01fcb9c3346ee08aa24b3900a08896f2e8f80c891378a57d71764e16bbd6141
+    md5: 81f740407b45e3f9047b3174fa94eb9e
+    sha256: 56955610c0747ea7cb026bb8aa9ef165ff41d616e89894538173b8b7dd2ee49a
   build: hd590300_0
   arch: x86_64
   subdir: linux-64
   build_number: 0
   license: MIT
   license_family: MIT
-  size: 895713
-  timestamp: 1696647097478
+  size: 898045
+  timestamp: 1707104384997
 - platform: linux-64
   name: xorg-kbproto
   version: 1.0.7

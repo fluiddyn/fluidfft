@@ -68,20 +68,16 @@ package-dir = "src"
 [tool.pdm.dev-dependencies]
 build = ["meson-python", "ninja", "numpy", "transonic>=0.6.0", "pythran>=0.9.7"]
 
-# plugins = [
-#     "-e fluidfft-mpi4pyfft @ file:///${PROJECT_ROOT}/plugins/fluidfft-mpi4pyfft",
-# ]
-
 test = [
     "pytest",
     "coverage",
     "pytest-cov",
     "cython", # needed at run time for coverage
-]
-dev = [
+    # needed to build the plugins
     "pip",
-    "ipython",
+    "-e fluidfft-builder @ file:///${PROJECT_ROOT}/plugins/fluidfft-builder",
 ]
+dev = ["ipython"]
 doc = [
     "sphinx",
     "sphinx_copybutton",
@@ -91,6 +87,8 @@ doc = [
     "numpydoc",
     "pandas",
     "pyfftw",
+    # needed to create the dummy modules
+    "-e fluidfft-builder @ file:///${PROJECT_ROOT}/plugins/fluidfft-builder",
 ]
 lint = ["black", "pylint"]
 

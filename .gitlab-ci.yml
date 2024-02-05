@@ -105,8 +105,6 @@ pages:
   needs:
     - job: "image:build"
       optional: true
-  variables:
-    FLUIDFFT_TRANSONIC_BACKEND: "python"
   script:
     - nox -s doc
     - mkdir -p public/$CI_COMMIT_REF_NAME

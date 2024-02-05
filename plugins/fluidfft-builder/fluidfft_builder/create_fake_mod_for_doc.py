@@ -1,9 +1,10 @@
-import os
+from importlib import resources
+from pathlib import Path
 
-here = os.path.abspath(os.path.split(__file__)[0])
+here = Path(__file__).absolute().parent
 
 
-def get_doc(lines, indent="    "):
+def get_docstring(lines, indent="    "):
     doc = None
 
     # find start doc
@@ -59,7 +60,7 @@ def get_function_code(lines):
 
     indent = " " * 8
 
-    doc = get_doc(lines_to_be_parsed, indent=indent)
+    doc = get_docstring(lines_to_be_parsed, indent=indent)
 
     if doc is None:
         doc = indent + "pass"
@@ -70,10 +71,10 @@ def get_function_code(lines):
 
 
 def create_fake_mod(dimension):
-    with open(
-        os.path.join(here, "template{dim}d.pyx".format(dim=dimension)), "r"
-    ) as f:
-        lines_text = f.read().splitlines()
+    resource = resources.files("fluidfft_builder.templates")
+    with resources.as_file((resource / f"template{dimension}d.pyx")) as path:
+        with open(path, encoding="utf8") as file:
+            lines_text = file.read().splitlines()
 
     # find start class
     for i, line in enumerate(lines_text):
@@ -81,8 +82,7 @@ def create_fake_mod(dimension):
             lines_class = lines_text[i + 1 :]
             break
 
-    # get docstring of the class
-    doc_class = get_doc(lines_class)
+    docstring_class = get_docstring(lines_class)
 
     lines_function_class = lines_class[1:]
 
@@ -95,18 +95,26 @@ def create_fake_mod(dimension):
             functions_codes.append(get_function_code(lines_function_class[i:]))
 
     code = (
-        "class FFT{dim}dFakeForDoc(object):\n".format(dim=dimension)
-        + doc_class
+        f"class FFT{dimension}dFakeForDoc(object):\n"
+        + docstring_class
         + "\n\n"
         + "\n\n".join(functions_codes)
         + "\n"
     )
 
-    name = (
-        "../../../../src/fluidfft/fft{dim}d/fake_mod_fft{dim}d_for_doc.py".format(
-            dim=dimension
-        )
+    path_out = here / (
+        f"../../../src/fluidfft/fft{dimension}d/"
+        f"fake_mod_fft{dimension}d_for_doc.py"
     )
 
-    with open(os.path.join(here, name), "w") as f:
-        f.write(code)
+    if path_out.exists():
+        old_text = path_out.read_text()
+        if old_text == code:
+            return
+
+    path_out.write_text(code, encoding="utf8")
+
+
+def create_fake_modules():
+    for dimension in "23":
+        create_fake_mod(dimension)

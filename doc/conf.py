@@ -15,7 +15,6 @@ import sys
 import os
 from pathlib import Path
 import subprocess
-from runpy import run_path
 import getpass
 from subprocess import call
 
@@ -93,11 +92,6 @@ try:
     subprocess.call(["doxygen", "doxygen/Doxyfile"])
 except OSError:
     print("Can not find doxygen to generate the documentation of the cpp code.")
-
-run_path(
-    "../plugins/fluidfft-builder/fluidfft_builder/src_cy/create_fake_mod_for_doc.py"
-)
-
 
 # -- General configuration ----------------------------------------------------
 

@@ -109,12 +109,11 @@ def tests(session, with_mpi, with_cov):
 
 @nox.session
 def doc(session):
-    session.run_always("pdm", "sync", "-G", "doc", "--no-self", external=True)
+    session.run_always("pdm", "sync", "--clean", "-G", "doc", "--no-self", external=True)
+    session.run_always("python", "-c", "from fluidfft_builder import create_fake_modules as c; c()")
     session.install(
-        ".", "--no-deps", "--config-settings=setup-args=-Dtransonic-backend=python"
+        ".", "--no-deps", "-C", "setup-args=-Dtransonic-backend=python"
     )
-    session.install("-e", "plugins/fluidfft-pyfftw")
-
     session.chdir("doc")
     session.run("make", "cleanall", external=True)
     session.run("make", external=True)
