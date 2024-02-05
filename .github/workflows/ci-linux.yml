@@ -39,10 +39,12 @@ jobs:
     - name: Run sequential tests with nox
       run: |
         nox --session "tests(with_cov=True, with_mpi=False)"
+        mv .coverage/coverage.xml coverage_without_mpi.xml
 
     - name: Run parallel tests with nox
       run: |
         nox --session "tests(with_cov=True, with_mpi=True)"
+        mv .coverage/coverage.xml coverage_with_mpi.xml
 
     - name: Produce coverage xml
       run: |
@@ -51,3 +53,8 @@ jobs:
     - name: Upload coverage to codecov
       if: ${{ success() }}
       uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: false # optional (default = false)
+        verbose: true # optional (default = false)
+        files: coverage_without_mpi.xml,coverage_with_mpi.xml

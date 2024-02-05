@@ -70,7 +70,7 @@ build = ["meson-python", "ninja", "numpy", "transonic>=0.6.0", "pythran>=0.9.7"]
 
 test = [
     "pytest",
-    "coverage",
+    "coverage[toml]",
     "pytest-cov",
     "cython", # needed at run time for coverage
     # needed to build the plugins
@@ -97,3 +97,43 @@ black = 'black -l 82 src doc plugins tests --exclude "/(__pythran__|__python__|_
 black_check = 'black --check -l 82 src doc plugins tests --exclude "/(__pythran__|__python__|__numba__|build|doc/_build|\.ipynb_checkpoints/*)/"'
 lint = {shell="pylint -rn --rcfile=pylintrc --jobs=$(nproc) src doc tests plugins --exit-zero"}
 validate_code = {composite = ["black_check", "lint"]}
+
+
+[tool.coverage.run]
+source = [
+  "./src/fluidfft",
+  "./plugins/fluidfft-fftw",
+  "./plugins/fluidfft-fftwmpi",
+  "./plugins/fluidfft-mpi_with_fftw",
+]
+data_file = ".coverage/coverage"
+omit = [
+    "*/try_*.py",
+    "*/_old_*.py",
+    "**/__pythran__/*.py",
+    "**/__python__/*.py",
+    "**/__numba__/*.py",
+    "src/fluidfft/fft2d/fake_mod_fft2d_for_doc.py",
+    "src/fluidfft/fft3d/fake_mod_fft3d_for_doc.py",
+]
+plugins = ["Cython.Coverage"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "if __name__ == .__main__.:",
+    "if \"sphinx\" in sys.modules:",
+    "raise ValueError",
+    "raise NotImplementedError",
+    "raise ImportError",
+    "except KeyError:",
+    "except ImportError:",
+    "except AttributeError:",
+    "except NotImplementedError:",
+]
+
+[tool.coverage.html]
+directory = ".coverage"
+
+[tool.coverage.xml]
+output = ".coverage/coverage.xml"

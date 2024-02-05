@@ -43,7 +43,6 @@ cython = ">=3.0.8,<3.1"
 fftw = ">=3.3.10,<3.4"
 pkg-config = ">=0.29.2,<0.30"
 pyfftw = ">=0.13.1,<0.14"
-cxx-compiler = ">=1.7.0,<1.8"
 
 [pypi-dependencies]
 pymech = "*"

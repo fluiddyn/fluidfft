@@ -19,6 +19,7 @@ execute ``make list-sessions```` or ``nox -l`` for a list of sessions.
 import os
 from pathlib import Path
 from functools import partial
+from shutil import rmtree
 
 import nox
 
@@ -49,12 +50,13 @@ def tests(session, with_mpi, with_cov):
     session.run_always(*command.split(), external=True)
 
     session.install(
+        "-e",
         ".",
         "--no-deps",
+        "--no-build-isolation",
         "-v",
         silent=False,
     )
-    session.run("ls", "src/fluidfft/fft3d", silent=False, external=True)
 
     session.install("plugins/fluidfft-builder")
     session.install("-e", "plugins/fluidfft-fftw", "--no-build-isolation", "-v")
@@ -64,55 +66,53 @@ def tests(session, with_mpi, with_cov):
         )
         session.install("-e", "plugins/fluidfft-fftwmpi", "--no-build-isolation", "-v")
 
+    if with_cov:
+        path_coverage = Path.cwd() / ".coverage"
+        rmtree(path_coverage, ignore_errors=True)
+        path_coverage.mkdir(exist_ok=True)
+
     def run_command(command, **kwargs):
+        if with_cov:
+            command += " --cov --cov-config=pyproject.toml --no-cov-on-fail --cov-report=term-missing --cov-append"
         session.run(*command.split(), **kwargs)
 
-    if with_cov:
-        cov_path = Path.cwd() / ".coverage"
-        cov_path.mkdir(exist_ok=True)
-
     command = "pytest -v -s tests"
-    if with_cov:
-        command += (
-            " --cov --cov-config=setup.cfg --no-cov-on-fail --cov-report=term-missing"
-        )
 
     run_command(command, *session.posargs)
     run_command(command, *session.posargs, env={"TRANSONIC_NO_REPLACE": "1"})
-
     run_command("pytest -v plugins/fluidfft-fftw")
 
     if with_mpi:
-        if with_cov:
-            command = "mpirun -np 2 --oversubscribe coverage run -p -m pytest -v -s --exitfirst tests"
 
-        else:
-            command = "mpirun -np 2 --oversubscribe pytest -v -s tests"
+        def test_plugin(package_name):
+            if with_cov:
+                command = "mpirun -np 2 --oversubscribe coverage run -p -m pytest -v -s --exitfirst"
+            else:
+                command = "mpirun -np 2 --oversubscribe pytest -v -s "
 
-        run_command(command, external=True)
+            command += f" plugins/{package_name}"
+            session.run(*command.split(), external=True)
 
-        run_command(
-            "mpirun -np 2 --oversubscribe pytest -v plugins/fluidfft-mpi_with_fftw",
-            external=True,
-        )
-        run_command(
-            "mpirun -np 2 --oversubscribe pytest -v plugins/fluidfft-fftwmpi",
-            external=True,
-        )
+        test_plugin("fluidfft-mpi_with_fftw")
+        test_plugin("fluidfft-fftwmpi")
 
     if with_cov:
         if with_mpi:
-            run_command("coverage combine")
-        run_command("coverage report")
+            session.run("coverage", "combine")
+        session.run("coverage", "report")
+        session.run("coverage", "xml")
+        session.run("coverage", "html")
 
 
 @nox.session
 def doc(session):
-    session.run_always("pdm", "sync", "--clean", "-G", "doc", "--no-self", external=True)
-    session.run_always("python", "-c", "from fluidfft_builder import create_fake_modules as c; c()")
-    session.install(
-        ".", "--no-deps", "-C", "setup-args=-Dtransonic-backend=python"
+    session.run_always(
+        "pdm", "sync", "--clean", "-G", "doc", "--no-self", external=True
     )
+    session.run_always(
+        "python", "-c", "from fluidfft_builder import create_fake_modules as c; c()"
+    )
+    session.install(".", "--no-deps", "-C", "setup-args=-Dtransonic-backend=python")
     session.chdir("doc")
     session.run("make", "cleanall", external=True)
     session.run("make", external=True)
