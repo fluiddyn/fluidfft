@@ -23,15 +23,17 @@ workflow:
     - if: $CI_COMMIT_BRANCH
 
 
-# pixi-test:
-#   stage: pixi
-#   image: $DOCKER_IMAGE_PATH:pixi
-#   script:
-#     - pixi info
-#     # - rm -rf ../transonic
-#     # - hg clone https://foss.heptapod.net/fluiddyn/transonic ../transonic
-#     - pixi run install-editable
-#     - pixi run pytest -v
+pixi-test:
+  stage: pixi
+  image: registry.heptapod.net:443/fluiddyn/fluidsim/ci/default:pixi
+  script:
+    - pixi info
+    - pixi run install-editable
+    - pixi run pip install plugins/fluidfft-fftw -v --no-build-isolation --no-deps
+    - pixi run pytest -v tests
+    - pixi run pytest -v plugins/fluidfft-fftw
+    # - pixi run pip install plugins/fluidfft-mpi_with_fftw -v --no-build-isolation --no-deps
+    # - pixi run mpirun -np 2 pytest -v plugins/fluidfft-mpi_with_fftw
 
 
 # Build an image for the other tasks; this should be a scheduled job, as
@@ -85,7 +87,6 @@ tests_seq:
     - job: "image:build"
       optional: true
   script:
-    - cp site.cfg.files/site.cfg.docker_seq site.cfg
     - nox -s "tests(with_cov=True, with_mpi=False)"
 
 
@@ -95,7 +96,6 @@ tests_mpi:
     - job: "image:build"
       optional: true
   script:
-    - cp site.cfg.files/site.cfg.docker_mpi site.cfg
     - nox -s "tests(with_cov=True, with_mpi=True)"
 
 
@@ -104,8 +104,6 @@ pages:
   needs:
     - job: "image:build"
       optional: true
-  variables:
-    FLUIDFFT_TRANSONIC_BACKEND: "python"
   script:
     - nox -s doc
     - mkdir -p public/$CI_COMMIT_REF_NAME

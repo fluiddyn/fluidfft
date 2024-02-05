@@ -1,0 +1,19 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "fluidfft-builder"
+version = "0.0.1"
+description = "Fluidfft plugin dependencies"
+authors = [{name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr"}]
+license = {file = "LICENSE"}
+classifiers = ["License :: OSI Approved :: MIT License"]
+
+[project.urls]
+Home = "https://foss.heptapod.net/fluiddyn/fluidfft"
+
+[project.scripts]
+fluidfft-builder-make-file = "fluidfft_builder.make_cy_files:main"
+fluidfft-builder-print-include-dir = "fluidfft_builder:print_include_dir"
+fluidfft-builder-print-include-dir-cython = "fluidfft_builder:print_include_dir_cython"

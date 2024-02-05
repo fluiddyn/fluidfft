@@ -43,7 +43,7 @@ cleanimages:
 	@echo "Clean dangling images with no tag."
 	for img in $$(docker images -qf "dangling=true"); do docker rmi -f $$img; done
 
-cleanall: cleancontainers cleanimages cleanmako
+cleanall: cleancontainers cleanimages
 
 run:
 	docker run --name $(image) --restart always -it fluiddyn/$(image) bash

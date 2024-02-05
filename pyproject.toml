@@ -1,7 +1,7 @@
 
 [build-system]
-requires = ["setuptools", "transonic", "pythran", "jinja2", "cython"]
-build-backend = "setuptools.build_meta"
+requires = ["meson-python", "numpy", "transonic>=0.6.0", "pythran>=0.9.7"]
+build-backend = 'mesonpy'
 
 [project]
 name = "fluidfft"
@@ -42,68 +42,42 @@ classifiers = [
 Homepage = "https://foss.heptapod.net/fluiddyn/fluidfft"
 
 [project.optional-dependencies]
-pyfftw = [
-    "pyfftw >= 0.10.4",
-]
-mpi = [
-    "mpi4py",
-]
+pyfftw = ["pyfftw >= 0.10.4"]
+dask = ["dask"]
+mpi = ["mpi4py"]
 
 [project.scripts]
 fluidfft-bench = "fluidfft.bench:run"
 fluidfft-bench-analysis = "fluidfft.bench_analysis:run"
 
 [project.entry-points."fluidfft.plugins"]
-# TODO: uncomment when code using pyfftw is back in fluidfft
-# "fft2d.with_pyfftw" = "fluidfft.fft2d.with_pyfftw"
-# "fft3d.with_pyfftw" = "fluidfft.fft3d.with_pyfftw"
+"fft2d.with_pyfftw" = "fluidfft.fft2d.with_pyfftw"
+"fft3d.with_pyfftw" = "fluidfft.fft3d.with_pyfftw"
 "fft2d.with_dask" = "fluidfft.fft2d.with_dask"
 
-# should be in fluidfft-fftw
-"fft2d.with_fftw1d" = "fluidfft.fft2d.with_fftw1d"
-"fft2d.with_fftw2d" = "fluidfft.fft2d.with_fftw2d"
-"fft3d.with_fftw3d" = "fluidfft.fft3d.with_fftw3d"
-
-# should be in fluidfft-cuda
-# (or better HIP?, see https://foss.heptapod.net/fluiddyn/fluidfft/-/merge_requests/46)
-"fft2d.with_cufft" = "fluidfft.fft2d.with_cufft"
-"fft3d.with_cufft" = "fluidfft.fft3d.with_cufft"
-
-# should be in fluidfft-mpi_with_fftw
-"fft2d.mpi_with_fftw1d" = "fluidfft.fft2d.mpi_with_fftw1d"
-"fft3d.mpi_with_fftw1d" = "fluidfft.fft3d.mpi_with_fftw1d"
-
-# should be in fluidfft-fftwmpi
-"fft2d.mpi_with_fftwmpi2d" = "fluidfft.fft2d.mpi_with_fftwmpi2d"
-"fft3d.mpi_with_fftwmpi3d" = "fluidfft.fft3d.mpi_with_fftwmpi3d"
-
 # should be in fluidfft-p3dfft
-"fft3d.mpi_with_p3dfft" = "fluidfft.fft3d.mpi_with_p3dfft"
+# "fft3d.mpi_with_p3dfft" = "fluidfft.fft3d.mpi_with_p3dfft"
 
 # should be in fluidfft-pfft
-"fft3d.mpi_with_pfft" = "fluidfft.fft3d.mpi_with_pfft"
+# "fft3d.mpi_with_pfft" = "fluidfft.fft3d.mpi_with_pfft"
 
 [tool.pdm]
 distribution = true
 package-dir = "src"
 
 [tool.pdm.dev-dependencies]
-build = ["setuptools", "transonic", "pythran", "wheel", "jinja2", "cython"]
-
-# plugins = [
-#     "-e fluidfft-mpi4pyfft @ file:///${PROJECT_ROOT}/plugins/fluidfft-mpi4pyfft",
-# ]
+build = ["meson-python", "ninja", "numpy", "transonic>=0.6.0", "pythran>=0.9.7"]
 
 test = [
     "pytest",
-    "coverage",
+    "coverage[toml]",
     "pytest-cov",
     "cython", # needed at run time for coverage
-]
-dev = [
+    # needed to build the plugins
     "pip",
-    "ipython",
+    "-e fluidfft-builder @ file:///${PROJECT_ROOT}/plugins/fluidfft-builder",
 ]
+dev = ["ipython"]
 doc = [
     "sphinx",
     "sphinx_copybutton",
@@ -113,11 +87,53 @@ doc = [
     "numpydoc",
     "pandas",
     "pyfftw",
+    # needed to create the dummy modules
+    "-e fluidfft-builder @ file:///${PROJECT_ROOT}/plugins/fluidfft-builder",
 ]
 lint = ["black", "pylint"]
 
 [tool.pdm.scripts]
-black = 'black -l 82 src doc src_cy tests --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
-black_check = 'black --check -l 82 src doc src_cy tests --exclude "/(__pythran__|__python__|__numba__|doc/_build|\.ipynb_checkpoints/*)/"'
+black = 'black -l 82 src doc plugins tests --exclude "/(__pythran__|__python__|__numba__|build|doc/_build|\.ipynb_checkpoints/*)/"'
+black_check = 'black --check -l 82 src doc plugins tests --exclude "/(__pythran__|__python__|__numba__|build|doc/_build|\.ipynb_checkpoints/*)/"'
 lint = {shell="pylint -rn --rcfile=pylintrc --jobs=$(nproc) src doc tests plugins --exit-zero"}
 validate_code = {composite = ["black_check", "lint"]}
+
+
+[tool.coverage.run]
+source = [
+  "./src/fluidfft",
+  "./plugins/fluidfft-fftw",
+  "./plugins/fluidfft-fftwmpi",
+  "./plugins/fluidfft-mpi_with_fftw",
+]
+data_file = ".coverage/coverage"
+omit = [
+    "*/try_*.py",
+    "*/_old_*.py",
+    "**/__pythran__/*.py",
+    "**/__python__/*.py",
+    "**/__numba__/*.py",
+    "src/fluidfft/fft2d/fake_mod_fft2d_for_doc.py",
+    "src/fluidfft/fft3d/fake_mod_fft3d_for_doc.py",
+]
+plugins = ["Cython.Coverage"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "if __name__ == .__main__.:",
+    "if \"sphinx\" in sys.modules:",
+    "raise ValueError",
+    "raise NotImplementedError",
+    "raise ImportError",
+    "except KeyError:",
+    "except ImportError:",
+    "except AttributeError:",
+    "except NotImplementedError:",
+]
+
+[tool.coverage.html]
+directory = ".coverage"
+
+[tool.coverage.xml]
+output = ".coverage/coverage.xml"

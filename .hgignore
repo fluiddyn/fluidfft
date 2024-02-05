@@ -23,7 +23,6 @@ src_cy/fft*_pxd.pxd
 src/**/*.pyx
 src/**/*.pxd
 src/**/*.cpp
-src/**/*.cu
 
 __pycache__
 
@@ -53,6 +52,7 @@ site.cfg
 .tox
 .nox
 .venv
+.pixi
 .cache
 .mypy_cache
 **/__pythran__/*
@@ -79,3 +79,5 @@ doc/tmp/*
 .vscode
 
 .pdm-python
+
+src/fluidfft/build_conf.txt

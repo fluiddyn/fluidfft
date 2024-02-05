@@ -1,3 +1,0 @@
-from setup_config import make_site_cfg_default_file
-
-make_site_cfg_default_file()
