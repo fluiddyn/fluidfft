@@ -21,11 +21,12 @@ jobs:
       with:
         pixi-version: v0.11.1
         cache: false
-    - name: Tests
+    - name: Install
       run: |
         pixi run install-editable
-        pixi run pip install plugins/fluidfft-fftw -v --no-build-isolation --no-deps
+        # C++ code is not yet compatible with Windows
+        # pixi run pip install plugins/fluidfft-fftw -v --no-build-isolation --no-deps
     - name: Tests
       run: |
         pixi run pytest -v tests
-        pixi run pytest -v plugins/fluidfft-fftw
+        # pixi run pytest -v plugins/fluidfft-fftw
