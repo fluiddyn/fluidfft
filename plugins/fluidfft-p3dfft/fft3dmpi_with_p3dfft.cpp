@@ -3,8 +3,7 @@
 
 FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2)
     : BaseFFT3DMPI::BaseFFT3DMPI(argN0, argN1, argN2) {
-  struct timeval start_time, end_time;
-  double total_usecs;
+  double clocktime_in_sec;
 
   int conf;
   int memsize[3];
@@ -26,7 +25,7 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2)
 
   calcul_nprocmesh(rank, nb_proc, nprocmesh);
 
-  gettimeofday(&start_time, NULL);
+  auto start_time = chrono::high_resolution_clock::now();
 
   if (rank == 0)
     printf("Using processor grid %d x %d\n", nprocmesh[0], nprocmesh[1]);
@@ -89,14 +88,13 @@ FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2)
   local_K1_start = fstart[1] - 1;
   local_K2_start = fstart[0] - 1;
 
-  gettimeofday(&end_time, NULL);
+  auto end_time = chrono::high_resolution_clock::now();
 
-  total_usecs = (end_time.tv_sec - start_time.tv_sec) +
-                (end_time.tv_usec - start_time.tv_usec) / 1000000.;
+  clocktime_in_sec = end_time - start_time;
 
   if (rank == 0)
     printf("Initialization (%s) done in %f s\n", this->get_classname(),
-           total_usecs);
+           clocktime_in_sec.count());
 }
 
 void FFT3DMPIWithP3DFFT::destroy(void) {
@@ -194,7 +192,7 @@ myreal FFT3DMPIWithP3DFFT::sum_wavenumbers_double(myreal *fieldK) {
 
   MPI_Allreduce(&sum_loc, &sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
   sum *= 2.;
-  
+
   return (myreal)sum;
 }
 

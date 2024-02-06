@@ -10,8 +10,7 @@
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
-
-#include <sys/time.h>
+#include <chrono>
 
 #include <complex>
 using std::complex;
