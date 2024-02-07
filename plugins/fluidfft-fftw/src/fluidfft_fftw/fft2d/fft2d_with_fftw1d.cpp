@@ -1,19 +1,17 @@
 
 
 #include <iostream>
+#include <chrono>
 using namespace std;
 
 #include <stdlib.h>
 #include <string.h>
 
-#include <sys/time.h>
-
 #include <fft2d_with_fftw1d.h>
 
 FFT2DWithFFTW1D::FFT2DWithFFTW1D(int argN0, int argN1)
     : BaseFFT2D::BaseFFT2D(argN0, argN1) {
-  struct timeval start_time, end_time;
-  myreal total_usecs;
+  chrono::duration<double> clocktime_in_sec;
   // int iX0;
   int istride = 1, ostride = 1;
   int howmany, sign;
@@ -48,7 +46,7 @@ FFT2DWithFFTW1D::FFT2DWithFFTW1D(int argN0, int argN1)
   arrayK_pR = (mycomplex *)fftwf_malloc(sizeof(mycomplex) * nX0loc * nKx);
   arrayK_pC = (mycomplex *)fftwf_malloc(sizeof(mycomplex) * nKxloc * N0);
 
-  gettimeofday(&start_time, NULL);
+  auto start_time = chrono::high_resolution_clock::now();
 
   howmany = nX0loc;
 
@@ -73,7 +71,7 @@ FFT2DWithFFTW1D::FFT2DWithFFTW1D(int argN0, int argN1)
   arrayK_pR = (mycomplex *)fftw_malloc(sizeof(mycomplex) * nX0loc * nKx);
   arrayK_pC = (mycomplex *)fftw_malloc(sizeof(mycomplex) * nKxloc * N0);
 
-  gettimeofday(&start_time, NULL);
+  auto start_time = chrono::high_resolution_clock::now();
 
   howmany = nX0loc;
 
@@ -98,14 +96,13 @@ FFT2DWithFFTW1D::FFT2DWithFFTW1D(int argN0, int argN1)
       istride, N0, reinterpret_cast<mycomplex_fftw *>(arrayK_pC), &N0, ostride,
       N0, sign, flags);
 #endif
-  gettimeofday(&end_time, NULL);
+  auto end_time = chrono::high_resolution_clock::now();
 
-  total_usecs = (end_time.tv_sec - start_time.tv_sec) +
-                (end_time.tv_usec - start_time.tv_usec) / 1000000.;
+  clocktime_in_sec = end_time - start_time;
 
   if (rank == 0)
     printf("Initialization (%s) done in %f s\n", this->get_classname(),
-           total_usecs);
+           clocktime_in_sec.count());
 }
 
 void FFT2DWithFFTW1D::destroy(void) {

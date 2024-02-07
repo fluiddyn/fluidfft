@@ -3,8 +3,7 @@
 
 FFT3DMPIWithPFFT::FFT3DMPIWithPFFT(int argN0, int argN1, int argN2)
     : BaseFFT3DMPI::BaseFFT3DMPI(argN0, argN1, argN2) {
-  struct timeval start_time, end_time;
-  double total_usecs;
+  double clocktime_in_sec;
   unsigned flag_fwd, flag_bck;
   int irank;
 
@@ -144,7 +143,7 @@ FFT3DMPIWithPFFT::FFT3DMPIWithPFFT(int argN0, int argN1, int argN2)
   arrayK = reinterpret_cast<mycomplex *>(pfft_alloc_complex(alloc_local));
 #endif
 
-  gettimeofday(&start_time, NULL);
+  auto start_time = chrono::high_resolution_clock::now();
 
 #ifdef SINGLE_PREC
   plan_r2c = pfftf_plan_dft_r2c_3d(
@@ -164,14 +163,13 @@ FFT3DMPIWithPFFT::FFT3DMPIWithPFFT(int argN0, int argN1, int argN2)
                                   flag_bck | PFFT_MEASURE | PFFT_DESTROY_INPUT);
 #endif
 
-  gettimeofday(&end_time, NULL);
+  auto end_time = chrono::high_resolution_clock::now();
 
-  total_usecs = (end_time.tv_sec - start_time.tv_sec) +
-                (end_time.tv_usec - start_time.tv_usec) / 1000000.;
+  clocktime_in_sec = end_time - start_time;
 
   if (rank == 0)
     printf("Initialization (%s) done in %f s\n", this->get_classname(),
-           total_usecs);
+           clocktime_in_sec.count());
 }
 
 void FFT3DMPIWithPFFT::destroy(void) {

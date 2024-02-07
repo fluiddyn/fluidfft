@@ -3,8 +3,7 @@
 
 FFT2DWithFFTW2D::FFT2DWithFFTW2D(int argN0, int argN1)
     : BaseFFT2D::BaseFFT2D(argN0, argN1) {
-  struct timeval start_time, end_time;
-  myreal total_usecs;
+  chrono::duration<double> clocktime_in_sec;
 
   this->_init();
 
@@ -33,13 +32,13 @@ FFT2DWithFFTW2D::FFT2DWithFFTW2D(int argN0, int argN1)
 #ifdef SINGLE_PREC
   arrayX = fftwf_alloc_real(nX0 * nX1);
   arrayK = fftwf_alloc_complex(nK0 * nK1);
-  gettimeofday(&start_time, NULL);
+  auto start_time = chrono::high_resolution_clock::now();
   plan_r2c = fftwf_plan_dft_r2c_2d(N0, N1, arrayX, arrayK, flags);
   plan_c2r = fftwf_plan_dft_c2r_2d(N0, N1, arrayK, arrayX, flags);
 #else
   arrayX = (myreal *)fftw_malloc(sizeof(myreal) * nX0 * nX1);
   arrayK = reinterpret_cast<mycomplex *>(fftw_malloc(sizeof(mycomplex) * nK0 * nK1));
-  gettimeofday(&start_time, NULL);
+  auto start_time = chrono::high_resolution_clock::now();
   plan_r2c = fftw_plan_dft_r2c_2d(
       N0, N1, arrayX, reinterpret_cast<mycomplex_fftw *>(arrayK), flags);
 
@@ -47,14 +46,14 @@ FFT2DWithFFTW2D::FFT2DWithFFTW2D(int argN0, int argN1)
       N0, N1, reinterpret_cast<mycomplex_fftw *>(arrayK), arrayX, flags);
 #endif
 
-  gettimeofday(&end_time, NULL);
+  auto end_time = chrono::high_resolution_clock::now();
 
-  total_usecs = (end_time.tv_sec - start_time.tv_sec) +
-                (end_time.tv_usec - start_time.tv_usec) / 1000000.;
+  clocktime_in_sec = end_time - start_time;
 
   if (rank == 0)
-    printf("Initialization (%s) done in %f s\n", this->get_classname(),
-           total_usecs);
+    printf("Initialization (%s) done in %f s\n",
+           this->get_classname(),
+           clocktime_in_sec.count());
 }
 
 void FFT2DWithFFTW2D::destroy(void) {

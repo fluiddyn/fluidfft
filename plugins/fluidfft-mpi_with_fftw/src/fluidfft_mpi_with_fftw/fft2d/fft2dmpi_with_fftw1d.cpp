@@ -4,8 +4,7 @@
 
 FFT2DMPIWithFFTW1D::FFT2DMPIWithFFTW1D(int argN0, int argN1)
     : BaseFFT2DMPI::BaseFFT2DMPI(argN0, argN1) {
-  struct timeval start_time, end_time;
-  myreal total_usecs;
+  chrono::duration<double> clocktime_in_sec;
   int iX0;
   int istride = 1, ostride = 1;
   int howmany, sign;
@@ -44,7 +43,7 @@ FFT2DMPIWithFFTW1D::FFT2DMPIWithFFTW1D(int argN0, int argN1)
   arrayK_pR = (mycomplex *)fftw_malloc(sizeof(mycomplex) * nX0loc * (nKx + 1));
   arrayK_pC = (mycomplex *)fftw_malloc(sizeof(mycomplex) * nKxloc * N0);
 
-  gettimeofday(&start_time, NULL);
+  auto start_time = chrono::high_resolution_clock::now();
 
   howmany = nX0loc;
   plan_r2c =
@@ -69,14 +68,13 @@ FFT2DMPIWithFFTW1D::FFT2DMPIWithFFTW1D(int argN0, int argN1)
       istride, N0, reinterpret_cast<mycomplex_fftw *>(arrayK_pC), &N0, ostride,
       N0, sign, flags);
 
-  gettimeofday(&end_time, NULL);
+  auto end_time = chrono::high_resolution_clock::now();
 
-  total_usecs = (end_time.tv_sec - start_time.tv_sec) +
-                (end_time.tv_usec - start_time.tv_usec) / 1000000.;
+  clocktime_in_sec = end_time - start_time;
 
   if (rank == 0)
     printf("Initialization (%s) done in %f s\n", this->get_classname(),
-           total_usecs);
+           clocktime_in_sec.count());
 
   for (iX0 = 0; iX0 < nX0loc; iX0++)
     arrayK_pR[iX0 * (nKx + 1) + nKx] = 0.;

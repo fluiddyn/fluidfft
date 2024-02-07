@@ -1,9 +1,9 @@
 
 #include <iostream>
+#include <chrono>
 using namespace std;
 
 #include <stdlib.h>
-#include <sys/time.h>
 
 #include <base_fft.h>
 
@@ -16,12 +16,6 @@ myreal EPS = 5e-13;
 #endif
 
 char *dealiasing_coeff_char = getenv("FLUIDFFT_DEALIASING_COEFF");
-
-myreal compute_time_in_second(struct timeval start_time,
-                              struct timeval end_time) {
-  return (end_time.tv_sec - start_time.tv_sec) +
-         (end_time.tv_usec - start_time.tv_usec) / 1000000.;
-}
 
 // template <typename T, typename U>
 // inline std::complex<T> operator*(std::complex<T> lhs, const U& rhs)
@@ -151,7 +145,7 @@ int BaseFFT::test() {
 
 void BaseFFT::bench(int nb_time_execute, myreal *times) {
   int i;
-  struct timeval start_time, end_time;
+  chrono::duration<double> duration_in_sec;
   myreal time_in_sec;
   myreal *fieldX;
   mycomplex *fieldK;
@@ -163,32 +157,32 @@ void BaseFFT::bench(int nb_time_execute, myreal *times) {
   this->alloc_array_X(fieldX);
   this->alloc_array_K(fieldK);
 
-  gettimeofday(&start_time, NULL);
+  auto start_time = chrono::high_resolution_clock::now();
   for (i = 0; i < nb_time_execute; i++) {
     fieldX[0] = i;
     fft(fieldX, fieldK);
   }
-  gettimeofday(&end_time, NULL);
+  auto end_time = chrono::high_resolution_clock::now();
 
   if (rank == 0) {
-    time_in_sec =
-        compute_time_in_second(start_time, end_time) / nb_time_execute;
+    duration_in_sec = end_time - start_time;
+    time_in_sec = duration_in_sec.count() / nb_time_execute;
     times[0] = time_in_sec;
     snprintf(tmp_char, sizeof(tmp_char), "time fft (%s):  %f s\n",
              this->get_classname(), time_in_sec);
     cout << tmp_char;
   }
 
-  gettimeofday(&start_time, NULL);
+  start_time = chrono::high_resolution_clock::now();
   for (i = 0; i < nb_time_execute; i++) {
     fieldK[0] = i;
     ifft(fieldK, fieldX);
   }
-  gettimeofday(&end_time, NULL);
+  end_time = chrono::high_resolution_clock::now();
 
   if (rank == 0) {
-    time_in_sec =
-        compute_time_in_second(start_time, end_time) / nb_time_execute;
+    duration_in_sec = end_time - start_time;
+    time_in_sec = duration_in_sec.count() / nb_time_execute;
     snprintf(tmp_char, sizeof(tmp_char), "time ifft (%s): %f s\n",
              this->get_classname(), time_in_sec);
     cout << tmp_char;

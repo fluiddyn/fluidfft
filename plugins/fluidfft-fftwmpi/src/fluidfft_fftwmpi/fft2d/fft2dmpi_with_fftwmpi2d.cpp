@@ -5,8 +5,7 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1)
     : BaseFFT2DMPI::BaseFFT2DMPI(argN0, argN1) {
   int nK0_loc_iszero = 0;
   int count_nK0loc_zero = 0;
-  struct timeval start_time, end_time;
-  myreal total_usecs;
+  chrono::duration<double> clocktime_in_sec;
   ptrdiff_t local_nX0;
   ptrdiff_t local_nK0;
 
@@ -65,7 +64,7 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1)
   arrayX = fftwf_alloc_real(2 * alloc_local);
   arrayK = fftwf_alloc_complex(alloc_local);
 
-  gettimeofday(&start_time, NULL);
+  auto start_time = chrono::high_resolution_clock::now();
 
   plan_r2c = fftwf_mpi_plan_dft_r2c_2d(N0, N1, arrayX, arrayK, MPI_COMM_WORLD,
                                        flags | FFTW_MPI_TRANSPOSED_OUT);
@@ -76,7 +75,7 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1)
   arrayX = (myreal *)fftw_malloc(sizeof(myreal) * 2 * alloc_local);
   arrayK = reinterpret_cast<mycomplex *>(fftw_malloc(sizeof(mycomplex) * alloc_local));
 
-  gettimeofday(&start_time, NULL);
+  auto start_time = chrono::high_resolution_clock::now();
 
   plan_r2c = fftw_mpi_plan_dft_r2c_2d(
       N0, N1, arrayX, reinterpret_cast<mycomplex_fftw *>(arrayK),
@@ -86,14 +85,13 @@ FFT2DMPIWithFFTWMPI2D::FFT2DMPIWithFFTWMPI2D(int argN0, int argN1)
       N0, N1, reinterpret_cast<mycomplex_fftw *>(arrayK), arrayX,
       MPI_COMM_WORLD, flags | FFTW_MPI_TRANSPOSED_IN);
 #endif
-  gettimeofday(&end_time, NULL);
+  auto end_time = chrono::high_resolution_clock::now();
 
-  total_usecs = (end_time.tv_sec - start_time.tv_sec) +
-                (end_time.tv_usec - start_time.tv_usec) / 1000000.;
+  clocktime_in_sec = end_time - start_time;
 
   if (rank == 0)
     printf("Initialization (%s) done in %f s\n", this->get_classname(),
-           total_usecs);
+           clocktime_in_sec.count());
 }
 
 void FFT2DMPIWithFFTWMPI2D::destroy(void) {

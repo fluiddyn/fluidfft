@@ -3,8 +3,7 @@
 
 FFT3DWithFFTW3D::FFT3DWithFFTW3D(int argN0, int argN1, int argN2)
     : BaseFFT3D::BaseFFT3D(argN0, argN1, argN2) {
-  struct timeval start_time, end_time;
-  myreal total_usecs;
+  chrono::duration<double> clocktime_in_sec;
 
   this->_init();
 #ifdef OMP
@@ -52,7 +51,7 @@ FFT3DWithFFTW3D::FFT3DWithFFTW3D(int argN0, int argN1, int argN2)
   arrayK = reinterpret_cast<mycomplex *>(fftw_malloc(sizeof(mycomplex) * nK0 * nK1 * nK2));
 #endif
 
-  gettimeofday(&start_time, NULL);
+  auto start_time = chrono::high_resolution_clock::now();
 #ifdef OMP
 #ifdef SINGLE_PREC
   fftwf_plan_with_nthreads(omp_get_max_threads());
@@ -75,14 +74,13 @@ FFT3DWithFFTW3D::FFT3DWithFFTW3D(int argN0, int argN1, int argN2)
       N0, N1, N2, reinterpret_cast<mycomplex_fftw *>(arrayK), arrayX, flags);
 #endif
 
-  gettimeofday(&end_time, NULL);
+  auto end_time = chrono::high_resolution_clock::now();
 
-  total_usecs = (end_time.tv_sec - start_time.tv_sec) +
-                (end_time.tv_usec - start_time.tv_usec) / 1000000.;
+  clocktime_in_sec = end_time - start_time;
 
   if (rank == 0)
     printf("Initialization (%s) done in %f s\n", this->get_classname(),
-           total_usecs);
+           clocktime_in_sec.count());
 }
 
 void FFT3DWithFFTW3D::destroy(void) {
