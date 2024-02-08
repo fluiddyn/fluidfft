@@ -3,7 +3,7 @@
 
 FFT3DMPIWithP3DFFT::FFT3DMPIWithP3DFFT(int argN0, int argN1, int argN2)
     : BaseFFT3DMPI::BaseFFT3DMPI(argN0, argN1, argN2) {
-  double clocktime_in_sec;
+  chrono::duration<double> clocktime_in_sec;
 
   int conf;
   int memsize[3];

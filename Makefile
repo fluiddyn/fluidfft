@@ -11,6 +11,12 @@ develop_mpi_with_fftw:
 develop_fftwmpi:
 	pdm run pip install -e plugins/fluidfft-fftwmpi --no-build-isolation -v
 
+develop_pfft:
+	pdm run pip install -e plugins/fluidfft-pfft --no-build-isolation -v
+
+develop_p3dfft:
+	pdm run pip install -e plugins/fluidfft-p3dfft --no-build-isolation -v
+
 sync:
 	pdm sync --clean --no-self
 

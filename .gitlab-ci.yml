@@ -21,7 +21,7 @@ workflow:
     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
       when: never
     - if: $CI_COMMIT_BRANCH
-
+    - if: $CI_COMMIT_TAG
 
 pixi-test:
   stage: pixi
@@ -40,6 +40,7 @@ pixi-test:
 # it is quite unnecessary to run on every invocation.
 image:build:
   stage: image
+  needs: []
   tags:
     - container-registry-push
   rules:
@@ -96,7 +97,7 @@ tests_mpi:
     - job: "image:build"
       optional: true
   script:
-    - nox -s "tests(with_cov=True, with_mpi=True)"
+    - nox -s "tests(with_cov=True, with_mpi=True)" -- --with-pfft --with-p3dfft
 
 
 pages:

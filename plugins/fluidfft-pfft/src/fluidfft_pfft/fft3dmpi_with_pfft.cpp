@@ -3,7 +3,7 @@
 
 FFT3DMPIWithPFFT::FFT3DMPIWithPFFT(int argN0, int argN1, int argN2)
     : BaseFFT3DMPI::BaseFFT3DMPI(argN0, argN1, argN2) {
-  double clocktime_in_sec;
+  chrono::duration<double> clocktime_in_sec;
   unsigned flag_fwd, flag_bck;
   int irank;
 

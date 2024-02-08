@@ -12,7 +12,7 @@ or:
 
    make <session>
 
-execute ``make list-sessions```` or ``nox -l`` for a list of sessions.
+execute `make list-sessions` or `nox -l` for a list of sessions.
 
 """
 
@@ -30,7 +30,7 @@ nox.options.sessions = ["tests"]
 no_venv_session = partial(nox.session, venv_backend="none")
 
 
-@nox.session
+@nox.session(reuse_venv=True)
 def validate_code(session):
     session.run_always(
         "pdm", "sync", "--clean", "-G", "lint", "--no-self", external=True
@@ -40,9 +40,12 @@ def validate_code(session):
 
 @nox.parametrize("with_mpi", [True, False])
 @nox.parametrize("with_cov", [True, False])
-@nox.session
+@nox.session(reuse_venv=True)
 def tests(session, with_mpi, with_cov):
     """Execute unit-tests using pytest"""
+
+    with_pfft = "--with-pfft" in session.posargs
+    with_p3dfft = "--with-p3dfft" in session.posargs
 
     command = "pdm sync --clean --no-self -G test -G build -G pyfftw"
     if with_mpi:
@@ -59,12 +62,20 @@ def tests(session, with_mpi, with_cov):
     )
 
     session.install("plugins/fluidfft-builder")
-    session.install("-e", "plugins/fluidfft-fftw", "--no-build-isolation", "-v")
+
+    plugin_name_seq = ["fftw"]
+    plugin_names = plugin_name_seq.copy()
+
     if with_mpi:
-        session.install(
-            "-e", "plugins/fluidfft-mpi_with_fftw", "--no-build-isolation", "-v"
-        )
-        session.install("-e", "plugins/fluidfft-fftwmpi", "--no-build-isolation", "-v")
+        plugin_names_par = ["mpi_with_fftw", "fftwmpi"]
+        if with_pfft:
+            plugin_names_par.append("pfft")
+        if with_p3dfft:
+            plugin_names_par.append("p3dfft")
+        plugin_names.extend(plugin_names_par)
+
+    for name in plugin_names:
+        session.install("-e", f"plugins/fluidfft-{name}", "--no-build-isolation")
 
     if with_cov:
         path_coverage = Path.cwd() / ".coverage"
@@ -78,9 +89,11 @@ def tests(session, with_mpi, with_cov):
 
     command = "pytest -v -s tests"
 
-    run_command(command, *session.posargs)
-    run_command(command, *session.posargs, env={"TRANSONIC_NO_REPLACE": "1"})
-    run_command("pytest -v plugins/fluidfft-fftw")
+    run_command(command)
+    run_command(command, env={"TRANSONIC_NO_REPLACE": "1"})
+
+    for name in plugin_name_seq:
+        run_command(f"pytest -v plugins/fluidfft-{name}")
 
     if with_mpi:
 
@@ -93,8 +106,8 @@ def tests(session, with_mpi, with_cov):
             command += f" plugins/{package_name}"
             session.run(*command.split(), external=True)
 
-        test_plugin("fluidfft-mpi_with_fftw")
-        test_plugin("fluidfft-fftwmpi")
+        for name in plugin_names_par:
+            test_plugin(f"fluidfft-{name}")
 
     if with_cov:
         if with_mpi:
@@ -104,7 +117,7 @@ def tests(session, with_mpi, with_cov):
         session.run("coverage", "html")
 
 
-@nox.session
+@nox.session(reuse_venv=True)
 def doc(session):
     session.run_always(
         "pdm", "sync", "--clean", "-G", "doc", "--no-self", external=True

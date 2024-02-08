@@ -1,19 +1,29 @@
 import numpy as np
 
-from fluidfft import import_fft_class
-from .operators import OperatorsPseudoSpectral3D, vector_product
+import pytest
 
 from fluiddyn.util import mpi
+
+from fluidfft import import_fft_class
+from .operators import OperatorsPseudoSpectral3D, vector_product
 
 rank = mpi.rank
 nb_proc = mpi.nb_proc
 
 
-def complete_test_class_3d(method, test_class, cls=None):
+def complete_test_class_3d(
+    method, test_class, cls=None, skip_if_import_error=True
+):
     short_name = method.split(".")[1]
     if cls is None:
-        cls = import_fft_class(method)
+        cls = import_fft_class(method, raise_import_error=skip_if_import_error)
+
     tests = make_testop_functions(cls)
+    if cls is None:
+        tests = {
+            key: pytest.mark.skip(reason="Class not importable")(function)
+            for key, function in tests.items()
+        }
     for key, test in tests.items():
         setattr(test_class, f"test_operator3d_{short_name}_{key}", test)
 

@@ -48,8 +48,22 @@ else:
     methodss[3, False].add("fft3d.mpi_with_fftwmpi3d")
     del fluidfft_fftwmpi
 
-# "fft3d.mpi_with_p3dfft",
-# "fft3d.mpi_with_pfft",
+
+try:
+    import fluidfft_pfft
+except ImportError:
+    pass
+else:
+    methodss[3, False].add("fft3d.mpi_with_pfft")
+    del fluidfft_pfft
+
+try:
+    import fluidfft_p3dfft
+except ImportError:
+    pass
+else:
+    methodss[3, False].add("fft3d.mpi_with_p3dfft")
+    del fluidfft_p3dfft
 
 
 def test_plugins():
