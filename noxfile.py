@@ -129,3 +129,118 @@ def doc(session):
     session.chdir("doc")
     session.run("make", "cleanall", external=True)
     session.run("make", external=True)
+
+
+def _get_version_from_pyproject(path=Path.cwd()):
+    if isinstance(path, str):
+        path = Path(path)
+
+    if not path.name == "pyproject.toml":
+        path /= "pyproject.toml"
+
+    if not path.exists():
+        raise IOError(f"{path} does not exist.")
+
+    in_project = False
+    version = None
+    with open(path, encoding="utf-8") as file:
+        for line in file:
+            if line.startswith("[project]"):
+                in_project = True
+            if line.startswith("version =") and in_project:
+                version = line.split("=")[1].strip()
+                version = version[1:-1]
+                break
+
+    assert version is not None
+    return version
+
+
+@nox.session(name="add-tag-for-release", venv_backend="none")
+def add_tag_for_release(session):
+    session.run("hg", "pull", external=True)
+
+    result = session.run(*"hg log -r default -G".split(), external=True, silent=True)
+    if result[0] != "@":
+        session.run("hg", "update", "default", external=True)
+
+    version = _get_version_from_pyproject()
+    print(f"{version = }")
+
+    result = session.run("hg", "tags", "-T", "{tag},", external=True, silent=True)
+    last_tag = result.split(",", 2)[1]
+    print(f"{last_tag = }")
+
+    if last_tag == version:
+        session.error("last_tag == version")
+
+    answer = input(
+        f'Do you really want to add and push the new tag "{version}"? (yes/[no]) '
+    )
+
+    if answer != "yes":
+        print("Maybe next time then. Bye!")
+        return
+
+    print("Let's go!")
+    session.run("hg", "tag", version, external=True)
+    session.run("hg", "push", external=True)
+
+
+@nox.session(name="release-plugin", reuse_venv=True)
+def release_plugin(session):
+    """Release a plugin on PyPI."""
+
+    for project in ("build", "twine", "lastversion"):
+        session.install(project)
+
+    try:
+        short_name = session.posargs[0]
+    except IndexError:
+        session.error("No short name given. Use as `nox -R -s release-plugin -- fftw`")
+    print(short_name)
+
+    path = Path.cwd() / f"plugins/fluidfft-{short_name}"
+
+    if not path.exists():
+        session.error(f"{path} does not exist")
+
+    version = _get_version_from_pyproject(path)
+    print(f"{version = }")
+
+    ret = session.run(
+        "lastversion",
+        f"fluidfft-{short_name}",
+        "--at",
+        "pip",
+        success_codes=[0, 1],
+        silent=True,
+    )
+    if ret.startswith("CRITICAL: No release was found"):
+        print(ret[len("CRITICAL: ") :])
+    else:
+        version_on_pypi = ret.strip()
+        if version_on_pypi == version:
+            session.error(f"Local version {version} is already released")
+
+    session.chdir(path)
+
+    path_dist = path / "dist"
+    rmtree(path_dist, ignore_errors=True)
+
+    command = "python -m build"
+    if short_name in ["fftw", "mpi_with_fftw", "fftwmpi", "pfft", "p3dfft"]:
+        command += " --sdist"
+
+    session.run(*command.split())
+    session.run("twine", "check", "dist/*")
+
+    answer = input(
+        f"Do you really want to release fluidfft-{short_name} {version}? (yes/[no]) "
+    )
+
+    if answer != "yes":
+        print("Maybe next time then. Bye!")
+        return
+
+    session.run("twine", "upload", "dist/*")
