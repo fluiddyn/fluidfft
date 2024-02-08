@@ -5,15 +5,11 @@ This plugin provides a method for parallel FFTs using PFFT:
 
 ## Environment variables
 
-- `LIBRARY_PATH`
-- `CPATH`
-- `LD_LIBRARY_PATH`
+The default include path can be expanded with `CPATH` for GCC/Clang and
+`INCLUDE` for MSVC.
 
-or
+The default library search path can be expanded with `LIBRARY_PATH` for
+GCC/Clang and `LIB` for MSVC.
 
-- `PFFT_DIR`
-
-or
-
-- `PFFT_LIB_DIR`
-- `PFFT_INCLUDE_DIR`
+Alternatively, one could define `PFFT_DIR` or `PFFT_LIB_DIR` and
+`PFFT_INCLUDE_DIR`.

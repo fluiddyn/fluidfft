@@ -43,19 +43,20 @@ RUN ln -s /usr/include/fftw* $HOME/.local/include
 RUN ln -s /usr/lib/x86_64-linux-gnu/libfftw3* $HOME/.local/lib
 
 ENV LD_LIBRARY_PATH=$HOME/.local/lib
+ENV LIBRARY_PATH=$HOME/.local/lib
 ENV PATH=$HOME/.local/bin:$PATH
 ENV CPATH=$HOME/.local/include:$CPATH
 
 RUN mkdir -p $HOME/.config/matplotlib
 RUN echo 'backend      : agg' > $HOME/.config/matplotlib/matplotlibrc
 
-RUN wget https://foss.heptapod.net/fluiddyn/fluidfft/raw/branch/default/doc/install/install_p3dfft.sh -O ./install_p3dfft.sh
+COPY --chown=appuser:appuser doc/install/install_p3dfft.sh install_p3dfft.sh
 RUN chmod +x install_p3dfft.sh
 RUN export FCFLAGS="-w -fallow-argument-mismatch -O2" && \
     export FFLAGS="-w -fallow-argument-mismatch -O2" && \
     ./install_p3dfft.sh
 
-RUN wget https://foss.heptapod.net/fluiddyn/fluidfft/raw/branch/default/doc/install/install_pfft.sh -O ./install_pfft.sh
+COPY --chown=appuser:appuser doc/install/install_pfft.sh install_pfft.sh
 RUN chmod +x install_pfft.sh
 RUN ./install_pfft.sh
 

@@ -35,30 +35,49 @@ PFFT_DIR = run_command(
 ).stdout().strip()
 message('PFFT_DIR=' + PFFT_DIR)
 
-PFFT_LIB_DIR = run_command(
-  py, '-c', 'import os; print(os.environ.get("PFFT_LIB_DIR", ""))',
-  check: true
-).stdout().strip()
-message('PFFT_LIB_DIR=' + PFFT_LIB_DIR)
+if PFFT_DIR != ''
+  PFFT_LIB_DIR = PFFT_DIR + '/lib'
+  PFFT_INCLUDE_DIR = PFFT_DIR + '/include'
+else
+  PFFT_LIB_DIR = run_command(
+    py, '-c', 'import os; print(os.environ.get("PFFT_LIB_DIR", ""))',
+    check: true
+  ).stdout().strip()
+  message('PFFT_LIB_DIR=' + PFFT_LIB_DIR)
 
-PFFT_INCLUDE_DIR = run_command(
-  py, '-c', 'import os; print(os.environ.get("PFFT_INCLUDE_DIR", ""))',
-  check: true
-).stdout().strip()
-message('PFFT_INCLUDE_DIR=' + PFFT_INCLUDE_DIR)
+  PFFT_INCLUDE_DIR = run_command(
+    py, '-c', 'import os; print(os.environ.get("PFFT_INCLUDE_DIR", ""))',
+    check: true
+  ).stdout().strip()
+  message('PFFT_INCLUDE_DIR=' + PFFT_INCLUDE_DIR)
+endif
 
-# We need to do something with these values
-# see https://stackoverflow.com/a/61072768/1779806
+dirs = []
+if PFFT_LIB_DIR != ''
+   dirs += [PFFT_LIB_DIR]
+endif
 
-# set LIBRARY_PATH to include the directory where is libpfft.so
-pfft_dep = compiler.find_library('pfft', required: true)
-link_args = ['-lpfft', '-lfftw3_mpi']
+include_directories = []
+if PFFT_INCLUDE_DIR != ''
+  include_directories = include_directories(PFFT_INCLUDE_DIR)
+endif
+
+pfft_dep = compiler.find_library(
+  'pfft',
+  dirs: dirs,
+  has_headers: ['pfft.h'],
+  header_include_directories: include_directories,
+  required: true,
+)
+link_args = ['-lfftw3_mpi']
 
 dependencies = [fftw_dep, mpi_dep, np_dep, fftwmpi_dep, pfft_dep]
 
 include_path_fluidfft_builder = run_command(
   'fluidfft-builder-print-include-dir', check: true
 ).stdout().strip()
+
+include_directories = [include_directories, include_path_fluidfft_builder]
 
 include_path_cy = run_command(
   'fluidfft-builder-print-include-dir-cython', check: true
