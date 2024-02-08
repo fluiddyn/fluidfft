@@ -62,16 +62,20 @@ def tests(session, with_mpi, with_cov):
     )
 
     session.install("plugins/fluidfft-builder")
-    session.install("-e", "plugins/fluidfft-fftw", "--no-build-isolation", "-v")
+
+    plugin_name_seq = ["fftw"]
+    plugin_names = plugin_name_seq.copy()
+
     if with_mpi:
-        session.install(
-            "-e", "plugins/fluidfft-mpi_with_fftw", "--no-build-isolation", "-v"
-        )
-        session.install("-e", "plugins/fluidfft-fftwmpi", "--no-build-isolation", "-v")
+        plugin_names_par = ["mpi_with_fftw", "fftwmpi"]
         if with_pfft:
-            session.install("-e", "plugins/fluidfft-pfft", "--no-build-isolation", "-v")
+            plugin_names_par.append("pfft")
         if with_p3dfft:
-            session.install("-e", "plugins/fluidfft-p3dfft", "--no-build-isolation", "-v")
+            plugin_names_par.append("p3dfft")
+        plugin_names.extend(plugin_names_par)
+
+    for name in plugin_names:
+        session.install("-e", f"plugins/fluidfft-{name}", "--no-build-isolation")
 
     if with_cov:
         path_coverage = Path.cwd() / ".coverage"
@@ -87,7 +91,9 @@ def tests(session, with_mpi, with_cov):
 
     run_command(command)
     run_command(command, env={"TRANSONIC_NO_REPLACE": "1"})
-    run_command("pytest -v plugins/fluidfft-fftw")
+
+    for name in plugin_name_seq:
+        run_command(f"pytest -v plugins/fluidfft-{name}")
 
     if with_mpi:
 
@@ -100,12 +106,8 @@ def tests(session, with_mpi, with_cov):
             command += f" plugins/{package_name}"
             session.run(*command.split(), external=True)
 
-        test_plugin("fluidfft-mpi_with_fftw")
-        test_plugin("fluidfft-fftwmpi")
-        if with_pfft:
-            test_plugin("fluidfft-pfft")
-        if with_p3dfft:
-            test_plugin("fluidfft-p3dfft")
+        for name in plugin_names_par:
+            test_plugin(f"fluidfft-{name}")
 
     if with_cov:
         if with_mpi:

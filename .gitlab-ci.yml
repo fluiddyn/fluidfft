@@ -97,7 +97,7 @@ tests_mpi:
     - job: "image:build"
       optional: true
   script:
-    - nox -s "tests(with_cov=True, with_mpi=True)" -- --with-pfft
+    - nox -s "tests(with_cov=True, with_mpi=True)" -- --with-pfft --with-p3dfft
 
 
 pages:

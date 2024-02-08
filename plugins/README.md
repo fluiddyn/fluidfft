@@ -23,10 +23,10 @@ The following plugins are implemented in Fluidfft repository:
 - [x] fluidfft-fftw
 - [x] fluidfft-mpi_with_fftw (parallel methods using the sequential FFTW3 library)
 - [x] fluidfft-fftwmpi (methods using the library `libfftw_mpi`)
+- [x] fluidfft-p3dfft
+- [x] fluidfft-pfft
 - [x] fluidfft-mpi4pyfft (cannot be tested because mpi4py-fft installation fails)
 
 We plan to soon also have:
 
-- [ ] fluidfft-p3dfft
-- [ ] fluidfft-pfft
 - [ ] fluidfft-pyvkfft (https://pyvkfft.readthedocs.io)

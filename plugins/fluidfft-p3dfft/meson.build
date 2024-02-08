@@ -1,5 +1,5 @@
 project(
-  'fluidfft-pfft',
+  'fluidfft-p3dfft',
   'cpp',
   'cython',
   license: 'CeCILL',
@@ -28,49 +28,49 @@ compiler = meson.get_compiler('cpp')
 # fftw_mpi is not found on Ubuntu
 fftwmpi_dep = compiler.find_library('fftw_mpi', required: false)
 
-PFFT_DIR = run_command(
-  py, '-c', 'import os; print(os.environ.get("PFFT_DIR", ""))',
+P3DFFT_DIR = run_command(
+  py, '-c', 'import os; print(os.environ.get("P3DFFT_DIR", ""))',
   check: true
 ).stdout().strip()
-message('PFFT_DIR=' + PFFT_DIR)
+message('P3DFFT_DIR=' + P3DFFT_DIR)
 
-if PFFT_DIR != ''
-  PFFT_LIB_DIR = PFFT_DIR + '/lib'
-  PFFT_INCLUDE_DIR = PFFT_DIR + '/include'
+if P3DFFT_DIR != ''
+  P3DFFT_LIB_DIR = P3DFFT_DIR + '/lib'
+  P3DFFT_INCLUDE_DIR = P3DFFT_DIR + '/include'
 else
-  PFFT_LIB_DIR = run_command(
-    py, '-c', 'import os; print(os.environ.get("PFFT_LIB_DIR", ""))',
+  P3DFFT_LIB_DIR = run_command(
+    py, '-c', 'import os; print(os.environ.get("P3DFFT_LIB_DIR", ""))',
     check: true
   ).stdout().strip()
-  message('PFFT_LIB_DIR=' + PFFT_LIB_DIR)
+  message('P3DFFT_LIB_DIR=' + P3DFFT_LIB_DIR)
 
-  PFFT_INCLUDE_DIR = run_command(
-    py, '-c', 'import os; print(os.environ.get("PFFT_INCLUDE_DIR", ""))',
+  P3DFFT_INCLUDE_DIR = run_command(
+    py, '-c', 'import os; print(os.environ.get("P3DFFT_INCLUDE_DIR", ""))',
     check: true
   ).stdout().strip()
-  message('PFFT_INCLUDE_DIR=' + PFFT_INCLUDE_DIR)
+  message('P3DFFT_INCLUDE_DIR=' + P3DFFT_INCLUDE_DIR)
 endif
 
 dirs = []
-if PFFT_LIB_DIR != ''
-   dirs += [PFFT_LIB_DIR]
+if P3DFFT_LIB_DIR != ''
+   dirs += [P3DFFT_LIB_DIR]
 endif
 
 include_directories = []
-if PFFT_INCLUDE_DIR != ''
-  include_directories = include_directories(PFFT_INCLUDE_DIR)
+if P3DFFT_INCLUDE_DIR != ''
+  include_directories = include_directories(P3DFFT_INCLUDE_DIR)
 endif
 
-pfft_dep = compiler.find_library(
-  'pfft',
+p3dfft_dep = compiler.find_library(
+  'p3dfft',
   dirs: dirs,
-  has_headers: ['pfft.h'],
+  has_headers: ['p3dfft.h'],
   header_include_directories: include_directories,
   required: true,
 )
 link_args = ['-lfftw3_mpi']
 
-dependencies = [fftw_dep, mpi_dep, np_dep, fftwmpi_dep, pfft_dep]
+dependencies = [fftw_dep, mpi_dep, np_dep, fftwmpi_dep, p3dfft_dep]
 
 include_path_fluidfft_builder = run_command(
   'fluidfft-builder-print-include-dir', check: true
@@ -83,4 +83,4 @@ include_path_cy = run_command(
 ).stdout().strip()
 add_project_arguments('-I', include_path_cy, language : 'cython')
 
-subdir('src/fluidfft_pfft')
+subdir('src/fluidfft_p3dfft')
