@@ -11,11 +11,10 @@ build:
     python: "3.11"
   jobs:
     post_create_environment:
-      - pip install pdm
+      - pip install pdm nox
     post_install:
       - pdm use -f $READTHEDOCS_VIRTUALENV_PATH
       - pdm sync -G doc --no-self
-      - pdm run python -c "from fluidfft_builder import create_fake_modules as c; c()"
       - pdm run pip install . --no-deps -C setup-args=-Dtransonic-backend=python
 
 sphinx:
