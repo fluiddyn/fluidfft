@@ -2,125 +2,43 @@
 
 # Installation and advice
 
-```{danger}
+As already written in the overview, Fluidfft is organized as a main package
+provided few Fluidfft Python classes using standard packages (Numpy, pyfftw,
+Dask, etc.) and plugins which can use other methods, in particular based on C++
+classes using more advanced libraries (as pfft and p3dfft).
 
-We are working on a very deep reorganization of Fluidfft. Fluidfft 0.4.0, which
-should be released in the beginning of 2024, will work with plugins. This
-documentation is valid for Fluidfft <= 0.3.5. The new documentation should come soon.
+In this page we focus on installing the base Fluidfft package for Fluidfft >=
+0.4.0.
 
-```
+First, ensure that you have a recent Python installed, since Fluidsim requires
+Python >= 3.9. Some issues regarding the installation of Python and Python
+packages are discussed in
+[the main documentation of the project](http://fluiddyn.readthedocs.org/en/latest/install.html).
 
 ## Installation with pip
 
-To install fluidfft, you need a recent Python (>= 3.6) and a C++11 compiler
-(for example GCC 4.9 or clang). We explain how to install Python and other
-fluidfft dependencies here: [Get a good scientific Python environment](http://fluiddyn.readthedocs.io/en/latest/get_good_Python_env.html)
+```{note}
 
-To install Fluidfft, just run:
-
-```
-pip install fluidfft
-```
-
-However, fluidfft build is sensible to some options, contained in a
-configuration file (`~/.fluidfft-site.cfg` or `site.cfg` in the root
-directory) and in environment variables (see below).
-
-### Configuration files and FFT libraries
-
-The configuration file contains in particular the list of FFT libraries that
-will be used by fluidfft. Here is a list of FFT libraries, with instructions on
-how to install them:
-
-```{toctree}
-:maxdepth: 1
-
-install/fft_libs
-```
-
-The default configuration file can be downloaded with (On some systems,
-`wget` is not installed by default. You may be able to use `curl`
-instead.):
+We strongly advice to install Fluidfft in a virtual environment. See the
+official guide [Install packages in a virtual environment using pip and
+venv](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/).
 
 ```
-wget https://foss.heptapod.net/fluiddyn/fluidfft/raw/branch/default/site.cfg.default -O ~/.fluidfft-site.cfg
+
+Fluidfft can be installed without compilation with `pip`:
+
+```sh
+pip install pip -U
+pip install fluidsim
 ```
 
-Edit one of the configuration files (`~/.fluidfft-site.cfg` or `site.cfg`)
-as needed.
+## Installation with conda
 
-:::{warning}
-By default (without `~/.fluidfft-site.cfg`), no FFT classes are compiled so
-that fluidfft will only be able to uses its pure-Python FFT classes (using in
-particular pyfftw)!
-:::
-
-### Environment variables
-
-The fluidfft build is also sensible to environment variables.
-
-- `FLUIDDYN_NUM_PROCS_BUILD`
-
-  FluidFFT builds its binaries in parallel. It speedups the build process a lot on
-  most computers. However, it can be a very bad idea on computers with not enough
-  memory. If you encounter problems, you can force the number of processes used
-  during the build using the environment variable `FLUIDDYN_NUM_PROCS_BUILD`.
-
-- `FLUIDDYN_DEBUG` disables parallel build.
-
-- `DISABLE_PYTHRAN`
-
-  `DISABLE_PYTHRAN` disables compilation with Pythran at build time.
-
-- `FLUIDFFT_TRANSONIC_BACKEND`
-
-  "pythran" by default, it can be set to "python", "numba" or "cython".
-
-- `FLUIDFFT_DISABLE_MPI` can be set to disable all MPI libs.
-
-### Warning about re-installing fluidfft with new build options
-
-If fluidfft has already been installed and you want to recompile with new
-configuration values in `~/.fluidfft-site.cfg`, you need to really recompile
-fluidfft and not just reinstall an already produced wheel. To do this, use:
-
-```
-pip install fluidfft --no-binary fluidfft -v
+```sh
+conda install fluidfft
 ```
 
-`-v` toggles the verbose mode of pip so that we see the compilation log and
-can check that everything goes well.
-
-## Install from the repository (still recommended)
-
-For FluidFFT, we use the revision control software Mercurial and the main
-repository is hosted [here](https://foss.heptapod.net/fluiddyn/fluidfft) in
-Heptapod. Download the source with something like:
-
-```
-hg clone https://foss.heptapod.net/fluiddyn/fluidfft
-```
-
-If you are new with Mercurial and Heptapod, you can also read [this short
-tutorial](http://fluiddyn.readthedocs.org/en/latest/mercurial_heptapod.html).
-
-You can create a default configuration file with:
-
-```
-cp site.cfg.default site.cfg
-```
-
-Edit the configuration file and set environment variables as needed. Build
-fluidfft with the command `make` which runs:
-
-```
-pip install -e .[dev]
-```
-
-After the installation, it is a good practice to run the unit tests by running
-`make tests` or `make tests_mpi`.
-
-## Remark on Numpy installed with conda
+### Remark on Numpy installed with conda
 
 In anaconda (or miniconda), Numpy installed with `conda install numpy` can be
 built and linked with MKL (an Intel library). This can be a real plus for
@@ -141,50 +59,8 @@ conda config --add channels conda-forge
 conda install "blas[build=*openblas]" numpy
 ```
 
-## About using Pythran to compile fluidfft functions
+## Environment variables
 
-We choose to use the Python compiler [Pythran](https://github.com/serge-sans-paille/pythran) for some functions of the
-operators. Our microbenchmarks show that the performances are as good as what
-we are able to get with Fortran or C++!
-
-:::{warning}
-To reach good performance, we advice to try to put in the file
-`~/.pythranrc` the lines (it seems to work well on Linux, see the [Pythran
-documentation](https://pythran.readthedocs.io)):
-
-```bash
-[pythran]
-complex_hook = True
-```
-:::
-
-:::{warning}
-The compilation of C++ files produced by Pythran can be long and can consume
-a lot of memory. If you encounter any problems, you can try to use clang (for
-example with `conda install clangdev`) and to enable its use in the file
-`~/.pythranrc` with:
-
-```bash
-[compiler]
-CXX=clang++
-CC=clang
-```
-:::
-
-## About mpi4py
-
-If you enable MPI libraries (from the configuration file), `pip` will try to
-install mpi4py and MPI development files are needed. For example, on Debian
-based OS, one can install the package `libopenmpi-dev`.
-
-## Examples of installation
-
-```{toctree}
-:maxdepth: 1
-
-install/occigen
-install/froggy
-install/triolith
-install/beskow
-install/blas_libs
-```
+Fluidfft is sensible at runtime to the environment variable
+`TRANSONIC_BACKEND`. The Transonic backend is "pythran" by default, but it can
+also be set to "python" or "numba".

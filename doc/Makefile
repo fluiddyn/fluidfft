@@ -53,7 +53,6 @@ help:
 clean:
 	rm -rf $(BUILDDIR)/*
 	rm -f $(IPYTHON_NOTEBOOKS_RST)
-	rm -f ipynb/*.executed.ipynb
 	rm -rf tmp
 
 cleanall: clean

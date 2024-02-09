@@ -157,7 +157,14 @@ version = "{}.{}.{}".format(version[0], version[1], version[2])
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ["_build", "install/blas_libs.rst"]
+exclude_patterns = ["_build"]
+exclude_patterns.extend(
+    [
+        f"install/{name}.md"
+        for name in ["blas_libs", "beskow", "froggy", "occigen", "triolith"]
+    ]
+)
+
 paths_notebooks = Path("ipynb").glob("*.ipynb")
 
 # The reST default role (used for this markup: `text`) to use for all

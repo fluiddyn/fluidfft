@@ -92,11 +92,9 @@ You may adapt the shell script given below to automate this process :
 
 This script can be downloaded with:
 
-```
+```sh
 wget https://foss.heptapod.net/fluiddyn/fluidfft/-/raw/branch/default/doc/install/install_p3dfft.sh
 ```
-
-See also how we build p3dfft with intel compiler for the {doc}`occigen`.
 
 ## cuda
 
