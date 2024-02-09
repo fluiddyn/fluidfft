@@ -93,6 +93,7 @@ doc = [
 lint = ["black", "pylint"]
 
 [tool.pdm.scripts]
+pre_install = "nox -s create-fake-modules"
 black = 'black -l 82 src doc plugins tests --exclude "/(__pythran__|__python__|__numba__|build|doc/_build|\.ipynb_checkpoints/*)/"'
 black_check = 'black --check -l 82 src doc plugins tests --exclude "/(__pythran__|__python__|__numba__|build|doc/_build|\.ipynb_checkpoints/*)/"'
 lint = {shell="pylint -rn --rcfile=pylintrc --jobs=$(nproc) src doc tests plugins --exit-zero"}
@@ -103,6 +104,8 @@ excludes = ["fluidfft-fftw", "fluidfft-mpi_with_fftw", "fluidfft-fftwmpi", "flui
 
 [tool.pdm.options]
 lock = ["-G", "pyfftw", "-G", "dask", "-G", "mpi"]
+sync = ["--no-isolation"]
+install = ["--no-isolation"]
 
 [tool.coverage.run]
 source = [
@@ -142,3 +145,6 @@ directory = ".coverage"
 
 [tool.coverage.xml]
 output = ".coverage/coverage.xml"
+
+[tool.black]
+line-length = 82
