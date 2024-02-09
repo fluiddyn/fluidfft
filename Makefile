@@ -1,8 +1,6 @@
 .PHONY: clean cleanall develop list-sessions tests doc
 
 develop: sync
-	pdm run python -c "from fluidfft_builder import create_fake_modules as c; c()"
-	pdm run pip install -e . --no-deps --no-build-isolation -v
 	pdm run pip install -e plugins/fluidfft-fftw --no-build-isolation -v
 
 develop_mpi_with_fftw:
@@ -18,7 +16,7 @@ develop_p3dfft:
 	pdm run pip install -e plugins/fluidfft-p3dfft --no-build-isolation -v
 
 sync:
-	pdm sync --clean --no-self
+	pdm sync --clean
 
 lock:
 	pdm lock

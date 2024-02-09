@@ -32,6 +32,7 @@ no_venv_session = partial(nox.session, venv_backend="none")
 
 @nox.session(reuse_venv=True)
 def validate_code(session):
+    """Validate the code with black and pylint"""
     session.run_always(
         "pdm", "sync", "--clean", "-G", "lint", "--no-self", external=True
     )
@@ -119,13 +120,18 @@ def tests(session, with_mpi, with_cov):
 
 @nox.session(reuse_venv=True)
 def doc(session):
+    """Build the documentation"""
     session.run_always(
         "pdm", "sync", "--clean", "-G", "doc", "--no-self", external=True
     )
     session.run_always(
-        "python", "-c", "from fluidfft_builder import create_fake_modules as c; c()"
+        "python",
+        "-c",
+        "from fluidfft_builder import create_fake_modules as c; c()",
     )
-    session.install(".", "--no-deps", "-C", "setup-args=-Dtransonic-backend=python")
+    session.install(
+        ".", "--no-deps", "-C", "setup-args=-Dtransonic-backend=python"
+    )
     session.chdir("doc")
     session.run("make", "cleanall", external=True)
     session.run("make", external=True)
@@ -158,9 +164,12 @@ def _get_version_from_pyproject(path=Path.cwd()):
 
 @nox.session(name="add-tag-for-release", venv_backend="none")
 def add_tag_for_release(session):
+    """Add a version tag in the repo"""
     session.run("hg", "pull", external=True)
 
-    result = session.run(*"hg log -r default -G".split(), external=True, silent=True)
+    result = session.run(
+        *"hg log -r default -G".split(), external=True, silent=True
+    )
     if result[0] != "@":
         session.run("hg", "update", "default", external=True)
 
@@ -189,7 +198,7 @@ def add_tag_for_release(session):
 
 @nox.session(name="release-plugin", reuse_venv=True)
 def release_plugin(session):
-    """Release a plugin on PyPI."""
+    """Release a plugin on PyPI"""
 
     for project in ("build", "twine", "lastversion"):
         session.install(project)
@@ -197,7 +206,9 @@ def release_plugin(session):
     try:
         short_name = session.posargs[0]
     except IndexError:
-        session.error("No short name given. Use as `nox -R -s release-plugin -- fftw`")
+        session.error(
+            "No short name given. Use as `nox -R -s release-plugin -- fftw`"
+        )
     print(short_name)
 
     path = Path.cwd() / f"plugins/fluidfft-{short_name}"
@@ -244,3 +255,17 @@ def release_plugin(session):
         return
 
     session.run("twine", "upload", "dist/*")
+
+
+@nox.session(name="create-fake-modules", reuse_venv=True)
+def create_fake_modules(session):
+    """Create fake modules for doc"""
+
+    session.install("-e", "./plugins/fluidfft-builder")
+    session.install("black")
+    session.run(
+        "python",
+        "-c",
+        "from fluidfft_builder import create_fake_modules as c; c()",
+    )
+    session.run("black", "src/fluidfft")
