@@ -101,10 +101,11 @@ journal = {Journal of Open Research Software}
 }
 ```
 
-## User Guide
-
 ```{toctree}
-:maxdepth: 2
+---
+caption: Get started
+maxdepth: 2
+---
 
 overview
 install
@@ -112,6 +113,7 @@ plugins
 tutorials
 examples
 bench
+build-from-source
 ```
 
 ## Modules Reference
@@ -119,16 +121,18 @@ bench
 ```{eval-rst}
 .. autosummary::
    :toctree: generated/
+   :caption: API reference fluidfft
 
    fluidfft
 ```
 
 See also the [documentation of the cpp code produced with Doxygen](doxygen/index.html)
 
-## More
-
 ```{toctree}
-:maxdepth: 1
+---
+caption: Fluidsim development
+maxdepth: 1
+---
 
 changes
 Advice for FluidDyn developers <http://fluiddyn.readthedocs.io/en/latest/advice_developers.html>

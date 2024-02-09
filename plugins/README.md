@@ -20,13 +20,28 @@ in its `pyproject.toml` file like this:
 
 The following plugins are implemented in Fluidfft repository:
 
-- [x] fluidfft-fftw
-- [x] fluidfft-mpi_with_fftw (parallel methods using the sequential FFTW3 library)
-- [x] fluidfft-fftwmpi (methods using the library `libfftw_mpi`)
-- [x] fluidfft-p3dfft
-- [x] fluidfft-pfft
-- [x] fluidfft-mpi4pyfft (cannot be tested because mpi4py-fft installation fails)
+- `fluidfft-fftw`
+- `fluidfft-mpi_with_fftw` (parallel methods using the sequential FFTW3 library)
+- `fluidfft-fftwmpi` (methods using the library `libfftw_mpi`)
+- `fluidfft-p3dfft`
+- `fluidfft-pfft`
+- `fluidfft-mpi4pyfft` (cannot be tested because mpi4py-fft installation fails)
 
 We plan to soon also have:
 
-- [ ] fluidfft-pyvkfft (https://pyvkfft.readthedocs.io)
+- `fluidfft-pyvkfft` (<https://pyvkfft.readthedocs.io>)
+
+Currently, the plugins can be installed from the repository (see
+[](#build-from-source)) but the corresponding library has to be installed
+first.
+
+## Install FFT libraries
+
+Here is a list of FFT libraries, with instructions on
+how to install them:
+
+```{toctree}
+:maxdepth: 1
+
+install/fft_libs
+```
