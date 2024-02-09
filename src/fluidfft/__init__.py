@@ -22,6 +22,10 @@ implemented in the following modules
 This root module provides two helper functions to import fft classes and create
 fft objects:
 
+.. autofunction:: get_plugins
+
+.. autofunction:: get_methods
+
 .. autofunction:: import_fft_class
 
 .. autofunction:: create_fft_object

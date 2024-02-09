@@ -1,5 +1,23 @@
 # Release notes
 
+See also the [unreleased changes].
+
+## [0.4.0] (2024-02-??)
+
+- New modular architecture using plugins:
+
+  - Configuration file deprecated.
+  - New functions {func}`fluidfft.get_plugins` and {func}`fluidfft.get_methods`.
+  - Base C++ code in `fluidfft-builder`
+  - [Plugins](#plugins) `f"fluidfft-{s}"` for `s` in `fftw`, `mpi_with_fftw`,
+  `fftwmpi`, `pfft` and `p3dfft`.
+
+- Build and upload wheels on PyPI with Github Actions!
+- Much better CI in foss.heptapod.net and Github Actions.
+- Use the [Meson build system](https://mesonbuild.com) via
+  [meson-python](https://github.com/mesonbuild/meson-python).
+- Development: use PDM, Nox and Pixi.
+
 ## 0.3.5 (2023-09-20)
 
 - Support for Numpy 1.26
@@ -89,3 +107,6 @@
 ## 0.1.0
 
 - fluidfft can be used with mpi in fluidsim.
+
+[0.4.0]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.3.5...0.4.0
+[unreleased changes]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.4.0...branch%2Fdefault
