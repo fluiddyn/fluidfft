@@ -45,6 +45,11 @@ Homepage = "https://foss.heptapod.net/fluiddyn/fluidfft"
 pyfftw = ["pyfftw >= 0.10.4"]
 dask = ["dask"]
 mpi = ["mpi4py"]
+fftw = ["fluidfft-fftw"]
+mpi_with_fftw = ["fluidfft-mpi_with_fftw"]
+fftwmpi = ["fluidfft-fftwmpi"]
+pfft = ["fluidfft-pfft"]
+p3dfft = ["fluidfft-p3dfft"]
 
 [project.scripts]
 fluidfft-bench = "fluidfft.bench:run"
@@ -58,6 +63,7 @@ fluidfft-bench-analysis = "fluidfft.bench_analysis:run"
 [tool.pdm]
 distribution = true
 package-dir = "src"
+ignore_package_warnings = ["ipython"]
 
 [tool.pdm.dev-dependencies]
 build = ["meson-python", "ninja", "numpy", "transonic>=0.6.0", "pythran>=0.9.7"]
@@ -92,6 +98,11 @@ black_check = 'black --check -l 82 src doc plugins tests --exclude "/(__pythran_
 lint = {shell="pylint -rn --rcfile=pylintrc --jobs=$(nproc) src doc tests plugins --exit-zero"}
 validate_code = {composite = ["black_check", "lint"]}
 
+[tool.pdm.resolution]
+excludes = ["fluidfft-fftw", "fluidfft-mpi_with_fftw", "fluidfft-fftwmpi", "fluidfft-pfft", "fluidfft-p3dfft"]
+
+[tool.pdm.options]
+lock = ["-G", "pyfftw", "-G", "dask", "-G", "mpi"]
 
 [tool.coverage.run]
 source = [

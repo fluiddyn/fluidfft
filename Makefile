@@ -20,6 +20,9 @@ develop_p3dfft:
 sync:
 	pdm sync --clean --no-self
 
+lock:
+	pdm lock
+
 clean:
 	rm -rf build
 
@@ -49,9 +52,6 @@ clang-format:
 list-sessions:
 	@nox --version 2>/dev/null || pip install nox
 	@nox -l
-
-lock:
-	pdm lock -G :all
 
 doc:
 	nox -s doc
