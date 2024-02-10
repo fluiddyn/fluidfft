@@ -137,8 +137,6 @@ FFTclass = FFT3DMPIWithMPI4PYFFT
 
 
 if __name__ == "__main__":
-    # mpirun -np 2 python -m fluidfft.fft3d.mpi_with_mpi4pyfft
-
     offt = FFTclass(6, 14, 4)
     offt.print_summary_for_debug()
     offt.run_tests()
