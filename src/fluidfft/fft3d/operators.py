@@ -14,7 +14,7 @@ import numpy as np
 from transonic import boost, Array, Type
 from fluiddyn.util import mpi
 
-from fluidfft import create_fft_object
+from fluidfft import create_fft_object, import_fft_class
 from fluidfft.base import OperatorsBase
 from fluidfft.fft2d.operators import _make_str_length
 
@@ -105,23 +105,25 @@ def loop_spectra_kzkh(
 
 
 def get_simple_3d_seq_method():
+    """Get a simple 3d sequential method"""
     try:
         import pyfftw
 
-        fft = "fft3d.with_pyfftw"
     except ImportError:
-        fft = "fft3d.with_fftw3d"
-    return fft
+        return "fft3d.with_fftw3d"
+    else:
+        del pyfftw
+        return "fft3d.with_pyfftw"
 
 
 def get_simple_3d_mpi_method():
+    """Get a simple 3d parallel method"""
+    method = "fft3d.mpi_with_fftwmpi3d"
     try:
-        import fluidfft.fft3d.mpi_with_fftwmpi3d
-
-        fft = "fft3d.mpi_with_fftwmpi3d"
+        import_fft_class(method)
     except ImportError:
-        fft = "fft3d.mpi_with_fftw1d"
-    return fft
+        method = "fft3d.mpi_with_fftw1d"
+    return method
 
 
 @boost

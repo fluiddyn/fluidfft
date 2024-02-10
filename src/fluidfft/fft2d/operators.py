@@ -17,7 +17,7 @@ from transonic import boost
 from fluiddyn.util import mpi
 from fluiddyn.util.compat import cached_property
 
-from fluidfft import create_fft_object
+from fluidfft import create_fft_object, import_fft_class
 from fluidfft.base import OperatorsBase
 
 
@@ -44,23 +44,25 @@ def _make_str_length(length):
 
 
 def get_simple_2d_seq_method():
+    """Get a simple 2d sequential method"""
     try:
         import pyfftw
 
-        fft = "fft2d.with_pyfftw"
     except ImportError:
-        fft = "fft2d.with_fftw2d"
-    return fft
+        return "fft2d.with_fftw2d"
+    else:
+        del pyfftw
+        return "fft2d.with_pyfftw"
 
 
 def get_simple_2d_mpi_method():
+    """Get a simple 2d parallel method"""
+    method = "fft2d.mpi_with_fftwmpi2d"
     try:
-        import fluidfft.fft2d.mpi_with_fftwmpi2d
-
-        fft = "fft2d.mpi_with_fftwmpi2d"
+        import_fft_class(method)
     except ImportError:
-        fft = "fft2d.mpi_with_fftw1d"
-    return fft
+        method = "fft2d.mpi_with_fftw1d"
+    return method
 
 
 @boost
