@@ -9,8 +9,7 @@
 [![Code coverage](https://codecov.io/gh/fluiddyn/fluidfft/branch/branch%2Fdefault/graph/badge.svg)](https://codecov.io/gh/fluiddyn/fluidfft)
 [![Heptapod CI](https://foss.heptapod.net/fluiddyn/fluidfft/badges/branch/default/pipeline.svg)](https://foss.heptapod.net/fluiddyn/fluidfft/-/pipelines)
 [![Github Actions Linux](https://github.com/fluiddyn/fluidfft/actions/workflows/ci-linux.yml/badge.svg?branch=branch/default)](https://github.com/fluiddyn/fluidfft/actions/workflows/ci-linux.yml)
-[![Github Actions Windows](https://github.com/fluiddyn/fluidfft/actions/workflows/ci-windows.yml/badge.svg?branch=branch/default)](https://github.com/fluiddyn/fluidfft/actions/workflows/ci-windows.yml)
-[![Github Actions macOS](https://github.com/fluiddyn/fluidfft/actions/workflows/ci-macos.yml/badge.svg?branch=branch/default)](https://github.com/fluiddyn/fluidfft/actions/workflows/ci-macos.yml)
+[![Github Actions Pixi](https://github.com/fluiddyn/fluidfft/actions/workflows/ci-pixi.yml/badge.svg?branch=branch/default)](https://github.com/fluiddyn/fluidfft/actions/workflows/ci-pixi.yml)
 
 Fluidfft provides C++ classes and their Python wrapper classes written
 in Cython useful to perform Fast Fourier Transform (FFT) with different
