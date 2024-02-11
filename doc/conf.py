@@ -27,6 +27,9 @@ plt.ioff()
 
 from fluiddyn.util import modification_date
 
+os.environ["FLUIDFFT_BUILD_DOC"] = "1"
+
+
 import fluidfft
 import fluidfft.bench_analysis
 from fluidfft.bench_analysis import plot_scaling

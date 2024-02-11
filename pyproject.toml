@@ -5,7 +5,7 @@ build-backend = 'mesonpy'
 
 [project]
 name = "fluidfft"
-version = "0.4.0rc1"
+version = "0.4.0rc2"
 description = "Efficient and easy Fast Fourier Transform (FFT) for Python."
 authors = [
     {name = "Pierre Augier", email = "pierre.augier@legi.cnrs.fr"},

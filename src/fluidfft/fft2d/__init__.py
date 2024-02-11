@@ -24,6 +24,7 @@ FFT class:
 
 """
 
+import os
 import sys
 
 from .. import _get_classes
@@ -34,7 +35,7 @@ __all__ = [
     "get_classes_mpi",
 ]
 
-if "sphinx" in sys.modules:
+if "FLUIDFFT_BUILD_DOC" in os.environ:
     from .fake_mod_fft2d_for_doc import FFT2dFakeForDoc
 
 
