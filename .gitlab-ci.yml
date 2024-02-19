@@ -38,6 +38,8 @@ pixi-test-mpi:
   stage: pixi
   image: registry.heptapod.net:443/fluiddyn/fluiddyn/ci/default:pixi
   needs: []
+  variables:
+    OMPI_MCA_plm_rsh_agent: ""
   script:
     - cd plugins
     - pixi run install-editable-mpi_with_fftw
