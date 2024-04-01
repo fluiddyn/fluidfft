@@ -38,9 +38,10 @@ import subprocess
 import sys
 import logging
 
-if sys.version_info < (3, 10):
+try:
     from importlib_metadata import entry_points, EntryPoint
-else:
+except ImportError:
+    # for sys.version_info >= (3, 10), no need for importlib_metadata
     from importlib.metadata import entry_points, EntryPoint
 
 from fluiddyn.util import mpi
