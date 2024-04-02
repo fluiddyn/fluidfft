@@ -269,3 +269,18 @@ def create_fake_modules(session):
         "from fluidfft_builder import create_fake_modules as c; c()",
     )
     session.run("black", "src/fluidfft")
+
+
+@nox.session(python=False)
+def detect_pythran_extensions(session):
+    """Detect and print Pythran extension modules"""
+    session.chdir("src")
+    begin = "- "
+    # begin = "import "
+    paths_pythran_files = sorted(Path("fluidfft").rglob("*/__pythran__/*.py"))
+    print(
+        begin
+        + f"\n{begin}".join(
+            [str(p)[:-3].replace("/", ".") for p in paths_pythran_files]
+        )
+    )

@@ -15,6 +15,7 @@ jobs:
 
     - name: apt install
       run: |
+        sudo apt-get update
         sudo apt-get install -y make libfftw3-dev libfftw3-mpi-dev \
           libhdf5-openmpi-dev openmpi-bin libopenmpi-dev \
           libopenblas-dev
