@@ -2,7 +2,7 @@
 
 See also the [unreleased changes].
 
-## [0.4.0] (2024-02-??)
+## [0.4.0] (2024-02-11)
 
 - New modular architecture using plugins:
 

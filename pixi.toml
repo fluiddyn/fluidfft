@@ -20,7 +20,7 @@ install-fftwmpi = "pip install -e plugins/fluidfft-fftwmpi --no-build-isolation 
 [dependencies]
 python = ">=3.9,<3.11"
 numpy = ">=1.26.3"
-transonic = ">=0.6.1,<0.7"
+transonic = ">=0.6.4,<0.7"
 fluiddyn = ">=0.5.2"
 fluidsim-core = ">=0.7.4"
 h5netcdf = ">=1.3.0"

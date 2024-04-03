@@ -1,18 +1,18 @@
 
 [build-system]
-requires = ["meson-python", "numpy", "transonic>=0.6.0", "pythran>=0.9.7"]
+requires = ["meson-python", "numpy", "transonic>=0.6.4", "pythran>=0.9.7"]
 build-backend = 'mesonpy'
 
 [project]
 name = "fluidfft"
-version = "0.4.0"
+version = "0.4.0.post0"
 description = "Efficient and easy Fast Fourier Transform (FFT) for Python."
 authors = [
     {name = "Pierre Augier", email = "pierre.augier@legi.cnrs.fr"},
 ]
 dependencies = [
     "fluiddyn >= 0.2.3",
-    "transonic >= 0.4",
+    "transonic >= 0.6.4",
     "importlib_metadata; python_version < '3.10'",
 ]
 requires-python = ">= 3.9"
