@@ -74,6 +74,7 @@ test = [
     "pytest-cov",
     "cython", # needed at run time for coverage
     # needed to build the plugins
+    "flit_core",
     "pip",
     "-e fluidfft-builder @ file:///${PROJECT_ROOT}/plugins/fluidfft-builder",
 ]
