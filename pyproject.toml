@@ -74,8 +74,8 @@ test = [
     "pytest-cov",
     "cython", # needed at run time for coverage
     # needed to build the plugins
-    "flit_core",
     "pip",
+    "flit_core",
     "-e fluidfft-builder @ file:///${PROJECT_ROOT}/plugins/fluidfft-builder",
 ]
 dev = ["ipython"]
@@ -89,6 +89,7 @@ doc = [
     "pandas",
     "pyfftw",
     # needed to create the dummy modules
+    "flit_core",
     "-e fluidfft-builder @ file:///${PROJECT_ROOT}/plugins/fluidfft-builder",
 ]
 lint = ["black", "pylint"]

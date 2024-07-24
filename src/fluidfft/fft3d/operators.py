@@ -121,7 +121,7 @@ def get_simple_3d_mpi_method():
     method = "fft3d.mpi_with_fftwmpi3d"
     try:
         import_fft_class(method)
-    except ImportError:
+    except (ImportError, ValueError):
         method = "fft3d.mpi_with_fftw1d"
     return method
 
