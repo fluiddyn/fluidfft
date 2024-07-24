@@ -2,6 +2,10 @@
 
 See also the [unreleased changes].
 
+## [0.4.1] (2024-07-24)
+
+- Support for Numpy 2.0 and Python 3.12
+
 ## [0.4.0] (2024-02-11)
 
 - New modular architecture using plugins:
@@ -109,4 +113,5 @@ See also the [unreleased changes].
 - fluidfft can be used with mpi in fluidsim.
 
 [0.4.0]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.3.5...0.4.0
-[unreleased changes]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.4.0...branch%2Fdefault
+[0.4.1]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.4.0...0.4.1
+[unreleased changes]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.4.1...branch%2Fdefault
