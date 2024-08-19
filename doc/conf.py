@@ -160,7 +160,7 @@ version = "{}.{}.{}".format(version[0], version[1], version[2])
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ["_build"]
+exclude_patterns = ["_build", "install/pfft-1.0.8-alpha/README.rst"]
 exclude_patterns.extend(
     [
         f"install/{name}.md"
