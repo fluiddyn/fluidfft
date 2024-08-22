@@ -186,7 +186,11 @@ def _check_failure(method):
             env = {
                 key: value
                 for key, value in os.environ.items()
-                if not ("MPI" in key or key.startswith("PMI_"))
+                if not (
+                    "MPI" in key
+                    or key.startswith("PMI_")
+                    or key.startswith("PMIX_")
+                )
             }
         else:
             env = os.environ
