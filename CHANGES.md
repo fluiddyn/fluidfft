@@ -2,6 +2,11 @@
 
 See also the [unreleased changes].
 
+## [0.4.2] (2024-08-22)
+
+- Compatibility mpi4py 4.0
+- Fix check import classes and `FLUIDFFT_DISABLE_IMPORT_CHECK`.
+
 ## [0.4.1] (2024-07-24)
 
 - Support for Numpy 2.0 and Python 3.12
@@ -114,4 +119,5 @@ See also the [unreleased changes].
 
 [0.4.0]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.3.5...0.4.0
 [0.4.1]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.4.0...0.4.1
-[unreleased changes]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.4.1...branch%2Fdefault
+[0.4.2]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.4.1...0.4.2
+[unreleased changes]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.4.2...branch%2Fdefault

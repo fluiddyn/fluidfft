@@ -177,6 +177,9 @@ def _check_failure(method):
     if not any(method.endswith(postfix) for postfix in ("pfft", "p3dfft")):
         return False
 
+    if os.environ.get("FLUIDFFT_DISABLE_IMPORT_CHECK"):
+        return False
+
     # for few methods, try before real import because importing can lead to
     # a fatal error (Illegal instruction)
     if mpi.rank == 0:
@@ -186,7 +189,11 @@ def _check_failure(method):
             env = {
                 key: value
                 for key, value in os.environ.items()
-                if not ("MPI" in key or key.startswith("PMI_"))
+                if not (
+                    "MPI" in key
+                    or key.startswith("PMI_")
+                    or key.startswith("PMIX_")
+                )
             }
         else:
             env = os.environ
