@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.10
 LABEL Pierre Augier <pierre.augier@univ-grenoble-alpes.fr>
 
 RUN apt-get update
