@@ -25,6 +25,9 @@ jobs:
       run: |
         pixi run install-editable
         pixi run pip install plugins/fluidfft-fftw -v --no-build-isolation --no-deps
+        pixi run python -c "import fluidfft_fftw.fft2d.with_fftw1d"
+        pixi run python -c "import fluidfft_fftw.fft2d.with_fftw2d"
+        pixi run python -c "import fluidfft_fftw.fft3d.with_fftw3d"
     - name: Tests
       run: |
         pixi run pytest -v -s tests
