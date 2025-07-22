@@ -24,7 +24,7 @@ from shutil import rmtree
 import nox
 
 os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
-nox.options.reuse_existing_virtualenvs = 1
+nox.options.reuse_existing_virtualenvs = True
 nox.options.sessions = ["tests"]
 
 no_venv_session = partial(nox.session, venv_backend="none")

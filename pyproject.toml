@@ -55,6 +55,7 @@ p3dfft = ["fluidfft-p3dfft"]
 [project.scripts]
 fluidfft-bench = "fluidfft.bench:run"
 fluidfft-bench-analysis = "fluidfft.bench_analysis:run"
+fluidfft-get-methods = "fluidfft.cli_get_methods:main"
 
 [project.entry-points."fluidfft.plugins"]
 "fft2d.with_pyfftw" = "fluidfft.fft2d.with_pyfftw"

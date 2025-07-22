@@ -4,6 +4,7 @@ python_sources = [
   'base.py',
   'bench.py',
   'bench_analysis.py',
+  'cli_get_methods.py',
   'util.py',
   'build_conf.txt',
 ]
