@@ -35,6 +35,9 @@ cleanall: clean cleanso cleanpythran
 black:
 	pdm run black
 
+format:
+	pdm run black
+
 tests:
 	pytest -s tests
 
