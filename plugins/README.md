@@ -1,4 +1,4 @@
-# Fluidfft plugins
+# Fluidfft plugins and methods
 
 The main Fluidfft package only contains pure Python FFT classes using other
 packages to perform the transforms.
@@ -18,6 +18,13 @@ in its `pyproject.toml` file like this:
 "fft3d.with_fftw3d" = "fluidfft_fftw.fft3d.with_fftw3d"
 ```
 
+The method strings (for example `"fft3d.with_fftw3d"`) can be given to
+{func}`fluidfft.import_fft_class` and Operator classes (like
+{class}`fluidfft.fft3d.operators.OperatorsPseudoSpectral3D`).
+
+The methods available can be obtained with the command line `fluidfft-get-methods`
+and the function {func}`fluidfft.get_methods`.
+
 The following plugins are implemented in Fluidfft repository:
 
 - `fluidfft-fftw`
@@ -31,9 +38,9 @@ We plan to soon also have:
 
 - `fluidfft-pyvkfft` (<https://pyvkfft.readthedocs.io>)
 
-Currently, the plugins can be installed from the repository (see
-[](#build-from-source)) but the corresponding library has to be installed
-first.
+There are few plugins available on PyPI (see <https://pypi.org/search/?q=fluidfft>).
+Note that their installation can trigger compilation (see [](#build-from-source))
+and that the corresponding library has to be installed first.
 
 ## Install FFT libraries
 
