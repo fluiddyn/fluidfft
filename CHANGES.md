@@ -2,6 +2,10 @@
 
 See also the [unreleased changes].
 
+## [0.4.4] (2025-07-23)
+
+- New command `fluidfft-get-methods`
+
 ## [0.4.3] (2024-11-07)
 
 - Compatibility Python 3.13
@@ -125,4 +129,5 @@ See also the [unreleased changes].
 [0.4.1]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.4.0...0.4.1
 [0.4.2]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.4.1...0.4.2
 [0.4.3]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.4.2...0.4.3
-[unreleased changes]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.4.3...branch%2Fdefault
+[0.4.4]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.4.3...0.4.4
+[unreleased changes]: https://foss.heptapod.net/fluiddyn/fluidfft/-/compare/0.4.4...branch%2Fdefault
