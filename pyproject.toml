@@ -13,9 +13,8 @@ authors = [
 dependencies = [
     "fluiddyn >= 0.2.3",
     "transonic >= 0.6.4",
-    "importlib_metadata; python_version < '3.10'",
 ]
-requires-python = ">= 3.10"
+requires-python = ">= 3.11"
 readme = "README.md"
 license = "CeCILL-1.0"
 license-files = ["LICENSE.txt"]
@@ -36,6 +35,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering",
 ]
 
