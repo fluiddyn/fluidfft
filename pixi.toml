@@ -18,7 +18,7 @@ install-mpi_with_fftw = "pip install -e plugins/fluidfft-mpi_with_fftw --no-buil
 install-fftwmpi = "pip install -e plugins/fluidfft-fftwmpi --no-build-isolation -v"
 
 [dependencies]
-python = ">=3.10"
+python = ">=3.11"
 numpy = ">=1.26.3"
 transonic = ">=0.6.4"
 fluiddyn = ">=0.5.2"

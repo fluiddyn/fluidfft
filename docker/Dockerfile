@@ -1,5 +1,6 @@
-FROM python:3.10
+FROM python:3.11
 LABEL Pierre Augier <pierre.augier@univ-grenoble-alpes.fr>
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 RUN apt-get update
 
@@ -60,5 +61,5 @@ COPY --chown=appuser:appuser doc/install/install_pfft.sh install_pfft.sh
 RUN chmod +x install_pfft.sh
 RUN ./install_pfft.sh
 
-RUN python -m pip install --upgrade pip
-RUN python -m pip install --upgrade pdm nox
+RUN uv tool install pdm
+RUN uv tool install nox
