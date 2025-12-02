@@ -113,10 +113,12 @@ cdef class ${class_name}:
         """Get the local size in real space."""
         return self.thisptr.get_local_size_X()
 
+    @cython.profile(True)
     def run_tests(self):
         """Run simple tests from C++."""
         return self.thisptr.test()
 
+    @cython.profile(True)
     def run_benchs(self, nb_time_execute=10):
         """Run the C++ benchmarcks."""
         cdef DTYPEf_t[:] arr = np.empty([2], DTYPEf)
@@ -124,6 +126,7 @@ cdef class ${class_name}:
         if rank == 0:
             return arr
 
+    @cython.profile(True)
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
@@ -136,6 +139,7 @@ cdef class ${class_name}:
 
         self.thisptr.fft(&fieldX[0, 0, 0], <mycomplex*> &fieldK[0, 0, 0])
 
+    @cython.profile(True)
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
@@ -150,6 +154,7 @@ cdef class ${class_name}:
         """
         self.thisptr.ifft(<mycomplex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
 
+    @cython.profile(True)
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
@@ -165,6 +170,7 @@ cdef class ${class_name}:
         self.thisptr.ifft_destroy(
             <mycomplex*> &fieldK[0, 0, 0], &fieldX[0, 0, 0])
 
+    @cython.profile(True)
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
@@ -175,6 +181,7 @@ cdef class ${class_name}:
         self.thisptr.fft(&fieldX[0, 0, 0], <mycomplex*> &fieldK[0, 0, 0])
         return fieldK
 
+    @cython.profile(True)
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
@@ -203,6 +210,7 @@ cdef class ${class_name}:
         self.thisptr.get_global_shape_X(&nX0, &nX1, &nX2)
         return nX0, nX1, nX2
 
+    @cython.profile(True)
     def gather_Xspace(self, ff_loc, root=0):
         """Gather an array in real space for a parallel run.
         """
@@ -268,6 +276,7 @@ cdef class ${class_name}:
             raise ValueError('root should be an int')
         return ff_seq
 
+    @cython.profile(True)
     def scatter_Xspace(self, ff_seq, root=0):
         """Scatter an array in real space for a parallel run.
 
@@ -319,6 +328,7 @@ cdef class ${class_name}:
         self.thisptr.get_global_shape_K(&nK0, &nK1, &nK2)
         return nK0, nK1, nK2
 
+    @cython.profile(True)
     def sum_wavenumbers(self, fieldK):
         """Compute the sum over all wavenumbers."""
         if fieldK.dtype == np.float64:
@@ -392,6 +402,7 @@ cdef class ${class_name}:
 
         return k0_adim_loc, k1_adim_loc, k2_adim_loc
 
+    @cython.profile(True)
     def build_invariant_arrayX_from_2d_indices12X(self, o2d, arr2d):
         """Build an array in real space invariant in the third dim."""
         nX0, nX1, nX2 = self._shapeX_seq
@@ -418,6 +429,7 @@ cdef class ${class_name}:
 
         return arr3d
 
+    @cython.profile(True)
     def build_invariant_arrayK_from_2d_indices12X(self, o2d, arr2d):
         """Build an array in Fourier space invariant in the third dim."""
         nK0, nK1, nK2 = self._shapeK_seq
