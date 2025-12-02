@@ -75,10 +75,12 @@ cdef class ${class_name}:
         """Get the local size in the real space."""
         return self.thisptr.get_local_size_X()
 
+    @cython.profile(True)
     def run_tests(self):
         """Run the c++ tests."""
         return self.thisptr.test()
 
+    @cython.profile(True)
     def run_benchs(self, nb_time_execute=10):
         """Run the c++ benchmarcks"""
         cdef DTYPEf_t[:] arr = np.empty([2], DTYPEf)
@@ -86,6 +88,7 @@ cdef class ${class_name}:
         if rank == 0:
             return arr
 
+    @cython.profile(True)
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
@@ -94,6 +97,7 @@ cdef class ${class_name}:
         """Perform the fft and copy the result in the second argument."""
         self.thisptr.fft(&fieldX[0, 0], <mycomplex*> &fieldK[0, 0])
 
+    @cython.profile(True)
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
@@ -102,6 +106,7 @@ cdef class ${class_name}:
         """Perform the ifft and copy the result in the second argument."""
         self.thisptr.ifft(<mycomplex*> &fieldK[0, 0], &fieldX[0, 0])
 
+    @cython.profile(True)
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
@@ -112,6 +117,7 @@ cdef class ${class_name}:
         self.thisptr.fft(&fieldX[0, 0], <mycomplex*> &fieldK[0, 0])
         return fieldK
 
+    @cython.profile(True)
     @cython.boundscheck(False)
     @cython.wraparound(False)
     # @cython.initializedcheck(False)
@@ -232,6 +238,7 @@ cdef class ${class_name}:
         """Compute the sum over all wavenumbers."""
         return <float> self.thisptr.sum_wavenumbers(&fieldK[0, 0])
 
+    @cython.profile(True)
     def gather_Xspace(self, ff_loc, root=None):
         """Gather an array in real space for a parallel run."""
         cdef np.ndarray[DTYPEf_t, ndim=2] ff_seq
@@ -256,6 +263,7 @@ cdef class ${class_name}:
             raise ValueError('root should be an int')
         return ff_seq
 
+    @cython.profile(True)
     def scatter_Xspace(self, ff_seq, root=None):
         """Scatter an array in real space for a parallel run."""
         cdef np.ndarray[DTYPEf_t, ndim=2] ff_loc

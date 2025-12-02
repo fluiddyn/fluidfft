@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "fluidfft-builder"
-version = "0.0.2"
+version = "0.0.3"
 description = "Fluidfft plugin dependencies"
 authors = [{name = "Pierre Augier", email = "pierre.augier@univ-grenoble-alpes.fr"}]
 license = {file = "LICENSE"}
