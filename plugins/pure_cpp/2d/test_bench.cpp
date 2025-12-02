@@ -5,8 +5,8 @@
 
 using namespace std;
 
-#include <fft2d_with_fftw2d.h>
-#include <fft2dmpi_with_fftwmpi2d.h>
+//#include <fft2d_with_fftw2d.h>
+//#include <fft2dmpi_with_fftwmpi2d.h>
 #ifndef SINGLE_PREC
 #include <fft2dmpi_with_fftw1d.h>
 #endif

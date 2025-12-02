@@ -259,6 +259,9 @@ def make_command_obj_from_cpp(
             "-gencode arch=compute_50,code=sm_50 "
             "-gencode arch=compute_50,code=compute_50 -Xcompiler -fPIC"
         )
+    elif "hipfft" in cpp_file:
+        HIPCC = os.getenv("HIPCC", "hipcc")
+        command = HIPCC + " -fPIC"
 
     command = [
         w
@@ -272,6 +275,8 @@ def make_command_obj_from_cpp(
                 if word == "-pthread":
                     continue
                 command.append(word)
+        elif "hipfft" in cpp_file:
+            pass
         else:
             mpicxx = _distconfig["MPICXX"].split()
             mpicxx.extend(command[1:])
@@ -324,6 +329,9 @@ def make_command_ext_from_objs(
     if "cufft" in ext_file:
         NVCC = os.getenv("NVCC", "nvcc")
         command = (NVCC + " -Xcompiler -pthread -shared").split()
+    elif "hipfft" in ext_file:
+        HIPCC = os.getenv("HIPCC", "hipcc")
+        command = (HIPCC + " -pthread -shared").split()
 
     command += obj_files + ["-o", ext_file]
     if lib_dirs is not None:
