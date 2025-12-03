@@ -2,7 +2,7 @@
 /* #include <stdio.h> */
 #include <base_fft2d.h>
 #include <hip/hip_runtime.h>
-#include <hipfft.h>
+#include <hipfft/hipfft.h>
 
 #ifdef SINGLE_PREC
 typedef float2 dcomplex;
