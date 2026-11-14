@@ -20,7 +20,6 @@ from fluiddyn.util.compat import cached_property
 from fluidfft import create_fft_object, import_fft_class
 from fluidfft.base import OperatorsBase
 
-
 Ac = "complex128[:,:]"
 Af = "float64[:,:]"
 

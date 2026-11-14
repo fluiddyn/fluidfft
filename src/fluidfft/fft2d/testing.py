@@ -7,7 +7,6 @@ from fluiddyn.util import mpi
 from fluidfft import import_fft_class
 from fluidfft.fft2d.operators import OperatorsPseudoSpectral2D
 
-
 rank = mpi.rank
 nb_proc = mpi.nb_proc
 

@@ -1,11 +1,16 @@
 
 [build-system]
-requires = ["meson-python", "numpy", "transonic>=0.6.4", "pythran>=0.9.7"]
+requires = [
+    "meson-python>=0.22,<0.24",
+    "numpy>=2.5,<3",
+    "transonic>=0.8,<0.9",
+    "pythran>=0.19,<0.20",
+]
 build-backend = 'mesonpy'
 
 [project]
 name = "fluidfft"
-version = "0.4.5"
+version = "0.4.6"
 description = "Efficient and easy Fast Fourier Transform (FFT) for Python."
 authors = [
     {name = "Pierre Augier", email = "pierre.augier@legi.cnrs.fr"},
@@ -14,7 +19,7 @@ dependencies = [
     "fluiddyn >= 0.2.3",
     "transonic >= 0.6.4",
 ]
-requires-python = ">= 3.11"
+requires-python = ">= 3.12"
 readme = "README.md"
 license = "CeCILL-1.0"
 license-files = ["LICENSE.txt"]
@@ -31,11 +36,10 @@ classifiers = [
     "Programming Language :: Cython",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
     "Topic :: Scientific/Engineering",
 ]
 
@@ -68,7 +72,13 @@ package-dir = "src"
 ignore_package_warnings = ["ipython"]
 
 [tool.pdm.dev-dependencies]
-build = ["meson-python", "ninja", "numpy", "transonic>=0.6.0", "pythran>=0.9.7"]
+build = [
+    "meson-python>=0.22,<0.24",
+    "numpy>=2.5,<3",
+    "transonic>=0.8,<0.9",
+    "pythran>=0.19,<0.20",
+    "ninja",
+]
 
 test = [
     "pytest",
