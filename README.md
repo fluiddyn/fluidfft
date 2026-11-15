@@ -60,7 +60,7 @@ Click on the links to know more:
     [from
     source](https://fluidfft.readthedocs.io/en/latest/install/fft_libs.html)
 3.  Python packages `fluiddyn cython pyfftw pythran mpi4py`
-4.  [A C++11 compiler and BLAS
+4.  [A C++17 compiler and BLAS
     libraries](https://github.com/serge-sans-paille/pythran#installation)
     and
     [configure](https://fluidfft.readthedocs.io/en/latest/install.html#dependencies)
