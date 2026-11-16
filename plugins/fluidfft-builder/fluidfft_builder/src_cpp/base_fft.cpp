@@ -15,8 +15,6 @@ typedef double myreal;
 myreal EPS = 5e-13;
 #endif
 
-char *dealiasing_coeff_char = getenv("FLUIDFFT_DEALIASING_COEFF");
-
 // template <typename T, typename U>
 // inline std::complex<T> operator*(std::complex<T> lhs, const U& rhs)
 // {
@@ -49,8 +47,10 @@ void BaseFFT::_init() {
     // if (rank == 0)
     throw invalid_argument("Invalid arguments");
 
-  if (dealiasing_coeff_char != NULL)
-    dealiasing_coeff = atof(dealiasing_coeff_char);
+  const std::string dealiasing_coeff_str =
+      get_env_var("FLUIDFFT_DEALIASING_COEFF");
+  if (!dealiasing_coeff_str.empty())
+    dealiasing_coeff = atof(dealiasing_coeff_str.c_str());
   if ((dealiasing_coeff == 0) || (dealiasing_coeff < 0) ||
       (dealiasing_coeff > 1))
     dealiasing_coeff = 1;
@@ -66,13 +66,13 @@ bool BaseFFT::are_parameters_bad() { return 0; }
 
 char const *BaseFFT::get_classname() { return "BaseFFT"; }
 
-myreal BaseFFT::compute_energy_from_X(myreal *fieldX) { return 0.; }
+myreal BaseFFT::compute_energy_from_X(myreal * /*fieldX*/) { return 0.; }
 
-myreal BaseFFT::compute_energy_from_K(mycomplex *fieldK) { return 0.; }
+myreal BaseFFT::compute_energy_from_K(mycomplex * /*fieldK*/) { return 0.; }
 
-myreal BaseFFT::compute_mean_from_X(myreal *fieldX) { return 0.; }
+myreal BaseFFT::compute_mean_from_X(myreal * /*fieldX*/) { return 0.; }
 
-myreal BaseFFT::compute_mean_from_K(mycomplex *fieldK) { return 0.; }
+myreal BaseFFT::compute_mean_from_K(mycomplex * /*fieldK*/) { return 0.; }
 
 int BaseFFT::test() {
   int OK = 1;
@@ -209,11 +209,11 @@ void BaseFFT::init_array_X_random(myreal *&fieldX) {
     fieldX[ii] = (myreal)rand() / RAND_MAX;
 }
 
-void BaseFFT::fft(myreal *fieldX, mycomplex *fieldK) {
+void BaseFFT::fft(myreal * /*fieldX*/, mycomplex * /*fieldK*/) {
   cout << "BaseFFT::fft" << endl;
 }
 
-void BaseFFT::ifft(mycomplex *fieldK, myreal *fieldX) {
+void BaseFFT::ifft(mycomplex * /*fieldK*/, myreal * /*fieldX*/) {
   cout << "BaseFFT::ifft" << endl;
 }
 

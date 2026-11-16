@@ -28,6 +28,7 @@ foreach dim : ['1', '2']
     include_path_fluidfft_builder / 'base_fft.cpp',
     dependencies: dependencies,
     override_options : ['cython_language=cpp'],
+    cpp_args: cython_warning_args,
     include_directories: include_path_fluidfft_builder,
     install: true,
     subdir: 'fluidfft_fftw/fft2d',
