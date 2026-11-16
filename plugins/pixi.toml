@@ -1,4 +1,4 @@
-[project]
+[workspace]
 name = "env-build-mpi"
 authors = ["pierre.augier <pierre.augier@univ-grenoble-alpes.fr>"]
 channels = ["conda-forge"]
@@ -12,16 +12,16 @@ install-editable-fftwmpi = { cmd = "pip install -e . -vv --no-build-isolation --
 test-fftwmpi = { cmd = "mpirun -np 2 pytest -v", cwd = "fluidfft-fftwmpi" }
 
 [dependencies]
-numpy = ">=1.26.4,<1.27"
-cython = ">=3.0.8,<3.1"
-meson-python = ">=0.15.0,<0.16"
-transonic = ">=0.6.2,<0.7"
-cxx-compiler = ">=1.7.0,<1.8"
-fluidfft = ">=0.4.0,<0.5"
-openmpi = ">=4.1.6,<4.2"
-fluidfft-builder = ">=0.0.1,<0.1"
-mpi4py = ">=3.1.5,<3.2"
-pip = ">=24.0,<25"
-fftw = {version = ">=3.3.10,<3.4", build="mpi*"}
-pytest = ">=8.0.0,<8.1"
-pkg-config = ">=0.29.2,<0.30"
+numpy = ">=2.5,<3"
+cython = ">=3.0.8,<4"
+meson-python = ">=0.22,<0.24"
+transonic = ">=0.8,<0.9"
+cxx-compiler = ">=1.0.0,<2"
+fluidfft = ">=0.4.5"
+openmpi = ">=4,<6"
+fluidfft-builder = ">=0.0.1"
+mpi4py = ">=4.1.2,<5"
+pip = ">=26.0"
+fftw = {version = ">=3.3.10", build="mpi*"}
+pytest = ">=8.0.0"
+pkg-config = ">=0.29.2"
