@@ -10,6 +10,7 @@
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
+#include <string>
 #include <chrono>
 
 #include <complex>
@@ -35,8 +36,29 @@ inline myreal square_abs(mycomplex cm) {
   return real(cm) * real(cm) + imag(cm) * imag(cm);
 }
 
+/* Read an environment variable into a std::string (empty if unset).
+ * On Windows, std::getenv is flagged as deprecated (C4996) by MSVC and
+ * clang-cl, so we use _dupenv_s there. */
+inline std::string get_env_var(const char *name) {
+#ifdef _WIN32
+  char *buffer = nullptr;
+  size_t size = 0;
+  std::string value;
+  if (_dupenv_s(&buffer, &size, name) == 0 && buffer != nullptr) {
+    value = buffer;
+    free(buffer);
+  }
+  return value;
+#else
+  const char *value = std::getenv(name);
+  return value == nullptr ? std::string() : std::string(value);
+#endif
+}
+
 class BaseFFT {
 public:
+  virtual ~BaseFFT() = default;
+
   virtual void _init();
   virtual void _init_parallel();
   virtual bool are_parameters_bad();

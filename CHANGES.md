@@ -2,6 +2,10 @@
 
 See also the [unreleased changes].
 
+## [0.4.6] (2026-11-1?)
+
+- Compatibility Pythran 0.19.0
+
 ## [0.4.5] (2025-10-14)
 
 - Python 3.14 support

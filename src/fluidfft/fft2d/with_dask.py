@@ -17,7 +17,6 @@ from pyfftw.interfaces import dask_fft, cache
 
 from fluiddyn.calcul.easypyfft import FFTW2DReal2Complex
 
-
 DaskOrNumpyArray = Union[da.core.Array, np.ndarray]
 
 

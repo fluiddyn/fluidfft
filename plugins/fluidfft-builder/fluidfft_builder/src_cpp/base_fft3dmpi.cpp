@@ -8,13 +8,13 @@ BaseFFT3DMPI::BaseFFT3DMPI(int argN0, int argN1, int argN2)
 void calcul_nprocmesh(int rank, int nb_proc, int *nprocmesh) {
   int np0, np1;
   char *split;
-  char *PROC_MESH;
+  std::string proc_mesh = get_env_var("FLUID_PROC_MESH");
 
-  PROC_MESH = getenv("FLUID_PROC_MESH");
-  if (PROC_MESH != NULL) {
+  if (!proc_mesh.empty()) {
     if (rank == 0)
-      printf("FLUID_PROC_MESH: %s\n", PROC_MESH);
-    split = strtok(PROC_MESH, "x");
+      printf("FLUID_PROC_MESH: %s\n", proc_mesh.c_str());
+    // strtok modifies its argument: work on our own copy
+    split = strtok(&proc_mesh[0], "x");
     if (split != NULL) {
       np0 = atoi(split);
       split = strtok(NULL, "x");

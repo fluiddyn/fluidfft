@@ -20,7 +20,6 @@ from fluiddyn.util import mpi
 
 from fluidfft.bench import bench_all, run
 
-
 path_tmp = "/tmp/fluidfft_test_bench" + getpass.getuser()
 
 

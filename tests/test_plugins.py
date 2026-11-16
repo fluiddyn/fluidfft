@@ -1,6 +1,5 @@
 from fluidfft import get_plugins, get_methods
 
-
 methodss = {
     (2, True): set(
         [
